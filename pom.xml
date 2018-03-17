@@ -23,6 +23,7 @@
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
         <maven.gpg.pluign>1.5</maven.gpg.pluign>
         <cobertura.maven.plugin>2.6</cobertura.maven.plugin>
+        <coveralls.maven.plugin>3.1.0</coveralls.maven.plugin>
     </properties>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -126,6 +127,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls.maven.plugin}</version>
             </plugin>
 
             <plugin>
