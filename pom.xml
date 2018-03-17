@@ -22,6 +22,8 @@
         <maven.javadoc.plugin>2.9.1</maven.javadoc.plugin>
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
         <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <cobertura.maven.plugin>2.6</cobertura.maven.plugin>
+        <coveralls.maven.plugin>3.1.0</coveralls.maven.plugin>
     </properties>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -125,6 +127,29 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls.maven.plugin}</version>
+                <configuration>
+                    <sourceEncoding>${project.encoding}</sourceEncoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura.maven.plugin}</version>
+                <configuration>
+                    <encoding>${project.encoding}</encoding>
+                    <aggregate>true</aggregate>
+                    <formats>
+                        <format>xml</format>
+                        <format>html</format>
+                    </formats>
+                </configuration>
             </plugin>
         </plugins>
     </build>
