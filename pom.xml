@@ -133,6 +133,9 @@
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>${coveralls.maven.plugin}</version>
+                <configuration>
+                    <sourceEncoding>${project.encoding}</sourceEncoding>
+                </configuration>
             </plugin>
 
             <plugin>
