@@ -1,0 +1,6 @@
+language: java
+sudo: false
+
+jdk: oraclejdk7
+
+script: mvn clean test
