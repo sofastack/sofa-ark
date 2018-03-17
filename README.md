@@ -9,7 +9,7 @@
 
 SOFA Ark is a light-weight，java based classloader-isolated framework 
 open-sourced by Ant Financial. Please visit [sofastack.github.io](https://sofastack.github.io/)
-for quick and other information.
+for quick start and other information.
 
 ## Links
 + [Sample projects](https://github.com/sofastack/sofa-ark/tree/master/sofa-ark-samples)
