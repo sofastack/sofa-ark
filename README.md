@@ -16,5 +16,5 @@ for quick start and other information.
     + [Ark Plugin Based On Maven Project](https://github.com/sofastack/sofa-ark/tree/master/sofa-ark-samples/sample-ark-plugin) - Sample Project for Ark-Plugin
     + [Ark Based On Spring Boot](https://github.com/sofastack/sofa-ark/tree/master/sofa-ark-samples/sample-springboot-ark) Sample Project for Ark based on Spring Boot Project
 + [Gitter channel](https://gitter.im/sofa-ark/Lobby) - Online chat room with SOFA Ark developers.
-+ [Contributing](./CONTRIBUTING.md) : Guides for contributing to SOFA Ark.1
++ [Contributing](./CONTRIBUTING.md) : Guides for contributing to SOFA Ark.
 + [SOFA Ark 用户手册(中文)](https://sofastack.github.io/docs/) : Describe how to used SOFA Ark and its features. 
