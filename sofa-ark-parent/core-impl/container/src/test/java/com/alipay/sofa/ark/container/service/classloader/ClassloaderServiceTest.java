@@ -18,9 +18,18 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import mockit.Mock;
+import mockit.MockUp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -35,6 +44,27 @@ public class ClassloaderServiceTest extends BaseTest {
     public void before() {
         classloaderService = new ClassloaderServiceImpl();
         classloaderService.init();
+    }
+
+    static {
+        new MockUp<ManagementFactory>() {
+            @Mock
+            public RuntimeMXBean getRuntimeMXBean() {
+                return new MockUp<RuntimeMXBean>() {
+                    @Mock
+                    List<String> getInputArguments() {
+                        List<String> mockArguments = new ArrayList<>();
+                        String filePath = this.getClass().getClassLoader().getResource("test.jar")
+                            .getPath();
+                        String workingPath = new File(filePath).getParent();
+                        mockArguments.add(String.format("javaaget:%s", workingPath));
+                        mockArguments.add(String.format("-javaagent:%s", workingPath));
+                        mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
+                        return mockArguments;
+                    }
+                }.getMockInstance();
+            }
+        };
     }
 
     @Test
@@ -85,6 +115,14 @@ public class ClassloaderServiceTest extends BaseTest {
     public void testSystemClassloader() {
         ClassLoader systemClassloader = classloaderService.getSystemClassloader();
         Assert.assertNotNull(systemClassloader);
+    }
+
+    @Test
+    public void testAgentClassloader() {
+        ClassLoader agentClassLoader = classloaderService.getAgentClassloader();
+        Assert.assertNotNull(agentClassLoader);
+        Assert.assertTrue(((URLClassLoader) agentClassLoader).getURLs().length == 2);
+        Assert.assertNotNull(agentClassLoader.getResource("test.jar"));
     }
 
 }
