@@ -227,20 +227,6 @@ public class BizClassLoader extends URLClassLoader {
     }
 
     /**
-     * Load SystemClassloader class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveSystemClass(String name) {
-        try {
-            return classloaderService.getSystemClassloader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
      * Load Java Agent Class
      * @param name className
      * @return
