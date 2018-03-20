@@ -98,9 +98,9 @@ public class PluginClassLoader extends URLClassLoader {
             clazz = resolveLocalClass(name);
         }
 
-        // 7. SystemClassloader class for agent problem
+        // 7. Java Agent ClassLoader for agent problem
         if (clazz == null) {
-            clazz = resolveSystemClass(name);
+            clazz = resolveJavaAgentClass(name);
         }
 
         if (clazz != null) {
@@ -243,6 +243,20 @@ public class PluginClassLoader extends URLClassLoader {
     private Class<?> resolveSystemClass(String name) {
         try {
             return classloaderService.getSystemClassloader().loadClass(name);
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+        return null;
+    }
+
+    /**
+     * Load Java Agent Class
+     * @param name className
+     * @return
+     */
+    private Class<?> resolveJavaAgentClass(String name) {
+        try {
+            return classloaderService.getAgentClassloader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }

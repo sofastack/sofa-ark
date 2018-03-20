@@ -28,8 +28,12 @@ import com.google.inject.Singleton;
 import sun.misc.URLClassPath;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,10 +48,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ClassloaderServiceImpl implements ClassloaderService {
 
     private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
+    private static final String JAVA_AGENT_MARK = "-javaagent:";
+    private static final String JAVA_AGENT_OPTION_MARK = "=";
 
     private ClassLoader jdkClassloader;
     private ClassLoader arkClassloader;
     private ClassLoader systemClassloader;
+    private ClassLoader agentClassLoader;
 
     @Inject
     private PluginManagerService pluginManagerService;
@@ -140,9 +147,15 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
+    public ClassLoader getAgentClassloader() {
+        return agentClassLoader;
+    }
+
+    @Override
     public void init() throws ArkException {
         arkClassloader = this.getClass().getClassLoader();
         systemClassloader = ClassLoader.getSystemClassLoader();
+        agentClassLoader = createAgentClassLoader();
 
         ClassLoader extClassloader = systemClassloader;
         while (extClassloader.getParent() != null){
@@ -172,6 +185,36 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     @Override
     public void dispose() throws ArkException {
+
+    }
+
+    private ClassLoader createAgentClassLoader() throws ArkException {
+
+        List<String> inputArguments = AccessController.doPrivileged(new PrivilegedAction<List<String>>() {
+            @Override
+            public List<String> run() {
+                return ManagementFactory.getRuntimeMXBean().getInputArguments();
+            }
+        });
+
+        List<URL> agentPaths = new ArrayList<>();
+        for (String argument : inputArguments) {
+
+            if (!argument.startsWith(JAVA_AGENT_MARK)) {
+                continue;
+            }
+
+            try {
+                String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
+                URL url = new File(path).toURI().toURL();
+                agentPaths.add(url);
+            } catch (Exception e) {
+                throw new ArkException("Failed to create java agent classloader", e);
+            }
+
+        }
+
+        return new URLClassLoader(agentPaths.toArray(new URL[]{}), null);
 
     }
 }
