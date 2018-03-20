@@ -117,11 +117,10 @@ public class BizClassloaderTest extends BaseTest {
     }
 
     @Test
-    public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException{
+    public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("MockBiz")
-                .setClassPath(new URL[]{})
-                .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setBizName("MockBiz").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
 
         bizManagerService.registerBiz(bizModel);
         BizClassLoader bizClassLoader = (BizClassLoader) bizModel.getBizClassLoader();
