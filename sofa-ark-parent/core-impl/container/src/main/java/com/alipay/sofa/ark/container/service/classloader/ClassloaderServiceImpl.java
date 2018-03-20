@@ -204,6 +204,8 @@ public class ClassloaderServiceImpl implements ClassloaderService {
                 continue;
             }
 
+            argument = argument.substring(JAVA_AGENT_MARK.length());
+
             try {
                 String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
                 URL url = new File(path).toURI().toURL();
