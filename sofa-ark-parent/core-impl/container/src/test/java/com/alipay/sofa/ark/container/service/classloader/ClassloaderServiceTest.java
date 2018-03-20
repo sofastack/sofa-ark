@@ -46,27 +46,6 @@ public class ClassloaderServiceTest extends BaseTest {
         classloaderService.init();
     }
 
-    static {
-        new MockUp<ManagementFactory>() {
-            @Mock
-            public RuntimeMXBean getRuntimeMXBean() {
-                return new MockUp<RuntimeMXBean>() {
-                    @Mock
-                    List<String> getInputArguments() {
-                        List<String> mockArguments = new ArrayList<>();
-                        String filePath = this.getClass().getClassLoader().getResource("test.jar")
-                            .getPath();
-                        String workingPath = new File(filePath).getParent();
-                        mockArguments.add(String.format("javaaget:%s", workingPath));
-                        mockArguments.add(String.format("-javaagent:%s", workingPath));
-                        mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
-                        return mockArguments;
-                    }
-                }.getMockInstance();
-            }
-        };
-    }
-
     @Test
     public void testIsSunReflect() {
         Assert.assertTrue(classloaderService
@@ -118,11 +97,11 @@ public class ClassloaderServiceTest extends BaseTest {
     }
 
     @Test
-    public void testAgentClassloader() {
+    public void testAgentClassloader() throws ClassNotFoundException {
         ClassLoader agentClassLoader = classloaderService.getAgentClassloader();
         Assert.assertNotNull(agentClassLoader);
         Assert.assertTrue(((URLClassLoader) agentClassLoader).getURLs().length == 2);
-        Assert.assertNotNull(agentClassLoader.getResource("test.jar"));
+        Assert.assertNotNull(agentClassLoader.loadClass("SampleClass"));
     }
 
 }

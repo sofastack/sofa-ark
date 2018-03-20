@@ -18,7 +18,15 @@ package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.common.log.Constants;
+import mockit.Mock;
+import mockit.MockUp;
 import org.junit.BeforeClass;
+
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -31,6 +39,27 @@ public class BaseTest {
     public static void beforeClass() {
         System.setProperty(Constants.LOG_ENV_SUFFIX, ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE
                                                      + ":dev");
+    }
+
+    static {
+        new MockUp<ManagementFactory>() {
+            @Mock
+            public RuntimeMXBean getRuntimeMXBean() {
+                return new MockUp<RuntimeMXBean>() {
+                    @Mock
+                    List<String> getInputArguments() {
+                        List<String> mockArguments = new ArrayList<>();
+                        String filePath = this.getClass().getClassLoader().getResource("SampleClass.class")
+                                .getPath();
+                        String workingPath = new File(filePath).getParent();
+                        mockArguments.add(String.format("javaaget:%s", workingPath));
+                        mockArguments.add(String.format("-javaagent:%s", workingPath));
+                        mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
+                        return mockArguments;
+                    }
+                }.getMockInstance();
+            }
+        };
     }
 
 }
