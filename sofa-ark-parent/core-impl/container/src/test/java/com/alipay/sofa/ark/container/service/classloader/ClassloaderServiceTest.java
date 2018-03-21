@@ -18,18 +18,11 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
-import mockit.Mock;
-import mockit.MockUp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

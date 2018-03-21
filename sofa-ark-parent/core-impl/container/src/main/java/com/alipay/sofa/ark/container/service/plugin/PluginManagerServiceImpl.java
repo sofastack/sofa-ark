@@ -37,12 +37,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class PluginManagerServiceImpl implements PluginManagerService {
 
-    private ConcurrentHashMap<String, Plugin> plugins = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plugin> plugins = new ConcurrentHashMap<String, Plugin>();
 
     @Override
     public void registerPlugin(Plugin plugin) {
         if (plugins.putIfAbsent(plugin.getPluginName(), plugin) != null) {
-            throw new ArkException(String.format("duplicate plugin: %s exists.", plugin.getPluginName()));
+            throw new ArkException(String.format("duplicate plugin: %s exists.",
+                plugin.getPluginName()));
         }
     }
 
@@ -68,5 +69,4 @@ public class PluginManagerServiceImpl implements PluginManagerService {
         });
         return pluginList;
     }
-
 }

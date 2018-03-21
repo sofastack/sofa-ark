@@ -33,18 +33,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class BizManagerServiceImpl implements BizManagerService {
 
-    private ConcurrentHashMap<String, Biz> bizs = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Biz> bizs = new ConcurrentHashMap<String, Biz>();
 
     @Override
     public void registerBiz(Biz biz) {
-          if (bizs.putIfAbsent(biz.getBizName(), biz) != null){
-              throw new ArkException(String.format("duplicate biz: %s exists.", biz.getBizName()));
-          }
+        if (bizs.putIfAbsent(biz.getBizName(), biz) != null) {
+            throw new ArkException(String.format("duplicate biz: %s exists.", biz.getBizName()));
+        }
     }
 
     @Override
     public Biz getBizByName(String bizName) {
-       return bizs.get(bizName);
+        return bizs.get(bizName);
     }
 
     @Override

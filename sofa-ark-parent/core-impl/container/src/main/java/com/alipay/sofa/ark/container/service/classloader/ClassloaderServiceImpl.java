@@ -47,34 +47,37 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class ClassloaderServiceImpl implements ClassloaderService {
 
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
-    private static final String JAVA_AGENT_MARK = "-javaagent:";
-    private static final String JAVA_AGENT_OPTION_MARK = "=";
+    private static final ArkLogger                 LOGGER                         = ArkLoggerFactory
+                                                                                      .getDefaultLogger();
 
-    private ClassLoader jdkClassloader;
-    private ClassLoader arkClassloader;
-    private ClassLoader systemClassloader;
-    private ClassLoader agentClassLoader;
+    private static final String                    JAVA_AGENT_MARK                = "-javaagent:";
 
-    @Inject
-    private PluginManagerService pluginManagerService;
+    private static final String                    JAVA_AGENT_OPTION_MARK         = "=";
+
+    private static final String                    ARK_SPI_PACKAGES               = "com.alipay.sofa.ark.spi";
+
+    private static final String                    ARK_BOOTSTRAP_CLASS            = "com.alipay.sofa.ark.bootstrap.SofaArkBootstrap";
+
+    private static final String                    ARK_EXPORT_RESOURCE            = "_sofa_ark_export_resource";
+
+    private static final List<String>              SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<String>();
 
     // export class and classloader relationship cache
-    private ConcurrentHashMap<String, ClassLoader> exportClassAndClassloaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader> exportClassAndClassloaderMap   = new ConcurrentHashMap<String, ClassLoader>();
 
-    private static final List<String> SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<String>();
+    private ClassLoader                            jdkClassloader;
+    private ClassLoader                            arkClassloader;
+    private ClassLoader                            systemClassloader;
+    private ClassLoader                            agentClassLoader;
+
+    @Inject
+    private PluginManagerService                   pluginManagerService;
 
     static {
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedMethodAccessor");
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedConstructorAccessor");
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedSerializationConstructorAccessor");
     }
-
-    private static final String    ARK_SPI_PACKAGES = "com.alipay.sofa.ark.spi";
-
-    private static final String    ARK_BOOTSTRAP_CLASS = "com.alipay.sofa.ark.bootstrap.SofaArkBootstrap";
-
-    private static final String    ARK_EXPORT_RESOURCE = "_sofa_ark_export_resource";
 
     @Override
     public boolean isSunReflectClass(String className) {
@@ -93,9 +96,10 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     @Override
     public void prepareExportClassCache() {
-        for (Plugin plugin: pluginManagerService.getPluginsInOrder()) {
-            for (String exportIndex: plugin.getExportIndex()){
-                exportClassAndClassloaderMap.putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+        for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
+            for (String exportIndex : plugin.getExportIndex()) {
+                exportClassAndClassloaderMap
+                    .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
             }
         }
     }
@@ -105,8 +109,8 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         Plugin plugin = pluginManagerService.getPluginByName(pluginName);
         AssertUtils.assertNotNull(plugin, "plugin: " + pluginName + " is null");
 
-        for (String importName: plugin.getImportIndex()){
-            if (className.startsWith(importName)){
+        for (String importName : plugin.getImportIndex()) {
+            if (className.startsWith(importName)) {
                 return true;
             }
         }
@@ -121,10 +125,11 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     @Override
     public ClassLoader findResourceExportClassloader(String resourceName) {
-        if (resourceName.contains(ARK_EXPORT_RESOURCE)){
-            String pluginName = resourceName.substring(0, resourceName.indexOf(ARK_EXPORT_RESOURCE));
+        if (resourceName.contains(ARK_EXPORT_RESOURCE)) {
+            String pluginName = resourceName
+                .substring(0, resourceName.indexOf(ARK_EXPORT_RESOURCE));
             Plugin plugin = pluginManagerService.getPluginByName(pluginName);
-            if (plugin != null){
+            if (plugin != null) {
                 return plugin.getPluginClassLoader();
             }
         }
