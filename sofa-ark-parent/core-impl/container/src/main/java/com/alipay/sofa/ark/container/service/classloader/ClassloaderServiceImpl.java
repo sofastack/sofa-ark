@@ -50,7 +50,8 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     private static final ArkLogger                 LOGGER                         = ArkLoggerFactory
                                                                                       .getDefaultLogger();
 
-    private static final String                    JAVA_AGENT_MARK                = "-javaagent:";
+    private static final String
+            JAVA_AGENT_MARK                = "-javaagent:";
 
     private static final String                    JAVA_AGENT_OPTION_MARK         = "=";
 
