@@ -62,7 +62,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     private static final List<String>              SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<String>();
 
-    // export class and classloader relationship cache
+    /* export class and classloader relationship cache */
     private ConcurrentHashMap<String, ClassLoader> exportClassAndClassloaderMap   = new ConcurrentHashMap<String, ClassLoader>();
 
     private ClassLoader                            jdkClassloader;
