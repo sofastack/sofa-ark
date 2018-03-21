@@ -44,11 +44,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Singleton
 public class RegistryServiceImpl implements RegistryService {
 
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
+    private static final ArkLogger                               LOGGER                    = ArkLoggerFactory
+                                                                                               .getDefaultLogger();
 
-    private ConcurrentHashMap<String, List<ServiceReference<?>>> services = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ServiceReference<?>>> services                  = new ConcurrentHashMap<String, List<ServiceReference<?>>>();
 
-    private ServiceProviderComparator serviceProviderComparator = new ServiceProviderComparator();
+    private ServiceProviderComparator                            serviceProviderComparator = new ServiceProviderComparator();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -90,25 +91,27 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass, ServiceFilter serviceFilter) {
         String serviceName = ifClass.getName();
-        if (services.containsKey(serviceName)){
+        if (services.containsKey(serviceName)) {
             return findHighestOrderService(services.get(serviceName), serviceFilter);
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ServiceReference<T> findHighestOrderService(List<ServiceReference<?>> serviceReferences, ServiceFilter serviceFilter){
+    private <T> ServiceReference<T> findHighestOrderService(List<ServiceReference<?>> serviceReferences,
+                                                            ServiceFilter serviceFilter) {
         ServiceReference<T> result = null;
-        for (ServiceReference<?> serviceReference: serviceReferences){
-            if (serviceFilter != null && !serviceFilter.match(serviceReference.getServiceMetadata().getServiceProvider())){
+        for (ServiceReference<?> serviceReference : serviceReferences) {
+            if (serviceFilter != null
+                && !serviceFilter.match(serviceReference.getServiceMetadata().getServiceProvider())) {
                 continue;
             }
-            if (result == null){
-                result = (ServiceReference<T>)serviceReference;
-            }else if (serviceProviderComparator.compare(serviceReference.getServiceMetadata().getServiceProvider(),
-                    result.getServiceMetadata().getServiceProvider()) < 0){
+            if (result == null) {
+                result = (ServiceReference<T>) serviceReference;
+            } else if (serviceProviderComparator.compare(serviceReference.getServiceMetadata()
+                .getServiceProvider(), result.getServiceMetadata().getServiceProvider()) < 0) {
 
-               result = (ServiceReference<T>) serviceReference;
+                result = (ServiceReference<T>) serviceReference;
             }
 
         }
@@ -118,7 +121,7 @@ public class RegistryServiceImpl implements RegistryService {
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass) {
-       return referenceServices(ifClass, null);
+        return referenceServices(ifClass, null);
     }
 
     @Override

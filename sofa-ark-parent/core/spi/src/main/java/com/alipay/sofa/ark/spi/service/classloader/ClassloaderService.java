@@ -84,4 +84,10 @@ public interface ClassloaderService extends ArkService {
      * @return
      */
     ClassLoader getSystemClassloader();
+
+    /**
+     * Get java agent classloader
+     * @return
+     */
+    ClassLoader getAgentClassloader();
 }

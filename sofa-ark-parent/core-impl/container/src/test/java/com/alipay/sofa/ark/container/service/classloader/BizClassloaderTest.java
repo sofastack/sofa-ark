@@ -115,4 +115,16 @@ public class BizClassloaderTest extends BaseTest {
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
                 ITest.class.getName().replace(".", "/") + ".class"));
     }
+
+    @Test
+    public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
+        BizModel bizModel = new BizModel();
+        bizModel.setBizName("MockBiz").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+
+        bizManagerService.registerBiz(bizModel);
+        BizClassLoader bizClassLoader = (BizClassLoader) bizModel.getBizClassLoader();
+        Assert.assertNotNull(bizClassLoader.loadClass("SampleClass", false));
+
+    }
 }

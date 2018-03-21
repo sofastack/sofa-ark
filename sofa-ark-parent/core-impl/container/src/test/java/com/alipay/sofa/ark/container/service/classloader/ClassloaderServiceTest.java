@@ -22,6 +22,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URLClassLoader;
+
 /**
  *
  * @author ruoshan
@@ -85,6 +87,14 @@ public class ClassloaderServiceTest extends BaseTest {
     public void testSystemClassloader() {
         ClassLoader systemClassloader = classloaderService.getSystemClassloader();
         Assert.assertNotNull(systemClassloader);
+    }
+
+    @Test
+    public void testAgentClassloader() throws ClassNotFoundException {
+        ClassLoader agentClassLoader = classloaderService.getAgentClassloader();
+        Assert.assertNotNull(agentClassLoader);
+        Assert.assertTrue(((URLClassLoader) agentClassLoader).getURLs().length == 2);
+        Assert.assertNotNull(agentClassLoader.loadClass("SampleClass"));
     }
 
 }

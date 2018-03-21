@@ -119,7 +119,7 @@ public class PluginClassloaderTest extends BaseTest {
     }
 
     @Test
-    public void testExportResource() throws Exception {
+    public void testExportResource() {
         PluginModel pluginA = new PluginModel();
         pluginA.setPluginName("pluginA")
                 .setClassPath(new URL[]{classPathURL})
@@ -146,5 +146,20 @@ public class PluginClassloaderTest extends BaseTest {
         Assert.assertNotNull(pluginB.getPluginClassLoader().getResource("pluginA_sofa_ark_export_resource_test1.xml"));
         Assert.assertNull(pluginB.getPluginClassLoader().getResource("test2.xml"));
 
+    }
+
+    @Test
+    public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException{
+        PluginModel mockPlugin = new PluginModel();
+        mockPlugin.setPluginName("Mock Plugin")
+                .setClassPath(new URL[]{})
+                .setImportClasses(Collections.<String>emptySet())
+                .setImportPackages(Collections.<String>emptySet())
+                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+                .setPluginClassLoader(new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
+        pluginManagerService.registerPlugin(mockPlugin);
+
+        PluginClassLoader pluginClassLoader = (PluginClassLoader) mockPlugin.getPluginClassLoader();
+        Assert.assertNotNull(pluginClassLoader.loadClass("SampleClass", false));
     }
 }
