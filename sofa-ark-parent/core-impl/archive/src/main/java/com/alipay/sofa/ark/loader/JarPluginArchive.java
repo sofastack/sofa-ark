@@ -93,14 +93,16 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
         });
     }
 
-    public Set<String> getExportIndex() throws Exception{
-        InputStream inputStream = archive.getInputStream(new ZipEntry(SOFA_ARK_PLUGIN_EXPORT_INDEX));
+    public Set<String> getExportIndex() throws Exception {
+        InputStream inputStream = archive
+            .getInputStream(new ZipEntry(SOFA_ARK_PLUGIN_EXPORT_INDEX));
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
         Set<String> exportIndex = new HashSet<>();
-        for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
-            if(!line.trim().isEmpty()) {
+        for (String line = bufferedReader.readLine(); line != null; line = bufferedReader
+            .readLine()) {
+            if (!line.trim().isEmpty()) {
                 exportIndex.add(line.trim());
             }
         }

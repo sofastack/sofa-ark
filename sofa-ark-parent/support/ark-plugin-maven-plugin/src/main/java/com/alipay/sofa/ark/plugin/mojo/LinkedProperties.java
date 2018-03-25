@@ -24,8 +24,8 @@ import java.util.*;
  */
 public class LinkedProperties extends Properties {
 
-    private static final long     serialVersionUID = 1L;
-    private LinkedHashMap<Object, Object> linkedHashMap = new LinkedHashMap<>(20);
+    private static final long             serialVersionUID = 1L;
+    private LinkedHashMap<Object, Object> linkedHashMap    = new LinkedHashMap<>(20);
 
     @Override
     public synchronized Object put(Object key, Object value) {

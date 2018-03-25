@@ -31,7 +31,7 @@ import java.util.List;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class CentralDirectoryParserTest extends TestBase{
+public class CentralDirectoryParserTest extends TestBase {
 
     @Test
     public void testParser() throws IOException {
@@ -51,11 +51,12 @@ public class CentralDirectoryParserTest extends TestBase{
 
     public static class TestVisitor implements CentralDirectoryVisitor {
 
-        public int entryNum;
+        public int                              entryNum;
         public List<CentralDirectoryFileHeader> cdfhList = new ArrayList<>();
 
         @Override
-        public void visitStart(CentralDirectoryEndRecord endRecord, RandomAccessData centralDirectoryData) {
+        public void visitStart(CentralDirectoryEndRecord endRecord,
+                               RandomAccessData centralDirectoryData) {
             entryNum = endRecord.getNumberOfRecords();
         }
 

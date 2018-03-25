@@ -45,7 +45,7 @@ public class JarWriter implements LoaderClassesWriter {
 
     private final JarOutputStream jarOutput;
 
-    private final Set<String>     writtenEntries                         = new HashSet<String>();
+    private final Set<String>     writtenEntries                         = new HashSet<>();
 
     /**
      * Create a new {@link JarWriter} instance.

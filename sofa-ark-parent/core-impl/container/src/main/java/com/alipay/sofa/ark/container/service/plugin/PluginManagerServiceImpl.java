@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class PluginManagerServiceImpl implements PluginManagerService {
 
-    private ConcurrentHashMap<String, Plugin> plugins = new ConcurrentHashMap<String, Plugin>();
+    private ConcurrentHashMap<String, Plugin> plugins = new ConcurrentHashMap<>();
 
     @Override
     public void registerPlugin(Plugin plugin) {

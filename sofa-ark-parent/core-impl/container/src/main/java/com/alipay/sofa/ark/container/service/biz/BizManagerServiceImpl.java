@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class BizManagerServiceImpl implements BizManagerService {
 
-    private ConcurrentHashMap<String, Biz> bizs = new ConcurrentHashMap<String, Biz>();
+    private ConcurrentHashMap<String, Biz> bizs = new ConcurrentHashMap<>();
 
     @Override
     public void registerBiz(Biz biz) {

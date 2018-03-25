@@ -56,16 +56,19 @@ public class ArkServiceContainer {
      */
     public void start() throws ArkException {
         if (started.compareAndSet(false, true)) {
-            ClassLoader oldClassloader = ClassloaderUtil.pushContextClassloader(getClass().getClassLoader());
+            ClassLoader oldClassloader = ClassloaderUtil.pushContextClassloader(getClass()
+                .getClassLoader());
             try {
                 LOGGER.info("Begin to start ArkServiceContainer");
 
                 injector = Guice.createInjector(findServiceModules());
-                for (Binding<ArkService> binding : injector.findBindingsByType(new TypeLiteral<ArkService>() {})) {
+                for (Binding<ArkService> binding : injector
+                    .findBindingsByType(new TypeLiteral<ArkService>() {
+                    })) {
                     arkServiceList.add(binding.getProvider().get());
                 }
                 for (ArkService arkService : arkServiceList) {
-                    LOGGER.info(String.format("Init Service: %s",  arkService.getClass().getName()));
+                    LOGGER.info(String.format("Init Service: %s", arkService.getClass().getName()));
                     arkService.init();
                 }
 
@@ -108,18 +111,20 @@ public class ArkServiceContainer {
      * @since 0.1.0
      */
     public void stop() throws ArkException {
-        if(stopped.compareAndSet(false, true)) {
+        if (stopped.compareAndSet(false, true)) {
             LOGGER.info("Begin to stop ArkServiceContainer");
 
-            ClassLoader oldClassloader = ClassloaderUtil.pushContextClassloader(getClass().getClassLoader());
+            ClassLoader oldClassloader = ClassloaderUtil.pushContextClassloader(getClass()
+                .getClassLoader());
             try {
                 for (ArkService arkService : arkServiceList) {
-                    LOGGER.info(String.format("Dispose service: %s", arkService.getClass().getName()));
+                    LOGGER.info(String.format("Dispose service: %s", arkService.getClass()
+                        .getName()));
                     arkService.dispose();
                 }
 
                 LOGGER.info("Finish to stop ArkServiceContainer");
-            }finally {
+            } finally {
                 ClassloaderUtil.popContextClassloader(oldClassloader);
             }
         }
@@ -139,7 +144,7 @@ public class ArkServiceContainer {
      * @return
      * @since 0.1.0
      */
-    public boolean isRunning(){
+    public boolean isRunning() {
         return isStarted() && !stopped.get();
     }
 

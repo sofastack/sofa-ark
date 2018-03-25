@@ -67,53 +67,55 @@ public class BizClassloaderTest extends BaseTest {
     }
 
     @Test
-    public void testImport() throws Exception{
+    public void testImport() throws Exception {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A")
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginDeployService.deploy();
         classloaderService.prepareExportClassCache();
 
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A")
-                .setClassPath(new URL[]{classPathURL})
-                .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
+            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
 
         bizManagerService.registerBiz(bizModel);
 
         Assert.assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
-                bizModel.getBizClassLoader().loadClass(ITest.class.getName()));
+            bizModel.getBizClassLoader().loadClass(ITest.class.getName()));
     }
 
     @Test
     public void testGetPluginClassResource() throws Exception {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A")
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginDeployService.deploy();
         classloaderService.prepareExportClassCache();
 
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A")
-                .setClassPath(new URL[]{classPathURL})
-                .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
+            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
 
         bizManagerService.registerBiz(bizModel);
 
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
-                ITest.class.getName().replace(".", "/") + ".class"));
+            ITest.class.getName().replace(".", "/") + ".class"));
     }
 
     @Test
