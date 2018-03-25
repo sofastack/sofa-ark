@@ -40,7 +40,7 @@ public class ArtifactsLibraries implements Libraries {
     private static final Map<String, LibraryScope> scopes;
 
     static {
-        Map<String, LibraryScope> libraryScopes = new HashMap<String, LibraryScope>();
+        Map<String, LibraryScope> libraryScopes = new HashMap<>();
         libraryScopes.put(Artifact.SCOPE_COMPILE, LibraryScope.COMPILE);
         libraryScopes.put(Artifact.SCOPE_RUNTIME, LibraryScope.RUNTIME);
         libraryScopes.put(Artifact.SCOPE_PROVIDED, LibraryScope.PROVIDED);

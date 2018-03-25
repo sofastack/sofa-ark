@@ -147,7 +147,7 @@ public class RepackageMojo extends AbstractMojo {
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludes = new LinkedHashSet<String>();
+    private LinkedHashSet<String> excludes = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
@@ -294,13 +294,13 @@ public class RepackageMojo extends AbstractMojo {
      * @return dependencies excluded the excludes config
      */
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
-        List<ArtifactItem> excludeList = new ArrayList<ArtifactItem>();
+        List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : excludes) {
             ArtifactItem item = ArtifactItem.parseArtifactItemIgnoreVersion(exclude);
             excludeList.add(item);
         }
 
-        Set<Artifact> result = new LinkedHashSet<Artifact>();
+        Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
             boolean isExclude = false;
 

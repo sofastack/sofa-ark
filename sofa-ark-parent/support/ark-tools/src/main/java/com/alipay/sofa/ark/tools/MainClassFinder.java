@@ -104,7 +104,7 @@ public abstract class MainClassFinder {
     private static List<JarEntry> getClassEntries(JarFile source, String classesLocation) {
         classesLocation = (classesLocation != null ? classesLocation : "");
         Enumeration<JarEntry> sourceEntries = source.entries();
-        List<JarEntry> classEntries = new ArrayList<JarEntry>();
+        List<JarEntry> classEntries = new ArrayList<>();
         while (sourceEntries.hasMoreElements()) {
             JarEntry entry = sourceEntries.nextElement();
             if (entry.getName().startsWith(classesLocation) && entry.getName().endsWith(DOT_CLASS)) {
@@ -146,7 +146,7 @@ public abstract class MainClassFinder {
 
     private static class ClassDescriptor extends ClassVisitor {
 
-        private final Set<String> annotationNames = new LinkedHashSet<String>();
+        private final Set<String> annotationNames = new LinkedHashSet<>();
 
         private boolean           mainMethodFound;
 
@@ -223,8 +223,7 @@ public abstract class MainClassFinder {
          */
         MainClass(String name, Set<String> annotationNames) {
             this.name = name;
-            this.annotationNames = Collections
-                .unmodifiableSet(new HashSet<String>(annotationNames));
+            this.annotationNames = Collections.unmodifiableSet(new HashSet<>(annotationNames));
         }
 
         String getName() {
@@ -271,7 +270,7 @@ public abstract class MainClassFinder {
      */
     private static final class SingleMainClassCallback implements MainClassCallback<Object> {
 
-        private final Set<MainClass> mainClasses = new LinkedHashSet<MainClass>();
+        private final Set<MainClass> mainClasses = new LinkedHashSet<>();
 
         private final String         annotationName;
 
@@ -286,7 +285,7 @@ public abstract class MainClassFinder {
         }
 
         private String getMainClassName() {
-            Set<MainClass> matchingMainClasses = new LinkedHashSet<MainClass>();
+            Set<MainClass> matchingMainClasses = new LinkedHashSet<>();
             if (this.annotationName != null) {
                 for (MainClass mainClass : this.mainClasses) {
                     if (mainClass.getAnnotationNames().contains(this.annotationName)) {

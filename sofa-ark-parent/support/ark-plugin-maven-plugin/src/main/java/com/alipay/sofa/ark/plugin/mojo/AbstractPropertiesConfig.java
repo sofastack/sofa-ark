@@ -62,7 +62,7 @@ public abstract class AbstractPropertiesConfig {
 
     public static void storeKeyValuePair(Properties prop, String name, Collection<String> value) {
         if (value == null) {
-            value = new LinkedHashSet<String>();
+            value = new LinkedHashSet<>();
         }
         prop.setProperty(name, join(value.iterator(), VALUE_SPLIT));
     }

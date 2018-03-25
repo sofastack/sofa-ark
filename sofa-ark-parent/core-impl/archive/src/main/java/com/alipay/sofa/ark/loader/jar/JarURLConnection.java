@@ -30,7 +30,7 @@ import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
  */
 final public class JarURLConnection extends java.net.JarURLConnection {
 
-    private static ThreadLocal<Boolean>        useFastExceptions              = new ThreadLocal<Boolean>();
+    private static ThreadLocal<Boolean>        useFastExceptions              = new ThreadLocal<>();
 
     private static final FileNotFoundException FILE_NOT_FOUND_EXCEPTION       = new FileNotFoundException(
                                                                                   "Jar file or entry not found");

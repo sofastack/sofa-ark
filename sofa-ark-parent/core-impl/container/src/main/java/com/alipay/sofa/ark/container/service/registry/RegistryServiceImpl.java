@@ -47,7 +47,7 @@ public class RegistryServiceImpl implements RegistryService {
     private static final ArkLogger                               LOGGER                    = ArkLoggerFactory
                                                                                                .getDefaultLogger();
 
-    private ConcurrentHashMap<String, List<ServiceReference<?>>> services                  = new ConcurrentHashMap<String, List<ServiceReference<?>>>();
+    private ConcurrentHashMap<String, List<ServiceReference<?>>> services                  = new ConcurrentHashMap<>();
 
     private ServiceProviderComparator                            serviceProviderComparator = new ServiceProviderComparator();
 

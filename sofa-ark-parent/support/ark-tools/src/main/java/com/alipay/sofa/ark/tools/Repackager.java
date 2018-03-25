@@ -53,7 +53,7 @@ public class Repackager {
 
     private static final String                   SPRING_BOOT_APPLICATION_CLASS_NAME = "org.springframework.boot.autoconfigure.SpringBootApplication";
 
-    private List<MainClassTimeoutWarningListener> mainClassTimeoutListeners          = new ArrayList<MainClassTimeoutWarningListener>();
+    private List<MainClassTimeoutWarningListener> mainClassTimeoutListeners          = new ArrayList<>();
 
     private String                                mainClass;
 

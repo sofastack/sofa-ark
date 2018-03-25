@@ -99,7 +99,7 @@ public class ArkPluginMojo extends AbstractMojo {
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
      */
     @Parameter(defaultValue = "")
-    protected LinkedHashSet<String> excludes          = new LinkedHashSet<String>();
+    protected LinkedHashSet<String> excludes          = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
@@ -208,9 +208,9 @@ public class ArkPluginMojo extends AbstractMojo {
      * @return artifacts whose jar name (artifact id) is conflict
      */
     protected Set<Artifact> filterConflictArtifacts(Set<Artifact> artifacts) {
-        HashMap<String, Artifact> existArtifacts = new HashMap<String, Artifact>(
-            Collections.singletonMap(project.getArtifact().getArtifactId(), project.getArtifact()));
-        HashSet<Artifact> conflictArtifacts = new HashSet<Artifact>();
+        HashMap<String, Artifact> existArtifacts = new HashMap<>(Collections.singletonMap(project
+            .getArtifact().getArtifactId(), project.getArtifact()));
+        HashSet<Artifact> conflictArtifacts = new HashSet<>();
 
         for (Artifact artifact : artifacts) {
             if (existArtifacts.containsKey(artifact.getArtifactId())) {
@@ -231,13 +231,13 @@ public class ArkPluginMojo extends AbstractMojo {
      * @return dependencies excluded the excludes config
      */
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
-        List<ArtifactItem> excludeList = new ArrayList<ArtifactItem>();
+        List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : excludes) {
             ArtifactItem item = ArtifactItem.parseArtifactItemIgnoreVersion(exclude);
             excludeList.add(item);
         }
 
-        Set<Artifact> result = new LinkedHashSet<Artifact>();
+        Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
             boolean isExclude = false;
 
@@ -406,7 +406,7 @@ public class ArkPluginMojo extends AbstractMojo {
 
     private void addExportIndex(Archiver archiver) throws MojoExecutionException {
         List<ArchiveEntry> archiveEntries = getLibFileArchiveEntries(archiver);
-        List<String> exportClasses = new ArrayList<String>();
+        List<String> exportClasses = new ArrayList<>();
 
         for (ArchiveEntry archiveEntry : archiveEntries) {
             if (this.exported.getPackages() != null) {
@@ -435,7 +435,7 @@ public class ArkPluginMojo extends AbstractMojo {
 
     private List<ArchiveEntry> getLibFileArchiveEntries(Archiver archiver) {
         ResourceIterator resourceIterator = archiver.getResources();
-        List<ArchiveEntry> result = new ArrayList<ArchiveEntry>();
+        List<ArchiveEntry> result = new ArrayList<>();
         while (resourceIterator.hasNext()) {
             ArchiveEntry archiveEntry = resourceIterator.next();
             if (archiveEntry.getType() == ArchiveEntry.FILE) {
@@ -459,11 +459,11 @@ public class ArkPluginMojo extends AbstractMojo {
      */
     private List<String> scanJar(ArchiveEntry archiveEntry, Set<String> pkgs)
                                                                              throws MojoExecutionException {
-        List<String> classes = new ArrayList<String>();
+        List<String> classes = new ArrayList<>();
         ZipInputStream zip = null;
         try {
             zip = new ZipInputStream(archiveEntry.getInputStream());
-            LinkedHashMap<String, ZipEntry> allEntries = new LinkedHashMap<String, ZipEntry>();
+            LinkedHashMap<String, ZipEntry> allEntries = new LinkedHashMap<>();
 
             ZipEntry iteratorEntry;
             while ((iteratorEntry = zip.getNextEntry()) != null) {

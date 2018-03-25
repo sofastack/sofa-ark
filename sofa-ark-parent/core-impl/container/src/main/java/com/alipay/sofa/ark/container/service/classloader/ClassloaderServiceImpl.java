@@ -60,10 +60,10 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     private static final String                    ARK_EXPORT_RESOURCE            = "_sofa_ark_export_resource";
 
-    private static final List<String>              SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<String>();
+    private static final List<String>              SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<>();
 
     /* export class and classloader relationship cache */
-    private ConcurrentHashMap<String, ClassLoader> exportClassAndClassloaderMap   = new ConcurrentHashMap<String, ClassLoader>();
+    private ConcurrentHashMap<String, ClassLoader> exportClassAndClassloaderMap   = new ConcurrentHashMap<>();
 
     private ClassLoader                            jdkClassloader;
     private ClassLoader                            arkClassloader;
