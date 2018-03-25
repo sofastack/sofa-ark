@@ -65,15 +65,15 @@ public class Repackager {
 
     private File                                  pluginModuleJar;
 
-    private String                                arkVersion                        = null;
+    private String                                arkVersion                         = null;
 
-    private Library                               arkContainerLibrary               = null;
+    private Library                               arkContainerLibrary                = null;
 
-    private final List<Library>                   standardLibraries                 = new ArrayList<>();
+    private final List<Library>                   standardLibraries                  = new ArrayList<>();
 
-    private final List<Library>                   arkPluginLibraries                = new ArrayList<>();
+    private final List<Library>                   arkPluginLibraries                 = new ArrayList<>();
 
-    private final List<Library>                   arkModuleLibraries                = new ArrayList<>();
+    private final List<Library>                   arkModuleLibraries                 = new ArrayList<>();
 
     public Repackager(File source) {
         if (source == null) {
@@ -170,7 +170,7 @@ public class Repackager {
                         standardLibraries.add(library);
                     }
 
-                }finally {
+                } finally {
                     jarFile.close();
                 }
 
@@ -222,7 +222,8 @@ public class Repackager {
 
         try {
             writer.writeManifest(manifest);
-            writer.writeEntries(jarFileSource, new RenamingEntryTransformer(Layouts.Jar.jar().getArkContainerLocation()));
+            writer.writeEntries(jarFileSource, new RenamingEntryTransformer(Layouts.Jar.jar()
+                .getArkContainerLocation()));
             writeNestedLibraries(arkPluginLibraries, Layouts.Jar.jar(), writer);
             writeNestedLibraries(getModuleLibraries(), Layouts.Jar.jar(), writer);
         } finally {
@@ -235,12 +236,12 @@ public class Repackager {
         }
     }
 
-    private void writeNestedLibraries(List<Library> libraries, Layout layout,
-                                      JarWriter writer) throws IOException {
+    private void writeNestedLibraries(List<Library> libraries, Layout layout, JarWriter writer)
+                                                                                               throws IOException {
         Set<String> alreadySeen = new HashSet<>();
         for (Library library : libraries) {
-            String destination = layout.getLibraryDestination(library.getName(),
-                library.getScope());
+            String destination = layout
+                .getLibraryDestination(library.getName(), library.getScope());
             if (destination != null) {
                 if (!alreadySeen.add(destination + library.getName())) {
                     throw new IllegalStateException("Duplicate library " + library.getName());
@@ -263,7 +264,7 @@ public class Repackager {
         }
     }
 
-    private boolean isArkContainer(JarFile jarFile){
+    private boolean isArkContainer(JarFile jarFile) {
         return jarFile.getEntry(Constants.ARK_CONTAINER_MARK_ENTRY) != null;
     }
 
@@ -317,14 +318,16 @@ public class Repackager {
             manifest.getMainAttributes().putValue("Manifest-Version", "1.0");
         }
         manifest = new Manifest(manifest);
-        manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, Layouts.Jar.jar().getLauncherClassName());
+        manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE,
+            Layouts.Jar.jar().getLauncherClassName());
 
         if (arkVersion == null || arkVersion.isEmpty()) {
             throw new IllegalStateException("must specify version of sofa ark.");
         }
 
         manifest.getMainAttributes().putValue(ARK_VERSION_ATTRIBUTE, arkVersion);
-        manifest.getMainAttributes().putValue(ARK_CONTAINER_ROOT, Layouts.Jar.jar().getArkContainerLocation());
+        manifest.getMainAttributes().putValue(ARK_CONTAINER_ROOT,
+            Layouts.Jar.jar().getArkContainerLocation());
         return manifest;
     }
 
@@ -341,7 +344,8 @@ public class Repackager {
     }
 
     private String findMainMethod(JarFile source) throws IOException {
-        return MainClassFinder.findSingleMainClass(source, null, SPRING_BOOT_APPLICATION_CLASS_NAME);
+        return MainClassFinder
+            .findSingleMainClass(source, null, SPRING_BOOT_APPLICATION_CLASS_NAME);
     }
 
     private boolean alreadyRepackaged() throws IOException {

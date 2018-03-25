@@ -49,8 +49,7 @@ public class LinkedAttributes extends Attributes {
         return linkedHashMap.entrySet();
     }
 
-    public void writeMain(DataOutputStream out) throws IOException
-    {
+    public void writeMain(DataOutputStream out) throws IOException {
         // write out the *-Version header first, if it exists
         String vername = Name.MANIFEST_VERSION.toString();
         String version = getValue(vername);
@@ -60,21 +59,21 @@ public class LinkedAttributes extends Attributes {
         }
 
         if (version != null) {
-            out.writeBytes(vername+": "+version+"\r\n");
+            out.writeBytes(vername + ": " + version + "\r\n");
         }
 
         // write out all attributes except for the version
         // we wrote out earlier
         Iterator it = entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry e = (Map.Entry)it.next();
-            String name = ((Name)e.getKey()).toString();
-            if ((version != null) && ! (name.equalsIgnoreCase(vername))) {
+            Map.Entry e = (Map.Entry) it.next();
+            String name = ((Name) e.getKey()).toString();
+            if ((version != null) && !(name.equalsIgnoreCase(vername))) {
 
                 StringBuffer buffer = new StringBuffer(name);
                 buffer.append(": ");
 
-                String value = (String)e.getValue();
+                String value = (String) e.getValue();
                 if (value != null) {
                     byte[] vb = value.getBytes("UTF8");
                     value = new String(vb, 0, 0, vb.length);

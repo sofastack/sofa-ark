@@ -83,7 +83,7 @@ public class ArtifactsLibraries implements Libraries {
         Set<String> seen = new HashSet<>();
         for (Artifact artifact : artifacts) {
             String fileName = getFileName(artifact);
-            if(artifact.getFile() != null && !seen.add(fileName)) {
+            if (artifact.getFile() != null && !seen.add(fileName)) {
                 duplicates.add(fileName);
             }
         }

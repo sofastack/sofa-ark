@@ -114,15 +114,17 @@ public class RegistryServiceTest extends BaseTest {
     @Test
     public void testPublishDuplicateServiceInPlugin() throws Exception {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A")
-                .setPriority(10)
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
-                .setPluginActivator(PluginActivatorADup.class.getName())
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
-                .setPluginContext(new PluginContextImpl(pluginA));
+        pluginA
+            .setPluginName("plugin A")
+            .setPriority(10)
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setPluginActivator(PluginActivatorADup.class.getName())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
+            .setPluginContext(new PluginContextImpl(pluginA));
 
         pluginManagerService.registerPlugin(pluginA);
         classloaderService.prepareExportClassCache();
@@ -137,38 +139,43 @@ public class RegistryServiceTest extends BaseTest {
         registryService.publishService(ITest.class, new TestObjectA());
 
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A")
-                .setPriority(10)
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
-                .setPluginActivator(PluginActivatorA.class.getName())
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
-                .setPluginContext(new PluginContextImpl(pluginA));
+        pluginA
+            .setPluginName("plugin A")
+            .setPriority(10)
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setPluginActivator(PluginActivatorA.class.getName())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
+            .setPluginContext(new PluginContextImpl(pluginA));
 
         PluginModel pluginB = new PluginModel();
-        pluginB.setPluginName("plugin B")
-                .setPriority(1)
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(Collections.<String>emptySet())
-                .setPluginActivator(PluginActivatorB.class.getName())
-                .setPluginClassLoader(new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()))
-                .setPluginContext(new PluginContextImpl(pluginB));
+        pluginB
+            .setPluginName("plugin B")
+            .setPriority(1)
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(Collections.<String> emptySet())
+            .setPluginActivator(PluginActivatorB.class.getName())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()))
+            .setPluginContext(new PluginContextImpl(pluginB));
 
         PluginModel pluginc = new PluginModel();
-        pluginc.setPluginName("plugin C")
-                .setPriority(100)
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(Collections.<String>emptySet())
-                .setPluginActivator(PluginActivatorC.class.getName())
-                .setPluginClassLoader(new PluginClassLoader(pluginc.getPluginName(), pluginc.getClassPath()))
-                .setPluginContext(new PluginContextImpl(pluginc));
-
+        pluginc
+            .setPluginName("plugin C")
+            .setPriority(100)
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(Collections.<String> emptySet())
+            .setPluginActivator(PluginActivatorC.class.getName())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginc.getPluginName(), pluginc.getClassPath()))
+            .setPluginContext(new PluginContextImpl(pluginc));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginManagerService.registerPlugin(pluginB);
@@ -181,12 +188,14 @@ public class RegistryServiceTest extends BaseTest {
         Assert.assertEquals(3, pluginA.getPluginContext().referenceServices(ITest.class).size());
 
         // 应该获取到优先级别比较高的服务
-        Assert.assertEquals(pluginB.getPluginName(), pluginc.getPluginContext().referenceService(ITest.class)
-                .getServiceMetadata().getServiceProvider().getServiceProviderName());
+        Assert.assertEquals(pluginB.getPluginName(),
+            pluginc.getPluginContext().referenceService(ITest.class).getServiceMetadata()
+                .getServiceProvider().getServiceProviderName());
 
         // 通过插件名寻找服务
-        Assert.assertEquals(pluginA.getPluginName(), pluginc.getPluginContext().
-                referenceService(ITest.class, pluginA.getPluginName()).getServiceMetadata().getServiceProvider().getServiceProviderName());
+        Assert.assertEquals(pluginA.getPluginName(),
+            pluginc.getPluginContext().referenceService(ITest.class, pluginA.getPluginName())
+                .getServiceMetadata().getServiceProvider().getServiceProviderName());
 
     }
 

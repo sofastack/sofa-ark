@@ -44,10 +44,13 @@ public class StandardPipeline implements Pipeline {
         initializePipeline();
     }
 
-    private void initializePipeline(){
-        addPipelineStage(ArkServiceContainerHolder.getContainer().getService(HandleArchiveStage.class))
-                .addPipelineStage(ArkServiceContainerHolder.getContainer().getService(DeployPluginStage.class))
-                .addPipelineStage(ArkServiceContainerHolder.getContainer().getService(DeployBizStage.class));
+    private void initializePipeline() {
+        addPipelineStage(
+            ArkServiceContainerHolder.getContainer().getService(HandleArchiveStage.class))
+            .addPipelineStage(
+                ArkServiceContainerHolder.getContainer().getService(DeployPluginStage.class))
+            .addPipelineStage(
+                ArkServiceContainerHolder.getContainer().getService(DeployBizStage.class));
     }
 
     @Override
@@ -58,13 +61,16 @@ public class StandardPipeline implements Pipeline {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
-        for (PipelineStage pipelineStage: stages){
-            try{
-                LOGGER.info(String.format("Start to process pipeline stage: %s", pipelineStage.getClass().getName()));
+        for (PipelineStage pipelineStage : stages) {
+            try {
+                LOGGER.info(String.format("Start to process pipeline stage: %s", pipelineStage
+                    .getClass().getName()));
                 pipelineStage.process(pipelineContext);
-                LOGGER.info(String.format("Finish to process pipeline stage: %s", pipelineStage.getClass().getName()));
-            }catch (ArkException e){
-                LOGGER.error(String.format("Process pipeline stage fail: %s", pipelineStage.getClass().getName()), e);
+                LOGGER.info(String.format("Finish to process pipeline stage: %s", pipelineStage
+                    .getClass().getName()));
+            } catch (ArkException e) {
+                LOGGER.error(String.format("Process pipeline stage fail: %s", pipelineStage
+                    .getClass().getName()), e);
                 throw e;
             }
         }

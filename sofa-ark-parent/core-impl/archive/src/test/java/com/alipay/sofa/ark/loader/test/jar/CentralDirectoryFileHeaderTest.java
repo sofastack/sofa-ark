@@ -49,10 +49,8 @@ public class CentralDirectoryFileHeaderTest extends TestBase {
         for (int i = 0; i < eocd.getNumberOfRecords(); ++i) {
             CentralDirectoryFileHeader cdfh = new CentralDirectoryFileHeader();
             cdfh.load(Bytes.get(cdfhBlock), dataOffset, null, 0, null);
-            dataOffset += CENTRAL_DIRECTORY_HEADER_BASE_SIZE
-                        + cdfh.getName().length()
-                        + cdfh.getComment().length()
-                        + cdfh.getExtra().length;
+            dataOffset += CENTRAL_DIRECTORY_HEADER_BASE_SIZE + cdfh.getName().length()
+                          + cdfh.getComment().length() + cdfh.getExtra().length;
             cdfhList.add(cdfh);
         }
 

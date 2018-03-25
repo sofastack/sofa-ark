@@ -118,7 +118,8 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         List<Archive> archives = getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
-                return !entry.getName().equals(SOFA_ARK_MODULE) && entry.getName().startsWith(SOFA_ARK_MODULE);
+                return !entry.getName().equals(SOFA_ARK_MODULE)
+                       && entry.getName().startsWith(SOFA_ARK_MODULE);
             }
         });
 
@@ -140,7 +141,8 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         List<Archive> archives = this.archive.getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
-                return !entry.getName().equals(SOFA_ARK_PLUGIN) && entry.getName().startsWith(SOFA_ARK_PLUGIN);
+                return !entry.getName().equals(SOFA_ARK_PLUGIN)
+                       && entry.getName().startsWith(SOFA_ARK_PLUGIN);
             }
         });
 

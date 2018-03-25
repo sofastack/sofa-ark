@@ -84,7 +84,8 @@ public class ClasspathLauncher extends ArkLauncher {
             while (enumeration.hasMoreElements()) {
                 URL resourceUrl = enumeration.nextElement();
                 String resourceFile = resourceUrl.getFile();
-                String jarFile = resourceFile.substring(0, resourceFile.length() - resource.length() - FILE_IN_JAR.length());
+                String jarFile = resourceFile.substring(0,
+                    resourceFile.length() - resource.length() - FILE_IN_JAR.length());
                 urlList.add(new URL(jarFile));
             }
 
@@ -115,7 +116,8 @@ public class ClasspathLauncher extends ArkLauncher {
             bizArchives.add(createDirectoryBizModuleArchive());
 
             for (URL url : urlList) {
-                bizArchives.add(new JarBizModuleArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives
+                    .add(new JarBizModuleArchive(new JarFileArchive(new File(url.getFile()))));
             }
 
             return bizArchives;
@@ -125,9 +127,10 @@ public class ClasspathLauncher extends ArkLauncher {
         public List<PluginArchive> getPluginArchives() throws Exception {
             List<URL> urlList = filterUrls(Constants.ARK_PLUGIN_MARK_ENTRY);
 
-            List<PluginArchive> pluginArchives= new ArrayList<>();
+            List<PluginArchive> pluginArchives = new ArrayList<>();
             for (URL url : urlList) {
-                pluginArchives.add(new JarPluginArchive(new JarFileArchive(new File(url.getFile()))));
+                pluginArchives
+                    .add(new JarPluginArchive(new JarFileArchive(new File(url.getFile()))));
             }
 
             return pluginArchives;

@@ -163,7 +163,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         agentClassLoader = createAgentClassLoader();
 
         ClassLoader extClassloader = systemClassloader;
-        while (extClassloader.getParent() != null){
+        while (extClassloader.getParent() != null) {
             extClassloader = extClassloader.getParent();
         }
 
@@ -171,17 +171,17 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         try {
             Field ucpField = systemClassloader.getClass().getSuperclass().getDeclaredField("ucp");
             ucpField.setAccessible(true);
-            URLClassPath urlClassPath     = (URLClassPath) ucpField.get(systemClassloader);
-            String       javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
-            for (URL url: urlClassPath.getURLs()){
-                if (url.getPath().startsWith(javaHome)){
+            URLClassPath urlClassPath = (URLClassPath) ucpField.get(systemClassloader);
+            String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
+            for (URL url : urlClassPath.getURLs()) {
+                if (url.getPath().startsWith(javaHome)) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(String.format("Find JDK Url: %s", url));
                     }
                     jdkUrls.add(url);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.warn("Meet exception when parse JDK urls", e);
         }
 
@@ -195,12 +195,13 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     private ClassLoader createAgentClassLoader() throws ArkException {
 
-        List<String> inputArguments = AccessController.doPrivileged(new PrivilegedAction<List<String>>() {
-            @Override
-            public List<String> run() {
-                return ManagementFactory.getRuntimeMXBean().getInputArguments();
-            }
-        });
+        List<String> inputArguments = AccessController
+            .doPrivileged(new PrivilegedAction<List<String>>() {
+                @Override
+                public List<String> run() {
+                    return ManagementFactory.getRuntimeMXBean().getInputArguments();
+                }
+            });
 
         List<URL> agentPaths = new ArrayList<>();
         for (String argument : inputArguments) {
@@ -221,7 +222,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
         }
 
-        return new URLClassLoader(agentPaths.toArray(new URL[]{}), null);
+        return new URLClassLoader(agentPaths.toArray(new URL[] {}), null);
 
     }
 }

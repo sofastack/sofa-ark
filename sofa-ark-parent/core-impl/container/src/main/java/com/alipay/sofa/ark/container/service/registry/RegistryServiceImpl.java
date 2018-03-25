@@ -58,24 +58,31 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
-    public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject, ServiceProvider serviceProvider) {
-        ServiceMetadata serviceMetadata = new ServiceMetadataImpl(ifClass.getName(), ifClass, serviceProvider);
-        if (!services.containsKey(serviceMetadata.getServiceName())){
-            services.putIfAbsent(serviceMetadata.getServiceName(), new CopyOnWriteArrayList<ServiceReference<?>>());
+    public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject,
+                                                  ServiceProvider serviceProvider) {
+        ServiceMetadata serviceMetadata = new ServiceMetadataImpl(ifClass.getName(), ifClass,
+            serviceProvider);
+        if (!services.containsKey(serviceMetadata.getServiceName())) {
+            services.putIfAbsent(serviceMetadata.getServiceName(),
+                new CopyOnWriteArrayList<ServiceReference<?>>());
         }
 
-        List<ServiceReference<?>> serviceReferences = services.get(serviceMetadata.getServiceName());
+        List<ServiceReference<?>> serviceReferences = services
+            .get(serviceMetadata.getServiceName());
 
-        for (ServiceReference<?> serviceReference: serviceReferences){
-            if (serviceMetadata.equals(serviceReference.getServiceMetadata())){
-                LOGGER.warn(String.format("Service: %s publish by: %s already exist", serviceMetadata.getServiceName(), serviceProvider));
+        for (ServiceReference<?> serviceReference : serviceReferences) {
+            if (serviceMetadata.equals(serviceReference.getServiceMetadata())) {
+                LOGGER.warn(String.format("Service: %s publish by: %s already exist",
+                    serviceMetadata.getServiceName(), serviceProvider));
                 return (ServiceReference<T>) serviceReference;
             }
         }
 
-        ServiceReference<T> serviceReference = new ServiceReferenceImpl<>(serviceMetadata, implObject);
+        ServiceReference<T> serviceReference = new ServiceReferenceImpl<>(serviceMetadata,
+            implObject);
 
-        LOGGER.info(String.format("Service: %s publish by: %s succeed", serviceMetadata.getServiceName(), serviceProvider));
+        LOGGER.info(String.format("Service: %s publish by: %s succeed",
+            serviceMetadata.getServiceName(), serviceProvider));
 
         serviceReferences.add(serviceReference);
 
@@ -125,12 +132,14 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
-    public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, ServiceFilter serviceFilter) {
+    public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass,
+                                                           ServiceFilter serviceFilter) {
         String serviceName = ifClass.getName();
         if (services.containsKey(serviceName)) {
             List<ServiceReference<T>> serviceReferences = new ArrayList<>();
-            for (ServiceReference<?> reference: services.get(serviceName)){
-                if (serviceFilter == null || serviceFilter.match(reference.getServiceMetadata().getServiceProvider())) {
+            for (ServiceReference<?> reference : services.get(serviceName)) {
+                if (serviceFilter == null
+                    || serviceFilter.match(reference.getServiceMetadata().getServiceProvider())) {
                     serviceReferences.add((ServiceReference<T>) reference);
                 }
             }

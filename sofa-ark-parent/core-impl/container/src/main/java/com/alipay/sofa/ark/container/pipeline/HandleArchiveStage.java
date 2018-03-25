@@ -77,20 +77,30 @@ public class HandleArchiveStage implements PipelineStage {
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
 
-        return plugin.setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
-                .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
-                .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
-                .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
-                .setPriority(Integer.valueOf(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE)))
-                .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
-                .setClassPath(pluginArchive.getUrls())
-                .setExportClasses(new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)))))
-                .setExportPackages(new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE)))))
-                .setImportClasses(new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE)))))
-                .setImportPackages(new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE)))))
-                .setExportIndex(pluginArchive.getExportIndex())
-                .setPluginClassLoader(new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
-                .setPluginContext(new PluginContextImpl(plugin));
+        return plugin
+            .setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
+            .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
+            .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
+            .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
+            .setPriority(Integer.valueOf(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE)))
+            .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
+            .setClassPath(pluginArchive.getUrls())
+            .setExportClasses(
+                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
+                    .getValue(EXPORT_CLASSES_ATTRIBUTE)))))
+            .setExportPackages(
+                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
+                    .getValue(EXPORT_PACKAGES_ATTRIBUTE)))))
+            .setImportClasses(
+                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
+                    .getValue(IMPORT_CLASSES_ATTRIBUTE)))))
+            .setImportPackages(
+                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
+                    .getValue(IMPORT_PACKAGES_ATTRIBUTE)))))
+            .setExportIndex(pluginArchive.getExportIndex())
+            .setPluginClassLoader(
+                new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
+            .setPluginContext(new PluginContextImpl(plugin));
     }
 
     private Biz transformBizArchives(BizArchive bizArchive) throws Exception {

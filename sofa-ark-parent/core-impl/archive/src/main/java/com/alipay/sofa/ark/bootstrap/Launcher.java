@@ -44,9 +44,10 @@ public abstract class Launcher {
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
 
         List<String> attachArgs = new ArrayList<>();
-        attachArgs.add(String.format("%s%s=%s",
-                CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.FAT_JAR_ARGUMENT_KEY,
-                getExecutableArchive().getUrl().toExternalForm()));
+        attachArgs
+            .add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+                CommandArgument.FAT_JAR_ARGUMENT_KEY, getExecutableArchive().getUrl()
+                    .toExternalForm()));
         attachArgs.addAll(Arrays.asList(args));
 
         launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
@@ -63,14 +64,14 @@ public abstract class Launcher {
 
         List<String> attachArgs = new ArrayList<>();
         attachArgs.add(String.format("%s%s=%s %s %s%s=%s %s %s%s= %s %s%s=%s",
-                CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
-                classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
-                CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY,
-                method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-                CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
-                method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-                CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY,
-                method.toGenericString()));
+            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
+            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY,
+            method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
+            method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString()));
         attachArgs.addAll(Arrays.asList(args));
 
         launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);

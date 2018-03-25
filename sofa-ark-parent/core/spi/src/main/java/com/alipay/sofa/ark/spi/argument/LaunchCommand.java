@@ -101,14 +101,20 @@ public class LaunchCommand {
         return this;
     }
 
-    public static LaunchCommand parse(String arkCommand, String[] args) throws MalformedURLException {
+    public static LaunchCommand parse(String arkCommand, String[] args)
+                                                                       throws MalformedURLException {
         LaunchCommand launchCommand = new LaunchCommand();
 
-        String arkJarPrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK, FAT_JAR_ARGUMENT_KEY);
-        String arkClasspathPrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK, CLASSPATH_ARGUMENT_KEY);
-        String entryClassNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK, ENTRY_CLASS_NAME_ARGUMENT_KEY);
-        String entryMethodNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK, ENTRY_METHOD_NAME_ARGUMENT_KEY);
-        String entryMethodDescriptorPrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK, ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY);
+        String arkJarPrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK,
+            FAT_JAR_ARGUMENT_KEY);
+        String arkClasspathPrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK,
+            CLASSPATH_ARGUMENT_KEY);
+        String entryClassNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
+            ENTRY_CLASS_NAME_ARGUMENT_KEY);
+        String entryMethodNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
+            ENTRY_METHOD_NAME_ARGUMENT_KEY);
+        String entryMethodDescriptorPrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
+            ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY);
 
         String[] arkArgs = arkCommand.split(CommandArgument.KEY_VALUE_PAIR_SPLIT);
         for (String arg : arkArgs) {

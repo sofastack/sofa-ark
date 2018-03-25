@@ -61,23 +61,27 @@ public class PluginClassloaderTest extends BaseTest {
     }
 
     @Test
-    public void testExportAndImport() throws Exception{
+    public void testExportAndImport() throws Exception {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A")
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         PluginModel pluginB = new PluginModel();
-        pluginB.setPluginName("plugin B")
-                .setPriority(1)
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(Collections.<String>emptySet())
-                .setPluginClassLoader(new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+        pluginB
+            .setPluginName("plugin B")
+            .setPriority(1)
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(Collections.<String> emptySet())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginManagerService.registerPlugin(pluginB);
@@ -85,28 +89,32 @@ public class PluginClassloaderTest extends BaseTest {
         pluginDeployService.deploy();
 
         Assert.assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
-                pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
+            pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
 
     }
 
     @Test
-    public void testExportAndNotImport() throws Exception{
+    public void testExportAndNotImport() throws Exception {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A")
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         PluginModel pluginB = new PluginModel();
-        pluginB.setPluginName("plugin B")
-                .setPriority(1)
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(Collections.<String>emptySet())
-                .setPluginClassLoader(new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+        pluginB
+            .setPluginName("plugin B")
+            .setPriority(1)
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(Collections.<String> emptySet())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginManagerService.registerPlugin(pluginB);
@@ -114,49 +122,55 @@ public class PluginClassloaderTest extends BaseTest {
         pluginDeployService.deploy();
 
         Assert.assertNotEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
-                pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
+            pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
 
     }
 
     @Test
     public void testExportResource() {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("pluginA")
-                .setClassPath(new URL[]{classPathURL})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setPluginClassLoader(new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+        pluginA
+            .setPluginName("pluginA")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         PluginModel pluginB = new PluginModel();
-        pluginB.setPluginName("pluginB")
-                .setPriority(1)
-                .setClassPath(new URL[0])
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(Collections.<String>emptySet())
-                .setPluginClassLoader(new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+        pluginB
+            .setPluginName("pluginB")
+            .setPriority(1)
+            .setClassPath(new URL[0])
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(Collections.<String> emptySet())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginManagerService.registerPlugin(pluginB);
         classloaderService.prepareExportClassCache();
         pluginDeployService.deploy();
 
-
-        Assert.assertNotNull(pluginB.getPluginClassLoader().getResource("pluginA_sofa_ark_export_resource_test1.xml"));
+        Assert.assertNotNull(pluginB.getPluginClassLoader().getResource(
+            "pluginA_sofa_ark_export_resource_test1.xml"));
         Assert.assertNull(pluginB.getPluginClassLoader().getResource("test2.xml"));
 
     }
 
     @Test
-    public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException{
+    public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
         PluginModel mockPlugin = new PluginModel();
-        mockPlugin.setPluginName("Mock Plugin")
-                .setClassPath(new URL[]{})
-                .setImportClasses(Collections.<String>emptySet())
-                .setImportPackages(Collections.<String>emptySet())
-                .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-                .setPluginClassLoader(new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
+        mockPlugin
+            .setPluginName("Mock Plugin")
+            .setClassPath(new URL[] {})
+            .setImportClasses(Collections.<String> emptySet())
+            .setImportPackages(Collections.<String> emptySet())
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
         pluginManagerService.registerPlugin(mockPlugin);
 
         PluginClassLoader pluginClassLoader = (PluginClassLoader) mockPlugin.getPluginClassLoader();
