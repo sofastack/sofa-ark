@@ -103,7 +103,7 @@ public class BizModel implements Biz {
         try {
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new ArkException(e.getMessage(), e);
         } finally {
             ClassloaderUtil.popContextClassloader(oldClassloader);

@@ -47,7 +47,7 @@ public class DeployBizStage implements PipelineStage {
                 LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
                 biz.start(pipelineContext.getLaunchCommand().getLaunchArgs());
                 LOGGER.info(String.format("Finish to start biz: %s", biz.getBizName()));
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
                 throw new ArkException(e);
             }
