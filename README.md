@@ -8,7 +8,7 @@
 
 
 SOFA Ark is a light-weight，java based classloader isolation framework 
-open sourced by Ant Financial. Please visit [sofastack.github.io](https://sofastack.github.io/)
+open sourced by Ant Financial. Please visit [https://alipay.github.io/sofastack.github.io/](https://alipay.github.io/sofastack.github.io/)
 for quick start and detail information.
 
 ## Background
@@ -27,9 +27,9 @@ TODO
 
 ## Sample
 
-* [Sample projects](https://github.com/sofastack/sofa-ark/tree/master/sofa-ark-samples)
-    * [Ark Plugin Based On Maven Project](https://github.com/sofastack/sofa-ark/tree/master/sofa-ark-samples/sample-ark-plugin) - Sample Project for Ark-Plugin
-    * [Ark Based On Spring Boot](https://github.com/sofastack/sofa-ark/tree/master/sofa-ark-samples/sample-springboot-ark) Sample Project for Ark based on Spring Boot Project
+* [Sample projects](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples)
+    * [Ark Plugin Based On Maven Project](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples/sample-ark-plugin) - Sample Project for Ark-Plugin
+    * [Ark Based On Spring Boot](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples/sample-springboot-ark) Sample Project for Ark based on Spring Boot Project
 
 ## Community
 
@@ -42,4 +42,4 @@ TODO
 
 ## Documentation
 
-* [SOFA Ark 用户手册(中文)](https://sofastack.github.io/docs/) : Describe how to used SOFA Ark and its features. 
+* [SOFA Ark 用户手册(中文)](https://alipay.github.io/sofastack.github.io/docs/) : Describe how to used SOFA Ark and its features. 
