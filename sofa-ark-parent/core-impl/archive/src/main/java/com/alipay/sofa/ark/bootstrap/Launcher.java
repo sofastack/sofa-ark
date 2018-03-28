@@ -63,7 +63,7 @@ public abstract class Launcher {
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
 
         List<String> attachArgs = new ArrayList<>();
-        attachArgs.add(String.format("%s%s=%s %s %s%s=%s %s %s%s= %s %s%s=%s",
+        attachArgs.add(String.format("%s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s",
             CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
             classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
             CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY,
