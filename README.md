@@ -1,7 +1,7 @@
 # SOFA Ark Project
 
-[![Build Status](https://travis-ci.org/sofastack/sofa-ark.svg?branch=master)](https://travis-ci.org/sofastack/sofa-ark)
-[![Coverage Status](https://coveralls.io/repos/github/sofastack/sofa-ark/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-ark?branch=master)
+[![Build Status](https://travis-ci.org/alipay/sofa-ark.svg?branch=master)](https://travis-ci.org/alipay/sofa-ark)
+[![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-ark/badge.svg)](https://coveralls.io/github/alipay/sofa-ark)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-orange.svg)](https://gitter.im/sofa-ark/Lobby)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 ![maven](https://img.shields.io/badge/maven-v0.1.0-blue.svg)
