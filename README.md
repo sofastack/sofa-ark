@@ -17,9 +17,9 @@ In Java world, dependency is always a problem, and can cause various errors, suc
 
 For example, there is a project that need protobuf version 2 and protobuf version 3, and because protobuf version 3 is not compatible with version 2, so the project can not simply upgrade the protobuf to version 3 to solve the problem. There is same problem for hessian version 3 and version 4.
 
-To cover the exceptions, we need to introduce a classloader-isolation way to the problem, make different version of a jar loaded by different classloader. There are many framework that can do classloader isolation, perhaps the most famous one is OSGi, but OSGi classloader schema is too complex, beside classloader-isolation, it also has ability to do hot deploy and a lot of other functionalities there we actually don't want.
+To cover those exceptions, we need to introduce a classloader isolation way, make different version of a framework loaded by different classloader. There are many framework that can do classloader isolation, perhaps the most famous one is OSGi, but OSGi classloader schema is too complex, beside classloader isolation, it also has ability to do hot deploy and a lot of other functionalities that we actually don't want.
 
-So this is the origin of SOFA Ark, it wants to use a light-weight classloader isolation mechanism to  solve the problem that Spring Boot did not solve. And just a remind that SOFA Ark is not bind to Spring Boot, actually it is a more general classloader isolation framework that can be used with any other frameworks too.
+So this is the origin of SOFA Ark, it's goal is to use a light-weight classloader isolation mechanism to solve the problem that Spring Boot did not solve. And just a remind that SOFA Ark is not bind to Spring Boot, actually it is a more general classloader isolation framework that can be used with any other frameworks too.
 
 ## How SOFA Ark Works
 
@@ -29,7 +29,7 @@ There are three concepts in SOFA Ark: `Ark Container`, `Ark-Plugin` and `Ark-Biz
 
 First of all, we explain what roles these concepts play;
 
-+ `Ark Container`: It's the runtime-manager of total framework; it will startup in the first place, then it resolves `Ark Plugin` and `Ark Biz` in classpath and deploys them.
++ `Ark Container`: It's the runtime manager of total framework; it will startup in the first place, then it resolves `Ark Plugin` and `Ark Biz` in classpath and deploys them.
 
 + `Ark Plugin`: A fat jar packaged by `sofa-ark-plugin-maven-plugin`, generally it would bring with a class-index configuration which describes what class would be exported and imported. `Ark Plugin` can resolve classes from each other.
 
