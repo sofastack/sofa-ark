@@ -25,7 +25,7 @@ So this is the origin of SOFA Ark, it wants to use a light-weight classloader is
 
 There are three concepts in SOFA Ark: `Ark Container`, `Ark-Plugin` and `Ark-Biz`; they are organized as what the following graph shows:
 
-![framework](resource/Sofa-Ark-Framework.png)
+![framework](resource/SOFA-Ark-Framework.png)
 
 First of all, we explain what roles these concepts play;
 
