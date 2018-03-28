@@ -54,7 +54,7 @@ public class SofaArkBootstrap {
                 threadGroup.rethrowUncaughtException();
                 System.exit(0);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
