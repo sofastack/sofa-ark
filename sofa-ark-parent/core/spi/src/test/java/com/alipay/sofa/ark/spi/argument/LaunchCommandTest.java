@@ -50,7 +50,7 @@ public class LaunchCommandTest {
         }
 
         LaunchCommandTest.arkCommand = String.format(
-            "%s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s",
+            "%s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s",
             CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.FAT_JAR_ARGUMENT_KEY,
             fatJarUrl.toExternalForm(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
             CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
@@ -59,8 +59,10 @@ public class LaunchCommandTest {
             method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
             CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
             method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString());
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY,
+            method.toGenericString(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.BIZ_RUN_MODE,
+            CommandArgument.TEST_RUN_MODE);
 
         LaunchCommandTest.count = 0;
     }
@@ -77,6 +79,7 @@ public class LaunchCommandTest {
                 method.toGenericString()));
             Assert.assertTrue(launchCommand.getEntryMethodName().equals(method.getName()));
             Assert.assertTrue(launchCommand.getExecutableArkBizJar().equals(fatJarUrl));
+            Assert.assertTrue(launchCommand.isTestMode());
             Assert.assertTrue(launchCommand.getClasspath().length == classpath
                 .split(CommandArgument.CLASSPATH_SPLIT).length);
             for (URL url : launchCommand.getClasspath()) {
