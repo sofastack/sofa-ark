@@ -44,9 +44,22 @@
             <scope>compile</scope>
         </dependency>
 
+        <!--test-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

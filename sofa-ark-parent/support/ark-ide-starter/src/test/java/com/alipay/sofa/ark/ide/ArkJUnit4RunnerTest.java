@@ -19,16 +19,27 @@ package com.alipay.sofa.ark.ide;
 import com.alipay.sofa.ark.bootstrap.ContainerClassLoader;
 import com.alipay.sofa.ark.container.tester.TestClassLoader;
 import com.alipay.sofa.ark.ide.runner.TestJUnit4Runner;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 /**
- * @author qilong.zql
- * @since 0.1.0
+ * @author qilong.zql 18/3/29-下午1:47
  */
 @RunWith(TestJUnit4Runner.class)
 public class ArkJUnit4RunnerTest {
+
+    private static String state;
+
+    @BeforeClass
+    public static void beforeClass() {
+        state = "@BeforeClass";
+    }
+
+    @Before
+    public void before() {
+        Assert.assertTrue("@BeforeClass".equals(state));
+        state = "@Before";
+    }
 
     @Test
     public void test() {
@@ -36,9 +47,23 @@ public class ArkJUnit4RunnerTest {
         Assert.assertTrue(testClassLoader.getClass().getCanonicalName()
             .equals(TestClassLoader.class.getCanonicalName()));
 
+        Assert.assertTrue("@Before".equals(state));
+        state = "@Test";
+
         ClassLoader testClCl = testClassLoader.getClass().getClassLoader();
         Assert.assertTrue(testClCl.getClass().getCanonicalName()
             .equals(ContainerClassLoader.class.getCanonicalName()));
+    }
+
+    @After
+    public void after() {
+        Assert.assertTrue("@Test".equals(state));
+        state = "@After";
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        Assert.assertTrue("@After".equals(state));
     }
 
 }

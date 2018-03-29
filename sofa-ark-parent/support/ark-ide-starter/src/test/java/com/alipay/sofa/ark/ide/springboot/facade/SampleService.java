@@ -14,21 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
-
-import com.alipay.sofa.ark.ide.tester.ArkBootRunner;
+package com.alipay.sofa.ark.ide.springboot.facade;
 
 /**
  * @author qilong.zql
  * @since 0.1.0
  */
-public class TestBootRunner extends ArkBootRunner {
-
-    static {
-        RunnerHelper.prepare();
-    }
-
-    public TestBootRunner(Class<?> klazz) {
-        super(klazz);
-    }
+public interface SampleService {
+    String say();
 }

@@ -14,21 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
+package com.alipay.sofa.ark.ide;
 
-import com.alipay.sofa.ark.ide.tester.ArkBootRunner;
+import com.alipay.sofa.ark.ide.runner.TestBootRunner;
+import com.alipay.sofa.ark.ide.springboot.SpringApplication;
+import com.alipay.sofa.ark.ide.springboot.facade.SampleService;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author qilong.zql
  * @since 0.1.0
  */
-public class TestBootRunner extends ArkBootRunner {
+@RunWith(TestBootRunner.class)
+@SpringBootTest(classes = SpringApplication.class)
+public class ArkBootRunnerTest {
 
-    static {
-        RunnerHelper.prepare();
+    @Autowired
+    public SampleService sampleService;
+
+    @Test
+    public void test() {
+        Assert.assertNotNull(sampleService);
+        Assert.assertTrue("SampleService".equals(sampleService.say()));
     }
 
-    public TestBootRunner(Class<?> klazz) {
-        super(klazz);
-    }
 }

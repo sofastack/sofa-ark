@@ -14,21 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
+package com.alipay.sofa.ark.ide.springboot.impl;
 
-import com.alipay.sofa.ark.ide.tester.ArkBootRunner;
+import com.alipay.sofa.ark.ide.springboot.facade.SampleService;
 
 /**
- * @author qilong.zql
- * @since 0.1.0
+ * @author qilong.zql 18/3/29-下午2:33
  */
-public class TestBootRunner extends ArkBootRunner {
-
-    static {
-        RunnerHelper.prepare();
-    }
-
-    public TestBootRunner(Class<?> klazz) {
-        super(klazz);
+public class SampleServiceImpl implements SampleService {
+    @Override
+    public String say() {
+        return "SampleService";
     }
 }

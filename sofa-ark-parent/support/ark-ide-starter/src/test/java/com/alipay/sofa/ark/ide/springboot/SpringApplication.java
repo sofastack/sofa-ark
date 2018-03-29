@@ -14,21 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
+package com.alipay.sofa.ark.ide.springboot;
 
-import com.alipay.sofa.ark.ide.tester.ArkBootRunner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ImportResource;
 
 /**
  * @author qilong.zql
  * @since 0.1.0
  */
-public class TestBootRunner extends ArkBootRunner {
+@ImportResource({ "classpath*:META-INF/sofa-ark-test/*.xml" })
+@SpringBootApplication
+public class SpringApplication {
+    public static void main(String[] args) {
 
-    static {
-        RunnerHelper.prepare();
-    }
-
-    public TestBootRunner(Class<?> klazz) {
-        super(klazz);
     }
 }
