@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot;
+package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.ide.startup.SofaArkBootstrap;
 import org.springframework.boot.context.event.ApplicationStartedEvent;

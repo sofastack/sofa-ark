@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
+package com.alipay.sofa.ark.runner;
 
-import com.alipay.sofa.ark.ide.tester.ArkBootRunner;
+import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 
 /**
  * @author qilong.zql

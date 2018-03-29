@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.tester;
+package com.alipay.sofa.ark.springboot.runner;
 
 import com.alipay.sofa.ark.ide.common.DelegateArkContainer;
 import com.alipay.sofa.ark.ide.startup.SofaArkBootstrap;

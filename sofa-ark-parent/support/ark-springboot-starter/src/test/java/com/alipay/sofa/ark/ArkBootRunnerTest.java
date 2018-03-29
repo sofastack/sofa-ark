@@ -14,28 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
+package com.alipay.sofa.ark;
 
-import com.alipay.sofa.ark.ide.tester.ArkJUnit4Runner;
-import org.junit.runners.model.InitializationError;
+import com.alipay.sofa.ark.runner.TestBootRunner;
+import com.alipay.sofa.ark.springboot.SpringApplication;
+import com.alipay.sofa.ark.springboot.facade.SampleService;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author qilong.zql
  * @since 0.1.0
  */
-public class TestJUnit4Runner extends ArkJUnit4Runner {
+@RunWith(TestBootRunner.class)
+@SpringBootTest(classes = SpringApplication.class)
+public class ArkBootRunnerTest {
 
-    static {
-        RunnerHelper.prepare();
+    @Autowired
+    public SampleService sampleService;
+
+    @Test
+    public void test() {
+        Assert.assertNotNull(sampleService);
+        Assert.assertTrue("SampleService".equals(sampleService.say()));
     }
 
-    /**
-     * Creates a BlockJUnit4ClassRunner to run {@code klass}
-     *
-     * @param klass
-     * @throws InitializationError if the test class is malformed.
-     */
-    public TestJUnit4Runner(Class<?> klass) throws InitializationError {
-        super(klass);
-    }
 }

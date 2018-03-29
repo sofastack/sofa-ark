@@ -21,7 +21,6 @@ import com.alipay.sofa.ark.bootstrap.EntryMethod;
 import com.alipay.sofa.ark.common.thread.IsolatedThreadGroup;
 import com.alipay.sofa.ark.common.thread.LaunchRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.ide.common.DelegateArkContainer;
 import sun.misc.URLClassPath;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
