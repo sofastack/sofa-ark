@@ -66,7 +66,7 @@ public class LaunchRunner implements Runnable {
                     "The specified entry class:%s doesn't contain an entry method:%s with appropriate signature.",
                     this.startClassName, this.startMethodName), ex);
             thread.getThreadGroup().uncaughtException(thread, wrappedEx);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             thread.getThreadGroup().uncaughtException(thread, ex);
         }
     }

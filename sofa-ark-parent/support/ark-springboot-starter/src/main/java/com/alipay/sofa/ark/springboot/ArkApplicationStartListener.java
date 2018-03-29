@@ -37,7 +37,7 @@ public class ArkApplicationStartListener implements ApplicationListener<Applicat
             if (shouldStartArk()) {
                 SofaArkBootstrap.launch(event.getArgs());
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException("Meet exception when determine whether to start sofa ark!",
                 e);
         }

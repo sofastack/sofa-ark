@@ -89,7 +89,7 @@ public class ArkServiceContainer {
                 modules.add(module);
             }
             return modules;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new ArkException(e);
         }
     }

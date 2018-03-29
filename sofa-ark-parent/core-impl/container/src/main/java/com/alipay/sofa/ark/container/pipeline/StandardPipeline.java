@@ -68,10 +68,10 @@ public class StandardPipeline implements Pipeline {
                 pipelineStage.process(pipelineContext);
                 LOGGER.info(String.format("Finish to process pipeline stage: %s", pipelineStage
                     .getClass().getName()));
-            } catch (ArkException e) {
+            } catch (Throwable e) {
                 LOGGER.error(String.format("Process pipeline stage fail: %s", pipelineStage
                     .getClass().getName()), e);
-                throw e;
+                throw new ArkException(e);
             }
         }
     }

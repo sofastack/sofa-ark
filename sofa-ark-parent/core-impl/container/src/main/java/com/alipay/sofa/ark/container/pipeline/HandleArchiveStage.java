@@ -68,7 +68,7 @@ public class HandleArchiveStage implements PipelineStage {
                 bizManagerService.registerBiz(transformBizArchives(bizArchive));
             }
 
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             throw new ArkException(ex.getMessage(), ex);
         }
     }

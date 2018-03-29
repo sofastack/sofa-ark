@@ -181,7 +181,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
                     jdkUrls.add(url);
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.warn("Meet exception when parse JDK urls", e);
         }
 
@@ -216,7 +216,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
                 String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
                 URL url = new File(path).toURI().toURL();
                 agentPaths.add(url);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new ArkException("Failed to create java agent classloader", e);
             }
 
