@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # package file of sofa-ark-all.jar
 
 # cd work directory
