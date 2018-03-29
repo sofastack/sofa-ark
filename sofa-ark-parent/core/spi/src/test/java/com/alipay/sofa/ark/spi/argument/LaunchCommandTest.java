@@ -59,10 +59,10 @@ public class LaunchCommandTest {
             method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
             CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
             method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY,
-            method.toGenericString(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.BIZ_RUN_MODE,
-            CommandArgument.TEST_RUN_MODE);
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString(),
+            CommandArgument.KEY_VALUE_PAIR_SPLIT, CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.BIZ_RUN_MODE, CommandArgument.TEST_RUN_MODE);
 
         LaunchCommandTest.count = 0;
     }
