@@ -31,10 +31,8 @@ public class DelegateArkContainer {
 
     private static final String TEST_HELPER             = "com.alipay.sofa.ark.container.tester.TestHelper";
     private static final String CREATE_TEST_CLASSLOADER = "createTestClassLoader";
-    private static final String IS_STARTED              = "isStarted";
 
     private static Method       CREATE_TEST_CLASSLOADER_METHOD;
-    private static Method       IS_STARTED_METHOD;
 
     private static Object       arkContainer;
     private static Object       testHelper;
@@ -65,14 +63,11 @@ public class DelegateArkContainer {
     protected static void wrapping() {
         AssertUtils.assertNotNull(arkContainer, "Ark Container must be not null.");
 
-        DelegateArkContainer.arkContainer = arkContainer;
         try {
             Class<?> testHelperClass = arkContainer.getClass().getClassLoader()
                 .loadClass(TEST_HELPER);
             testHelper = testHelperClass.getConstructor(Object.class).newInstance(arkContainer);
             CREATE_TEST_CLASSLOADER_METHOD = testHelperClass.getMethod(CREATE_TEST_CLASSLOADER);
-            IS_STARTED_METHOD = testHelperClass.getMethod(IS_STARTED);
-            Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
         } catch (Exception ex) {
             // impossible situation
             throw new RuntimeException(ex);
