@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.tester;
+package com.alipay.sofa.ark.ide.runner;
 
-import com.alipay.sofa.ark.ide.common.DelegateArkContainer;
-import com.alipay.sofa.ark.ide.startup.SofaArkBootstrap;
-import org.junit.runners.BlockJUnit4ClassRunner;
+import com.alipay.sofa.ark.ide.tester.ArkJUnit4Runner;
 import org.junit.runners.model.InitializationError;
-import org.junit.runners.model.TestClass;
 
 /**
- *
  * @author qilong.zql
  * @since 0.1.0
  */
-public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
+public class TestJUnit4Runner extends ArkJUnit4Runner {
+
+    static {
+        RunnerHelper.prepare();
+    }
 
     /**
      * Creates a BlockJUnit4ClassRunner to run {@code klass}
@@ -35,21 +35,7 @@ public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
      * @param klass
      * @throws InitializationError if the test class is malformed.
      */
-    public ArkJUnit4Runner(Class<?> klass) throws InitializationError {
+    public TestJUnit4Runner(Class<?> klass) throws InitializationError {
         super(klass);
     }
-
-    @Override
-    protected TestClass createTestClass(Class<?> testClass) {
-        try {
-            if (!DelegateArkContainer.isStarted()) {
-                DelegateArkContainer.launch();
-            }
-            ClassLoader testClassLoader = DelegateArkContainer.getTestClassLoader();
-            return super.createTestClass(testClassLoader.loadClass(testClass.getName()));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
 }

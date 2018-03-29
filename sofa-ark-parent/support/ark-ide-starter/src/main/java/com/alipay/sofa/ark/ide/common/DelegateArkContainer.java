@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.ide.common;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.ide.startup.SofaArkBootstrap;
 
 import java.lang.reflect.Method;
 
@@ -41,10 +42,27 @@ public class DelegateArkContainer {
     private static final Object LOCK                    = new Object();
 
     /**
-     * wrap {@see com.alipay.sofa.ark.container.ArkContainer}
-     * @param arkContainer
+     * Launch Ark Container when run tests
      */
-    public static void wrap(Object arkContainer) {
+    public static void launch() {
+        if (arkContainer == null) {
+            synchronized (LOCK) {
+                if (arkContainer == null) {
+                    arkContainer = SofaArkBootstrap.prepareContainerForTest();
+
+                    wrapping();
+
+                    Thread.currentThread().setContextClassLoader(
+                        DelegateArkContainer.getTestClassLoader());
+                }
+            }
+        }
+    }
+
+    /**
+     * wrap {@see com.alipay.sofa.ark.container.ArkContainer}
+     */
+    protected static void wrapping() {
         AssertUtils.assertNotNull(arkContainer, "Ark Container must be not null.");
 
         DelegateArkContainer.arkContainer = arkContainer;
@@ -54,6 +72,7 @@ public class DelegateArkContainer {
             testHelper = testHelperClass.getConstructor(Object.class).newInstance(arkContainer);
             CREATE_TEST_CLASSLOADER_METHOD = testHelperClass.getMethod(CREATE_TEST_CLASSLOADER);
             IS_STARTED_METHOD = testHelperClass.getMethod(IS_STARTED);
+            Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
         } catch (Exception ex) {
             // impossible situation
             throw new RuntimeException(ex);
@@ -88,7 +107,7 @@ public class DelegateArkContainer {
      */
     public static boolean isStarted() {
         try {
-            return (arkContainer != null && (boolean) IS_STARTED_METHOD.invoke(arkContainer));
+            return arkContainer != null;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -104,7 +104,7 @@ public class LaunchCommand {
     }
 
     public Boolean isTestMode() {
-        return isTestMode;
+        return isTestMode == null ? false : isTestMode;
     }
 
     public LaunchCommand setTestMode(Boolean testMode) {

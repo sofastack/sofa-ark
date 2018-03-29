@@ -62,17 +62,13 @@ public class SofaArkBootstrap {
         }
     }
 
-    public static void prepareForTest() {
+    public static Object prepareContainerForTest() {
         try {
             /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
             System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
 
             URL[] urls = getURLClassPath().getURLs();
-            Object arkContainer = new ClasspathLauncher(new ClassPathArchive(urls))
-                .launch(getClasspath(urls));
-            DelegateArkContainer.wrap(arkContainer);
-
-            Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
+            return new ClasspathLauncher(new ClassPathArchive(urls)).launch(getClasspath(urls));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

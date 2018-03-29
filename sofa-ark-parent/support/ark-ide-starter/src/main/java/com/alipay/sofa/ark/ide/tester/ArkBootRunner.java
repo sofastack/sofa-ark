@@ -38,13 +38,11 @@ public class ArkBootRunner extends Runner implements Filterable, Sortable {
      */
     private Runner              runner;
 
-    static {
-        if (!DelegateArkContainer.isStarted()) {
-            SofaArkBootstrap.prepareForTest();
-        }
-    }
-
     public ArkBootRunner(Class<?> klazz) {
+        if (!DelegateArkContainer.isStarted()) {
+            DelegateArkContainer.launch();
+        }
+
         Class springRunnerClass = DelegateArkContainer.loadClass(SPRING_RUNNER);
         Class testClass = DelegateArkContainer.loadClass(klazz.getName());
         try {

@@ -37,11 +37,17 @@
             </exclusions>
         </dependency>
 
-        <!--junit test-->
+        <!--junit-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-container</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
