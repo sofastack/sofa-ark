@@ -43,6 +43,8 @@ public class LaunchCommand {
 
     private String[] launchArgs;
 
+    private Boolean  isTestMode;
+
     public boolean isExecutedByCommandLine() {
         return executableArkBizJar != null;
     }
@@ -101,6 +103,15 @@ public class LaunchCommand {
         return this;
     }
 
+    public Boolean isTestMode() {
+        return isTestMode;
+    }
+
+    public LaunchCommand setTestMode(Boolean testMode) {
+        isTestMode = testMode;
+        return this;
+    }
+
     public static LaunchCommand parse(String arkCommand, String[] args)
                                                                        throws MalformedURLException {
         LaunchCommand launchCommand = new LaunchCommand();
@@ -115,6 +126,8 @@ public class LaunchCommand {
             ENTRY_METHOD_NAME_ARGUMENT_KEY);
         String entryMethodDescriptorPrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
             ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY);
+        String testRunMode = String.format("%s%s=%s", ARK_BIZ_ARGUMENTS_MARK, BIZ_RUN_MODE,
+            TEST_RUN_MODE);
 
         String[] arkArgs = arkCommand.split(CommandArgument.KEY_VALUE_PAIR_SPLIT);
         for (String arg : arkArgs) {
@@ -138,6 +151,10 @@ public class LaunchCommand {
             if (arg.startsWith(entryMethodDescriptorPrefix)) {
                 String entryMethodDescriptor = arg.substring(entryMethodDescriptorPrefix.length());
                 launchCommand.setEntryMethodDescriptor(entryMethodDescriptor);
+            }
+
+            if (arg.equals(testRunMode)) {
+                launchCommand.setTestMode(true);
             }
 
             if (arg.startsWith(arkClasspathPrefix)) {

@@ -26,7 +26,7 @@ public interface CommandArgument {
 
     /**
      * command-line arguments received by ark container.
-     * pattern: -A{key}={value}
+     * pattern: -A[key]=[value]
      */
     String ARK_CONTAINER_ARGUMENTS_MARK          = "-A";
 
@@ -40,7 +40,7 @@ public interface CommandArgument {
 
     /**
      * command-line arguments received by ark biz when execute in IDE.
-     * pattern: -B{key}={value}
+     * pattern: -B[key]=[value]
      */
     String ARK_BIZ_ARGUMENTS_MARK                = "-B";
 
@@ -49,5 +49,13 @@ public interface CommandArgument {
     String ENTRY_METHOD_NAME_ARGUMENT_KEY        = "methodName";
 
     String ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY = "methodDescription";
+
+    /**
+     * run mode in which ark container startup. {@literal MAIN} or {@literal TEST}.
+     * pattern: -B[runMode]=[MAIN|TEST]
+     */
+    String BIZ_RUN_MODE                          = "runMode";
+
+    String TEST_RUN_MODE                         = "TEST";
 
 }

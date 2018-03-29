@@ -36,6 +36,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!--junit test-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -14,11 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.bootstrap;
+package com.alipay.sofa.ark.ide.startup;
 
+import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
+import com.alipay.sofa.ark.bootstrap.EntryMethod;
 import com.alipay.sofa.ark.common.thread.IsolatedThreadGroup;
 import com.alipay.sofa.ark.common.thread.LaunchRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.ide.common.DelegateArkContainer;
 import sun.misc.URLClassPath;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
@@ -54,6 +57,22 @@ public class SofaArkBootstrap {
                 threadGroup.rethrowUncaughtException();
                 System.exit(0);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void prepareForTest() {
+        try {
+            /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
+            System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
+
+            URL[] urls = getURLClassPath().getURLs();
+            Object arkContainer = new ClasspathLauncher(new ClassPathArchive(urls))
+                .launch(getClasspath(urls));
+            DelegateArkContainer.wrap(arkContainer);
+
+            Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

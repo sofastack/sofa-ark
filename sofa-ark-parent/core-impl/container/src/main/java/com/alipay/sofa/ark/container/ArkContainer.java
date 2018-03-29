@@ -53,7 +53,7 @@ public class ArkContainer {
     private static final int    MINIMUM_ARGS_SIZE     = 1;
     private static final int    ARK_COMMAND_ARG_INDEX = 0;
 
-    public static void main(String[] args) throws ArkException {
+    public static Object main(String[] args) throws ArkException {
         if (args.length < MINIMUM_ARGS_SIZE) {
             throw new ArkException("Please provide suitable arguments to continue !");
         }
@@ -66,12 +66,12 @@ public class ArkContainer {
                 ExecutableArkBizJar executableArchive = new ExecutableArkBizJar(new JarFileArchive(
                     new File(launchCommand.getExecutableArkBizJar().getFile())),
                     launchCommand.getExecutableArkBizJar());
-                new ArkContainer(executableArchive, launchCommand).start();
+                return new ArkContainer(executableArchive, launchCommand).start();
             } else {
                 ClassPathArchive classPathArchive = new ClassPathArchive(
                     launchCommand.getEntryClassName(), launchCommand.getEntryMethodName(),
                     launchCommand.getEntryMethodDescriptor(), launchCommand.getClasspath());
-                new ArkContainer(classPathArchive, launchCommand).start();
+                return new ArkContainer(classPathArchive, launchCommand).start();
             }
         } catch (IOException e) {
             throw new ArkException(String.format("Sofa Ark startup failed, commandline=%s",
@@ -98,7 +98,7 @@ public class ArkContainer {
      * @throws ArkException
      * @since 0.1.0
      */
-    public void start() throws ArkException {
+    public Object start() throws ArkException {
         AssertUtils.assertNotNull(arkServiceContainer, "arkServiceContainer is null !");
         if (started.compareAndSet(false, true)) {
             arkServiceContainer.start();
@@ -109,6 +109,7 @@ public class ArkContainer {
             System.out.println("Ark container started in " + (System.currentTimeMillis() - start) //NOPMD
                                + " ms.");
         }
+        return this;
     }
 
     /**
@@ -140,4 +141,21 @@ public class ArkContainer {
         return isStarted() && !stopped.get();
     }
 
+    /**
+     * Get {@link ArkServiceContainer} of ark container
+     *
+     * @return
+     */
+    public ArkServiceContainer getArkServiceContainer() {
+        return arkServiceContainer;
+    }
+
+    /**
+     * Get {@link PipelineContext} of ark container
+     *
+     * @return
+     */
+    public PipelineContext getPipelineContext() {
+        return pipelineContext;
+    }
 }

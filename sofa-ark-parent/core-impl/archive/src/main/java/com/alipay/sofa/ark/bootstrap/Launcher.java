@@ -77,12 +77,36 @@ public abstract class Launcher {
         launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
     }
 
-    protected void launch(String[] args, String mainClass, ClassLoader classLoader)
-                                                                                   throws Exception {
+    /**
+     * Launch the SOFA ark container in {@literal TEST} run mode. Only container and plugin
+     * would startup.
+     *
+     * @param classpath classpath of ark-biz
+     * @return {@see com.alipay.sofa.ark.container.ArkContainer}
+     * @throws Exception
+     */
+    public Object launch(String classpath) throws Exception {
+        JarFile.registerUrlProtocolHandler();
+
+        ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
+
+        List<String> attachArgs = new ArrayList<>();
+        attachArgs.add(String.format("%s%s=%s %s %s%s=%s",
+            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
+            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
+            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.BIZ_RUN_MODE,
+            CommandArgument.TEST_RUN_MODE));
+
+        return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
+            classLoader);
+    }
+
+    protected Object launch(String[] args, String mainClass, ClassLoader classLoader)
+                                                                                     throws Exception {
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
-            createMainMethodRunner(mainClass, args).run();
+            return createMainMethodRunner(mainClass, args).run();
         } finally {
             Thread.currentThread().setContextClassLoader(old);
         }

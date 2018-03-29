@@ -56,7 +56,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     private static final String                    ARK_SPI_PACKAGES               = "com.alipay.sofa.ark.spi";
 
-    private static final String                    ARK_BOOTSTRAP_CLASS            = "com.alipay.sofa.ark.bootstrap.SofaArkBootstrap";
+    private static final String                    ARK_BOOTSTRAP_CLASS            = "com.alipay.sofa.ark.ide.startup.SofaArkBootstrap";
 
     private static final String                    ARK_EXPORT_RESOURCE            = "_sofa_ark_export_resource";
 

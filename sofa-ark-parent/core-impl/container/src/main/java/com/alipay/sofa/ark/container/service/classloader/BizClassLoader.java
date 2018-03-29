@@ -60,7 +60,7 @@ public class BizClassLoader extends URLClassLoader {
         }
     }
 
-    private Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
+    protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
 
         // 1. sun reflect related class throw exception directly
         if (classloaderService.isSunReflectClass(name)) {

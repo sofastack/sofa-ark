@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot;
 
-import com.alipay.sofa.ark.bootstrap.SofaArkBootstrap;
+import com.alipay.sofa.ark.ide.startup.SofaArkBootstrap;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 
