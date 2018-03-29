@@ -227,7 +227,7 @@ public class PluginModel implements Plugin {
             pluginActivator = (PluginActivator) pluginClassLoader.loadClass(activator)
                 .newInstance();
             pluginActivator.start(pluginContext);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             throw new ArkException(ex.getMessage(), ex);
         } finally {
             ClassloaderUtil.pushContextClassloader(oldClassloader);

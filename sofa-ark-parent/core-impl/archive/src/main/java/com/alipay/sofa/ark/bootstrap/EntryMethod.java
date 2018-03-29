@@ -60,7 +60,7 @@ public class EntryMethod {
             if (Modifier.isStatic(method.getModifiers())) {
                 return method;
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             // ignore
         }
         return null;
