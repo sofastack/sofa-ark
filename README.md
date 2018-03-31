@@ -44,9 +44,9 @@ In this situation, we just repackage the dependencies of A and C(version=0.1) as
 
 ## Sample
 
-* [Sample projects](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples)
-    * [Ark Plugin Based On Maven Project](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples/sample-ark-plugin) - Sample Project for Ark-Plugin
-    * [Ark Based On Spring Boot](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples/sample-springboot-ark) Sample Project for Ark based on Spring Boot Project
+* [Sample projects](sofa-ark-samples)
+    * [Ark Plugin Based On Maven Project](sofa-ark-samples/sample-ark-plugin) - Sample Project for Ark-Plugin
+    * [Ark Based On Spring Boot](sofa-ark-samples/sample-springboot-ark) Sample Project for Ark based on Spring Boot Project
 
 ## Community
 
