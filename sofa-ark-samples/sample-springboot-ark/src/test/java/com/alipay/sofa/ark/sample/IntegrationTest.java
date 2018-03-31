@@ -14,27 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.sample.springbootdemo;
+package com.alipay.sofa.ark.sample;
 
-import com.alipay.sofa.ark.sample.common.SampleClassExported;
-import com.alipay.sofa.ark.sample.SampleClassNotExported;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
+import com.alipay.sofa.ark.sample.facade.SampleService;
+import com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication;
+import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * A sample spring boot web project repackage as ark fat jar.
- *
- * @author qilong.zql
- * @since 0.1.0
+ * @author qilong.zql 18/3/31-下午4:14
  */
-@ImportResource({ "classpath*:META-INF/spring/service.xml" })
-@SpringBootApplication
-public class SpringbootDemoApplication {
+@RunWith(ArkBootRunner.class)
+@SpringBootTest(classes = SpringbootDemoApplication.class)
+public class IntegrationTest {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringbootDemoApplication.class, args);
-        SampleClassExported.hello();
-        SampleClassNotExported.hello();
+    @Autowired
+    private SampleService sampleService;
+
+    @Test
+    public void test() {
+        Assert.assertTrue("A Sample Service".equals(sampleService.service()));
     }
+
 }

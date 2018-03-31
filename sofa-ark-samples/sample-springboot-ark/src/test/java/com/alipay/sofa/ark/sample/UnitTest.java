@@ -14,27 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.sample.springbootdemo;
+package com.alipay.sofa.ark.sample;
 
-import com.alipay.sofa.ark.sample.common.SampleClassExported;
-import com.alipay.sofa.ark.sample.SampleClassNotExported;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
+import com.alipay.sofa.ark.ide.runner.ArkJUnit4Runner;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
- * A sample spring boot web project repackage as ark fat jar.
+ * A UnitTest Demo
  *
  * @author qilong.zql
  * @since 0.1.0
  */
-@ImportResource({ "classpath*:META-INF/spring/service.xml" })
-@SpringBootApplication
-public class SpringbootDemoApplication {
+@RunWith(ArkJUnit4Runner.class)
+public class UnitTest {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringbootDemoApplication.class, args);
-        SampleClassExported.hello();
-        SampleClassNotExported.hello();
+    @Test
+    public void test() {
+        Assert.assertTrue(true);
     }
+
 }

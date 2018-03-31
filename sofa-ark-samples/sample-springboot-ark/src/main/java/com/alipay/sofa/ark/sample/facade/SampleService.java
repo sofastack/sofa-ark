@@ -14,27 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.sample.springbootdemo;
-
-import com.alipay.sofa.ark.sample.common.SampleClassExported;
-import com.alipay.sofa.ark.sample.SampleClassNotExported;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
+package com.alipay.sofa.ark.sample.facade;
 
 /**
- * A sample spring boot web project repackage as ark fat jar.
- *
  * @author qilong.zql
  * @since 0.1.0
  */
-@ImportResource({ "classpath*:META-INF/spring/service.xml" })
-@SpringBootApplication
-public class SpringbootDemoApplication {
+public interface SampleService {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringbootDemoApplication.class, args);
-        SampleClassExported.hello();
-        SampleClassNotExported.hello();
-    }
+    String service();
+
 }
