@@ -112,3 +112,50 @@ public class Application{
     
 }
 ```
+
+## How to run test cases
+Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/junit4/wiki/getting-started) and [SpringBoot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html), SOFA Ark provided two implementations of runners for using with `@RunWith` include:
+
++ `ArkJUnit4Runner`
+
++ `ArkBootRunner`
+
+Now, we would show how to run test case in `JUnit4 FrameWork` and `Spring Boot`;
+
+### Run test case in JUnit4 FrameWork
+`ArkJUnit4Runner` is similar to `JUnit4`, the latter is the default implementation of runner in JUnit4 Framework; In other words, if you want run normal junit4 test case in SOFA Ark container, you should use `@RunWith(ArkJUnit4Runner.class)` instead of the default one. Code as what the following shows:
+
+```java
+@RunWith(ArkJUnit4Runner.class)
+public class UnitTest {
+
+    @Test
+    public void test() {
+        Assert.assertTrue(true);
+    }
+
+}
+```
+
+If you want use other features of JUnit4 Framework, such as `@Before`, it's not a problem, just do as before.
+
+### Run test case in SpringBoot Test
+`ArkBootRunner` is similar to `SpringRunner`, you can visit [this site](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html) for usage of the latter one. For running SpringBoot test case in SOFA Ark container, just use `@RunWith(ArkBootRunner.class)` instead of `@RunWith(SpringRunner.class)`. Code as what the following shows:
+
+```java
+@RunWith(ArkBootRunner.class)
+@SpringBootTest(classes = SpringbootDemoApplication.class)
+public class IntegrationTest {
+
+    @Autowired
+    private SampleService sampleService;
+
+    @Test
+    public void test() {
+        Assert.assertTrue("A Sample Service".equals(sampleService.service()));
+    }
+
+}
+```
+
+If you want use other features of SpringBoot Test, just do as before.
