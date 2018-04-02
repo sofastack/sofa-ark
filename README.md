@@ -35,12 +35,12 @@ First of all, we explain what roles these concepts play;
 
 + `Ark Biz`: A fat jar packaged by `sofa-ark-maven-plugin`, it mainly contains all staff what a project need in runtime. `Ark Biz` can resolve classes form `Ark Plugin`, but not inverse.
 
-In runtime, `Ark Container` would automatically recognise `Ark-Plugin` and `Ark-Biz` in classpath, and load them with independent classloader. According to configurations brought by `Ark Plugin` and `Ark Biz`, `Ark Container` would build a class-index table, so they can be 
-isolated well. For example, if a project have two dependencies of A and B, but A depends on C (version = 0.1) and B depends on C (version = 0.2), so conflicts maybe emerge. 
+In runtime, `Ark Container` would automatically recognize `Ark-Plugin` and `Ark-Biz` in classpath, and load them with the independent classloader. According to configurations brought by `Ark Plugin` and `Ark Biz`, `Ark Container` would build a class-index table, so they can be
+isolated well. For example, if a project has two dependencies of A and B, but A depends on C (version = 0.1) and B depends on C (version = 0.2), so conflicts maybe emerge.
 
 ![conflict](resource/SOFA-Ark-Conflict.png)
 
-In this situation, we just repackage the dependencies of A and C(version=0.1) as a ark-plugin, and add the dependency of the `ark-plugin` to project, then this conflict would be avoided.
+In this situation, we just repackage the dependencies of A and C(version=0.1) as an ark-plugin, and add the dependency of the `ark-plugin` to project, then this conflict would be avoided.
 
 ## Sample
 
@@ -59,4 +59,4 @@ In this situation, we just repackage the dependencies of A and C(version=0.1) as
 
 ## Documentation
 
-* [SOFA Ark 用户手册(中文)](https://alipay.github.io/sofastack.github.io/docs/) : Describe how to used SOFA Ark and its features. 
+* [SOFA Ark 用户手册(中文)](https://alipay.github.io/sofastack.github.io/docs/): Describe how to used SOFA Ark and its features.
