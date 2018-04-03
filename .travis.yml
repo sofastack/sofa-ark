@@ -1,7 +1,9 @@
 language: java
 sudo: false
 
-jdk: oraclejdk8
+jdk:
+- oraclejdk8
+- openjdk7
 
 install:
 - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
