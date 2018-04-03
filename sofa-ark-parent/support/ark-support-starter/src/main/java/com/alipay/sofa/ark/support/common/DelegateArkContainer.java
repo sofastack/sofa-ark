@@ -101,11 +101,7 @@ public class DelegateArkContainer {
      * @return
      */
     public static boolean isStarted() {
-        try {
-            return arkContainer != null;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        return arkContainer != null;
     }
 
     /**
