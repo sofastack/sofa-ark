@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.tester;
+package com.alipay.sofa.ark.container.test;
 
 import com.alipay.sofa.ark.container.ArkContainer;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;

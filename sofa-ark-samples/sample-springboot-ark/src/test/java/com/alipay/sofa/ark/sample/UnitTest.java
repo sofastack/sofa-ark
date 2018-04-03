@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.sample;
 
-import com.alipay.sofa.ark.ide.runner.ArkJUnit4Runner;
+import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

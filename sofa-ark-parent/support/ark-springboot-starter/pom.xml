@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-ide-starter</artifactId>
+            <artifactId>sofa-ark-support-starter</artifactId>
         </dependency>
 
         <!--test-->

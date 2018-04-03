@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.startup;
+package com.alipay.sofa.ark.support.startup;
 
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
-import com.alipay.sofa.ark.bootstrap.EntryMethod;
-import com.alipay.sofa.ark.common.thread.IsolatedThreadGroup;
-import com.alipay.sofa.ark.common.thread.LaunchRunner;
+import com.alipay.sofa.ark.support.thread.IsolatedThreadGroup;
+import com.alipay.sofa.ark.support.thread.LaunchRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import sun.misc.URLClassPath;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
@@ -37,8 +36,8 @@ import java.net.URLClassLoader;
  */
 public class SofaArkBootstrap {
 
-    private static final String CONTAINER_CLASSLOADER = "com.alipay.sofa.ark.bootstrap.ContainerClassLoader";
-    private static final String MAIN_ENTRY_NAME       = "remain";
+    private static final String BIZ_CLASSLOADER = "com.alipay.sofa.ark.container.service.classloader.BizClassLoader";
+    private static final String MAIN_ENTRY_NAME = "remain";
     private static EntryMethod  entryMethod;
 
     public static void launch(String[] args) {
@@ -117,8 +116,8 @@ public class SofaArkBootstrap {
     }
 
     private static boolean isSofaArkStarted() {
-        Class<?> containerClassloader = SofaArkBootstrap.class.getClassLoader().getClass();
-        return CONTAINER_CLASSLOADER.equals(containerClassloader.getCanonicalName());
+        Class<?> bizClassloader = SofaArkBootstrap.class.getClassLoader().getClass();
+        return BIZ_CLASSLOADER.equals(bizClassloader.getCanonicalName());
     }
 
 }

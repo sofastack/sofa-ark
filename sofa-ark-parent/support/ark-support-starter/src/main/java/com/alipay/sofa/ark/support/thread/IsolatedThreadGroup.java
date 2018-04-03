@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.common.thread;
+package com.alipay.sofa.ark.support.thread;
 
 /**
  * Isolated {@link ThreadGroup} to capture uncaught exceptions.

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.common;
+package com.alipay.sofa.ark.support.common;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.ide.startup.SofaArkBootstrap;
+import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 
 import java.lang.reflect.Method;
 
@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
  */
 public class DelegateArkContainer {
 
-    private static final String TEST_HELPER             = "com.alipay.sofa.ark.container.tester.TestHelper";
+    private static final String TEST_HELPER             = "com.alipay.sofa.ark.container.test.TestHelper";
     private static final String CREATE_TEST_CLASSLOADER = "createTestClassLoader";
 
     private static Method       CREATE_TEST_CLASSLOADER_METHOD;

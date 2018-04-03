@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.runner;
 
-import com.alipay.sofa.ark.ide.runner.ArkJUnit4Runner;
+import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
 import org.junit.runners.model.InitializationError;
 
 /**

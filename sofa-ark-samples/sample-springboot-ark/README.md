@@ -96,7 +96,7 @@ you should add dependency as follows:
 ```
 <dependency>
     <groupId>com.alipay.sofa</groupId>
-    <artifactId>sofa-ark-ide-starter</artifactId>
+    <artifactId>sofa-ark-support-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
 ```

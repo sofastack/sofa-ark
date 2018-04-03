@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.ide.runner;
+package com.alipay.sofa.ark.support.runner;
 
-import com.alipay.sofa.ark.ide.common.DelegateArkContainer;
+import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;

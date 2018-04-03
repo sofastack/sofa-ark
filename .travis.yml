@@ -4,7 +4,7 @@ sudo: false
 jdk: oraclejdk8
 
 script:
-- mvn clean test
+- mvn clean install -DskipTests=true
 - sh ./check_format.sh
 
 after_success: mvn clean cobertura:cobertura coveralls:report

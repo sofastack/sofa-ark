@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.runner;
 
-import com.alipay.sofa.ark.ide.common.DelegateArkContainer;
+import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.manipulation.*;
