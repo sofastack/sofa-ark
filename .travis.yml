@@ -10,6 +10,5 @@ install:
 
 script:
 - sh ./check_format.sh
-- mvn cobertura:cobertura
 
-after_success: mvn coveralls:report
+after_success: mvn test cobertura:cobertura coveralls:report
