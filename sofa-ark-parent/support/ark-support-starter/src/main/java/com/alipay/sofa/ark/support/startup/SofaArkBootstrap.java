@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.bootstrap;
+package com.alipay.sofa.ark.support.startup;
 
-import com.alipay.sofa.ark.common.thread.IsolatedThreadGroup;
-import com.alipay.sofa.ark.common.thread.LaunchRunner;
+import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
+import com.alipay.sofa.ark.support.thread.IsolatedThreadGroup;
+import com.alipay.sofa.ark.support.thread.LaunchRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import sun.misc.URLClassPath;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
@@ -35,8 +36,8 @@ import java.net.URLClassLoader;
  */
 public class SofaArkBootstrap {
 
-    private static final String CONTAINER_CLASSLOADER = "com.alipay.sofa.ark.bootstrap.ContainerClassLoader";
-    private static final String MAIN_ENTRY_NAME       = "remain";
+    private static final String BIZ_CLASSLOADER = "com.alipay.sofa.ark.container.service.classloader.BizClassLoader";
+    private static final String MAIN_ENTRY_NAME = "remain";
     private static EntryMethod  entryMethod;
 
     public static void launch(String[] args) {
@@ -55,6 +56,18 @@ public class SofaArkBootstrap {
                 System.exit(0);
             }
         } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object prepareContainerForTest() {
+        try {
+            /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
+            System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
+
+            URL[] urls = getURLClassPath().getURLs();
+            return new ClasspathLauncher(new ClassPathArchive(urls)).launch(getClasspath(urls));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -103,8 +116,8 @@ public class SofaArkBootstrap {
     }
 
     private static boolean isSofaArkStarted() {
-        Class<?> containerClassloader = SofaArkBootstrap.class.getClassLoader().getClass();
-        return CONTAINER_CLASSLOADER.equals(containerClassloader.getCanonicalName());
+        Class<?> bizClassloader = SofaArkBootstrap.class.getClassLoader().getClass();
+        return BIZ_CLASSLOADER.equals(bizClassloader.getCanonicalName());
     }
 
 }

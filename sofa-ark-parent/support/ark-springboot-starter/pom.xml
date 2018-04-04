@@ -19,7 +19,32 @@
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-ide-starter</artifactId>
+            <artifactId>sofa-ark-support-starter</artifactId>
+        </dependency>
+
+        <!--test-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-container</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.inject</groupId>
+                    <artifactId>guice</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

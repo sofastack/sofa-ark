@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sofa-ark-ide-starter</artifactId>
+    <artifactId>sofa-ark-support-starter</artifactId>
 
     <dependencies>
 
@@ -36,6 +36,20 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!--junit-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+        <!--test-->
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

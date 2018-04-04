@@ -1,2 +1,2 @@
 org.springframework.context.ApplicationListener=\
-com.alipay.sofa.ark.springboot.ArkApplicationStartListener
+com.alipay.sofa.ark.springboot.listener.ArkApplicationStartListener

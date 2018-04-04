@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import org.junit.Assert;
@@ -34,10 +35,9 @@ public class ArkContainerTest extends BaseTest {
     private URL jarURL = ArkContainerTest.class.getClassLoader().getResource("test.jar");
 
     @Test
-    public void testStart() throws Exception {
-        ArkContainer arkContainer = new ArkContainer(new ExecutableArkBizJar(new JarFileArchive(
-            new File((jarURL.getFile())))));
-        arkContainer.start();
+    public void testStart() throws ArkException {
+        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
         Assert.assertTrue(arkContainer.isStarted());
     }
 

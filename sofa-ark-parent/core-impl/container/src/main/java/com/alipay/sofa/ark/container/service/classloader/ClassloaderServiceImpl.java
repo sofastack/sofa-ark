@@ -56,8 +56,6 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     private static final String                    ARK_SPI_PACKAGES               = "com.alipay.sofa.ark.spi";
 
-    private static final String                    ARK_BOOTSTRAP_CLASS            = "com.alipay.sofa.ark.bootstrap.SofaArkBootstrap";
-
     private static final String                    ARK_EXPORT_RESOURCE            = "_sofa_ark_export_resource";
 
     private static final List<String>              SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<>();
@@ -91,7 +89,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     @Override
     public boolean isArkSpiClass(String className) {
-        return className.equals(ARK_BOOTSTRAP_CLASS) || className.startsWith(ARK_SPI_PACKAGES);
+        return className.startsWith(ARK_SPI_PACKAGES);
     }
 
     @Override

@@ -41,11 +41,11 @@ public class MainMethodRunner {
         this.args = (args == null ? null : args.clone());
     }
 
-    public void run() throws Exception {
+    public Object run() throws Exception {
         Class<?> mainClass = Thread.currentThread().getContextClassLoader()
             .loadClass(this.mainClassName);
         Method mainMethod = mainClass.getDeclaredMethod("main", String[].class);
-        mainMethod.invoke(null, new Object[] { this.args });
+        return mainMethod.invoke(null, new Object[] { this.args });
     }
 
 }

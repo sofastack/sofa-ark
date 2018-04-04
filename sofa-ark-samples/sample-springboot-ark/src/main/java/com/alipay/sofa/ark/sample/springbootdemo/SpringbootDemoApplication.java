@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.sample.common.SampleClassExported;
 import com.alipay.sofa.ark.sample.SampleClassNotExported;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ImportResource;
 
 /**
  * A sample spring boot web project repackage as ark fat jar.
@@ -27,6 +28,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author qilong.zql
  * @since 0.1.0
  */
+@ImportResource({ "classpath*:META-INF/spring/service.xml" })
 @SpringBootApplication
 public class SpringbootDemoApplication {
 

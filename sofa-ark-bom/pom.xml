@@ -106,7 +106,7 @@
 
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-ark-ide-starter</artifactId>
+                <artifactId>sofa-ark-support-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -251,7 +251,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <dependency>

@@ -15,7 +15,7 @@
     <modules>
         <module>ark-plugin-maven-plugin</module>
         <module>ark-maven-plugin</module>
-        <module>ark-ide-starter</module>
+        <module>ark-support-starter</module>
         <module>ark-springboot-starter</module>
         <module>ark-tools</module>
     </modules>

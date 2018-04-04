@@ -42,6 +42,11 @@ public class DeployBizStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
+
+        if (pipelineContext.getLaunchCommand().isTestMode()) {
+            return;
+        }
+
         for (Biz biz : bizManagerService.getBizsInOrder()) {
             try {
                 LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
