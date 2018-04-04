@@ -12,4 +12,4 @@ script:
 - sh ./check_format.sh
 
 after_success:
-- mvn test cobertura:cobertura coveralls:report
+- mvn clean test cobertura:cobertura coveralls:report
