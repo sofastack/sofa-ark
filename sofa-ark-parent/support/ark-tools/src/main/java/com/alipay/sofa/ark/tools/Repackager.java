@@ -218,7 +218,7 @@ public class Repackager {
 
         JarFile jarFileSource = new JarFile(arkContainerLibrary.getFile().getAbsoluteFile());
         JarWriter writer = new JarWriter(destination);
-        Manifest manifest = buildAppManifest(jarFileSource);
+        Manifest manifest = buildAppManifest(new JarFile(pluginModuleJar));
 
         try {
             writer.writeManifest(manifest);
