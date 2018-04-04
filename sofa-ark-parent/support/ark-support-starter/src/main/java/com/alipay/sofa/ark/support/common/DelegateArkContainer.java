@@ -29,15 +29,15 @@ import java.lang.reflect.Method;
  */
 public class DelegateArkContainer {
 
-    private static final String TEST_HELPER             = "com.alipay.sofa.ark.container.test.TestHelper";
-    private static final String CREATE_TEST_CLASSLOADER = "createTestClassLoader";
+    private static final String         TEST_HELPER             = "com.alipay.sofa.ark.container.test.TestHelper";
+    private static final String         CREATE_TEST_CLASSLOADER = "createTestClassLoader";
 
-    private static Method       CREATE_TEST_CLASSLOADER_METHOD;
+    private static Method               CREATE_TEST_CLASSLOADER_METHOD;
 
-    private static Object       arkContainer;
-    private static Object       testHelper;
-    private static ClassLoader  testClassLoader;
-    private static final Object LOCK                    = new Object();
+    private static volatile Object      arkContainer;
+    private static Object               testHelper;
+    private static volatile ClassLoader testClassLoader;
+    private static final Object         LOCK                    = new Object();
 
     /**
      * Launch Ark Container when run tests
@@ -47,14 +47,13 @@ public class DelegateArkContainer {
             synchronized (LOCK) {
                 if (arkContainer == null) {
                     arkContainer = SofaArkBootstrap.prepareContainerForTest();
-
-                    wrapping();
-
-                    Thread.currentThread().setContextClassLoader(
-                        DelegateArkContainer.getTestClassLoader());
                 }
             }
         }
+
+        wrapping();
+
+        Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
     }
 
     /**
@@ -75,7 +74,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Get {@see com.alipay.sofa.ark.container.tester.TestClassLoader}, used by
+     * Get {@see com.alipay.sofa.ark.container.test.TestClassLoader}, used by
      * loading test class
      *
      * @return
@@ -105,7 +104,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Load class using {@see com.alipay.sofa.ark.container.tester.TestClassLoader}
+     * Load class using {@see com.alipay.sofa.ark.container.test.TestClassLoader}
      * @param name
      * @return
      */
