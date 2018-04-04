@@ -13,10 +13,6 @@
     <artifactId>sofa-ark-parent</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <sofa.ark.name>sofa-ark-all</sofa.ark.name>
-    </properties>
-
     <modules>
         <module>assembly</module>
         <module>core</module>
