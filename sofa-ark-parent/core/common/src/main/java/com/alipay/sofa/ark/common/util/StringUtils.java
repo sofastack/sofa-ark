@@ -66,9 +66,7 @@ public class StringUtils {
             return EMPTY_STRING;
         }
 
-        if (delimiter == null) {
-            delimiter = EMPTY_STRING;
-        }
+        AssertUtils.assertNotNull(delimiter, "Delimiter should not be null.");
 
         StringBuilder sb = new StringBuilder();
         for (String str : stringSet) {

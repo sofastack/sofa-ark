@@ -62,7 +62,6 @@ public class StringUtilsTest {
         Assert.assertTrue("ab&&ba&&cb".equals(StringUtils.listToStr(linkedHashSet, "&&")));
 
         Assert.assertTrue("abbacb".equals(StringUtils.listToStr(linkedHashSet, "")));
-        Assert.assertTrue("abbacb".equals(StringUtils.listToStr(linkedHashSet, null)));
     }
 
     @Test

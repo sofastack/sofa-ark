@@ -75,7 +75,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     private PluginManagerService                   pluginManagerService;
 
     @Inject
-    private BizManagerService bizManagerService;
+    private BizManagerService                      bizManagerService;
 
     static {
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedMethodAccessor");
@@ -239,7 +239,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         }
 
         for (String pkg : biz.getDenyImportPackages()) {
-            if (pkg.startsWith(className)) {
+            if (className.startsWith(pkg)) {
                 return true;
             }
         }
@@ -261,9 +261,9 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         }
 
         for (String resource : biz.getDenyImportResources()) {
-             if (resource.equals(resourceName)) {
-                 return true;
-             }
+            if (resource.equals(resourceName)) {
+                return true;
+            }
         }
 
         return false;

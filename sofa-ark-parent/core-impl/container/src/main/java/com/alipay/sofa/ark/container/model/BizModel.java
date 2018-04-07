@@ -46,11 +46,11 @@ public class BizModel implements Biz {
 
     private int              priority;
 
-    private Set<String> denyImportPackages;
+    private Set<String>      denyImportPackages;
 
-    private Set<String> denyImportClasses;
+    private Set<String>      denyImportClasses;
 
-    private Set<String> denyImportResources;
+    private Set<String>      denyImportResources;
 
     public BizModel setBizName(String bizName) {
         this.bizName = bizName;
@@ -78,17 +78,20 @@ public class BizModel implements Biz {
     }
 
     public BizModel setDenyImportPackages(String denyImportPackages) {
-        this.denyImportPackages = StringUtils.strToSet(denyImportPackages, Constants.MANIFEST_VALUE_SPLIT);
+        this.denyImportPackages = StringUtils.strToSet(denyImportPackages,
+            Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
     public BizModel setDenyImportClasses(String denyImportClasses) {
-        this.denyImportClasses = StringUtils.strToSet(denyImportClasses, Constants.MANIFEST_VALUE_SPLIT);
+        this.denyImportClasses = StringUtils.strToSet(denyImportClasses,
+            Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
     public BizModel setDenyImportResources(String denyImportResources) {
-        this.denyImportResources = StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT);
+        this.denyImportResources = StringUtils.strToSet(denyImportResources,
+            Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 

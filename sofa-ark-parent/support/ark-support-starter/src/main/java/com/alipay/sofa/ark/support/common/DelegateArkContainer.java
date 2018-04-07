@@ -46,12 +46,12 @@ public class DelegateArkContainer {
         if (arkContainer == null) {
             synchronized (LOCK) {
                 if (arkContainer == null) {
-                    arkContainer = SofaArkBootstrap.prepareContainerForTest();
+                    Object container = SofaArkBootstrap.prepareContainerForTest();
+                    wrapping(container);
+                    arkContainer = container;
                 }
             }
         }
-
-        wrapping();
 
         Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
     }
@@ -59,13 +59,12 @@ public class DelegateArkContainer {
     /**
      * wrap {@see com.alipay.sofa.ark.container.ArkContainer}
      */
-    protected static void wrapping() {
-        AssertUtils.assertNotNull(arkContainer, "Ark Container must be not null.");
+    protected static void wrapping(Object container) {
+        AssertUtils.assertNotNull(container, "Ark Container must be not null.");
 
         try {
-            Class<?> testHelperClass = arkContainer.getClass().getClassLoader()
-                .loadClass(TEST_HELPER);
-            testHelper = testHelperClass.getConstructor(Object.class).newInstance(arkContainer);
+            Class<?> testHelperClass = container.getClass().getClassLoader().loadClass(TEST_HELPER);
+            testHelper = testHelperClass.getConstructor(Object.class).newInstance(container);
             CREATE_TEST_CLASSLOADER_METHOD = testHelperClass.getMethod(CREATE_TEST_CLASSLOADER);
         } catch (Exception ex) {
             // impossible situation

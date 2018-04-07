@@ -324,9 +324,12 @@ public class Repackager {
 
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, startClass);
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, this.bizName);
-        manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES, StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
-        manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES, StringUtils.listToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
-        manifest.getMainAttributes().putValue(DENY_IMPORT_RESOURCES, StringUtils.listToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
+            StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,
+            StringUtils.listToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(DENY_IMPORT_RESOURCES,
+            StringUtils.listToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
 
         return manifest;
     }
