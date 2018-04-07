@@ -110,6 +110,9 @@ public class HandleArchiveStage implements PipelineStage {
         return bizModel.setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setMainClass(manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE))
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
+            .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
+            .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
     }

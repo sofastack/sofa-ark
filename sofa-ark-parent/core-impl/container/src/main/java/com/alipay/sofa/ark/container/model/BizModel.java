@@ -17,11 +17,14 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.classloader.ClassloaderUtil;
 import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 
 import java.net.URL;
+import java.util.Set;
 
 /**
  * Ark Biz Standard Model
@@ -42,6 +45,12 @@ public class BizModel implements Biz {
     private ClassLoader      classLoader;
 
     private int              priority;
+
+    private Set<String> denyImportPackages;
+
+    private Set<String> denyImportClasses;
+
+    private Set<String> denyImportResources;
 
     public BizModel setBizName(String bizName) {
         this.bizName = bizName;
@@ -68,6 +77,21 @@ public class BizModel implements Biz {
         return this;
     }
 
+    public BizModel setDenyImportPackages(String denyImportPackages) {
+        this.denyImportPackages = StringUtils.strToSet(denyImportPackages, Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    public BizModel setDenyImportClasses(String denyImportClasses) {
+        this.denyImportClasses = StringUtils.strToSet(denyImportClasses, Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    public BizModel setDenyImportResources(String denyImportResources) {
+        this.denyImportResources = StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
     @Override
     public String getBizName() {
         return bizName;
@@ -91,6 +115,21 @@ public class BizModel implements Biz {
     @Override
     public ClassLoader getBizClassLoader() {
         return classLoader;
+    }
+
+    @Override
+    public Set<String> getDenyImportPackages() {
+        return denyImportPackages;
+    }
+
+    @Override
+    public Set<String> getDenyImportClasses() {
+        return denyImportClasses;
+    }
+
+    @Override
+    public Set<String> getDenyImportResources() {
+        return denyImportResources;
     }
 
     @Override

@@ -16,12 +16,16 @@
  */
 package com.alipay.sofa.ark.common.util;
 
+import java.util.*;
+
 /**
  *
  * @author ruoshan
  * @since 0.1.0
  */
 public class StringUtils {
+
+    public static final String EMPTY_STRING = "";
 
     /**
      * <p>Checks if a String is empty ("") or null.</p>
@@ -51,4 +55,37 @@ public class StringUtils {
         return a.equals(b);
     }
 
+    /**
+     * <p>Transform a string list to a long string separated by delimiter</p>
+     * @param stringSet
+     * @param delimiter
+     * @return
+     */
+    public static String listToStr(Set<String> stringSet, String delimiter) {
+        if (stringSet == null || stringSet.isEmpty()) {
+            return EMPTY_STRING;
+        }
+
+        if (delimiter == null) {
+            delimiter = EMPTY_STRING;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String str : stringSet) {
+            sb.append(str.trim()).append(delimiter);
+        }
+
+        return sb.toString().substring(0, sb.length() - delimiter.length());
+    }
+
+    public static Set<String> strToSet(String str, String delimiter) {
+        return new LinkedHashSet<>(strToList(str, delimiter));
+    }
+
+    public static List<String> strToList(String str, String delimiter) {
+        if (str == null || str.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(str.split(delimiter));
+    }
 }
