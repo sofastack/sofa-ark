@@ -85,6 +85,9 @@ public class BizClassloaderTest extends BaseTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setDenyImportResources("");
+        bizModel.setDenyImportClasses("");
+        bizModel.setDenyImportPackages("");
 
         bizManagerService.registerBiz(bizModel);
 
@@ -123,6 +126,9 @@ public class BizClassloaderTest extends BaseTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("MockBiz").setClassPath(new URL[] {})
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setDenyImportResources("");
+        bizModel.setDenyImportClasses("");
+        bizModel.setDenyImportPackages("");
 
         bizManagerService.registerBiz(bizModel);
         BizClassLoader bizClassLoader = (BizClassLoader) bizModel.getBizClassLoader();
