@@ -51,7 +51,7 @@ build>
                         <!--specify destination where executable-ark-jar will be saved, default saved to ${project.build.directory}-->
                         <outputDirectory>./target</outputDirectory>
                         
-                        <!--default none-->
+                        <!--default executable-ark-->
                         <arkClassifier>executable-ark</arkClassifier>
                     </configuration>
                 </execution>
