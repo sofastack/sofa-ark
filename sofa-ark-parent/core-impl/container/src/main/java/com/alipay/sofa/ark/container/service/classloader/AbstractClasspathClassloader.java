@@ -60,7 +60,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * 加载类的真正逻辑，需要继承的 classloader 自己实现
+     * Real logic to load class，need to implement by Sub Classloader
      * @param name
      * @param resolve
      * @return
@@ -150,14 +150,14 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * 是否要寻找其他 classloader export 的类
+     * Whether to find class that exported by other classloader
      * @param className class name
      * @return
      */
     abstract boolean shouldFindClassInExport(String className);
 
     /**
-     * 是否要寻找其他 classloader export 的 resource
+     * Whether to find resource that exported by other classloader
      * @param resourceName
      * @return
      */
