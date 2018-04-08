@@ -37,8 +37,8 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -50,32 +50,33 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class ClassloaderServiceImpl implements ClassloaderService {
 
-    private static final ArkLogger                 LOGGER                         = ArkLoggerFactory
-                                                                                      .getDefaultLogger();
+    private static final ArkLogger                       LOGGER                          = ArkLoggerFactory
+                                                                                             .getDefaultLogger();
 
-    private static final String                    JAVA_AGENT_MARK                = "-javaagent:";
+    private static final String                          JAVA_AGENT_MARK                 = "-javaagent:";
 
-    private static final String                    JAVA_AGENT_OPTION_MARK         = "=";
+    private static final String                          JAVA_AGENT_OPTION_MARK          = "=";
 
-    private static final String                    ARK_SPI_PACKAGES               = "com.alipay.sofa.ark.spi";
+    private static final String                          ARK_SPI_PACKAGES                = "com.alipay.sofa.ark.spi";
 
-    private static final String                    ARK_EXPORT_RESOURCE            = "_sofa_ark_export_resource";
-
-    private static final List<String>              SUN_REFLECT_GENERATED_ACCESSOR = new ArrayList<>();
+    private static final List<String>                    SUN_REFLECT_GENERATED_ACCESSOR  = new ArrayList<>();
 
     /* export class and classloader relationship cache */
-    private ConcurrentHashMap<String, ClassLoader> exportClassAndClassloaderMap   = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassloaderMap    = new ConcurrentHashMap<>();
 
-    private ClassLoader                            jdkClassloader;
-    private ClassLoader                            arkClassloader;
-    private ClassLoader                            systemClassloader;
-    private ClassLoader                            agentClassLoader;
+    /* export cache and classloader relationship cache */
+    private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassloaderMap = new ConcurrentHashMap<>();
+
+    private ClassLoader                                  jdkClassloader;
+    private ClassLoader                                  arkClassloader;
+    private ClassLoader                                  systemClassloader;
+    private ClassLoader                                  agentClassLoader;
 
     @Inject
-    private PluginManagerService                   pluginManagerService;
+    private PluginManagerService                         pluginManagerService;
 
     @Inject
-    private BizManagerService                      bizManagerService;
+    private BizManagerService                            bizManagerService;
 
     static {
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedMethodAccessor");
@@ -99,11 +100,16 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public void prepareExportClassCache() {
+    public void prepareExportClassAndResourceCache() {
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
             for (String exportIndex : plugin.getExportIndex()) {
                 exportClassAndClassloaderMap
                     .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+            }
+            for (String resource : plugin.getExportResources()) {
+                exportResourceAndClassloaderMap
+                    .putIfAbsent(resource, new LinkedList<ClassLoader>());
+                exportResourceAndClassloaderMap.get(resource).add(plugin.getPluginClassLoader());
             }
         }
     }
@@ -123,21 +129,26 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public ClassLoader findImportClassloader(String className) {
+    public ClassLoader findExportClassloader(String className) {
         return exportClassAndClassloaderMap.get(className);
     }
 
     @Override
-    public ClassLoader findResourceExportClassloader(String resourceName) {
-        if (resourceName.contains(ARK_EXPORT_RESOURCE)) {
-            String pluginName = resourceName
-                .substring(0, resourceName.indexOf(ARK_EXPORT_RESOURCE));
-            Plugin plugin = pluginManagerService.getPluginByName(pluginName);
-            if (plugin != null) {
-                return plugin.getPluginClassLoader();
+    public boolean isResourceInImport(String pluginName, String resourceName) {
+        Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+        AssertUtils.assertNotNull(plugin, "plugin: " + pluginName + " is null");
+
+        for (String importResource : plugin.getImportResources()) {
+            if (importResource.equals(resourceName)) {
+                return true;
             }
         }
-        return null;
+        return false;
+    }
+
+    @Override
+    public List<ClassLoader> findExportResourceClassloadersInOrder(String resourceName) {
+        return exportResourceAndClassloaderMap.get(resourceName);
     }
 
     @Override

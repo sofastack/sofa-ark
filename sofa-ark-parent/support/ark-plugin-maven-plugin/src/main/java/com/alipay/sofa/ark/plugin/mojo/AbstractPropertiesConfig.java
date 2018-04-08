@@ -27,13 +27,13 @@ import java.util.Properties;
  */
 public abstract class AbstractPropertiesConfig {
 
-    public static final String      KEY_PACKAGES = "packages";
-    public static final String      KEY_CLASSES  = "classes";
+    public static final String      KEY_PACKAGES  = "packages";
+    public static final String      KEY_CLASSES   = "classes";
     public static final String      KEY_RESOURCES = "resources";
-    public static final String      KEY_EXPORT   = "export";
-    public static final String      KEY_IMPORT   = "import";
-    public static final String      KEY_SPLIT    = "-";
-    public static final String      VALUE_SPLIT  = ",";
+    public static final String      KEY_EXPORT    = "export";
+    public static final String      KEY_IMPORT    = "import";
+    public static final String      KEY_SPLIT     = "-";
+    public static final String      VALUE_SPLIT   = ",";
 
     /**
      * imported or exported packages config

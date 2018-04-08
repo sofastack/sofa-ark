@@ -62,6 +62,12 @@ module, it configures as follows:
                 <classes>
                     <class>com.alipay.sofa.ark.sample.facade.SamplePluginService</class>
                 </classes>
+                
+                <!-- configure exported resource -->
+                 <resources>
+                    <resource>Sample_Resource_Exported</resource>
+                </resources>
+            </exported>
             </exported>
 
             <!--specify destination where ark-plugin will be saved, default saved to ${project.build.directory}-->

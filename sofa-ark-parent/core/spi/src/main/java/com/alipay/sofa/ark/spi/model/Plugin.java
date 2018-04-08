@@ -111,6 +111,18 @@ public interface Plugin {
     Set<String> getImportClasses();
 
     /**
+     * get Plugin Import Resources
+     * @return plugin import resources
+     */
+    Set<String> getImportResources();
+
+    /**
+     * get Plugin Export Resources
+     * @return get plugin export resources
+     */
+    Set<String> getExportResources();
+
+    /**
      * get Plugin Export Index, contain both Plugin Export Packages and Plugin Export Classes
      * @return plugin export index
      */

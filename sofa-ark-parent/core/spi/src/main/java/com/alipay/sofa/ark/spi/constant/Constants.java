@@ -22,31 +22,32 @@ package com.alipay.sofa.ark.spi.constant;
  */
 public abstract class Constants {
 
-    public final static String ARK_CONTAINER_MARK_ENTRY  = "com/alipay/sofa/ark/container/mark";
+    public final static String ARK_CONTAINER_MARK_ENTRY   = "com/alipay/sofa/ark/container/mark";
 
-    public final static String ARK_PLUGIN_MARK_ENTRY     = "com/alipay/sofa/ark/plugin/mark";
+    public final static String ARK_PLUGIN_MARK_ENTRY      = "com/alipay/sofa/ark/plugin/mark";
 
-    public final static String ARK_MODULE_MARK_ENTRY     = "com/alipay/sofa/ark/biz/mark";
+    public final static String ARK_MODULE_MARK_ENTRY      = "com/alipay/sofa/ark/biz/mark";
 
-    public final static String PRIORITY_ATTRIBUTE        = "priority";
-    public final static String GROUP_ID_ATTRIBUTE        = "groupId";
-    public final static String ARTIFACT_ID_ATTRIBUTE     = "artifactId";
-    public final static String PLUGIN_NAME_ATTRIBUTE     = "pluginName";
-    public final static String PLUGIN_VERSION_ATTRIBUTE  = "version";
-    public final static String ACTIVATOR_ATTRIBUTE       = "activator";
-    public final static String IMPORT_CLASSES_ATTRIBUTE  = "import-classes";
-    public final static String IMPORT_PACKAGES_ATTRIBUTE = "import-packages";
-    public final static String EXPORT_CLASSES_ATTRIBUTE  = "export-classes";
-    public final static String EXPORT_PACKAGES_ATTRIBUTE = "export-packages";
+    public final static String PRIORITY_ATTRIBUTE         = "priority";
+    public final static String GROUP_ID_ATTRIBUTE         = "groupId";
+    public final static String ARTIFACT_ID_ATTRIBUTE      = "artifactId";
+    public final static String PLUGIN_NAME_ATTRIBUTE      = "pluginName";
+    public final static String PLUGIN_VERSION_ATTRIBUTE   = "version";
+    public final static String ACTIVATOR_ATTRIBUTE        = "activator";
+    public final static String IMPORT_CLASSES_ATTRIBUTE   = "import-classes";
+    public final static String IMPORT_PACKAGES_ATTRIBUTE  = "import-packages";
+    public final static String EXPORT_CLASSES_ATTRIBUTE   = "export-classes";
+    public final static String EXPORT_PACKAGES_ATTRIBUTE  = "export-packages";
 
-    public final static String MAIN_CLASS_ATTRIBUTE      = "Main-Class";
-    public final static String ARK_BIZ_NAME              = "Ark-Biz-Name";
-    public final static String DENY_IMPORT_CLASSES       = "deny-import-classes";
-    public final static String DENY_IMPORT_PACKAGES      = "deny-import-packages";
-    public final static String DENY_IMPORT_RESOURCES     = "deny-import-resources";
+    public final static String MAIN_CLASS_ATTRIBUTE       = "Main-Class";
+    public final static String ARK_BIZ_NAME               = "Ark-Biz-Name";
+    public final static String DENY_IMPORT_CLASSES        = "deny-import-classes";
+    public final static String DENY_IMPORT_PACKAGES       = "deny-import-packages";
+    public final static String DENY_IMPORT_RESOURCES      = "deny-import-resources";
 
-    public final static String MANIFEST_VALUE_SPLIT      = ",";
+    public final static String MANIFEST_VALUE_SPLIT       = ",";
 
     public final static String IMPORT_RESOURCES_ATTRIBUTE = "import-resources";
+    public final static String EXPORT_RESOURCES_ATTRIBUTE = "export-resources";
 
 }

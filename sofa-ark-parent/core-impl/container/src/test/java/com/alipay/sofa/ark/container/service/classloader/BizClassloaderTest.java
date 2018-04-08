@@ -76,12 +76,14 @@ public class BizClassloaderTest extends BaseTest {
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginDeployService.deploy();
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
@@ -105,12 +107,14 @@ public class BizClassloaderTest extends BaseTest {
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginDeployService.deploy();
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
@@ -145,13 +149,15 @@ public class BizClassloaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("pluginA_export_resource1.xml,pluginA_export_resource2.xml")
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
         pluginManagerService.registerPlugin(pluginA);
         pluginDeployService.deploy();
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
         bizModel.setBizName("bizA").setClassPath(new URL[] {})
@@ -163,10 +169,11 @@ public class BizClassloaderTest extends BaseTest {
         bizManagerService.registerBiz(bizModel);
 
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
-            "pluginA_sofa_ark_export_resource_test1.xml"));
-        bizModel.setDenyImportResources("pluginA_sofa_ark_export_resource_test1.xml");
-        Assert.assertNull(bizModel.getBizClassLoader().getResource(
-            "pluginA_sofa_ark_export_resource_test1.xml"));
+            "pluginA_export_resource1.xml"));
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
+            "pluginA_export_resource2.xml"));
+        bizModel.setDenyImportResources("pluginA_export_resource2.xml");
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("pluginA_export_resource2.xml"));
 
         Assert.assertTrue(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);

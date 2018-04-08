@@ -90,6 +90,8 @@ public class HandleArchiveStage implements PipelineStage {
             .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
             .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
             .setExportIndex(pluginArchive.getExportIndex())
+            .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
+            .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
             .setPluginClassLoader(
                 new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
             .setPluginContext(new PluginContextImpl(plugin));

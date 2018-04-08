@@ -128,7 +128,7 @@ public class RegistryServiceTest extends BaseTest {
             .setPluginContext(new PluginContextImpl(pluginA));
 
         pluginManagerService.registerPlugin(pluginA);
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
         Assert.assertEquals(1, registryService.referenceServices(ITest.class).size());
@@ -182,7 +182,7 @@ public class RegistryServiceTest extends BaseTest {
         pluginManagerService.registerPlugin(pluginB);
         pluginManagerService.registerPlugin(pluginc);
 
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
         Assert.assertEquals(4, registryService.referenceServices(ITest.class).size());

@@ -16,16 +16,10 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
-import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
-import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
-
-import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
 
 /**
  * Ark Biz Classloader
@@ -33,31 +27,16 @@ import java.util.*;
  * @author ruoshan
  * @since 0.1.0
  */
-public class BizClassLoader extends URLClassLoader {
+public class BizClassLoader extends AbstractClasspathClassloader {
 
-    private static final String CLASS_RESOURCE_SUFFIX = ".class";
+    private String             bizName;
 
-    private String              bizName;
-
-    private ClassloaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
-                                                          .getService(ClassloaderService.class);
+    private ClassloaderService classloaderService = ArkServiceContainerHolder.getContainer()
+                                                      .getService(ClassloaderService.class);
 
     public BizClassLoader(String bizName, URL[] urls) {
-        super(urls, null);
+        super(urls);
         this.bizName = bizName;
-    }
-
-    @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        if (StringUtils.isEmpty(name)) {
-            return null;
-        }
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            return loadClassInternal(name, resolve);
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
-        }
     }
 
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
@@ -111,90 +90,13 @@ public class BizClassLoader extends URLClassLoader {
     }
 
     @Override
-    public URL getResource(String name) {
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            URL url = super.getResource(name);
-
-            if (url == null && name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-                url = findClassResource(name);
-            }
-
-            if (url == null && !classloaderService.isDeniedImportResource(bizName, name)) {
-                ClassLoader classLoader = classloaderService.findResourceExportClassloader(name);
-                // find export resource classloader and not self
-                if (classLoader != null && classLoader != this) {
-                    url = classLoader.getResource(name);
-                }
-            }
-            return url;
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
-        }
-    }
-
-    private String transformClassName(String name) {
-        if (name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-            name = name.substring(0, name.length() - CLASS_RESOURCE_SUFFIX.length());
-        }
-        return name.replace("/", ".");
-    }
-
-    private URL findClassResource(String resourceName) {
-        String className = transformClassName(resourceName);
-        ClassLoader classLoader = classloaderService.findImportClassloader(className);
-        return classLoader == null ? null : classLoader.getResource(resourceName);
+    boolean shouldFindClassInExport(String className) {
+        return !classloaderService.isDeniedImportClass(bizName, className);
     }
 
     @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            Enumeration<URL> urls = super.getResources(name);
-            if (!classloaderService.isDeniedImportResource(bizName, name)) {
-                ClassLoader classLoader = classloaderService.findResourceExportClassloader(name);
-                // find export resource classloader and not self
-                if (classLoader != null && classLoader != this) {
-                    Enumeration<URL> exportResources = classLoader.getResources(name);
-                    List<URL> mergeResources = Collections.list(exportResources);
-                    mergeResources.addAll(Collections.list(urls));
-                    urls = Collections.enumeration(mergeResources);
-                }
-            }
-            return new UseFastConnectionExceptionsEnumeration(urls);
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
-        }
-    }
-
-    /**
-     * Load JDK class
-     * @param name class name
-     * @return
-     */
-    private Class<?> resolveJDKClass(String name) {
-        try {
-            return classloaderService.getJDKClassloader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
-     * Load ark spi class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveArkClass(String name) {
-        if (classloaderService.isArkSpiClass(name)) {
-            try {
-                return classloaderService.getArkClassloader().loadClass(name);
-            } catch (ClassNotFoundException e) {
-                // ignore
-            }
-        }
-        return null;
+    boolean shouldFindResourceInExport(String resourceName) {
+        return !classloaderService.isDeniedImportResource(bizName, resourceName);
     }
 
     /**
@@ -207,7 +109,7 @@ public class BizClassLoader extends URLClassLoader {
             return null;
         }
 
-        ClassLoader importClassloader = classloaderService.findImportClassloader(name);
+        ClassLoader importClassloader = classloaderService.findExportClassloader(name);
         if (importClassloader != null) {
             try {
                 return importClassloader.loadClass(name);
@@ -218,31 +120,4 @@ public class BizClassLoader extends URLClassLoader {
         return null;
     }
 
-    /**
-     * Load biz classpath class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveLocalClass(String name) {
-        try {
-            return super.findClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
-     * Load Java Agent Class
-     * @param name className
-     * @return
-     */
-    private Class<?> resolveJavaAgentClass(String name) {
-        try {
-            return classloaderService.getAgentClassloader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
 }
