@@ -108,7 +108,7 @@ public class RepackageMojo extends AbstractMojo {
      *
      * @since 0.1.0
      */
-    @Parameter(defaultValue = "executable-ark")
+    @Parameter
     private String                arkClassifier;
 
     /**

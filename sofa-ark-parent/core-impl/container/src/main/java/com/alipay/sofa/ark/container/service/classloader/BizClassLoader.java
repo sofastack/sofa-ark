@@ -16,9 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import java.net.URL;
 
 /**
@@ -31,14 +29,12 @@ public class BizClassLoader extends AbstractClasspathClassloader {
 
     private String             bizName;
 
-    private ClassloaderService classloaderService = ArkServiceContainerHolder.getContainer()
-                                                      .getService(ClassloaderService.class);
-
     public BizClassLoader(String bizName, URL[] urls) {
         super(urls);
         this.bizName = bizName;
     }
 
+    @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
 
         // 1. sun reflect related class throw exception directly

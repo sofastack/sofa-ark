@@ -39,6 +39,7 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
         return pluginName;
     }
 
+    @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
 
         // 1. sun reflect related class throw exception directly
