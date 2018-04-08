@@ -161,6 +161,24 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     private LinkedHashSet<String> excludeArtifactIds;
 
+    /**
+     * list of packages denied to be imported
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String> denyImportPackages;
+
+    /**
+     * list of classes denied to be imported
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String> denyImportClasses;
+
+    /**
+     * list of resources denied to be imported
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String> denyImportResources;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (this.project.getPackaging().equals("war")) {
@@ -255,6 +273,9 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setMainClass(this.mainClass);
         repackager.setBizName(bizName);
         repackager.setArkVersion(arkVersion);
+        repackager.setDenyImportClasses(denyImportClasses);
+        repackager.setDenyImportPackages(denyImportPackages);
+        repackager.setDenyImportResources(denyImportResources);
         return repackager;
     }
 

@@ -20,6 +20,8 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
@@ -36,6 +38,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -70,6 +73,9 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     @Inject
     private PluginManagerService                   pluginManagerService;
+
+    @Inject
+    private BizManagerService                      bizManagerService;
 
     static {
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedMethodAccessor");
@@ -222,5 +228,44 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
         return new URLClassLoader(agentPaths.toArray(new URL[] {}), null);
 
+    }
+
+    @Override
+    public boolean isDeniedImportClass(String bizName, String className) {
+
+        Biz biz = bizManagerService.getBizByName(bizName);
+        if (biz == null) {
+            return false;
+        }
+
+        for (String pkg : biz.getDenyImportPackages()) {
+            if (className.startsWith(pkg)) {
+                return true;
+            }
+        }
+
+        for (String clazz : biz.getDenyImportClasses()) {
+            if (clazz.equals(className)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isDeniedImportResource(String bizName, String resourceName) {
+        Biz biz = bizManagerService.getBizByName(bizName);
+        if (biz == null) {
+            return false;
+        }
+
+        for (String resource : biz.getDenyImportResources()) {
+            if (resource.equals(resourceName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

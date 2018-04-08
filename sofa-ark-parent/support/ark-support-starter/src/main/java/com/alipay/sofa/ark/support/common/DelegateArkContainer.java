@@ -29,15 +29,15 @@ import java.lang.reflect.Method;
  */
 public class DelegateArkContainer {
 
-    private static final String TEST_HELPER             = "com.alipay.sofa.ark.container.test.TestHelper";
-    private static final String CREATE_TEST_CLASSLOADER = "createTestClassLoader";
+    private static final String         TEST_HELPER             = "com.alipay.sofa.ark.container.test.TestHelper";
+    private static final String         CREATE_TEST_CLASSLOADER = "createTestClassLoader";
 
-    private static Method       CREATE_TEST_CLASSLOADER_METHOD;
+    private static Method               CREATE_TEST_CLASSLOADER_METHOD;
 
-    private static Object       arkContainer;
-    private static Object       testHelper;
-    private static ClassLoader  testClassLoader;
-    private static final Object LOCK                    = new Object();
+    private static volatile Object      arkContainer;
+    private static Object               testHelper;
+    private static volatile ClassLoader testClassLoader;
+    private static final Object         LOCK                    = new Object();
 
     /**
      * Launch Ark Container when run tests
@@ -46,27 +46,25 @@ public class DelegateArkContainer {
         if (arkContainer == null) {
             synchronized (LOCK) {
                 if (arkContainer == null) {
-                    arkContainer = SofaArkBootstrap.prepareContainerForTest();
-
-                    wrapping();
-
-                    Thread.currentThread().setContextClassLoader(
-                        DelegateArkContainer.getTestClassLoader());
+                    Object container = SofaArkBootstrap.prepareContainerForTest();
+                    wrapping(container);
+                    arkContainer = container;
                 }
             }
         }
+
+        Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
     }
 
     /**
      * wrap {@see com.alipay.sofa.ark.container.ArkContainer}
      */
-    protected static void wrapping() {
-        AssertUtils.assertNotNull(arkContainer, "Ark Container must be not null.");
+    protected static void wrapping(Object container) {
+        AssertUtils.assertNotNull(container, "Ark Container must be not null.");
 
         try {
-            Class<?> testHelperClass = arkContainer.getClass().getClassLoader()
-                .loadClass(TEST_HELPER);
-            testHelper = testHelperClass.getConstructor(Object.class).newInstance(arkContainer);
+            Class<?> testHelperClass = container.getClass().getClassLoader().loadClass(TEST_HELPER);
+            testHelper = testHelperClass.getConstructor(Object.class).newInstance(container);
             CREATE_TEST_CLASSLOADER_METHOD = testHelperClass.getMethod(CREATE_TEST_CLASSLOADER);
         } catch (Exception ex) {
             // impossible situation
@@ -75,7 +73,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Get {@see com.alipay.sofa.ark.container.tester.TestClassLoader}, used by
+     * Get {@see com.alipay.sofa.ark.container.test.TestClassLoader}, used by
      * loading test class
      *
      * @return
@@ -105,7 +103,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Load class using {@see com.alipay.sofa.ark.container.tester.TestClassLoader}
+     * Load class using {@see com.alipay.sofa.ark.container.test.TestClassLoader}
      * @param name
      * @return
      */

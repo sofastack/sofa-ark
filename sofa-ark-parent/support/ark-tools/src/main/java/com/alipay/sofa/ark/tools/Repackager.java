@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.tools;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.File;
@@ -28,6 +29,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
+
 /**
  * Utility class that can be used to repackage an archive so that it can be executed using
  * {@literal java -jar}
@@ -36,10 +39,6 @@ import java.util.jar.Manifest;
  * @since 0.1.0
  */
 public class Repackager {
-
-    private static final String                   MAIN_CLASS_ATTRIBUTE               = "Main-Class";
-
-    private static final String                   ARK_BIZ_NAME                       = "Ark-Biz-Name";
 
     private static final String                   ARK_VERSION_ATTRIBUTE              = "Sofa-Ark-Version";
 
@@ -58,6 +57,12 @@ public class Repackager {
     private String                                mainClass;
 
     private String                                bizName;
+
+    private LinkedHashSet<String>                 denyImportPackages;
+
+    private LinkedHashSet<String>                 denyImportClasses;
+
+    private LinkedHashSet<String>                 denyImportResources;
 
     private final File                            source;
 
@@ -117,6 +122,18 @@ public class Repackager {
 
     public void setArkVersion(String arkVersion) {
         this.arkVersion = arkVersion;
+    }
+
+    public void setDenyImportPackages(LinkedHashSet<String> denyImportPackages) {
+        this.denyImportPackages = denyImportPackages;
+    }
+
+    public void setDenyImportClasses(LinkedHashSet<String> denyImportClasses) {
+        this.denyImportClasses = denyImportClasses;
+    }
+
+    public void setDenyImportResources(LinkedHashSet<String> denyImportResources) {
+        this.denyImportResources = denyImportResources;
     }
 
     /**
@@ -218,7 +235,7 @@ public class Repackager {
 
         JarFile jarFileSource = new JarFile(arkContainerLibrary.getFile().getAbsoluteFile());
         JarWriter writer = new JarWriter(destination);
-        Manifest manifest = buildAppManifest(jarFileSource);
+        Manifest manifest = buildAppManifest(new JarFile(pluginModuleJar));
 
         try {
             writer.writeManifest(manifest);
@@ -285,7 +302,7 @@ public class Repackager {
         return true;
     }
 
-    private Manifest buildModuleManifest(JarFile source) throws IOException {
+    public Manifest buildModuleManifest(JarFile source) throws IOException {
         Manifest manifest = source.getManifest();
         if (manifest == null) {
             manifest = new Manifest();
@@ -304,8 +321,15 @@ public class Repackager {
         if (startClass == null) {
             throw new IllegalStateException("Unable to find main class.");
         }
+
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, startClass);
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, this.bizName);
+        manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
+            StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,
+            StringUtils.listToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(DENY_IMPORT_RESOURCES,
+            StringUtils.listToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
 
         return manifest;
     }
@@ -331,7 +355,7 @@ public class Repackager {
         return manifest;
     }
 
-    private String findMainMethodWithTimeoutWarning(JarFile source) throws IOException {
+    public String findMainMethodWithTimeoutWarning(JarFile source) throws IOException {
         long startTime = System.currentTimeMillis();
         String mainMethod = findMainMethod(source);
         long duration = System.currentTimeMillis() - startTime;
