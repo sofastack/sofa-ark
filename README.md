@@ -9,7 +9,7 @@
 
 SOFAArk is a light-weight，java based classloader isolation framework 
 open sourced by Ant Financial. Please visit [https://alipay.github.io/sofastack.github.io/](https://alipay.github.io/sofastack.github.io/)
-for quick start and detail information, as well as [README-CN](README-CN.md) for Chinese developers.
+for quick start and detail information, as well as [README-CN](README_CN.md) for Chinese developers.
 
 ## Background
 
