@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.BizModel;
@@ -72,8 +73,8 @@ public class BizClassloaderTest extends BaseTest {
         pluginA
             .setPluginName("plugin A")
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(Collections.<String> emptySet())
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
@@ -101,8 +102,8 @@ public class BizClassloaderTest extends BaseTest {
         pluginA
             .setPluginName("plugin A")
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(Collections.<String> emptySet())
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));

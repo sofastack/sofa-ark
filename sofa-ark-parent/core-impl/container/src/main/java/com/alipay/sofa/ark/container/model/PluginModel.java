@@ -16,8 +16,10 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.classloader.ClassloaderUtil;
 import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
@@ -101,23 +103,23 @@ public class PluginModel implements Plugin {
         return this;
     }
 
-    public PluginModel setExportPackages(Set<String> exportPackages) {
-        this.exportPackages = exportPackages;
+    public PluginModel setExportPackages(String exportPackages) {
+        this.exportPackages = StringUtils.strToSet(exportPackages, Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
-    public PluginModel setExportClasses(Set<String> exportClasses) {
-        this.exportClasses = exportClasses;
+    public PluginModel setExportClasses(String exportClasses) {
+        this.exportClasses = StringUtils.strToSet(exportClasses, Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
-    public PluginModel setImportPackages(Set<String> importPackages) {
-        this.importPackages = importPackages;
+    public PluginModel setImportPackages(String importPackages) {
+        this.importPackages = StringUtils.strToSet(importPackages, Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
-    public PluginModel setImportClasses(Set<String> importClasses) {
-        this.importClasses = importClasses;
+    public PluginModel setImportClasses(String importClasses) {
+        this.importClasses = StringUtils.strToSet(importClasses, Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
