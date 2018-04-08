@@ -25,7 +25,7 @@ import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * Ark Biz Classloader
@@ -120,7 +120,7 @@ public class BizClassLoader extends URLClassLoader {
                 url = findClassResource(name);
             }
 
-            if (url == null) {
+            if (url == null && !classloaderService.isDeniedImportResource(bizName, name)) {
                 ClassLoader classLoader = classloaderService.findResourceExportClassloader(name);
                 // find export resource classloader and not self
                 if (classLoader != null && classLoader != this) {
@@ -150,16 +150,18 @@ public class BizClassLoader extends URLClassLoader {
     public Enumeration<URL> getResources(String name) throws IOException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            Enumeration<URL> urls = new UseFastConnectionExceptionsEnumeration(
-                super.getResources(name));
-            if (!urls.hasMoreElements()) {
+            Enumeration<URL> urls = super.getResources(name);
+            if (!classloaderService.isDeniedImportResource(bizName, name)) {
                 ClassLoader classLoader = classloaderService.findResourceExportClassloader(name);
                 // find export resource classloader and not self
                 if (classLoader != null && classLoader != this) {
-                    urls = classLoader.getResources(name);
+                    Enumeration<URL> exportResources = classLoader.getResources(name);
+                    List<URL> mergeResources = Collections.list(exportResources);
+                    mergeResources.addAll(Collections.list(urls));
+                    urls = Collections.enumeration(mergeResources);
                 }
             }
-            return urls;
+            return new UseFastConnectionExceptionsEnumeration(urls);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -201,6 +203,10 @@ public class BizClassLoader extends URLClassLoader {
      * @return
      */
     private Class<?> resolveExportClass(String name) {
+        if (classloaderService.isDeniedImportClass(bizName, name)) {
+            return null;
+        }
+
         ClassLoader importClassloader = classloaderService.findImportClassloader(name);
         if (importClassloader != null) {
             try {

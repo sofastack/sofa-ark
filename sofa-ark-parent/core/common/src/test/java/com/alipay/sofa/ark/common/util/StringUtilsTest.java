@@ -19,6 +19,8 @@ package com.alipay.sofa.ark.common.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.*;
+
 /**
  * @author qilong.zql
  * @since 0.1.0
@@ -42,6 +44,47 @@ public class StringUtilsTest {
         Assert.assertFalse(StringUtils.isSameStr("aa", ""));
         Assert.assertFalse(StringUtils.isSameStr("aa", "a"));
         Assert.assertTrue(StringUtils.isSameStr("aa", "aa"));
+    }
+
+    @Test
+    public void testListToStr() {
+        Assert.assertTrue("".equals(StringUtils.listToStr(null, ",")));
+        Assert.assertTrue("".equals(StringUtils.listToStr(Collections.<String> emptySet(), ",")));
+        Assert.assertTrue("ast".equals(StringUtils.listToStr(Collections.singleton("ast"), "&&")));
+
+        LinkedHashSet linkedHashSet = new LinkedHashSet();
+
+        linkedHashSet.add("ab");
+        linkedHashSet.add("  ba  ");
+        Assert.assertTrue("ab,ba".equals(StringUtils.listToStr(linkedHashSet, ",")));
+
+        linkedHashSet.add("cb");
+        Assert.assertTrue("ab&&ba&&cb".equals(StringUtils.listToStr(linkedHashSet, "&&")));
+
+        Assert.assertTrue("abbacb".equals(StringUtils.listToStr(linkedHashSet, "")));
+    }
+
+    @Test
+    public void testStrToList() {
+        List<String> list = StringUtils.strToList("ab,ba,cb", ",");
+        Assert.assertTrue(list.size() == 3);
+        Assert.assertTrue(list.get(0).equals("ab"));
+        Assert.assertTrue(list.get(1).equals("ba"));
+        Assert.assertTrue(list.get(2).equals("cb"));
+    }
+
+    @Test
+    public void testStrToSet() {
+        Set<String> set = StringUtils.strToSet(null, "&&");
+        Assert.assertTrue(set.isEmpty());
+
+        set = StringUtils.strToSet("ab&&ba&&cb&&cb", "&&");
+        Assert.assertTrue(set.size() == 3);
+
+        Object[] array = set.toArray();
+        Assert.assertTrue(array[0].equals("ab"));
+        Assert.assertTrue(array[1].equals("ba"));
+        Assert.assertTrue(array[2].equals("cb"));
     }
 
 }

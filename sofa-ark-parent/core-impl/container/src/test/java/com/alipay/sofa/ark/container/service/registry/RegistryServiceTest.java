@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.registry;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.Activator.PluginActivatorA;
 import com.alipay.sofa.ark.container.testdata.Activator.PluginActivatorADup;
@@ -118,8 +119,8 @@ public class RegistryServiceTest extends BaseTest {
             .setPluginName("plugin A")
             .setPriority(10)
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(Collections.<String> emptySet())
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
             .setPluginActivator(PluginActivatorADup.class.getName())
             .setPluginClassLoader(
@@ -143,8 +144,8 @@ public class RegistryServiceTest extends BaseTest {
             .setPluginName("plugin A")
             .setPriority(10)
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(Collections.<String> emptySet())
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
             .setPluginActivator(PluginActivatorA.class.getName())
             .setPluginClassLoader(
@@ -156,8 +157,8 @@ public class RegistryServiceTest extends BaseTest {
             .setPluginName("plugin B")
             .setPriority(1)
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(INTERFACE_CLASS)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(Collections.<String> emptySet())
             .setPluginActivator(PluginActivatorB.class.getName())
             .setPluginClassLoader(
@@ -169,8 +170,8 @@ public class RegistryServiceTest extends BaseTest {
             .setPluginName("plugin C")
             .setPriority(100)
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(INTERFACE_CLASS)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(Collections.<String> emptySet())
             .setPluginActivator(PluginActivatorC.class.getName())
             .setPluginClassLoader(

@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.spi.model;
 import com.alipay.sofa.ark.exception.ArkException;
 
 import java.net.URL;
+import java.util.Set;
 
 /**
  * Sofa Ark Biz Model Interface
@@ -52,6 +53,24 @@ public interface Biz {
      * @return biz startup priority
      */
     int getPriority();
+
+    /**
+     * get denied imported packages
+     * @return
+     */
+    Set<String> getDenyImportPackages();
+
+    /**
+     * get denied imported classes
+     * @return
+     */
+    Set<String> getDenyImportClasses();
+
+    /**
+     * get denied imported resources
+     * @return
+     */
+    Set<String> getDenyImportResources();
 
     /**
      * get Biz Classloader

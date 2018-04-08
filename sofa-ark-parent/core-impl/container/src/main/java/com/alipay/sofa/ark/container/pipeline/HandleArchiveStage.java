@@ -85,18 +85,10 @@ public class HandleArchiveStage implements PipelineStage {
             .setPriority(Integer.valueOf(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE)))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(pluginArchive.getUrls())
-            .setExportClasses(
-                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
-                    .getValue(EXPORT_CLASSES_ATTRIBUTE)))))
-            .setExportPackages(
-                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
-                    .getValue(EXPORT_PACKAGES_ATTRIBUTE)))))
-            .setImportClasses(
-                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
-                    .getValue(IMPORT_CLASSES_ATTRIBUTE)))))
-            .setImportPackages(
-                new HashSet<>(Arrays.asList(filterEmptyString(manifestMainAttributes
-                    .getValue(IMPORT_PACKAGES_ATTRIBUTE)))))
+            .setExportClasses(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE))
+            .setExportPackages(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE))
+            .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
+            .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
             .setExportIndex(pluginArchive.getExportIndex())
             .setPluginClassLoader(
                 new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
@@ -110,6 +102,9 @@ public class HandleArchiveStage implements PipelineStage {
         return bizModel.setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setMainClass(manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE))
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
+            .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
+            .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
     }

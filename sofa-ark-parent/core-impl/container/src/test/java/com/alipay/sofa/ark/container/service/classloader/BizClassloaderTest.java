@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.BizModel;
@@ -72,8 +73,8 @@ public class BizClassloaderTest extends BaseTest {
         pluginA
             .setPluginName("plugin A")
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(Collections.<String> emptySet())
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
@@ -85,6 +86,9 @@ public class BizClassloaderTest extends BaseTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
 
         bizManagerService.registerBiz(bizModel);
 
@@ -98,8 +102,8 @@ public class BizClassloaderTest extends BaseTest {
         pluginA
             .setPluginName("plugin A")
             .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(Collections.<String> emptySet())
-            .setImportPackages(Collections.<String> emptySet())
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
@@ -123,10 +127,58 @@ public class BizClassloaderTest extends BaseTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("MockBiz").setClassPath(new URL[] {})
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
 
         bizManagerService.registerBiz(bizModel);
         BizClassLoader bizClassLoader = (BizClassLoader) bizModel.getBizClassLoader();
         Assert.assertNotNull(bizClassLoader.loadClass("SampleClass", false));
+
+    }
+
+    @Test
+    public void testDenyImport() throws Exception {
+        PluginModel pluginA = new PluginModel();
+        pluginA
+            .setPluginName("pluginA")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+
+        pluginManagerService.registerPlugin(pluginA);
+        pluginDeployService.deploy();
+        classloaderService.prepareExportClassCache();
+
+        BizModel bizModel = new BizModel();
+        bizModel.setBizName("bizA").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+
+        bizManagerService.registerBiz(bizModel);
+
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
+            "pluginA_sofa_ark_export_resource_test1.xml"));
+        bizModel.setDenyImportResources("pluginA_sofa_ark_export_resource_test1.xml");
+        Assert.assertNull(bizModel.getBizClassLoader().getResource(
+            "pluginA_sofa_ark_export_resource_test1.xml"));
+
+        Assert.assertTrue(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
+            .getClassLoader() instanceof PluginClassLoader);
+
+        bizModel.setDenyImportPackages("com.alipay.sofa.ark.container.testdata");
+        Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
+            .getClassLoader() instanceof PluginClassLoader);
+
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportClasses(ITest.class.getCanonicalName());
+        Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
+            .getClassLoader() instanceof PluginClassLoader);
 
     }
 }

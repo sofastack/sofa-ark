@@ -90,4 +90,8 @@ public interface ClassloaderService extends ArkService {
      * @return
      */
     ClassLoader getAgentClassloader();
+
+    boolean isDeniedImportClass(String bizName, String className);
+
+    boolean isDeniedImportResource(String bizName, String resourceName);
 }
