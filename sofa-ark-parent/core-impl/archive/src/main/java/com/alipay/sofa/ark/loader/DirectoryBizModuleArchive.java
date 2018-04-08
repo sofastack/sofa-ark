@@ -30,7 +30,7 @@ import java.util.zip.ZipEntry;
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
- * SOFA Ark-Biz Module Directory
+ * Ark Biz Module Directory
  *
  * @author qilong.zql
  * @since 0.1.0

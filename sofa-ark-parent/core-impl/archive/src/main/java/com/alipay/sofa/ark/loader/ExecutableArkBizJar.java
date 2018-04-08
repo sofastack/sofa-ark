@@ -30,7 +30,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * Executable SOFA Ark-Biz Fat Jar
+ * Executable Ark Biz Fat Jar
  *
  * @author qilong.zql
  * @since 0.1.0
@@ -109,7 +109,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
     }
 
     /**
-     * Returns the ark-biz module archives that will run upon SOFA ark container
+     * Returns the ark-biz module archives that will run upon ark container
      * @return biz-app archives
      * @throws Exception
      */
@@ -132,7 +132,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
     }
 
     /**
-     * Returns the ark plugin archives that will be applied to class isolation strategy of SOFA ark container
+     * Returns the ark plugin archives that will be applied to class isolation strategy of ark container
      * @return ark plugin archives
      * @throws Exception
      */

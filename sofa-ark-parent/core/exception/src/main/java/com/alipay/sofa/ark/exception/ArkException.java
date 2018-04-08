@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.exception;
 
 /**
- * Sofa Ark Runtime Exception
+ * SOFAArk Runtime Exception
  *
  * @author ruoshan
  * @since 0.1.0

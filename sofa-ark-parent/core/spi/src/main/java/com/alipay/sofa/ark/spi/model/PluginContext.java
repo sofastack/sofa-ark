@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Sofa Ark Plugin Runtime Context
+ * SOFAArk Plugin Runtime Context
  *
  * @author qilong.zql
  * @since 0.1.0

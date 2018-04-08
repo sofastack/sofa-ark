@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.common.log;
 import com.alipay.sofa.common.log.LoggerSpaceManager;
 
 /**
- * LoggerFactory for Sofa Ark
+ * LoggerFactory for SOFAArk
  *
  * @author ruoshan
  * @since 0.1.0

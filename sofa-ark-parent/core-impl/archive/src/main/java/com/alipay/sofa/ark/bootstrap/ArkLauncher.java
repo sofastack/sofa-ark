@@ -21,7 +21,7 @@ import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 /**
  * {@link Launcher} for JAR based archives. This launcher assumes that dependency jars are
  * included inside a {@code /SOFA-ARK/container/lib} directory and that application fat jar
- * are included inside a {@code /SOFA-ARK/biz/} directory and that sofa ark plugin fat jar are included
+ * are included inside a {@code /SOFA-ARK/biz/} directory and that ark plugin fat jar are included
  * inside a {@code /SOFA-ARK/plugin/} directory
  *
  * @author qilong.zql

@@ -1,4 +1,4 @@
-# SOFA Ark Project
+# SOFAArk Project
 
 [![Build Status](https://travis-ci.org/alipay/sofa-ark.svg?branch=master)](https://travis-ci.org/alipay/sofa-ark)
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-ark/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-ark)
@@ -7,7 +7,7 @@
 ![maven](https://img.shields.io/badge/maven-v0.1.0-blue.svg)
 
 
-SOFA Ark is a light-weight，java based classloader isolation framework 
+SOFAArk is a light-weight，java based classloader isolation framework 
 open sourced by Ant Financial. Please visit [https://alipay.github.io/sofastack.github.io/](https://alipay.github.io/sofastack.github.io/)
 for quick start and detail information.
 
@@ -19,11 +19,11 @@ For example, there is a project that need protobuf version 2 and protobuf versio
 
 To cover those exceptions, we need to introduce a classloader isolation way, make different version of a framework loaded by different classloader. There are many framework that can do classloader isolation, perhaps the most famous one is OSGi, but OSGi classloader schema is too complex, beside classloader isolation, it also has ability to do hot deploy and a lot of other functionalities that we actually don't want.
 
-So this is the origin of SOFA Ark, it's goal is to use a light-weight classloader isolation mechanism to solve the problem that Spring Boot did not solve. And just a remind that SOFA Ark is not bind to Spring Boot, actually it is a more general classloader isolation framework that can be used with any other frameworks too.
+So this is the origin of SOFAArk, it's goal is to use a light-weight classloader isolation mechanism to solve the problem that Spring Boot did not solve. And just a remind that SOFAArk is not bind to Spring Boot, actually it is a more general classloader isolation framework that can be used with any other frameworks too.
 
-## How SOFA Ark Works
+## How SOFAArk Works
 
-There are three concepts in SOFA Ark: `Ark Container`, `Ark-Plugin` and `Ark-Biz`; they are organized as what the following graph shows:
+There are three concepts in SOFAArk: `Ark Container`, `Ark-Plugin` and `Ark-Biz`; they are organized as what the following graph shows:
 
 ![framework](resource/SOFA-Ark-Framework.png)
 
@@ -50,13 +50,13 @@ In this situation, we just repackage the dependencies of A and C(version=0.1) as
 
 ## Community
 
-* [Gitter channel](https://gitter.im/sofa-ark/Lobby) - Online chat room with SOFA Ark developers.
+* [Gitter channel](https://gitter.im/sofa-ark/Lobby) - Online chat room with SOFAArk developers.
 * [Issues](https://github.com/alipay/sofa-ark/issues)
 
 ## Contribution
 
-* [Contributing](./CONTRIBUTING.md) : Guides for contributing to SOFA Ark.
+* [Contributing](./CONTRIBUTING.md) : Guides for contributing to SOFAArk.
 
 ## Documentation
 
-* [SOFA Ark 用户手册(中文)](https://alipay.github.io/sofastack.github.io/docs/): Describe how to used SOFA Ark and its features.
+* [SOFAArk 用户手册(中文)](https://alipay.github.io/sofastack.github.io/docs/): Describe how to used SOFAArk and its features.

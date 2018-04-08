@@ -74,7 +74,7 @@ public class ArkContainer {
                 return new ArkContainer(classPathArchive, launchCommand).start();
             }
         } catch (IOException e) {
-            throw new ArkException(String.format("Sofa Ark startup failed, commandline=%s",
+            throw new ArkException(String.format("SOFAArk startup failed, commandline=%s",
                 LaunchCommand.toString(args)), e);
         }
 

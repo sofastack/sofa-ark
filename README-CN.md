@@ -40,7 +40,7 @@ SOFAArk初衷是为了解决包冲突问题，那什么情况下可以使用 SOF
 ## 快速开始
 * [样例工程](sofa-ark-samples)
   * [基于普通的 Maven 应用构建 Ark Plugin](sofa-ark-samples/sample-ark-plugin)
-  * [基于 SpringBoot 应用使用 SOFA Ark](sofa-ark-samples/sample-springboot-ark)
+  * [基于 SpringBoot 应用使用 SOFAArk](sofa-ark-samples/sample-springboot-ark)
  
 ## 社区
 * [Gitter channel](https://gitter.im/sofa-ark/Lobby) 

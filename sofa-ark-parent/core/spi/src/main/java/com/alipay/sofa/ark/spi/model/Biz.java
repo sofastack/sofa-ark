@@ -21,7 +21,7 @@ import com.alipay.sofa.ark.exception.ArkException;
 import java.net.URL;
 
 /**
- * Sofa Ark Biz Model Interface
+ * Ark Biz Model Interface
  *
  * @author ruoshan
  * @since 0.1.0
