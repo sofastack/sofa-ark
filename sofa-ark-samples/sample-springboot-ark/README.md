@@ -54,7 +54,7 @@ build>
                         <!--default none-->
                         <arkClassifier>executable-ark</arkClassifier>
                         
-                        <!-- all class exported by ark plugin would be resoloved by ark biz in default, if 
+                        <!-- all class exported by ark plugin would be resolved by ark biz in default, if 
                         configure denyImportClasses, then it would prefer to load them by ark biz itself -->
                         <denyImportClasses>
                             <class>com.alipay.sofa.SampleClass1</class>
@@ -85,6 +85,9 @@ The configured items are explained as follows:
 + `outputDirectory`: specify destination where `executable-ark-jar` will be saved, 
 default saved to ${project.build.directory}.
 + `arkClassifier`: specify classifier in the maven location of `executable-ark-jar`, default none.
++ `denyImportClasses`: all class exported by ark plugin would be resolved by ark biz in default, if configure denyImportClasses, then it would prefer to load them by ark biz itself.
++ `denyImportPackages`: corresponding to denyImportClasses, denyImportPackages is package-level.
++ `denyImportResources`: denyImportResources can prevent resource exported by ark plugin with accurate name to be resolved by ark biz.
 
 ## package/install/deploy
 + package: execute `mvn package`, the `executable-ark-jar` file generated would be saved to the configured 
