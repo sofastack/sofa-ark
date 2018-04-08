@@ -53,6 +53,26 @@ build>
                         
                         <!--default none-->
                         <arkClassifier>executable-ark</arkClassifier>
+                        
+                        <!-- all class exported by ark plugin would be resoloved by ark biz in default, if 
+                        configure denyImportClasses, then it would prefer to load them by ark biz itself -->
+                        <denyImportClasses>
+                            <class>com.alipay.sofa.SampleClass1</class>
+                            <class>com.alipay.sofa.SampleClass2</class>
+                        </denyImportClasses>
+                       
+                       <!-- Corresponding to denyImportClasses, denyImportPackages is package-level -->
+                        <denyImportPackages>
+                            <package>com.alipay.sofa</package>
+                            <package>org.springframework</package>
+                        </denyImportPackages>
+                       
+                       <!-- denyImportResources can prevent resource exported by ark plugin with accurate 
+                       name to be resolved -->
+                        <denyImportResources>
+                            <resource>META-INF/spring/test1.xml</resource>
+                            <resource>META-INF/spring/test2.xml</resource>
+                        </denyImportResources>
                     </configuration>
                 </execution>
             </executions>
