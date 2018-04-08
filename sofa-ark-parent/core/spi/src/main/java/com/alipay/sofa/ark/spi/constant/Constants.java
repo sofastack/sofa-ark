@@ -42,4 +42,6 @@ public abstract class Constants {
     public final static String MAIN_CLASS_ATTRIBUTE      = "Main-Class";
     public final static String ARK_BIZ_NAME              = "Ark-Biz-Name";
 
+    public final static String IMPORT_RESOURCES_ATTRIBUTE = "import-resources";
+
 }
