@@ -16,9 +16,8 @@
  */
 package com.alipay.sofa.ark.container.test;
 
-import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
-import com.alipay.sofa.ark.loader.jar.Handler;
+import com.alipay.sofa.ark.exception.ArkLoaderException;
 
 import java.net.URL;
 
@@ -38,19 +37,16 @@ public class TestClassLoader extends BizClassLoader {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        if (StringUtils.isEmpty(name)) {
-            return null;
-        }
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            if (isTestClass(name)) {
+    protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
+        if (isTestClass(name)) {
+            try {
                 return delegateClassLoader.loadClass(name);
-            } else {
-                return loadClassInternal(name, resolve);
+            } catch (ClassNotFoundException e) {
+                throw new ArkLoaderException(String.format(
+                    "[TestClass Loader] %s : can not load class: %s", getBizName(), name));
             }
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
+        } else {
+            return super.loadClassInternal(name, resolve);
         }
     }
 

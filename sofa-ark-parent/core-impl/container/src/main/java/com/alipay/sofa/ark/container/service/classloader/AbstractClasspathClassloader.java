@@ -32,7 +32,8 @@ import java.util.List;
 
 /**
  *
- * Abstract Classpath Classloader, basic logic to load class/resource, sub class need to implement 
+ * Abstract Classpath Classloader, basic logic to load class/resource, sub class need to implement
+ *
  * @author ruoshan
  * @since 0.1.0
  */
@@ -226,6 +227,25 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
             return classloaderService.getAgentClassloader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
+        }
+        return null;
+    }
+
+    /**
+     * Load export class
+     * @param name
+     * @return
+     */
+    protected Class<?> resolveExportClass(String name) {
+        if (shouldFindExportedClass(name)) {
+            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
+            if (importClassloader != null) {
+                try {
+                    return importClassloader.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    // ignore
+                }
+            }
         }
         return null;
     }

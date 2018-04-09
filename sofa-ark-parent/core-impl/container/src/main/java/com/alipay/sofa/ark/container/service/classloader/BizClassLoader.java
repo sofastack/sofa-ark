@@ -96,22 +96,11 @@ public class BizClassLoader extends AbstractClasspathClassloader {
     }
 
     /**
-     * Load plugin export class
-     * @param name
-     * @return
+     * Getter method for property <tt>bizName</tt>.
+     *
+     * @return property value of bizName
      */
-    private Class<?> resolveExportClass(String name) {
-        if (shouldFindExportedClass(name)) {
-            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
-            if (importClassloader != null) {
-                try {
-                    return importClassloader.loadClass(name);
-                } catch (ClassNotFoundException e) {
-                    // ignore
-                }
-            }
-        }
-        return null;
+    public String getBizName() {
+        return bizName;
     }
-
 }

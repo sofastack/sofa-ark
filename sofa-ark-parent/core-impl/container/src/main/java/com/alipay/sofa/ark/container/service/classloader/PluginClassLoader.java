@@ -64,9 +64,9 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
             clazz = resolveArkClass(name);
         }
 
-        // 5. Import class
+        // 5. Import class export by other plugins
         if (clazz == null) {
-            clazz = resolveImportClass(name);
+            clazz = resolveExportClass(name);
         }
 
         // 6. Plugin classpath class
@@ -98,25 +98,6 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
     @Override
     boolean shouldFindExportedResource(String resourceName) {
         return classloaderService.isResourceInImport(pluginName, resourceName);
-    }
-
-    /**
-     * Load import class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveImportClass(String name) {
-        if (shouldFindExportedClass(name)) {
-            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
-            if (importClassloader != null) {
-                try {
-                    return importClassloader.loadClass(name);
-                } catch (ClassNotFoundException e) {
-                    // ignore
-                }
-            }
-        }
-        return null;
     }
 
 }
