@@ -27,7 +27,7 @@ import java.net.URL;
  */
 public class BizClassLoader extends AbstractClasspathClassloader {
 
-    private String             bizName;
+    private String bizName;
 
     public BizClassLoader(String bizName, URL[] urls) {
         super(urls);

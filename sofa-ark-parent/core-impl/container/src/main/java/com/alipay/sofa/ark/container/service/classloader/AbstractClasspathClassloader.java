@@ -73,13 +73,9 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     public URL getResource(String name) {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            URL url = super.getResource(name);
-
-            if (url == null && name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-                url = findClassResource(name);
-            }
-
-            if (url == null && shouldFindResourceInExport(name)) {
+            URL url;
+            // first find import resource
+            if (shouldFindResourceInExport(name)) {
                 List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
                     .findExportResourceClassloadersInOrder(name);
                 if (exportResourceClassloadersInOrder != null) {
@@ -92,7 +88,19 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
                 }
 
             }
+
+            url = super.getResource(name);
+
+            if (url != null) {
+                return url;
+            }
+
+            if (name.endsWith(CLASS_RESOURCE_SUFFIX)) {
+                url = findClassResource(name);
+            }
+
             return url;
+
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }

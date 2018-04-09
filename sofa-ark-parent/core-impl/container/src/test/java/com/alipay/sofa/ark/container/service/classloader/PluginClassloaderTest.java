@@ -33,6 +33,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -241,6 +242,13 @@ public class PluginClassloaderTest extends BaseTest {
 
         Enumeration<URL> urlEnumeration = pluginD.getPluginClassLoader().getResources(resourceName);
         Assert.assertEquals(3, Collections.list(urlEnumeration).size());
+
+        List<ClassLoader> classLoaders = classloaderService
+            .findExportResourceClassloadersInOrder(resourceName);
+        Assert.assertEquals(3, classLoaders.size());
+        Assert.assertEquals(pluginB.getPluginClassLoader(), classLoaders.get(0));
+        Assert.assertEquals(pluginA.getPluginClassLoader(), classLoaders.get(1));
+        Assert.assertEquals(pluginC.getPluginClassLoader(), classLoaders.get(2));
     }
 
     @Test
