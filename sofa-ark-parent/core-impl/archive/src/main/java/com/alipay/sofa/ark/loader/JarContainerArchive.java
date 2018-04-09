@@ -29,7 +29,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * SOFA Ark-Container Fat Jar
+ * Ark Container Fat Jar
  *
  * @author qilong.zql
  * @since 0.1.0

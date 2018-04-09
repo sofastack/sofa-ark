@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.spi.argument;
 
 /**
- * SOFA Ark command-line arguments
+ * SOFAArk command-line arguments
  *
  * @author qilong.zql
  * @since 0.1.0

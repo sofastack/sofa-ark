@@ -22,7 +22,7 @@ import java.net.URL;
 import java.util.Set;
 
 /**
- * Sofa Ark Biz Model Interface
+ * Ark Biz Model Interface
  *
  * @author ruoshan
  * @since 0.1.0

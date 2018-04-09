@@ -22,7 +22,7 @@ import java.net.URL;
 import java.util.Set;
 
 /**
- * Sofa Ark Plugin Module Interface
+ * Ark Plugin Module Interface
  *
  * @author qilong.zql
  * @since 0.1.0

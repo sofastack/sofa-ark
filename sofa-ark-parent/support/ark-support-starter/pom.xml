@@ -13,7 +13,7 @@
 
     <dependencies>
 
-        <!--sofa ark modules-->
+        <!--SOFAArk modules-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-all</artifactId>

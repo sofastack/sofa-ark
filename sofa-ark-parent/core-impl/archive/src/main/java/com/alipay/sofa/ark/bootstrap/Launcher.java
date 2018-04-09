@@ -35,8 +35,8 @@ import java.util.List;
 public abstract class Launcher {
 
     /**
-     * Launch the SOFA ark container. This method is the initial entry point when execute an fat jar.
-     * @throws Exception if the SOFA ark container fails to launch.
+     * Launch the ark container. This method is the initial entry point when execute an fat jar.
+     * @throws Exception if the ark container fails to launch.
      */
     public void launch(String[] args) throws Exception {
         JarFile.registerUrlProtocolHandler();
@@ -54,8 +54,8 @@ public abstract class Launcher {
     }
 
     /**
-     * Launch the SOFA ark container. This method is the initial entry point when execute in IDE.
-     * @throws Exception if the SOFA ark container fails to launch.
+     * Launch the ark container. This method is the initial entry point when execute in IDE.
+     * @throws Exception if the ark container fails to launch.
      */
     public void launch(String[] args, String classpath, Method method) throws Exception {
         JarFile.registerUrlProtocolHandler();
@@ -78,7 +78,7 @@ public abstract class Launcher {
     }
 
     /**
-     * Launch the SOFA ark container in {@literal TEST} run mode. Only container and plugin
+     * Launch the ark container in {@literal TEST} run mode. Only container and plugin
      * would startup.
      *
      * @param classpath classpath of ark-biz
@@ -133,9 +133,9 @@ public abstract class Launcher {
     }
 
     /**
-     * Create a classloader for the SOFA ark container archive
-     * @param containerArchive the SOFA ark container archive
-     * @return the classloader load SOFA ark container
+     * Create a classloader for the ark container archive
+     * @param containerArchive the ark container archive
+     * @return the classloader load ark container
      * @throws Exception
      */
     protected ClassLoader createContainerClassLoader(ContainerArchive containerArchive)
@@ -147,7 +147,7 @@ public abstract class Launcher {
      * Create a classloader for the specified URLs.
      * @param urls the URLs
      * @param parent the parent
-     * @return the classloader load SOFA ark container
+     * @return the classloader load ark container
      * @throws Exception
      */
     protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent)

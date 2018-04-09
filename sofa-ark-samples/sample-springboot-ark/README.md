@@ -53,6 +53,26 @@ build>
                         
                         <!--default none-->
                         <arkClassifier>executable-ark</arkClassifier>
+                        
+                        <!-- all class exported by ark plugin would be resolved by ark biz in default, if 
+                        configure denyImportClasses, then it would prefer to load them by ark biz itself -->
+                        <denyImportClasses>
+                            <class>com.alipay.sofa.SampleClass1</class>
+                            <class>com.alipay.sofa.SampleClass2</class>
+                        </denyImportClasses>
+                       
+                       <!-- Corresponding to denyImportClasses, denyImportPackages is package-level -->
+                        <denyImportPackages>
+                            <package>com.alipay.sofa</package>
+                            <package>org.springframework</package>
+                        </denyImportPackages>
+                       
+                       <!-- denyImportResources can prevent resource exported by ark plugin with accurate 
+                       name to be resolved -->
+                        <denyImportResources>
+                            <resource>META-INF/spring/test1.xml</resource>
+                            <resource>META-INF/spring/test2.xml</resource>
+                        </denyImportResources>
                     </configuration>
                 </execution>
             </executions>
@@ -65,6 +85,9 @@ The configured items are explained as follows:
 + `outputDirectory`: specify destination where `executable-ark-jar` will be saved, 
 default saved to ${project.build.directory}.
 + `arkClassifier`: specify classifier in the maven location of `executable-ark-jar`, default none.
++ `denyImportClasses`: all class exported by ark plugin would be resolved by ark biz in default, if configure denyImportClasses, then it would prefer to load them by ark biz itself.
++ `denyImportPackages`: corresponding to denyImportClasses, denyImportPackages is package-level.
++ `denyImportResources`: denyImportResources can prevent resource exported by ark plugin with accurate name to be resolved by ark biz.
 
 ## package/install/deploy
 + package: execute `mvn package`, the `executable-ark-jar` file generated would be saved to the configured 
@@ -114,7 +137,7 @@ public class Application{
 ```
 
 ## How to run test cases
-Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/junit4/wiki/getting-started) and [SpringBoot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html), SOFA Ark provided two implementations of runners for using with `@RunWith` include:
+Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/junit4/wiki/getting-started) and [SpringBoot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html), SOFAArk provided two implementations of runners for using with `@RunWith` include:
 
 + `ArkJUnit4Runner`
 
@@ -123,7 +146,7 @@ Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/j
 Now, we would show how to run test case in `JUnit4 FrameWork` and `Spring Boot`;
 
 ### Run test case in JUnit4 FrameWork
-`ArkJUnit4Runner` is similar to `JUnit4`, the latter is the default implementation of runner in JUnit4 Framework; In other words, if you want run normal junit4 test case in SOFA Ark container, you should use `@RunWith(ArkJUnit4Runner.class)` instead of the default one. Code as what the following shows:
+`ArkJUnit4Runner` is similar to `JUnit4`, the latter is the default implementation of runner in JUnit4 Framework; In other words, if you want run normal junit4 test case in SOFAArk container, you should use `@RunWith(ArkJUnit4Runner.class)` instead of the default one. Code as what the following shows:
 
 ```java
 @RunWith(ArkJUnit4Runner.class)
@@ -140,7 +163,7 @@ public class UnitTest {
 If you want use other features of JUnit4 Framework, such as `@Before`, it's not a problem, just do as before.
 
 ### Run test case in SpringBoot Test
-`ArkBootRunner` is similar to `SpringRunner`, you can visit [this site](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html) for usage of the latter one. For running SpringBoot test case in SOFA Ark container, just use `@RunWith(ArkBootRunner.class)` instead of `@RunWith(SpringRunner.class)`. Code as what the following shows:
+`ArkBootRunner` is similar to `SpringRunner`, you can visit [this site](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html) for usage of the latter one. For running SpringBoot test case in SOFAArk container, just use `@RunWith(ArkBootRunner.class)` instead of `@RunWith(SpringRunner.class)`. Code as what the following shows:
 
 ```java
 @RunWith(ArkBootRunner.class)

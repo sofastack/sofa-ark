@@ -32,7 +32,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * SOFA Ark-Biz Module Fat Jar
+ * Ark Biz Module Fat Jar
  *
  * @author qilong.zql
  * @since 0.1.0

@@ -174,7 +174,7 @@ public class Repackager {
 
                     if (isArkContainer(jarFile)) {
                         if (arkContainerLibrary != null) {
-                            throw new RuntimeException("duplicate sofa ark dependency");
+                            throw new RuntimeException("duplicate SOFAArk dependency");
                         }
                         arkContainerLibrary = library;
                     } else if (isArkModule(jarFile)) {
@@ -346,7 +346,7 @@ public class Repackager {
             Layouts.Jar.jar().getLauncherClassName());
 
         if (arkVersion == null || arkVersion.isEmpty()) {
-            throw new IllegalStateException("must specify version of sofa ark.");
+            throw new IllegalStateException("must specify version of SOFAArk.");
         }
 
         manifest.getMainAttributes().putValue(ARK_VERSION_ATTRIBUTE, arkVersion);

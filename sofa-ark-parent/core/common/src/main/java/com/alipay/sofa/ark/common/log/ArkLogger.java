@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.Marker;
 
 /**
- * Logger Implementation for Sofa Ark
+ * Logger Implementation for SOFAArk
  *
  * @author ruoshan
  * @since 0.1.0

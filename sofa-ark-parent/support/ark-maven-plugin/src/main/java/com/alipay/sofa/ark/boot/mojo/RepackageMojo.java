@@ -137,7 +137,7 @@ public class RepackageMojo extends AbstractMojo {
     private List<Dependency>      requiresUnpack;
 
     /**
-     * The version of SOFA ark, same with plugin version. when developer
+     * The version of SOFAArk, same with plugin version. when developer
      * want develop a application running on the SOFA-Ark. Just configure
      * sofa-ark-maven-plugin.
      */
@@ -198,7 +198,7 @@ public class RepackageMojo extends AbstractMojo {
             return;
         }
 
-        /* version of SOFA ark container packaged into fat jar follows the plugin version */
+        /* version of ark container packaged into fat jar follows the plugin version */
         PluginDescriptor pluginDescriptor = (PluginDescriptor) getPluginContext().get(
             "pluginDescriptor");
         arkVersion = pluginDescriptor.getVersion();

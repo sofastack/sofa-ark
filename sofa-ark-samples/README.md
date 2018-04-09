@@ -1,4 +1,4 @@
-# SOFA Ark Samples 
+# SOFAArk Samples 
 
 There are two samples totally. The sofa-ark-samples directory shows as following:
 

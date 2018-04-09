@@ -24,20 +24,20 @@ package com.alipay.sofa.ark.tools;
 public interface RepackagingLayout extends Layout {
 
     /**
-     * Returns the location to which SOFA ark should be moved.
-     * @return the repackaged SOFA ark location
+     * Returns the location to which SOFAArk should be moved.
+     * @return the repackaged SOFAArk location
      */
     String getArkContainerLocation();
 
     /**
-     * Returns the location to which SOFA ark plugin should be moved.
-     * @return the repackaged SOFA ark plugin location
+     * Returns the location to which SOFAArk plugin should be moved.
+     * @return the repackaged SOFAArk plugin location
      */
     String getArkPluginLocation();
 
     /**
      * Returns the location to which SOFA module should be moved
-     * @return the repackaged SOFA ark module location
+     * @return the repackaged SOFAArk module location
      */
     String getArkModuleLocation();
 
