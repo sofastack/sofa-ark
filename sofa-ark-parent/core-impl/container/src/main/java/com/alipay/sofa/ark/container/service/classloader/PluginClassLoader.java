@@ -91,12 +91,12 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
     }
 
     @Override
-    boolean shouldFindClassInExport(String className) {
-        return classloaderService.isResourceInImport(pluginName, className);
+    boolean shouldFindExportedClass(String className) {
+        return classloaderService.isClassInImport(pluginName, className);
     }
 
     @Override
-    boolean shouldFindResourceInExport(String resourceName) {
+    boolean shouldFindExportedResource(String resourceName) {
         return classloaderService.isResourceInImport(pluginName, resourceName);
     }
 
@@ -106,7 +106,7 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
      * @return
      */
     private Class<?> resolveImportClass(String name) {
-        if (classloaderService.isClassInImport(pluginName, name)) {
+        if (shouldFindExportedClass(name)) {
             ClassLoader importClassloader = classloaderService.findExportClassloader(name);
             if (importClassloader != null) {
                 try {

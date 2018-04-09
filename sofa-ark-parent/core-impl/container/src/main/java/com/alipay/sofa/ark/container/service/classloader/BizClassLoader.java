@@ -86,12 +86,12 @@ public class BizClassLoader extends AbstractClasspathClassloader {
     }
 
     @Override
-    boolean shouldFindClassInExport(String className) {
+    boolean shouldFindExportedClass(String className) {
         return !classloaderService.isDeniedImportClass(bizName, className);
     }
 
     @Override
-    boolean shouldFindResourceInExport(String resourceName) {
+    boolean shouldFindExportedResource(String resourceName) {
         return !classloaderService.isDeniedImportResource(bizName, resourceName);
     }
 
@@ -101,16 +101,14 @@ public class BizClassLoader extends AbstractClasspathClassloader {
      * @return
      */
     private Class<?> resolveExportClass(String name) {
-        if (classloaderService.isDeniedImportClass(bizName, name)) {
-            return null;
-        }
-
-        ClassLoader importClassloader = classloaderService.findExportClassloader(name);
-        if (importClassloader != null) {
-            try {
-                return importClassloader.loadClass(name);
-            } catch (ClassNotFoundException e) {
-                // ignore
+        if (shouldFindExportedClass(name)) {
+            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
+            if (importClassloader != null) {
+                try {
+                    return importClassloader.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    // ignore
+                }
             }
         }
         return null;

@@ -32,8 +32,9 @@ import java.util.List;
 
 /**
  *
+ * Abstract Classpath Classloader, basic logic to load class/resource, sub class need to implement 
  * @author ruoshan
- * @version $Id: AbstractClasspathClassloader.java, v 0.1 2018年04月08日 8:14 PM ruoshan Exp $
+ * @since 0.1.0
  */
 public abstract class AbstractClasspathClassloader extends URLClassLoader {
 
@@ -75,7 +76,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
         try {
             URL url;
             // first find import resource
-            if (shouldFindResourceInExport(name)) {
+            if (shouldFindExportedResource(name)) {
                 List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
                     .findExportResourceClassloadersInOrder(name);
                 if (exportResourceClassloadersInOrder != null) {
@@ -108,7 +109,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
 
     protected URL findClassResource(String resourceName) {
         String className = transformClassName(resourceName);
-        if (shouldFindClassInExport(className)) {
+        if (shouldFindExportedClass(className)) {
             ClassLoader classLoader = classloaderService.findExportClassloader(className);
             return classLoader == null ? null : classLoader.getResource(resourceName);
         }
@@ -134,7 +135,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
             Enumeration<URL> urlEnumeration = new UseFastConnectionExceptionsEnumeration(
                 super.getResources(name));
 
-            if (!withExport || !shouldFindResourceInExport(name)) {
+            if (!withExport || !shouldFindExportedResource(name)) {
                 return urlEnumeration;
             }
 
@@ -162,14 +163,14 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      * @param className class name
      * @return
      */
-    abstract boolean shouldFindClassInExport(String className);
+    abstract boolean shouldFindExportedClass(String className);
 
     /**
      * Whether to find resource that exported by other classloader
      * @param resourceName
      * @return
      */
-    abstract boolean shouldFindResourceInExport(String resourceName);
+    abstract boolean shouldFindExportedResource(String resourceName);
 
     /**
      * Load ark spi class
