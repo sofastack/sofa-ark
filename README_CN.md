@@ -47,7 +47,7 @@ SOFAArk初衷是为了解决包冲突问题，那什么情况下可以使用 SOF
 * [Issues](https://github.com/alipay/sofa-ark/issues)
 
 ## 贡献
-* [Contributing](./CONTRIBUTING.md) : SOFAArk 开发参与说明书
+* [代码贡献](./CONTRIBUTING.md) : SOFAArk 开发参与说明书
 
 ## 文档
 * [SOFAArk 用户手册(中文)](https://alipay.github.io/sofastack.github.io/docs/) : SOFAArk 用户手册及功能特性详细说明
