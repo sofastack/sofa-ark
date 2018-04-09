@@ -6,11 +6,10 @@ jdk:
 - openjdk7
 
 install:
-- mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+- mvn clean install -DskipTests=false -Dmaven.javadoc.skip=true -B -V
 
 script:
 - sh ./check_format.sh
-- mvn test
 
 after_success:
 - mvn clean test cobertura:cobertura coveralls:report
