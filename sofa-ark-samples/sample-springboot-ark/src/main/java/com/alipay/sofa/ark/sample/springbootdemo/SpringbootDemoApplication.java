@@ -47,14 +47,15 @@ public class SpringbootDemoApplication {
 
     }
 
-    public static void getResources(String resourceName){
+    public static void getResources(String resourceName) {
         try {
-            Enumeration<URL> urls = SpringbootDemoApplication.class.getClassLoader().getResources(resourceName);
+            Enumeration<URL> urls = SpringbootDemoApplication.class.getClassLoader().getResources(
+                resourceName);
 
             while (urls.hasMoreElements()) {
                 System.out.println(resourceName + " found: " + urls.nextElement());
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
