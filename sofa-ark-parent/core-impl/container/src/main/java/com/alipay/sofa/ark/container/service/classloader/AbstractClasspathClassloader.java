@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -73,91 +74,41 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
 
     @Override
     public URL getResource(String name) {
+        if (StringUtils.isEmpty(name)) {
+            return null;
+        }
         Handler.setUseFastConnectionExceptions(true);
         try {
-            URL url;
-            // first find import resource
-            if (shouldFindExportedResource(name)) {
-                List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
-                    .findExportResourceClassloadersInOrder(name);
-                if (exportResourceClassloadersInOrder != null) {
-                    for (ClassLoader exportResourceClassloader : exportResourceClassloadersInOrder) {
-                        url = exportResourceClassloader.getResource(name);
-                        if (url != null) {
-                            return url;
-                        }
-                    }
-                }
-
-            }
-
-            url = super.getResource(name);
-
-            if (url != null) {
-                return url;
-            }
-
-            if (name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-                url = findClassResource(name);
-            }
-
-            return url;
-
+            return getResourceInternal(name);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
     }
 
-    protected URL findClassResource(String resourceName) {
-        String className = transformClassName(resourceName);
-        if (shouldFindExportedClass(className)) {
-            ClassLoader classLoader = classloaderService.findExportClassloader(className);
-            return classLoader == null ? null : classLoader.getResource(resourceName);
-        }
-        return null;
-    }
-
-    private String transformClassName(String name) {
-        if (name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-            name = name.substring(0, name.length() - CLASS_RESOURCE_SUFFIX.length());
-        }
-        return name.replace("/", ".");
-    }
+    /**
+     * Real logic to get resource，need to implement by Sub Classloader
+     * @param name
+     * @return
+     */
+    abstract protected URL getResourceInternal(String name);
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        return getResources(name, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Enumeration<URL> getResources(String name, boolean withExport) throws IOException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            Enumeration<URL> urlEnumeration = new UseFastConnectionExceptionsEnumeration(
-                super.getResources(name));
-
-            if (!withExport || !shouldFindExportedResource(name)) {
-                return urlEnumeration;
-            }
-
-            List<Enumeration<URL>> enumerationList = new ArrayList<>();
-            enumerationList.add(urlEnumeration);
-
-            List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
-                .findExportResourceClassloadersInOrder(name);
-            if (exportResourceClassloadersInOrder != null) {
-                for (ClassLoader exportResourceClassloader : exportResourceClassloadersInOrder) {
-                    enumerationList.add(((AbstractClasspathClassloader) exportResourceClassloader)
-                        .getResources(name, false));
-                }
-            }
-
-            return new CompoundEnumeration<>(
-                enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+            return getResourcesInternal(name);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
     }
+
+    /**
+     * Real logic to get resources，need to implement by Sub Classloader
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    abstract protected Enumeration<URL> getResourcesInternal(String name) throws IOException;
 
     /**
      * Whether to find class that exported by other classloader
@@ -172,6 +123,39 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      * @return
      */
     abstract boolean shouldFindExportedResource(String resourceName);
+
+    /**
+     * Load JDK class
+     * @param name class name
+     * @return
+     */
+    protected Class<?> resolveJDKClass(String name) {
+        try {
+            return classloaderService.getJDKClassloader().loadClass(name);
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+        return null;
+    }
+
+    /**
+     * Load export class
+     * @param name
+     * @return
+     */
+    protected Class<?> resolveExportClass(String name) {
+        if (shouldFindExportedClass(name)) {
+            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
+            if (importClassloader != null) {
+                try {
+                    return importClassloader.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    // ignore
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Load ark spi class
@@ -190,21 +174,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Load JDK class
-     * @param name class name
-     * @return
-     */
-    protected Class<?> resolveJDKClass(String name) {
-        try {
-            return classloaderService.getJDKClassloader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
-     * Load biz classpath class
+     * Load classpath class
      * @param name
      * @return
      */
@@ -232,22 +202,85 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Load export class
-     * @param name
+     * Find export resource
+     * @param resourceName
      * @return
      */
-    protected Class<?> resolveExportClass(String name) {
-        if (shouldFindExportedClass(name)) {
-            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
-            if (importClassloader != null) {
-                try {
-                    return importClassloader.loadClass(name);
-                } catch (ClassNotFoundException e) {
-                    // ignore
+    protected URL getExportResource(String resourceName) {
+        if (shouldFindExportedResource(resourceName)) {
+            URL url;
+            List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
+                .findExportResourceClassloadersInOrder(resourceName);
+            if (exportResourceClassloadersInOrder != null) {
+                for (ClassLoader exportResourceClassloader : exportResourceClassloadersInOrder) {
+                    url = exportResourceClassloader.getResource(resourceName);
+                    if (url != null) {
+                        return url;
+                    }
                 }
             }
+
         }
         return null;
+    }
+
+    /**
+     * Find .class resource
+     * @param resourceName
+     * @return
+     */
+    protected URL getClassResource(String resourceName) {
+        if (resourceName.endsWith(CLASS_RESOURCE_SUFFIX)) {
+            String className = transformClassName(resourceName);
+            if (shouldFindExportedClass(className)) {
+                ClassLoader classLoader = classloaderService.findExportClassloader(className);
+                return classLoader == null ? null : classLoader.getResource(resourceName);
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * Find local resource
+     * @param resourceName
+     * @return
+     */
+    protected URL getLocalResource(String resourceName) {
+        return super.getResource(resourceName);
+    }
+
+    private String transformClassName(String name) {
+        if (name.endsWith(CLASS_RESOURCE_SUFFIX)) {
+            name = name.substring(0, name.length() - CLASS_RESOURCE_SUFFIX.length());
+        }
+        return name.replace("/", ".");
+    }
+
+    /**
+     * Find export resources
+     * @param resourceName
+     * @return
+     */
+    protected Enumeration<URL> getExportResources(String resourceName) throws IOException {
+        if (shouldFindExportedResource(resourceName)) {
+            List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
+                .findExportResourceClassloadersInOrder(resourceName);
+            if (exportResourceClassloadersInOrder != null) {
+                List<Enumeration<URL>> enumerationList = new ArrayList<>();
+                for (ClassLoader exportResourceClassloader : exportResourceClassloadersInOrder) {
+                    enumerationList.add(((AbstractClasspathClassloader) exportResourceClassloader)
+                        .getLocalResources(resourceName));
+                }
+                return new CompoundEnumeration<>(
+                    enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+            }
+        }
+        return Collections.emptyEnumeration();
+    }
+
+    protected Enumeration<URL> getLocalResources(String resourceName) throws IOException {
+        return new UseFastConnectionExceptionsEnumeration(super.getResources(resourceName));
     }
 
 }

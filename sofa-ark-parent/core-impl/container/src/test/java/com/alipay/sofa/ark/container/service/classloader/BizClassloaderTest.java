@@ -117,8 +117,10 @@ public class BizClassloaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
+        bizModel.setBizName("biz A").setClassPath(new URL[0])
+            .setDenyImportClasses(StringUtils.EMPTY_STRING)
             .setDenyImportResources(StringUtils.EMPTY_STRING)
+            .setDenyImportPackages(StringUtils.EMPTY_STRING)
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
 
         bizManagerService.registerBiz(bizModel);
