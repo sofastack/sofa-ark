@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-ark/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-ark)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-orange.svg)](https://gitter.im/sofa-ark/Lobby)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
-![maven](https://img.shields.io/badge/maven-v0.1.0-blue.svg)
+![maven](https://img.shields.io/badge/maven-v0.2.0-blue.svg)
 
 SOFAArk 是一款基于 Java 实现的轻量级类隔离容器，由蚂蚁金服公司开源贡献；主要为应用程序提供类隔离和依赖包隔离的能力；基于 [Fat Jar](https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html#executable-jar-jar-file-structure) 技术，应用可以被打包成一个自包含可运行的 Fat Jar，应用既可以是简单的单模块 Java 应用也可以是 Spring Boot 应用；访问网址 https://alipay.github.io/sofastack.github.io/ 进入快速开始并获取更多详细信息；
 
