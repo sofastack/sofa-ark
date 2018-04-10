@@ -10,13 +10,19 @@ problem, you would hope to isolate your lib with the consumer project.
 `Ark-Plugin` employs the mechanism of classloader isolation. It runs on 
 `Ark-Container`, any `ark-plugin` would be loaded by an independent classloader.
 
-There are two concepts about `ark-plugin`:
+There are four concepts about `ark-plugin`:
 
 + Exported Class: classes contained in `ark-plugin`，loaded by ark-plugin-classloader,
 but can be resolved by other `ark-plugin` (if it imports) or consumer project.
 
-+ Imported Class: if a `ark-plugin` configures this item, it prefer to resolve class 
++ Imported Class: if a `ark-plugin` configures this item, it prefers to resolve class 
 from other `ark-plugin` which exports corresponding class.
+
++ Exported Resource: resources contained in `ark-plugin`，loaded by ark-plugin-classloader,
+but can be found by other `ark-plugin` (if it imports) or consumer project.
+
++ Imported Resource: if a `ark-plugin` configures this item, it prefers to find resource 
+from other `ark-plugin` which exports corresponding resource.
 
 ## Tools 
 The `Maven plugin` of `sofa-ark-plugin-maven-plugin` is provided to build a
@@ -62,6 +68,12 @@ module, it configures as follows:
                 <classes>
                     <class>com.alipay.sofa.ark.sample.facade.SamplePluginService</class>
                 </classes>
+                
+                <!-- configure exported resource -->
+                 <resources>
+                    <resource>Sample_Resource_Exported</resource>
+                </resources>
+            </exported>
             </exported>
 
             <!--specify destination where ark-plugin will be saved, default saved to ${project.build.directory}-->
@@ -78,6 +90,7 @@ The configured items are explained as follows:
 whose name start with `com.alipay.sofa.ark.sample.common` would be exported.
 + `exported classes`: the single class `com.alipay.sofa.ark.sample.facade.SamplePluginService` is
 exported.
++ `exported resource`: the resource `Sample_Resource_Exported` is exported.
 + `outputDirectory`: specify destination where ark-plugin would be saved when execute
 the maven command of `mvn package`
 

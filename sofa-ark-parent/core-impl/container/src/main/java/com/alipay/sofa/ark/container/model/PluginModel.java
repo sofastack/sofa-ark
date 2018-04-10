@@ -58,6 +58,10 @@ public class PluginModel implements Plugin {
 
     private Set<String>     importIndex;
 
+    private Set<String>     importResources;
+
+    private Set<String>     exportResources;
+
     private String          activator;
 
     private URL[]           urls;
@@ -125,6 +129,18 @@ public class PluginModel implements Plugin {
 
     public PluginModel setExportIndex(Set<String> exportIndex) {
         this.exportIndex = exportIndex;
+        return this;
+    }
+
+    public PluginModel setImportResources(String importResources) {
+        this.importResources = StringUtils
+            .strToSet(importResources, Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    public PluginModel setExportResources(String exportResources) {
+        this.exportResources = StringUtils
+            .strToSet(exportResources, Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 
@@ -216,6 +232,16 @@ public class PluginModel implements Plugin {
             this.importIndex.addAll(importPackages);
         }
         return this.importIndex;
+    }
+
+    @Override
+    public Set<String> getImportResources() {
+        return importResources;
+    }
+
+    @Override
+    public Set<String> getExportResources() {
+        return exportResources;
     }
 
     @Override

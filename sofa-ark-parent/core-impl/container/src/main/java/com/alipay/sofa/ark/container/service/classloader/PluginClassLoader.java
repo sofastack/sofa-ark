@@ -16,16 +16,14 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
-import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
-import com.alipay.sofa.ark.loader.jar.Handler;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Ark Plugin Classloader
@@ -33,17 +31,12 @@ import java.util.Enumeration;
  * @author ruoshan
  * @since 0.1.0
  */
-public class PluginClassLoader extends URLClassLoader {
+public class PluginClassLoader extends AbstractClasspathClassloader {
 
-    private String              pluginName;
-
-    private ClassloaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
-                                                          .getService(ClassloaderService.class);
-
-    private static final String CLASS_RESOURCE_SUFFIX = ".class";
+    private String pluginName;
 
     public PluginClassLoader(String pluginName, URL[] urls) {
-        super(urls, null);
+        super(urls);
         this.pluginName = pluginName;
     }
 
@@ -52,19 +45,7 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        if (StringUtils.isEmpty(name)) {
-            return null;
-        }
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            return loadClassInternal(name, resolve);
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
-        }
-    }
-
-    private Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
+    protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
 
         // 1. sun reflect related class throw exception directly
         if (classloaderService.isSunReflectClass(name)) {
@@ -88,9 +69,9 @@ public class PluginClassLoader extends URLClassLoader {
             clazz = resolveArkClass(name);
         }
 
-        // 5. Import class
+        // 5. Import class export by other plugins
         if (clazz == null) {
-            clazz = resolveImportClass(name);
+            clazz = resolveExportClass(name);
         }
 
         // 6. Plugin classpath class
@@ -114,139 +95,48 @@ public class PluginClassLoader extends URLClassLoader {
             "[ArkPlugin Loader] %s : can not load class: %s", pluginName, name));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public URL getResource(String name) {
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            URL url = super.getResource(name);
+    protected URL getResourceInternal(String name) {
+        // 1. find export resource
+        URL url = getExportResource(name);
 
-            if (url == null && name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-                url = findClassResource(name);
-            }
-
-            if (url == null) {
-                ClassLoader classLoader = classloaderService.findResourceExportClassloader(name);
-                // find export resource classloader and not self
-                if (classLoader != null && classLoader != this) {
-                    url = classLoader.getResource(name);
-                }
-            }
-            return url;
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
+        // 2. get .class resource
+        if (url == null) {
+            url = getClassResource(name);
         }
+
+        // 3. get local resource
+        if (url == null) {
+            url = getLocalResource(name);
+        }
+
+        return url;
     }
 
-    private URL findClassResource(String resourceName) {
-        String className = transformClassName(resourceName);
-        if (classloaderService.isClassInImport(pluginName, className)) {
-            ClassLoader classLoader = classloaderService.findImportClassloader(className);
-            return classLoader == null ? null : classLoader.getResource(resourceName);
-        }
-        return null;
-    }
+    @SuppressWarnings("unchecked")
+    protected Enumeration<URL> getResourcesInternal(String name) throws IOException {
+        List<Enumeration<URL>> enumerationList = new ArrayList<>();
 
-    private String transformClassName(String name) {
-        if (name.endsWith(CLASS_RESOURCE_SUFFIX)) {
-            name = name.substring(0, name.length() - CLASS_RESOURCE_SUFFIX.length());
-        }
-        return name.replace("/", ".");
+        // 1. find exported resources
+        enumerationList.add(getExportResources(name));
+
+        // 2. find local resources
+        enumerationList.add(getLocalResources(name));
+
+        return new CompoundEnumeration<>(
+            enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+
     }
 
     @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        Handler.setUseFastConnectionExceptions(true);
-        try {
-            Enumeration<URL> urls = new UseFastConnectionExceptionsEnumeration(
-                super.getResources(name));
-            if (!urls.hasMoreElements()) {
-                ClassLoader classLoader = classloaderService.findResourceExportClassloader(name);
-                // find export resource classloader and not self
-                if (classLoader != null && classLoader != this) {
-                    urls = classLoader.getResources(name);
-                }
-            }
-            return urls;
-        } finally {
-            Handler.setUseFastConnectionExceptions(false);
-        }
+    boolean shouldFindExportedClass(String className) {
+        return classloaderService.isClassInImport(pluginName, className);
     }
 
-    /**
-     * Load JDK class
-     * @param name class name
-     * @return
-     */
-    private Class<?> resolveJDKClass(String name) {
-        try {
-            return classloaderService.getJDKClassloader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
-     * Load ark spi class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveArkClass(String name) {
-        if (classloaderService.isArkSpiClass(name)) {
-            try {
-                return classloaderService.getArkClassloader().loadClass(name);
-            } catch (ClassNotFoundException e) {
-                // ignore
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Load import class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveImportClass(String name) {
-        if (classloaderService.isClassInImport(pluginName, name)) {
-            ClassLoader importClassloader = classloaderService.findImportClassloader(name);
-            if (importClassloader != null) {
-                try {
-                    return importClassloader.loadClass(name);
-                } catch (ClassNotFoundException e) {
-                    // ignore
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Load plugin classpath class
-     * @param name
-     * @return
-     */
-    private Class<?> resolveLocalClass(String name) {
-        try {
-            return super.findClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
-     * Load Java Agent Class
-     * @param name className
-     * @return
-     */
-    private Class<?> resolveJavaAgentClass(String name) {
-        try {
-            return classloaderService.getAgentClassloader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
+    @Override
+    boolean shouldFindExportedResource(String resourceName) {
+        return classloaderService.isResourceInImport(pluginName, resourceName);
     }
 
 }

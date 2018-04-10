@@ -27,12 +27,13 @@ import java.util.Properties;
  */
 public abstract class AbstractPropertiesConfig {
 
-    public static final String      KEY_PACKAGES = "packages";
-    public static final String      KEY_CLASSES  = "classes";
-    public static final String      KEY_EXPORT   = "export";
-    public static final String      KEY_IMPORT   = "import";
-    public static final String      KEY_SPLIT    = "-";
-    public static final String      VALUE_SPLIT  = ",";
+    public static final String      KEY_PACKAGES  = "packages";
+    public static final String      KEY_CLASSES   = "classes";
+    public static final String      KEY_RESOURCES = "resources";
+    public static final String      KEY_EXPORT    = "export";
+    public static final String      KEY_IMPORT    = "import";
+    public static final String      KEY_SPLIT     = "-";
+    public static final String      VALUE_SPLIT   = ",";
 
     /**
      * imported or exported packages config
@@ -43,6 +44,11 @@ public abstract class AbstractPropertiesConfig {
      * imported or exported classes config
      */
     protected LinkedHashSet<String> classes;
+
+    /**
+     * imported or exported class config
+     */
+    protected LinkedHashSet<String> resources;
 
     public LinkedHashSet<String> getPackages() {
         return packages;
@@ -58,6 +64,19 @@ public abstract class AbstractPropertiesConfig {
 
     public void setClasses(LinkedHashSet<String> classes) {
         this.classes = classes;
+    }
+
+    /**
+     * Getter method for property <tt>resources</tt>.
+     *
+     * @return property value of resources
+     */
+    public LinkedHashSet<String> getResources() {
+        return resources;
+    }
+
+    public void setResources(LinkedHashSet<String> resources) {
+        this.resources = resources;
     }
 
     public static void storeKeyValuePair(Properties prop, String name, Collection<String> value) {

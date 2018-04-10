@@ -41,7 +41,7 @@ public class DeployPluginStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
     }
 

@@ -18,6 +18,8 @@ package com.alipay.sofa.ark.spi.service.classloader;
 
 import com.alipay.sofa.ark.spi.service.ArkService;
 
+import java.util.List;
+
 /**
  * Classloader Service
  *
@@ -27,9 +29,9 @@ import com.alipay.sofa.ark.spi.service.ArkService;
 public interface ClassloaderService extends ArkService {
 
     /**
-     * prepare plugin exported class index Cache
+     * prepare plugin exported class and resource index Cache
      */
-    void prepareExportClassCache();
+    void prepareExportClassAndResourceCache();
 
     /**
      * Whether class is sun reflect related class
@@ -54,18 +56,26 @@ public interface ClassloaderService extends ArkService {
     boolean isClassInImport(String pluginName, String className);
 
     /**
-     * Find classloader for import class
+     * Find classloader which export class for import class
      * @param className class name
      * @return
      */
-    ClassLoader findImportClassloader(String className);
+    ClassLoader findExportClassloader(String className);
 
     /**
-     * Find classloader for plugin export resource
-     * @param resourceName resource name
+     * Whether resource is in import-resources
+     * @param pluginName
+     * @param resourceName
      * @return
      */
-    ClassLoader findResourceExportClassloader(String resourceName);
+    boolean isResourceInImport(String pluginName, String resourceName);
+
+    /**
+     * Find classloaders which export resource for import resource in priority orders for import-resources
+     * @param resourceName resource name
+     * @return classloader list
+     */
+    List<ClassLoader> findExportResourceClassloadersInOrder(String resourceName);
 
     /**
      * Get JDK Related class classloader
@@ -91,7 +101,19 @@ public interface ClassloaderService extends ArkService {
      */
     ClassLoader getAgentClassloader();
 
+    /**
+     * Whether class is denied by biz
+     * @param bizName biz name
+     * @param className class name
+     * @return
+     */
     boolean isDeniedImportClass(String bizName, String className);
 
+    /**
+     * Whether resource is denied by biz
+     * @param bizName biz name
+     * @param resourceName resource name
+     * @return
+     */
     boolean isDeniedImportResource(String bizName, String resourceName);
 }

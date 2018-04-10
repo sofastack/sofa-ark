@@ -122,13 +122,15 @@ public class RegistryServiceTest extends BaseTest {
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorADup.class.getName())
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
             .setPluginContext(new PluginContextImpl(pluginA));
 
         pluginManagerService.registerPlugin(pluginA);
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
         Assert.assertEquals(1, registryService.referenceServices(ITest.class).size());
@@ -147,6 +149,8 @@ public class RegistryServiceTest extends BaseTest {
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorA.class.getName())
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
@@ -160,6 +164,8 @@ public class RegistryServiceTest extends BaseTest {
             .setImportClasses(INTERFACE_CLASS)
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(Collections.<String> emptySet())
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorB.class.getName())
             .setPluginClassLoader(
                 new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()))
@@ -173,6 +179,8 @@ public class RegistryServiceTest extends BaseTest {
             .setImportClasses(INTERFACE_CLASS)
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setExportIndex(Collections.<String> emptySet())
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorC.class.getName())
             .setPluginClassLoader(
                 new PluginClassLoader(pluginc.getPluginName(), pluginc.getClassPath()))
@@ -182,7 +190,7 @@ public class RegistryServiceTest extends BaseTest {
         pluginManagerService.registerPlugin(pluginB);
         pluginManagerService.registerPlugin(pluginc);
 
-        classloaderService.prepareExportClassCache();
+        classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
         Assert.assertEquals(4, registryService.referenceServices(ITest.class).size());
