@@ -23,7 +23,7 @@ import org.junit.runner.manipulation.*;
 import org.junit.runner.notification.RunNotifier;
 
 /**
- * Corresponding to {@see org.springframework.test.context.junit4.SpringRunner}
+ * Corresponding to {@literal org.springframework.test.context.junit4.SpringRunner}
  *
  * @author qilong.zql
  * @since 0.1.0

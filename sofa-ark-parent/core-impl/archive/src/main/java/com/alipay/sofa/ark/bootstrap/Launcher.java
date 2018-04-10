@@ -82,7 +82,7 @@ public abstract class Launcher {
      * would startup.
      *
      * @param classpath classpath of ark-biz
-     * @return {@see com.alipay.sofa.ark.container.ArkContainer}
+     * @return Object {@literal com.alipay.sofa.ark.container.ArkContainer}
      * @throws Exception
      */
     public Object launch(String classpath) throws Exception {
