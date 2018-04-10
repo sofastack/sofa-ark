@@ -12,7 +12,7 @@ this project.
 ## Tools
 The `Maven plugin` of `sofa-ark-maven-plugin` is provided to build a standard
 `executable-ark-jar`, and just needs some simple configurations, Details please
-refer to [doc](./README.md)
+refer to [doc](https://alipay.github.io/sofastack.github.io/docs/build-ark.html)
 
 ## Step By Step
 ### Create a Spring Boot Web Project
