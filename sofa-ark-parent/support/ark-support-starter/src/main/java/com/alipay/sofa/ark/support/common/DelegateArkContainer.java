@@ -22,7 +22,7 @@ import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import java.lang.reflect.Method;
 
 /**
- * wrap the {@see com.alipay.sofa.ark.container.ArkContainer}
+ * wrap the {@literal com.alipay.sofa.ark.container.ArkContainer}
  *
  * @author qilong.zql
  * @since 0.1.0
@@ -57,7 +57,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * wrap {@see com.alipay.sofa.ark.container.ArkContainer}
+     * wrap {@literal com.alipay.sofa.ark.container.ArkContainer}
      */
     protected static void wrapping(Object container) {
         AssertUtils.assertNotNull(container, "Ark Container must be not null.");
@@ -73,7 +73,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Get {@see com.alipay.sofa.ark.container.test.TestClassLoader}, used by
+     * Get {@literal com.alipay.sofa.ark.container.test.TestClassLoader}, used by
      * loading test class
      *
      * @return
@@ -95,7 +95,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Check whether {@see com.alipay.sofa.ark.container.ArkContainer} startup or not.
+     * Check whether {@literal com.alipay.sofa.ark.container.ArkContainer} startup or not.
      * @return
      */
     public static boolean isStarted() {
@@ -103,7 +103,7 @@ public class DelegateArkContainer {
     }
 
     /**
-     * Load class using {@see com.alipay.sofa.ark.container.test.TestClassLoader}
+     * Load class using {@literal com.alipay.sofa.ark.container.test.TestClassLoader}
      * @param name
      * @return
      */
