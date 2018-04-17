@@ -4,20 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.alipay.sofa</groupId>
-    <version>0.2.0</version>
+    <parent>
+        <artifactId>sofa-ark</artifactId>
+        <groupId>com.alipay.sofa</groupId>
+        <version>0.3.0</version>
+    </parent>
+
     <artifactId>sofa-ark-samples</artifactId>
 
     <packaging>pom</packaging>
 
     <properties>
         <project.encoding>UTF-8</project.encoding>
-
         <spring.boot.version>1.4.2.RELEASE</spring.boot.version>
-
-        <license.maven.plugin.version>3.0</license.maven.plugin.version>
-        <maven.java.formatter.plugin>0.4</maven.java.formatter.plugin>
-
         <main.user.dir>${user.dir}</main.user.dir>
     </properties>
 
@@ -74,7 +73,6 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>${license.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -101,7 +99,6 @@
             <plugin>
                 <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
                 <artifactId>maven-java-formatter-plugin</artifactId>
-                <version>${maven.java.formatter.plugin}</version>
                 <executions>
                     <execution>
                         <goals>
