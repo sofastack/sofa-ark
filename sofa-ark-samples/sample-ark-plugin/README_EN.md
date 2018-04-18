@@ -34,7 +34,7 @@ refer to [doc](https://alipay.github.io/sofastack.github.io/docs/build-ark-plugi
 This sample project is a standard maven project, it contains two modules:
 
 + common module: contains some classes exported.
-+ plugin module: contains [plugin activator](./README.md) and [plugin service](./README.md).
++ plugin module: contains `plugin activator` and `plugin service`.
 
 One thing should be pointed out that dependencies imported by project also can be exported.
 
