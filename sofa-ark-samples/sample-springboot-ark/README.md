@@ -1,5 +1,3 @@
-> [工程地址](https://github.com/alipay/sofa-ark/tree/master/sofa-ark-samples/sample-springboot-ark)
-
 ## 简介
 该样例工程演示了如何借助 `Maven` 插件将一个 Spring Boot Web 工程打包成标准格式规范的可执行 Ark 包；
 
@@ -17,7 +15,7 @@
 </plugin>
 ```
 
-> [详细请参考插件使用文档](sofastack.github.io/docs/ark-jar.html)
+**[详细请参考插件使用文档](sofastack.github.io/docs/ark-jar.html)**
 
 
 ## 入门
