@@ -15,7 +15,7 @@
 </plugin>
 ```
 
-**[详细请参考插件使用文档](sofastack.github.io/docs/ark-jar.html)**
+**[详细请参考插件使用文档](https://alipay.github.io/sofastack.github.io/docs/ark-jar.html)**
 
 
 ## 入门
@@ -25,7 +25,7 @@
 在官网 [https://start.spring.io/](https://start.spring.io/) 下载一个标准的 Spring Boot Web 工程
 
 ### 引入 sample-ark-plugin
-在工程主 `pom.xml` 中如下配置，添加另一个样例工程打包生成的 `Ark Plugin` 依赖，[参考文档](sofastack.github.io/docs/ark-plugin-demo.html) 
+在工程主 `pom.xml` 中如下配置，添加另一个样例工程打包生成的 `Ark Plugin` 依赖，[参考文档](https://alipay.github.io/sofastack.github.io/docs/ark-plugin-demo.html) 
 
 ```xml
 <dependency>
