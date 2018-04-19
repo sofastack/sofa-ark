@@ -30,6 +30,6 @@ done
 
 for filename in `find . -name "README*.md"`;do
 	echo "Deal with $filename"
-    sed "s/$currentVersion/$1/g" $filename
+	sed "/badge\/maven/! s/$currentVersion/$1/" $filename
 
 done
