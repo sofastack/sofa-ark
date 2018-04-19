@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-ark/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-ark)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-orange.svg)](https://gitter.im/sofa-ark/Lobby)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
-![maven](https://img.shields.io/badge/maven-v0.2.0-blue.svg)
+![maven](https://img.shields.io/badge/maven-v0.3.0-blue.svg)
 
 
 SOFAArk is a light-weight，java based classloader isolation framework 

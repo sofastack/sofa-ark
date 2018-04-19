@@ -4,8 +4,11 @@ if [ ! -n "$1" ] ;then
 	echo "Please enter a version"
  	exit 1	
 else
-  	echo "The version is $1 !"
+  	echo "The updated version is $1 !"
 fi
+
+currentVersion=`sed -n '/<project /,/<packaging/p' pom.xml | grep version | cut -d '>' -f2 | cut -d '<' -f1`
+echo "The current version is $currentVersion"
 
 if [ `uname` == "Darwin" ] ;then
  	echo "This is OS X"
@@ -22,5 +25,11 @@ echo "Change version in subproject pom ===>"
 for filename in `find . -name "pom.xml" -mindepth 2`;do
 	echo "Deal with $filename"
 	sed "/<parent>/,/<\/parent>/ s/<version>.*<\/version>/<version>$1<\/version>/" $filename
+
+done
+
+for filename in `find . -name "README*.md"`;do
+	echo "Deal with $filename"
+    sed "s/$currentVersion/$1/g" $filename
 
 done
