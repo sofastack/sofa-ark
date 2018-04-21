@@ -22,6 +22,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.commons.io.IOUtils;
@@ -406,7 +407,7 @@ public class ArkPluginMojo extends AbstractMojo {
 
     private void addExportIndex(Archiver archiver) throws MojoExecutionException {
         List<ArchiveEntry> archiveEntries = getLibFileArchiveEntries(archiver);
-        List<String> exportClasses = new ArrayList<>();
+        Set<String> exportClasses = new LinkedHashSet<>();
 
         for (ArchiveEntry archiveEntry : archiveEntries) {
             if (this.exported.getPackages() != null) {
@@ -531,16 +532,18 @@ public class ArkPluginMojo extends AbstractMojo {
      * check className is contained by packages
      *
      * @param className
-     * @param pkgs
+     * @param pkgPattern
      * @return
      */
-    private static boolean classMatchPackage(String className, Set<String> pkgs) {
-        if (className == null || pkgs == null || pkgs.isEmpty()) {
+    private static boolean classMatchPackage(String className, Set<String> pkgPattern) {
+        if (className == null || pkgPattern == null || pkgPattern.isEmpty()) {
             return false;
         }
 
-        for (String pkg : pkgs) {
-            if (className.startsWith(pkg)) {
+        String pkg = ClassUtils.getPackageName(className);
+
+        for (String pattern : pkgPattern) {
+            if (ClassUtils.isAdaptedToPackagePattern(pkg, pattern)) {
                 return true;
             }
         }

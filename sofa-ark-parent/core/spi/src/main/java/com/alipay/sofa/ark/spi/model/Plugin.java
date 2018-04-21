@@ -129,12 +129,6 @@ public interface Plugin {
     Set<String> getExportIndex();
 
     /**
-     * get Plugin Import Index, contain both Plugin Import Packages and Plugin Import Classes
-     * @return plugin import index
-     */
-    Set<String> getImportIndex();
-
-    /**
      * start Plugin
      * @throws ArkException
      */

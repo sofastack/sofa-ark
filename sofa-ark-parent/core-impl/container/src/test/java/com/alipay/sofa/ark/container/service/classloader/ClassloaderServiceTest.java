@@ -16,8 +16,17 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.model.PluginModel;
+import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,12 +40,20 @@ import java.net.URLClassLoader;
  */
 public class ClassloaderServiceTest extends BaseTest {
 
-    private ClassloaderService classloaderService;
+    private ClassloaderService   classloaderService;
+    private BizManagerService    bizManagerService;
+    private PluginManagerService pluginManagerService;
 
     @Before
     public void before() {
-        classloaderService = new ClassloaderServiceImpl();
-        classloaderService.init();
+        ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
+        arkServiceContainer.start();
+        classloaderService = ArkServiceContainerHolder.getContainer().getService(
+            ClassloaderService.class);
+        bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
+            PluginManagerService.class);
     }
 
     @Test
@@ -95,6 +112,43 @@ public class ClassloaderServiceTest extends BaseTest {
         Assert.assertNotNull(agentClassLoader);
         Assert.assertTrue(((URLClassLoader) agentClassLoader).getURLs().length == 2);
         Assert.assertNotNull(agentClassLoader.loadClass("SampleClass"));
+    }
+
+    @Test
+    public void testIsDeniedImportClass() {
+        Biz biz = new BizModel().setBizName("mockBiz").setDenyImportPackages("a.c, a.b.c.*, a.b.c")
+            .setDenyImportClasses("");
+        bizManagerService.registerBiz(biz);
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.c"),
+            "Exception error");
+
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.c.E"),
+            "Exception error");
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.c.e.G"),
+            "Exception error");
+
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.b.c.E"),
+            "Exception error");
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.b.c.e.G"),
+            "Exception error");
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.b.c"),
+            "Exception error");
+    }
+
+    @Test
+    public void testIsClassImport() {
+        Plugin plugin = new PluginModel().setPluginName("mockPlugin").setImportClasses(null)
+            .setImportPackages("a.c,a.b.c.*,a.b.c");
+        pluginManagerService.registerPlugin(plugin);
+
+        Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.c.e"));
+        Assert.assertFalse(classloaderService.isClassInImport("mockPlugin", "a.c"));
+        Assert.assertFalse(classloaderService.isClassInImport("mockPlugin", "a.c.e.f"));
+
+        Assert.assertFalse(classloaderService.isClassInImport("mockPlugin", "a.b.c"));
+        Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e"));
+        Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e.f"));
+
     }
 
 }
