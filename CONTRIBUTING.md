@@ -16,8 +16,7 @@ the ability to merge pull requests.
 ### Code Conventions
 None of these is essential for a pull request, but they will all help. 
 
-1. we provided a [code formatter file](./Formatter.xml), it will formatting
-automatically your project when during process of building.
+1. we provided a [code formatter file](./Formatter.xml), it will formatting automatically your project when during process of building. We would check code format when run ci test, so please ensure that you have built project before you push branch.
 
 2. Make sure all new `.java` files to have a simple Javadoc class comment 
 with at least an `@author` tag identifying you, and preferably at least a 
@@ -34,3 +33,7 @@ paragraph on what the class is for.
 7. When writing a commit message please follow [these conventions](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html), if 
 you are fixing an existing issue please add Fixes gh-XXXX at the end 
 of the commit message (where XXXX is the issue number).
+
+8. Ensure that code coverage does not decrease。
+
+9. Contribute a PR as the rule of Gitflow Workflow; SOFAArk's version contains three digit, the first one is for compatibility; the second one is for new features and enhancement; the last one is for bug fix.
