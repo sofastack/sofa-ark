@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.common.util;
 
+import com.alipay.sofa.ark.spi.constant.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ClassUtilsTest {
     @Test
     public void testGetPackageName() {
         Assert.assertTrue(ClassUtils.getPackageName("a.b.C").equals("a.b"));
-        Assert.assertTrue(ClassUtils.getPackageName("C").equals("."));
+        Assert.assertTrue(ClassUtils.getPackageName("C").equals(Constants.DEFAULT_PACKAGE));
     }
 
     @Test
