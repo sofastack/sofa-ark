@@ -103,7 +103,6 @@ public class LaunchCommandTest {
 
     }
 
-
     private String getClasspath(URL[] urls) throws Exception {
 
         StringBuilder sb = new StringBuilder();
