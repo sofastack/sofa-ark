@@ -20,9 +20,12 @@ import com.alipay.sofa.ark.spi.tools.RuntimeUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import sun.misc.URLClassPath;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * @author qilong.zql 18/3/9
@@ -66,7 +69,21 @@ public class LaunchCommandTest {
     }
 
     @Test
+    public void test() {
+        ClassLoader now = this.getClass().getClassLoader();
+        String oldClassPath = null;
+        try {
+            oldClassPath = getClasspath(getURLClassPath(now).getURLs());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String newClassPath = getClasspath(RuntimeUtil.getClasspath(now));
+        Assert.assertEquals(oldClassPath , newClassPath);
+    }
+
+    @Test
     public void testCommandParser() {
+        Exception exception = null;
         try {
             String[] args = new String[] { "p1", "p2" };
             LaunchCommand launchCommand = LaunchCommand.parse(arkCommand, args);
@@ -89,8 +106,9 @@ public class LaunchCommandTest {
             }
 
         } catch (Exception ex) {
-            Assert.assertNull(ex);
+            exception = ex;
         }
+        Assert.assertNull(exception);
     }
 
     public static class MainClass {
@@ -103,7 +121,24 @@ public class LaunchCommandTest {
 
     }
 
-    private String getClasspath(URL[] urls) throws Exception {
+    private URLClassPath getURLClassPath(ClassLoader classLoader) throws Exception {
+        try {
+            Field ucpField;
+
+            try {
+                ucpField = classLoader.getClass().getDeclaredField("ucp");
+            } catch (NoSuchFieldException ex) {
+                ucpField = URLClassLoader.class.getDeclaredField("ucp");
+            }
+
+            ucpField.setAccessible(true);
+            return (URLClassPath) ucpField.get(classLoader);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getClasspath(URL[] urls) {
 
         StringBuilder sb = new StringBuilder();
         for (URL url : urls) {
