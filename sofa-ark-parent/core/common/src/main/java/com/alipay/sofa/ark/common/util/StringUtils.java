@@ -84,6 +84,10 @@ public class StringUtils {
         if (str == null || str.isEmpty()) {
             return Collections.emptyList();
         }
-        return Arrays.asList(str.split(delimiter));
+        List<String> stringList = new ArrayList<>();
+        for (String s : str.split(delimiter)) {
+            stringList.add(s.trim());
+        }
+        return stringList;
     }
 }

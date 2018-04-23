@@ -53,4 +53,14 @@ public class AssertUtilsTest {
         }
     }
 
+    @Test
+    public void testAssertIsFalse() {
+        AssertUtils.isFalse(false, "Exception %s", "error");
+        try {
+            AssertUtils.isFalse(true, "Exception %s", "error");
+        } catch (IllegalArgumentException ex) {
+            Assert.assertTrue(ex.getMessage().equals("Exception error"));
+        }
+    }
+
 }

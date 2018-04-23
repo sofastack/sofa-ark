@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -53,9 +53,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com:sofastack/sofa-ark.git</connection>
-        <developerConnection>scm:git:ssh://github.com:sofastack/sofa-ark.git</developerConnection>
-        <url>http://github.com/sofastack/sofa-ark/tree/master</url>
+        <connection>scm:git:git://github.com/alipay/sofa-ark.git</connection>
+        <developerConnection>scm:git:ssh://github.com/alipay/sofa-ark.git</developerConnection>
+        <url>http://github.com/alipay/sofa-ark/tree/master</url>
     </scm>
 
     <build>

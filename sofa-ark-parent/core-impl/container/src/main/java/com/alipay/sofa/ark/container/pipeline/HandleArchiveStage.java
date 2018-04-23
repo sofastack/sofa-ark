@@ -34,7 +34,6 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import java.util.*;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -109,13 +108,6 @@ public class HandleArchiveStage implements PipelineStage {
             .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
-    }
-
-    private String[] filterEmptyString(String originString) {
-        if (originString == null || originString.isEmpty()) {
-            return new String[] {};
-        }
-        return originString.split(",");
     }
 
 }
