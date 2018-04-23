@@ -69,7 +69,7 @@ public class LaunchCommandTest {
     }
 
     @Test
-    public void test() {
+    public void testRuntimUtil() {
         ClassLoader now = this.getClass().getClassLoader();
         String oldClassPath = null;
         try {
