@@ -78,8 +78,8 @@ public class LaunchCommandTest {
             Assert.assertTrue(launchCommand.getEntryMethodName().equals(method.getName()));
             Assert.assertTrue(launchCommand.getExecutableArkBizJar().equals(fatJarUrl));
             Assert.assertTrue(launchCommand.isTestMode());
-            Assert.assertTrue(launchCommand.getClasspath().length == classpath
-                .split(CommandArgument.CLASSPATH_SPLIT).length);
+            Assert.assertTrue(launchCommand.getClasspath().length == ("".equals(classpath) ? 0
+                : classpath.split(CommandArgument.CLASSPATH_SPLIT).length));
             for (URL url : launchCommand.getClasspath()) {
                 Assert.assertTrue(classpath.contains(url.toExternalForm()));
             }
