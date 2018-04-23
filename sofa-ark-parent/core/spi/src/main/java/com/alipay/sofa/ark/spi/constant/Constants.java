@@ -45,6 +45,8 @@ public abstract class Constants {
     public final static String DENY_IMPORT_PACKAGES       = "deny-import-packages";
     public final static String DENY_IMPORT_RESOURCES      = "deny-import-resources";
 
+    public final static String PACKAGE_PREFIX_MARK        = "*";
+    public final static String DEFAULT_PACKAGE            = ".";
     public final static String MANIFEST_VALUE_SPLIT       = ",";
 
     public final static String IMPORT_RESOURCES_ATTRIBUTE = "import-resources";

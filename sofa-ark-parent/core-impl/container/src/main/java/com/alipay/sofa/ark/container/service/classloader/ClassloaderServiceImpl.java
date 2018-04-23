@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -119,8 +120,15 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         Plugin plugin = pluginManagerService.getPluginByName(pluginName);
         AssertUtils.assertNotNull(plugin, "plugin: " + pluginName + " is null");
 
-        for (String importName : plugin.getImportIndex()) {
-            if (className.startsWith(importName)) {
+        for (String importName : plugin.getImportClasses()) {
+            if (className.equals(importName)) {
+                return true;
+            }
+        }
+
+        String pkg = ClassUtils.getPackageName(className);
+        for (String pattern : plugin.getImportPackages()) {
+            if (ClassUtils.isAdaptedToPackagePattern(pkg, pattern)) {
                 return true;
             }
         }
@@ -249,8 +257,9 @@ public class ClassloaderServiceImpl implements ClassloaderService {
             return false;
         }
 
-        for (String pkg : biz.getDenyImportPackages()) {
-            if (className.startsWith(pkg)) {
+        String pkg = ClassUtils.getPackageName(className);
+        for (String pkgPattern : biz.getDenyImportPackages()) {
+            if (ClassUtils.isAdaptedToPackagePattern(pkg, pkgPattern)) {
                 return true;
             }
         }

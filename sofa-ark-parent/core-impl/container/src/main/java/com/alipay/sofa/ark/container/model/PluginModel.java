@@ -56,8 +56,6 @@ public class PluginModel implements Plugin {
 
     private Set<String>     exportIndex;
 
-    private Set<String>     importIndex;
-
     private Set<String>     importResources;
 
     private Set<String>     exportResources;
@@ -222,16 +220,6 @@ public class PluginModel implements Plugin {
     @Override
     public Set<String> getExportIndex() {
         return this.exportIndex;
-    }
-
-    @Override
-    public Set<String> getImportIndex() {
-        if (this.importIndex == null) {
-            this.importIndex = new HashSet<>();
-            this.importIndex.addAll(importClasses);
-            this.importIndex.addAll(importPackages);
-        }
-        return this.importIndex;
     }
 
     @Override
