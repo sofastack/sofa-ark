@@ -20,17 +20,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * 运行时工具
+ * runtime utils
  *
  * @author joe
  * @version 2018.04.23 10:46
  */
 public class RuntimeUtil {
     /**
-     * 获取classpath
+     * get classpath from ClassLoader
      *
      * @param classLoader ClassLoader
-     * @return ClassLoader对应的classpath
+     * @return classpath
      */
     public static URL[] getClasspath(ClassLoader classLoader) {
         if (classLoader == null) {
