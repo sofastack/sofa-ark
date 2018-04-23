@@ -78,7 +78,7 @@ public class LaunchCommandTest {
             e.printStackTrace();
         }
         String newClassPath = getClasspath(RuntimeUtil.getClasspath(now));
-        Assert.assertEquals(oldClassPath , newClassPath);
+        Assert.assertEquals(oldClassPath, newClassPath);
     }
 
     @Test
