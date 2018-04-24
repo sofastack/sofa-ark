@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.argument;
 
-import com.alipay.sofa.ark.spi.tools.RuntimeUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class LaunchCommandTest {
     public void init() {
 
         try {
-            classpath = getClasspath(RuntimeUtil.getClasspath(this.getClass().getClassLoader()));
+            classpath = getClasspath(((URLClassLoader) this.getClass().getClassLoader()).getURLs());
             method = MainClass.class.getMethod("main", String[].class);
             fatJarUrl = this.getClass().getClassLoader().getResource("test.jar");
         } catch (Exception ex) {
@@ -66,19 +65,6 @@ public class LaunchCommandTest {
             CommandArgument.BIZ_RUN_MODE, CommandArgument.TEST_RUN_MODE);
 
         LaunchCommandTest.count = 0;
-    }
-
-    @Test
-    public void testRuntimUtil() {
-        ClassLoader now = this.getClass().getClassLoader();
-        String oldClassPath = null;
-        try {
-            oldClassPath = getClasspath(getURLClassPath(now).getURLs());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        String newClassPath = getClasspath(RuntimeUtil.getClasspath(now));
-        Assert.assertEquals(oldClassPath, newClassPath);
     }
 
     @Test

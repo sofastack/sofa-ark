@@ -26,7 +26,6 @@ import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import com.alipay.sofa.ark.spi.tools.RuntimeUtil;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -192,7 +191,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         List<URL> jdkUrls = new ArrayList<>();
         try {
             String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
-            URL[] urls = RuntimeUtil.getClasspath(systemClassloader);
+            URL[] urls = ((URLClassLoader) systemClassloader).getURLs();
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
                     if (LOGGER.isDebugEnabled()) {

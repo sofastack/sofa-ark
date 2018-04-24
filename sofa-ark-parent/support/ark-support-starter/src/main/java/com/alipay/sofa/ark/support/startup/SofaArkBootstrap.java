@@ -20,11 +20,11 @@ import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
-import com.alipay.sofa.ark.spi.tools.RuntimeUtil;
 import com.alipay.sofa.ark.support.thread.IsolatedThreadGroup;
 import com.alipay.sofa.ark.support.thread.LaunchRunner;
 
 import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * relaunch a started main method with bootstrapping ark container
@@ -96,7 +96,7 @@ public class SofaArkBootstrap {
     private static final URL[] getURLClassPath() throws Exception {
         try {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            return RuntimeUtil.getClasspath(classLoader);
+            return ((URLClassLoader) classLoader).getURLs();
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
