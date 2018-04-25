@@ -94,12 +94,8 @@ public class SofaArkBootstrap {
     }
 
     private static final URL[] getURLClassPath() throws Exception {
-        try {
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            return ((URLClassLoader) classLoader).getURLs();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        return ((URLClassLoader) classLoader).getURLs();
     }
 
     private static boolean isSofaArkStarted() {
