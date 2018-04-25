@@ -31,6 +31,9 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH;
+import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH_SPLIT;
+
 /**
  *
  * @author ruoshan
@@ -261,11 +264,18 @@ public class ClasspathLauncher extends ArkLauncher {
             }
         }
 
+        /**
+         * when execute mvn test, the classpath would be recorded in a MANIFEST.MF file ,
+         * including a surefire boot jar.
+         *
+         * @param surefireBootJar
+         * @return
+         */
         protected URL[] parseClassPathFromSurefireBoot(URL surefireBootJar) {
             try {
                 JarFile jarFile = new JarFile(surefireBootJar.getFile());
                 String[] classPath = jarFile.getManifest().getMainAttributes()
-                    .getValue("Class-Path").split(" ");
+                    .getValue(SUREFIRE_BOOT_CLASSPATH).split(SUREFIRE_BOOT_CLASSPATH_SPLIT);
                 List<URL> urls = new ArrayList<>();
                 for (String path : classPath) {
                     urls.add(new URL(path));

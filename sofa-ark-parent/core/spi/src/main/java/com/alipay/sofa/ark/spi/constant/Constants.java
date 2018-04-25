@@ -52,4 +52,6 @@ public abstract class Constants {
     public final static String IMPORT_RESOURCES_ATTRIBUTE = "import-resources";
     public final static String EXPORT_RESOURCES_ATTRIBUTE = "export-resources";
 
+    public final static String SUREFIRE_BOOT_CLASSPATH = "Class-Path";
+    public final static String SUREFIRE_BOOT_CLASSPATH_SPLIT = " ";
 }
