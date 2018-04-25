@@ -17,21 +17,17 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.exception.ArkException;
-import com.alipay.sofa.ark.loader.DirectoryBizModuleArchive;
-import com.alipay.sofa.ark.loader.JarBizModuleArchive;
-import com.alipay.sofa.ark.loader.JarContainerArchive;
-import com.alipay.sofa.ark.loader.JarPluginArchive;
+import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.*;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
@@ -94,10 +90,25 @@ public class ClasspathLauncher extends ArkLauncher {
 
         @Override
         public ContainerArchive getContainerArchive() throws Exception {
+
+            ContainerArchive archive = getJarContainerArchive();
+
+            if (archive == null) {
+                archive = createDirectoryContainerArchive();
+            }
+
+            if (archive == null) {
+                throw new ArkException("No Ark Container Jar File Found.");
+            }
+
+            return archive;
+        }
+
+        protected ContainerArchive getJarContainerArchive() throws Exception {
             List<URL> urlList = filterUrls(Constants.ARK_CONTAINER_MARK_ENTRY);
 
             if (urlList.isEmpty()) {
-                throw new ArkException("No Ark Container Jar File Found.");
+                return null;
             }
 
             if (urlList.size() > 1) {
@@ -168,6 +179,101 @@ public class ClasspathLauncher extends ArkLauncher {
 
         protected BizArchive createDirectoryBizModuleArchive() {
             return new DirectoryBizModuleArchive(className, methodName, methodDescription, urls);
+        }
+
+        protected ContainerArchive createDirectoryContainerArchive() {
+            URL[] candidates;
+            if (urls.length == 1) {
+                candidates = parseClassPathFromSurefireBoot(urls[0]);
+            } else {
+                candidates = urls;
+            }
+            URL[] filterUrls = filterURLs(candidates);
+            return filterUrls == null ? null : new DirectoryContainerArchive(filterUrls);
+        }
+
+        /**
+         * this method is used to chose jar file which is contained in sofa-ark-all.jar
+         *
+         * @return
+         */
+        protected URL[] filterURLs(URL[] urls) {
+            URL arkLibIndex = ClassLoader.getSystemResource("ark.lib.properties");
+
+            if (arkLibIndex == null) {
+                return null;
+            }
+
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new InputStreamReader(arkLibIndex.openStream()));
+                Set<String> arkContainerJar = new HashSet<>();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    arkContainerJar.add(line);
+                }
+
+                Set<URL> containerClassPath = new HashSet<>();
+                for (String arkJar : arkContainerJar) {
+                    for (URL url : urls) {
+                        if (url.getPath().contains(
+                            String.format(
+                                "%ssofa-ark-parent%score-impl%scontainer%starget%sclasses",
+                                File.separator, File.separator, File.separator, File.separator,
+                                File.separator))
+                            || url.getPath().contains(
+                                String.format(
+                                    "%ssofa-ark-parent%score-impl%sarchive%starget%sclasses",
+                                    File.separator, File.separator, File.separator, File.separator,
+                                    File.separator))
+                            || url.getPath().contains(
+                                String.format("%ssofa-ark-parent%score%sspi%starget%sclasses",
+                                    File.separator, File.separator, File.separator, File.separator,
+                                    File.separator))
+                            || url.getPath().contains(
+                                String.format("%ssofa-ark-parent%score%scommon%starget%sclasses",
+                                    File.separator, File.separator, File.separator, File.separator,
+                                    File.separator))
+                            || url.getPath().contains(
+                                String.format(
+                                    "%ssofa-ark-parent%score%sexception%starget%sclasses",
+                                    File.separator, File.separator, File.separator, File.separator,
+                                    File.separator))) {
+                            containerClassPath.add(url);
+                        } else if (url.getPath().contains(arkJar)) {
+                            containerClassPath.add(url);
+                        }
+                    }
+                }
+
+                return arkContainerJar.size() != containerClassPath.size() ? null
+                    : containerClassPath.toArray(new URL[] {});
+            } catch (IOException ex) {
+                throw new ArkException("Read ark.lib.properties failed", ex);
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException ex) {
+                        throw new ArkException("Read ark.lib.properties failed", ex);
+                    }
+                }
+            }
+        }
+
+        protected URL[] parseClassPathFromSurefireBoot(URL surefireBootJar) {
+            try {
+                JarFile jarFile = new JarFile(surefireBootJar.getFile());
+                String[] classPath = jarFile.getManifest().getMainAttributes()
+                    .getValue("Class-Path").split(" ");
+                List<URL> urls = new ArrayList<>();
+                for (String path : classPath) {
+                    urls.add(new URL(path));
+                }
+                return urls.toArray(new URL[] {});
+            } catch (IOException ex) {
+                throw new ArkException("Parse classpath failed from surefire boot jar.", ex);
+            }
         }
     }
 

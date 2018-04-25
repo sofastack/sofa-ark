@@ -18,14 +18,14 @@ package com.alipay.sofa.ark;
 
 import com.alipay.sofa.ark.bootstrap.ContainerClassLoader;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
-import com.alipay.sofa.ark.runner.TestJUnit4Runner;
+import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
 /**
  * @author qilong.zql 18/3/29-下午1:47
  */
-@RunWith(TestJUnit4Runner.class)
+@RunWith(ArkJUnit4Runner.class)
 public class ArkJUnit4RunnerTest {
 
     private static String state;

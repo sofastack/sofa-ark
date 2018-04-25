@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.ark;
 
-import com.alipay.sofa.ark.runner.TestBootRunner;
 import com.alipay.sofa.ark.springboot.SpringApplication;
 import com.alipay.sofa.ark.springboot.facade.SampleService;
+import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author qilong.zql
  * @since 0.1.0
  */
-@RunWith(TestBootRunner.class)
+@RunWith(ArkBootRunner.class)
 @SpringBootTest(classes = SpringApplication.class)
 public class ArkBootRunnerTest {
 
