@@ -33,10 +33,36 @@ import java.util.zip.ZipEntry;
  */
 public class DirectoryContainerArchive implements ContainerArchive {
 
-    private final URL[] urls;
+    private final URL[]           urls;
+
+    private final static String[] AKR_CONTAINER_JAR = {
+            "aopalliance-1.0",
+            "commons-io-2.5",
+            "guava-16.0.1",
+            "guice-4.0",
+            "guice-multibindings-4.0",
+            "javax.inject-1",
+            "log4j-1.2.17",
+            "slf4j-api-1.7.21",
+            "slf4j-log4j12-1.7.21",
+            "sofa-common-tools-1.0.12",
+            String.format("%ssofa-ark-parent%score-impl%scontainer%starget%sclasses",
+                File.separator, File.separator, File.separator, File.separator, File.separator),
+            String.format("%ssofa-ark-parent%score-impl%sarchive%starget%sclasses", File.separator,
+                File.separator, File.separator, File.separator, File.separator),
+            String.format("%ssofa-ark-parent%score%sspi%starget%sclasses", File.separator,
+                File.separator, File.separator, File.separator, File.separator),
+            String.format("%ssofa-ark-parent%score%scommon%starget%sclasses", File.separator,
+                File.separator, File.separator, File.separator, File.separator),
+            String.format("%ssofa-ark-parent%score%sexception%starget%sclasses", File.separator,
+                File.separator, File.separator, File.separator, File.separator) };
 
     public DirectoryContainerArchive(URL[] urls) {
         this.urls = urls;
+    }
+
+    public static Set<String> getArkContainerJarMarkers() {
+        return Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(AKR_CONTAINER_JAR)));
     }
 
     @Override

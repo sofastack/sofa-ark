@@ -201,67 +201,20 @@ public class ClasspathLauncher extends ArkLauncher {
          * @return
          */
         protected URL[] filterURLs(URL[] urls) {
-            URL arkLibIndex = ClassLoader.getSystemResource("ark.lib.properties");
+            Set<String> arkContainerJarMarkers = DirectoryContainerArchive
+                .getArkContainerJarMarkers();
 
-            if (arkLibIndex == null) {
-                return null;
-            }
-
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(new InputStreamReader(arkLibIndex.openStream()));
-                Set<String> arkContainerJar = new HashSet<>();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    arkContainerJar.add(line);
-                }
-
-                Set<URL> containerClassPath = new HashSet<>();
-                for (String arkJar : arkContainerJar) {
-                    for (URL url : urls) {
-                        if (url.getPath().contains(
-                            String.format(
-                                "%ssofa-ark-parent%score-impl%scontainer%starget%sclasses",
-                                File.separator, File.separator, File.separator, File.separator,
-                                File.separator))
-                            || url.getPath().contains(
-                                String.format(
-                                    "%ssofa-ark-parent%score-impl%sarchive%starget%sclasses",
-                                    File.separator, File.separator, File.separator, File.separator,
-                                    File.separator))
-                            || url.getPath().contains(
-                                String.format("%ssofa-ark-parent%score%sspi%starget%sclasses",
-                                    File.separator, File.separator, File.separator, File.separator,
-                                    File.separator))
-                            || url.getPath().contains(
-                                String.format("%ssofa-ark-parent%score%scommon%starget%sclasses",
-                                    File.separator, File.separator, File.separator, File.separator,
-                                    File.separator))
-                            || url.getPath().contains(
-                                String.format(
-                                    "%ssofa-ark-parent%score%sexception%starget%sclasses",
-                                    File.separator, File.separator, File.separator, File.separator,
-                                    File.separator))) {
-                            containerClassPath.add(url);
-                        } else if (url.getPath().contains(arkJar)) {
-                            containerClassPath.add(url);
-                        }
-                    }
-                }
-
-                return arkContainerJar.size() != containerClassPath.size() ? null
-                    : containerClassPath.toArray(new URL[] {});
-            } catch (IOException ex) {
-                throw new ArkException("Read ark.lib.properties failed", ex);
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ex) {
-                        throw new ArkException("Read ark.lib.properties failed", ex);
+            Set<URL> containerClassPath = new HashSet<>();
+            for (String marker : arkContainerJarMarkers) {
+                for (URL url : urls) {
+                    if (url.getPath().contains(marker)) {
+                        containerClassPath.add(url);
                     }
                 }
             }
+
+            return arkContainerJarMarkers.size() != containerClassPath.size() ? null
+                : containerClassPath.toArray(new URL[] {});
         }
 
         /**

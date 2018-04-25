@@ -23,7 +23,8 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 
 /**
- * @author qilong.zql 18/3/29-下午1:47
+ * @author qilong.zql
+ * @since 0.3.0
  */
 @RunWith(ArkJUnit4Runner.class)
 public class ArkJUnit4RunnerTest {
