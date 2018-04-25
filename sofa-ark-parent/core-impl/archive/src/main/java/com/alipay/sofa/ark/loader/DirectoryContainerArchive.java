@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.loader;
 
-import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 
