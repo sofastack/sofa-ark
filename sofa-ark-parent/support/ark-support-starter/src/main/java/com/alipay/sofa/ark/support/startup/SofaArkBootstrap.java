@@ -17,14 +17,12 @@
 package com.alipay.sofa.ark.support.startup;
 
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
+import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
+import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.support.thread.IsolatedThreadGroup;
 import com.alipay.sofa.ark.support.thread.LaunchRunner;
-import com.alipay.sofa.ark.common.util.AssertUtils;
-import sun.misc.URLClassPath;
-import com.alipay.sofa.ark.spi.argument.CommandArgument;
-import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -65,7 +63,7 @@ public class SofaArkBootstrap {
             /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
             System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
 
-            URL[] urls = getURLClassPath().getURLs();
+            URL[] urls = getURLClassPath();
             return new ClasspathLauncher(new ClassPathArchive(urls)).launch(getClasspath(urls));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -79,7 +77,7 @@ public class SofaArkBootstrap {
         /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
         System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
 
-        URL[] urls = getURLClassPath().getURLs();
+        URL[] urls = getURLClassPath();
         new ClasspathLauncher(new ClassPathArchive(urls)).launch(args, getClasspath(urls),
             entryMethod.getMethod());
 
@@ -95,24 +93,9 @@ public class SofaArkBootstrap {
         return sb.toString();
     }
 
-    private static final URLClassPath getURLClassPath() throws Exception {
-        try {
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            Field ucpField;
-
-            try {
-                /* JDK8 */
-                ucpField = classLoader.getClass().getDeclaredField("ucp");
-            } catch (NoSuchFieldException ex) {
-                /* JDK7 */
-                ucpField = URLClassLoader.class.getDeclaredField("ucp");
-            }
-
-            ucpField.setAccessible(true);
-            return (URLClassPath) ucpField.get(classLoader);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+    private static final URL[] getURLClassPath() {
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        return ((URLClassLoader) classLoader).getURLs();
     }
 
     private static boolean isSofaArkStarted() {

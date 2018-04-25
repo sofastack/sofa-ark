@@ -22,17 +22,15 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import sun.misc.URLClassPath;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -192,11 +190,9 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
         List<URL> jdkUrls = new ArrayList<>();
         try {
-            Field ucpField = systemClassloader.getClass().getSuperclass().getDeclaredField("ucp");
-            ucpField.setAccessible(true);
-            URLClassPath urlClassPath = (URLClassPath) ucpField.get(systemClassloader);
             String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
-            for (URL url : urlClassPath.getURLs()) {
+            URL[] urls = ((URLClassLoader) systemClassloader).getURLs();
+            for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(String.format("Find JDK Url: %s", url));

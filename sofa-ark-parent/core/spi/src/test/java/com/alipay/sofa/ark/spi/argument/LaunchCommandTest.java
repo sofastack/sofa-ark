@@ -19,9 +19,7 @@ package com.alipay.sofa.ark.spi.argument;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.misc.URLClassPath;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -42,7 +40,7 @@ public class LaunchCommandTest {
     public void init() {
 
         try {
-            classpath = getClasspath(getURLClassPath(this.getClass().getClassLoader()).getURLs());
+            classpath = getClasspath(((URLClassLoader) this.getClass().getClassLoader()).getURLs());
             method = MainClass.class.getMethod("main", String[].class);
             fatJarUrl = this.getClass().getClassLoader().getResource("test.jar");
         } catch (Exception ex) {
@@ -105,24 +103,7 @@ public class LaunchCommandTest {
 
     }
 
-    private URLClassPath getURLClassPath(ClassLoader classLoader) throws Exception {
-        try {
-            Field ucpField;
-
-            try {
-                ucpField = classLoader.getClass().getDeclaredField("ucp");
-            } catch (NoSuchFieldException ex) {
-                ucpField = URLClassLoader.class.getDeclaredField("ucp");
-            }
-
-            ucpField.setAccessible(true);
-            return (URLClassPath) ucpField.get(classLoader);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getClasspath(URL[] urls) throws Exception {
+    private String getClasspath(URL[] urls) {
 
         StringBuilder sb = new StringBuilder();
         for (URL url : urls) {
