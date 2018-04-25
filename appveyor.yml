@@ -14,11 +14,6 @@ install:
   - cmd: echo %JAVA_HOME%
   - cmd: echo %M2_HOME%
 
-# branch
-branches:
-    only:
-      - master
-
 # Do not build on tags
 skip_tags: true
 
