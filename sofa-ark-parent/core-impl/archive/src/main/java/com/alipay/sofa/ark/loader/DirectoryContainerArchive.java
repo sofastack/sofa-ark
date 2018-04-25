@@ -46,16 +46,12 @@ public class DirectoryContainerArchive implements ContainerArchive {
             "slf4j-api-1.7.21",
             "slf4j-log4j12-1.7.21",
             "sofa-common-tools-1.0.12",
-            String.format("%ssofa-ark-parent%score-impl%scontainer%starget%sclasses",
-                File.separator, File.separator, File.separator, File.separator, File.separator),
-            String.format("%ssofa-ark-parent%score-impl%sarchive%starget%sclasses", File.separator,
-                File.separator, File.separator, File.separator, File.separator),
-            String.format("%ssofa-ark-parent%score%sspi%starget%sclasses", File.separator,
-                File.separator, File.separator, File.separator, File.separator),
-            String.format("%ssofa-ark-parent%score%scommon%starget%sclasses", File.separator,
-                File.separator, File.separator, File.separator, File.separator),
-            String.format("%ssofa-ark-parent%score%sexception%starget%sclasses", File.separator,
-                File.separator, File.separator, File.separator, File.separator) };
+            "sofa-ark-parent/core-impl/container/target/classes",
+            "sofa-ark-parent/core-impl/archive/target/classes",
+            "sofa-ark-parent/core/spi/target/classes",
+            "sofa-ark-parent/core/common/target/classes",
+            "sofa-ark-parent/core/exception/target/classes"
+    };
 
     public DirectoryContainerArchive(URL[] urls) {
         this.urls = urls;
