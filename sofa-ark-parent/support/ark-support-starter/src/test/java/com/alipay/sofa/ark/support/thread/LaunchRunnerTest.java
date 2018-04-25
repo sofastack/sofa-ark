@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.support.thread;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -26,7 +25,8 @@ import org.junit.Test;
  */
 public class LaunchRunnerTest {
 
-    public static int count = 0;
+    public static int          count = 0;
+    public static final Object lock  = new Object();
 
     public static void add(String[] args) {
         if (args.length > 0) {
@@ -34,40 +34,52 @@ public class LaunchRunnerTest {
         }
     }
 
-    @Before
-    public void init() {
+    public void reset() {
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         LaunchRunnerTest.count = 0;
     }
 
     @Test
     public void testMainWithNoParameters() {
-        LaunchRunner launchRunner = new LaunchRunner(MainClass.class.getName());
-        launchRunner.run();
-        Assert.assertTrue(LaunchRunnerTest.count == 0);
+        synchronized (lock) {
+            reset();
+            LaunchRunner launchRunner = new LaunchRunner(MainClass.class.getName());
+            launchRunner.run();
+            Assert.assertTrue(LaunchRunnerTest.count == 0);
+        }
     }
 
     @Test
     public void testMainWithParameters() {
-        LaunchRunner launchRunner = new LaunchRunner(MainClass.class.getName(),
-            new String[] { "10" });
-        launchRunner.run();
-        Assert.assertTrue(LaunchRunnerTest.count == 10);
+        synchronized (lock) {
+            reset();
+            LaunchRunner launchRunner = new LaunchRunner(MainClass.class.getName(),
+                new String[] { "10" });
+            launchRunner.run();
+            Assert.assertTrue(LaunchRunnerTest.count == 10);
+        }
     }
 
     @Test
     public void testNotMainMethodWithNoParameters() {
-        LaunchRunner launchRunner = new LaunchRunner(LaunchRunnerTest.class.getName(), "add",
-            new String[] {});
-        launchRunner.run();
-        Assert.assertTrue(LaunchRunnerTest.count == 0);
+        synchronized (lock) {
+            reset();
+            LaunchRunner launchRunner = new LaunchRunner(LaunchRunnerTest.class.getName(), "add",
+                new String[] {});
+            launchRunner.run();
+            Assert.assertTrue(LaunchRunnerTest.count == 0);
+        }
     }
 
     @Test
     public void testNotMainMethodWithParameters() {
-        LaunchRunner launchRunner = new LaunchRunner(LaunchRunnerTest.class.getName(), "add",
-            new String[] { "10" });
-        launchRunner.run();
-        Assert.assertTrue(LaunchRunnerTest.count == 10);
+        synchronized (lock) {
+            reset();
+            LaunchRunner launchRunner = new LaunchRunner(LaunchRunnerTest.class.getName(), "add",
+                new String[] { "10" });
+            launchRunner.run();
+            Assert.assertTrue(LaunchRunnerTest.count == 10);
+        }
     }
 
     public static class MainClass {
