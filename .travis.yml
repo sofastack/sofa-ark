@@ -10,6 +10,10 @@ install:
 
 script:
 - sh ./check_format.sh
+- cd sofa-ark-samples && mvn clean install
+- cd sample-ark-plugin && mvn clean install
+- cd ../sample-springboot-ark && mvn test
+- cd ../..
 
 after_success:
 - mvn clean test cobertura:cobertura coveralls:report
