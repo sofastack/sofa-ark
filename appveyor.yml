@@ -24,6 +24,10 @@ build_script:
 # verify artifacts
 test_script:
   - mvn test
+  - cd sofa-ark-samples && mvn clean install
+  - cd sample-ark-plugin && mvn clean install
+  - cd ../sample-springboot-ark && mvn test
+  - cd ../..
 
 # preserve dependencies between builds
 cache:

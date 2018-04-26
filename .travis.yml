@@ -16,4 +16,4 @@ script:
 - cd ../..
 
 after_success:
-- mvn clean test co bertura:cobertura coveralls:report
+- mvn clean test cobertura:cobertura coveralls:report
