@@ -17,12 +17,12 @@
 package com.alipay.sofa.ark.support.runner;
 
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 /**
- *
  * @author qilong.zql
  * @since 0.1.0
  */
@@ -51,4 +51,9 @@ public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
         }
     }
 
+    @Override
+    public void run(RunNotifier notifier) {
+        notifier.addListener(JUnitExecutionListener.getRunListener());
+        super.run(notifier);
+    }
 }
