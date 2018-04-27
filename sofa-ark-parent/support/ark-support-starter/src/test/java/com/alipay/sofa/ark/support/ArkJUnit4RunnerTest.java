@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.support;
 
 import com.alipay.sofa.ark.bootstrap.ContainerClassLoader;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
+import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
 import org.junit.*;
 import org.junit.runner.RunWith;
