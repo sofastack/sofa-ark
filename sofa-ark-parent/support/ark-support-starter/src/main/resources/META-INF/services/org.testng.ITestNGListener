@@ -1,1 +1,2 @@
-com.alipay.sofa.ark.support.listener.ArkTestNGListener
+com.alipay.sofa.ark.support.listener.ArkTestNGAlterSuiteListener
+com.alipay.sofa.ark.support.listener.ArkTestNGInvokedMethodListener
