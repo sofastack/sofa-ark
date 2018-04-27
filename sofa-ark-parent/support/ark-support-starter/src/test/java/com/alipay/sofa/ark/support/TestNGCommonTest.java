@@ -14,28 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.support.listener;
+package com.alipay.sofa.ark.support;
 
-import com.alipay.sofa.ark.container.test.TestClassLoader;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * @author qilong.zql
- * @since 0.1.0
+ * @author qilong.zql 18/4/26-上午8:58
  */
-@TestNGOnArk
-public class TestNGOnArkTest {
-
+public class TestNGCommonTest {
     @Test
     public void test() {
         ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader thisClassLoader = this.getClass().getClassLoader();
 
-        Assert.assertTrue(threadClassLoader.getClass().getCanonicalName()
-            .equals(TestClassLoader.class.getCanonicalName()));
-        Assert.assertTrue(thisClassLoader.getClass().getCanonicalName()
-            .equals(TestClassLoader.class.getCanonicalName()));
+        Assert.assertTrue(threadClassLoader.equals(ClassLoader.getSystemClassLoader()));
+        Assert.assertTrue(thisClassLoader.equals(ClassLoader.getSystemClassLoader()));
     }
-
 }
