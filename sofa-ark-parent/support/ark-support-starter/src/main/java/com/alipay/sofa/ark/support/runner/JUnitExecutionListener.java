@@ -40,7 +40,7 @@ public class JUnitExecutionListener extends RunListener {
         if (isTestOnArkContainer(description)) {
             Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
         } else {
-            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
         }
         super.testStarted(description);
     }
