@@ -43,6 +43,12 @@
             <artifactId>junit</artifactId>
         </dependency>
 
+        <!--testNg-->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
+
         <!--test-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
