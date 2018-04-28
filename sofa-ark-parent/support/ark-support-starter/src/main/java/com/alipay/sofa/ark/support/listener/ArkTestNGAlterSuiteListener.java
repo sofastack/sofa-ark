@@ -34,17 +34,17 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
     @Override
     public void alter(List<XmlSuite> suites) {
         for (XmlSuite xmlSuite : suites) {
-            resetParentXmlSuite(xmlSuite);
+            resetXmlSuite(xmlSuite);
             resetChildrenXmlSuite(xmlSuite.getChildSuites());
         }
     }
 
-    protected void resetParentXmlSuite(XmlSuite suite) {
+    protected void resetXmlSuite(XmlSuite suite) {
         if (suite == null) {
             return;
         }
 
-        resetParentXmlSuite(suite.getParentSuite());
+        resetXmlSuite(suite.getParentSuite());
 
         resetSingleXmlSuite(suite);
     }
@@ -80,7 +80,7 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
                             testClass.getCanonicalName()));
                     } catch (ClassNotFoundException ex) {
                         throw new ArkException(String.format("Load testNG test class %s failed.",
-                            testClass.getCanonicalName(), ex));
+                            testClass.getCanonicalName()), ex);
                     }
                 }
             }

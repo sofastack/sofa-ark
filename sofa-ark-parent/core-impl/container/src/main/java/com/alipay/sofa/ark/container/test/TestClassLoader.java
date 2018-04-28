@@ -31,13 +31,10 @@ public class TestClassLoader extends BizClassLoader {
     private final ClassLoader delegateClassLoader;
 
     String[]                  packageForTest = {
-            // Junit
-            "org.junit", "junit",
-            "org.hamcrest",
+                                             // Junit
+            "org.junit", "junit", "org.hamcrest",
             // TestNG
-            "org.testng", "com.beust.jcommander", "bsh", "org.apache.tools.ant",
-            "org.apache.tools.bzip2", "org.apache.tools.mail", "org.apache.tools.tar",
-            "org.apache.tools.zip"          };
+            "org.testng", "com.beust.jcommander", "bsh" };
 
     public TestClassLoader(String bizName, URL[] urls, ClassLoader delegate) {
         super(bizName, urls);
