@@ -76,8 +76,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <threadCount>1</threadCount>
-                    <parallel>classes</parallel>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
                 </configuration>
                 <dependencies>
                     <dependency>
