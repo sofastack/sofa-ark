@@ -16,20 +16,26 @@
  */
 package com.alipay.sofa.ark;
 
+import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.springboot.SpringApplication;
 import com.alipay.sofa.ark.springboot.facade.SampleService;
-import com.alipay.sofa.ark.springboot.runner.TestArkBootRunner;
+import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
 
 /**
  * @author qilong.zql
  * @since 0.1.0
  */
-@RunWith(TestArkBootRunner.class)
+@RunWith(ArkBootRunner.class)
 @SpringBootTest(classes = SpringApplication.class)
 public class ArkBootRunnerTest {
 
@@ -40,6 +46,24 @@ public class ArkBootRunnerTest {
     public void test() {
         Assert.assertNotNull(sampleService);
         Assert.assertTrue("SampleService".equals(sampleService.say()));
+    }
+
+    @Test
+    public void testBootRunner() {
+        ArkBootRunner runner = new ArkBootRunner(ArkBootRunnerTest.class);
+        Field field = ReflectionUtils.findField(ArkBootRunner.class, "runner");
+        Assert.assertNotNull(field);
+
+        ReflectionUtils.makeAccessible(field);
+        BlockJUnit4ClassRunner springRunner = (BlockJUnit4ClassRunner) ReflectionUtils.getField(
+            field, runner);
+        Assert.assertTrue(springRunner.getClass().getCanonicalName()
+            .equals(SpringRunner.class.getCanonicalName()));
+
+        ClassLoader loader = springRunner.getTestClass().getJavaClass().getClassLoader();
+        Assert.assertTrue(loader.getClass().getCanonicalName()
+            .equals(TestClassLoader.class.getCanonicalName()));
+
     }
 
 }
