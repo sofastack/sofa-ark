@@ -43,9 +43,7 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
         if (suite == null) {
             return;
         }
-
         resetXmlSuite(suite.getParentSuite());
-
         resetSingleXmlSuite(suite);
     }
 
@@ -55,11 +53,8 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
         }
 
         for (XmlSuite xmlSuite : childSuites) {
-
             resetChildrenXmlSuite(xmlSuite.getChildSuites());
-
             resetSingleXmlSuite(xmlSuite);
-
         }
 
     }

@@ -14,17 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
+package com.alipay.sofa.ark.support.runner;
 
-import com.alipay.sofa.ark.springboot.facade.SampleService;
+import org.junit.runners.model.InitializationError;
 
 /**
  * @author qilong.zql
  * @since 0.3.0
  */
-public class SampleServiceImpl implements SampleService {
-    @Override
-    public String say() {
-        return "SampleService";
+public class TestArkJUnit4Runner extends ArkJUnit4Runner {
+    /**
+     * Creates a BlockJUnit4ClassRunner to run {@code klass}
+     *
+     * @param klass
+     * @throws InitializationError if the test class is malformed.
+     */
+    public TestArkJUnit4Runner(Class<?> klass) throws InitializationError {
+        super(klass);
     }
 }

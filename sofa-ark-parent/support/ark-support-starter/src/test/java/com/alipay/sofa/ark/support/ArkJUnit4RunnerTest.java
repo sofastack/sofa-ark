@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.support;
 
 import com.alipay.sofa.ark.bootstrap.ContainerClassLoader;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
-import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
+import com.alipay.sofa.ark.support.runner.TestArkJUnit4Runner;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
  * @author qilong.zql
  * @since 0.3.0
  */
-@RunWith(ArkJUnit4Runner.class)
+@RunWith(TestArkJUnit4Runner.class)
 public class ArkJUnit4RunnerTest {
 
     private static String state;
