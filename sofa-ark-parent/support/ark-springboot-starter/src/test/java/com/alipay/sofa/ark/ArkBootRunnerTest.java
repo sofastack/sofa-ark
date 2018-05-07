@@ -46,10 +46,7 @@ public class ArkBootRunnerTest {
     public void test() {
         Assert.assertNotNull(sampleService);
         Assert.assertTrue("SampleService".equals(sampleService.say()));
-    }
 
-    @Test
-    public void testBootRunner() {
         ArkBootRunner runner = new ArkBootRunner(ArkBootRunnerTest.class);
         Field field = ReflectionUtils.findField(ArkBootRunner.class, "runner");
         Assert.assertNotNull(field);
@@ -63,7 +60,6 @@ public class ArkBootRunnerTest {
         ClassLoader loader = springRunner.getTestClass().getJavaClass().getClassLoader();
         Assert.assertTrue(loader.getClass().getCanonicalName()
             .equals(TestClassLoader.class.getCanonicalName()));
-
     }
 
 }
