@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.support.runner;
 
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.junit.runner.Description;
+import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.RunListener;
 
@@ -33,6 +34,18 @@ public class JUnitExecutionListener extends RunListener {
     private static volatile RunListener singleton;
 
     private JUnitExecutionListener() {
+    }
+
+    @Override
+    public void testRunStarted(Description description) throws Exception {
+        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
+        super.testRunStarted(description);
+    }
+
+    @Override
+    public void testRunFinished(Result result) throws Exception {
+        super.testRunFinished(result);
+        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
     }
 
     @Override

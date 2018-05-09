@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
-import com.alipay.sofa.ark.container.service.classloader.ClassloaderUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
