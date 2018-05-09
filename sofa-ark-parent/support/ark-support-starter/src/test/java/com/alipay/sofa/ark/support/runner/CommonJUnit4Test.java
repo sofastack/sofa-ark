@@ -27,6 +27,9 @@ public class CommonJUnit4Test {
 
     @Test
     public void testClassLoader() {
+        System.out.println(Thread.currentThread().getContextClassLoader() + "A");
+        System.out.println(Test.class.getClassLoader() + "B");
+        System.out.println(ClassLoader.getSystemClassLoader() + "C");
         Assert.assertTrue(Thread.currentThread().getContextClassLoader()
             .equals(Test.class.getClassLoader()));
     }
