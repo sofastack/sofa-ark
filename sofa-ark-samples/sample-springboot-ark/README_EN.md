@@ -137,13 +137,13 @@ public class Application{
 ```
 
 ## How to run test cases
-Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/junit4/wiki/getting-started) and [SpringBoot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html), SOFAArk provided two implementations of runners for using with `@RunWith` include:
+Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/junit4/wiki/getting-started) and [SpringBoot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html), SOFAArk provides two implementations of runners for using with `@RunWith` include:
 
 + `ArkJUnit4Runner`
 
 + `ArkBootRunner`
 
-Now, we would show how to run test case in `JUnit4 FrameWork` and `Spring Boot`;
+However, integration with [TestNG Framework](https://github.com/cbeust/testng/wiki) is different. SOFAArk provides a annotation `@TestNGOnArk`, when a test class is annotated with this annotation, it represents that it would be executed on ark container . Now, we would show how to run test case in `JUnit4 FrameWork`, `TestNG FrameWork` and `Spring Boot`;
 
 ### Run test case in JUnit4 FrameWork
 `ArkJUnit4Runner` is similar to `JUnit4`, the latter is the default implementation of runner in JUnit4 Framework; In other words, if you want run normal junit4 test case in SOFAArk container, you should use `@RunWith(ArkJUnit4Runner.class)` instead of the default one. Code as what the following shows:
@@ -161,6 +161,28 @@ public class UnitTest {
 ```
 
 If you want use other features of JUnit4 Framework, such as `@Before`, it's not a problem, just do as before.
+
+### Run test case in TestNG FrameWork
+The annotation `@TestNGOnArk` is used to represent that some test class would be executed on ark container. e.g.
+
+```java
+@TestNGOnArk
+public class TestNGTest {
+
+    public static final String TEST_CLASSLOADER = "com.alipay.sofa.ark.container.test.TestClassLoader";
+
+    @Test
+    public void test() {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = this.getClass().getClassLoader();
+        Assert.assertTrue(tccl.equals(loader));
+        Assert.assertTrue(tccl.getClass().getCanonicalName().equals(TEST_CLASSLOADER));
+    }
+
+}
+```
+
+It's very convenient to use it, if you want run a test class on ark container, just annotate it with `@TestNGOnArk`.
 
 ### Run test case in SpringBoot Test
 `ArkBootRunner` is similar to `SpringRunner`, you can visit [this site](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html) for usage of the latter one. For running SpringBoot test case in SOFAArk container, just use `@RunWith(ArkBootRunner.class)` instead of `@RunWith(SpringRunner.class)`. Code as what the following shows:

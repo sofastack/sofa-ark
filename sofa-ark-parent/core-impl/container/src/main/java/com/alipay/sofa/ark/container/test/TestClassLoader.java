@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.test;
 
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 
@@ -29,7 +30,11 @@ public class TestClassLoader extends BizClassLoader {
 
     private final ClassLoader delegateClassLoader;
 
-    String[]                  packageForTest = { "org.junit", "junit", "org.hamcrest" };
+    String[]                  packageForTest = {
+                                             // Junit
+            "org.junit", "junit", "org.hamcrest",
+            // TestNG
+            "org.testng", "com.beust.jcommander", "bsh" };
 
     public TestClassLoader(String bizName, URL[] urls, ClassLoader delegate) {
         super(bizName, urls);
@@ -38,7 +43,7 @@ public class TestClassLoader extends BizClassLoader {
 
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
-        if (isTestClass(name)) {
+        if (isTestClass(ClassUtils.getPackageName(name))) {
             try {
                 return delegateClassLoader.loadClass(name);
             } catch (ClassNotFoundException e) {

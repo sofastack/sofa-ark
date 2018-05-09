@@ -35,12 +35,13 @@
         <plexus.component.annotations.version>1.5.5</plexus.component.annotations.version>
 
         <junit.version>4.12</junit.version>
+        <testng.version>6.14.3</testng.version>
         <jmockit.version>1.37</jmockit.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
         <maven.plugin.plugin>3.1</maven.plugin.plugin>
-
+        <surefire.version>2.20</surefire.version>
     </properties>
 
     <dependencyManagement>
@@ -254,6 +255,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.jmockit</groupId>
                 <artifactId>jmockit</artifactId>
                 <version>${jmockit.version}</version>
@@ -282,6 +289,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven.plugin.plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

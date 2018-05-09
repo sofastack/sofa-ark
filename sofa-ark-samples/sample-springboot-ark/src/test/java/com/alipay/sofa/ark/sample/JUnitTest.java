@@ -14,17 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
+package com.alipay.sofa.ark.sample;
 
-import com.alipay.sofa.ark.springboot.facade.SampleService;
+import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
+ * A JUnitTest Demo
+ *
  * @author qilong.zql
- * @since 0.3.0
+ * @since 0.1.0
  */
-public class SampleServiceImpl implements SampleService {
-    @Override
-    public String say() {
-        return "SampleService";
+@RunWith(ArkJUnit4Runner.class)
+public class JUnitTest {
+
+    @Test
+    public void test() {
+        Assert.assertTrue(true);
     }
+
 }
