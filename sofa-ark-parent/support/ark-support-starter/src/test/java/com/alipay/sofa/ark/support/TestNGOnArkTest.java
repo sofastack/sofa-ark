@@ -14,17 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
+package com.alipay.sofa.ark.support;
 
-import com.alipay.sofa.ark.springboot.facade.SampleService;
+import com.alipay.sofa.ark.container.test.TestClassLoader;
+import com.alipay.sofa.ark.support.listener.TestNGOnArk;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author qilong.zql
- * @since 0.3.0
+ * @since 0.1.0
  */
-public class SampleServiceImpl implements SampleService {
-    @Override
-    public String say() {
-        return "SampleService";
+@TestNGOnArk
+public class TestNGOnArkTest {
+
+    @Test
+    public void test() {
+        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader thisClassLoader = this.getClass().getClassLoader();
+
+        Assert.assertTrue(threadClassLoader.getClass().getCanonicalName()
+            .equals(TestClassLoader.class.getCanonicalName()));
+        Assert.assertTrue(thisClassLoader.getClass().getCanonicalName()
+            .equals(TestClassLoader.class.getCanonicalName()));
     }
+
 }

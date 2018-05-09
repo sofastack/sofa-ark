@@ -14,17 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
+package com.alipay.sofa.ark.support.listener;
 
-import com.alipay.sofa.ark.springboot.facade.SampleService;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * any test class annotated by {@link TestNGOnArk} represents
+ * that it would run on ark container
+ *
  * @author qilong.zql
  * @since 0.3.0
  */
-public class SampleServiceImpl implements SampleService {
-    @Override
-    public String say() {
-        return "SampleService";
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface TestNGOnArk {
 }

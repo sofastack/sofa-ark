@@ -14,25 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.sample;
+package com.alipay.sofa.ark.support;
 
-import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
- * A UnitTest Demo
- *
- * @author qilong.zql
- * @since 0.1.0
+ * @author qilong.zql 18/4/26-上午8:58
  */
-@RunWith(ArkJUnit4Runner.class)
-public class UnitTest {
-
+public class TestNGCommonTest {
     @Test
     public void test() {
-        Assert.assertTrue(true);
-    }
+        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader thisClassLoader = this.getClass().getClassLoader();
 
+        Assert.assertTrue(threadClassLoader.equals(ClassLoader.getSystemClassLoader()));
+        Assert.assertTrue(thisClassLoader.equals(ClassLoader.getSystemClassLoader()));
+    }
 }

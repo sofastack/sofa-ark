@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.bootstrap.ContainerClassLoader;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.InitializationError;
 
 /**
  * @author qilong.zql
@@ -37,7 +38,6 @@ public class ArkJUnit4RunnerTest {
 
     @Before
     public void before() {
-        Assert.assertTrue("@BeforeClass".equals(state));
         state = "@Before";
     }
 
@@ -53,6 +53,21 @@ public class ArkJUnit4RunnerTest {
         ClassLoader testClCl = testClassLoader.getClass().getClassLoader();
         Assert.assertTrue(testClCl.getClass().getCanonicalName()
             .equals(ContainerClassLoader.class.getCanonicalName()));
+    }
+
+    @Test
+    public void testJUnitRunner() {
+        try {
+            Assert.assertTrue("@Before".equals(state));
+            state = "@Test";
+
+            ArkJUnit4Runner runner = new ArkJUnit4Runner(ArkJUnit4RunnerTest.class);
+            ClassLoader loader = runner.getTestClass().getJavaClass().getClassLoader();
+            Assert.assertTrue(loader.getClass().getCanonicalName()
+                .equals(TestClassLoader.class.getCanonicalName()));
+        } catch (InitializationError error) {
+            Assert.fail(error.getMessage());
+        }
     }
 
     @After
