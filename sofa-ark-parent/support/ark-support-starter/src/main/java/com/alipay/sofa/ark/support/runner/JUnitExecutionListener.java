@@ -47,8 +47,8 @@ public class JUnitExecutionListener extends RunListener {
 
     @Override
     public void testFinished(Description description) throws Exception {
-        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
         super.testStarted(description);
+        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
     }
 
     protected boolean isTestOnArkContainer(Description description) {

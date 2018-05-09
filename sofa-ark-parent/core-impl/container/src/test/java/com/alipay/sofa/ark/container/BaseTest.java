@@ -18,11 +18,12 @@ package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
-import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
 import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
 import mockit.MockUp;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -67,6 +68,11 @@ public class BaseTest {
                 }.getMockInstance();
             }
         };
+    }
+
+    @AfterClass
+    public void afterClass() {
+        Thread.currentThread().setContextClassLoader(Test.class.getClassLoader());
     }
 
 }
