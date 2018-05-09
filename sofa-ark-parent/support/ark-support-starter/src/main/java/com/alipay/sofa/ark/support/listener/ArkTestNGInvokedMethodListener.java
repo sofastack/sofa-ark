@@ -41,6 +41,7 @@ public class ArkTestNGInvokedMethodListener implements IInvokedMethodListener {
     @Override
     public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
         //no operation
+        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
     }
 
     protected boolean isTestOnArk(Class testClass) {
