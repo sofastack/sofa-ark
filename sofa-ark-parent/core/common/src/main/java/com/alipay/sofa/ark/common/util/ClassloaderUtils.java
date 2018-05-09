@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.service.classloader;
+package com.alipay.sofa.ark.common.util;
 
 /**
  * Classloader Util
@@ -22,7 +22,7 @@ package com.alipay.sofa.ark.container.service.classloader;
  * @author ruoshan
  * @since 0.1.0
  */
-public class ClassloaderUtil {
+public class ClassloaderUtils {
 
     /**
      * push ContextClassloader

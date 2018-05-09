@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.ark.support.runner;
 
+import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.junit.runner.Description;
-import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.RunListener;
 
@@ -37,23 +37,11 @@ public class JUnitExecutionListener extends RunListener {
     }
 
     @Override
-    public void testRunStarted(Description description) throws Exception {
-        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
-        super.testRunStarted(description);
-    }
-
-    @Override
-    public void testRunFinished(Result result) throws Exception {
-        super.testRunFinished(result);
-        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
-    }
-
-    @Override
     public void testStarted(Description description) throws Exception {
         if (isTestOnArkContainer(description)) {
-            Thread.currentThread().setContextClassLoader(DelegateArkContainer.getTestClassLoader());
+            ClassloaderUtils.pushContextClassloader(DelegateArkContainer.getTestClassLoader());
         } else {
-            Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
+            ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
         }
         super.testStarted(description);
     }
@@ -61,7 +49,7 @@ public class JUnitExecutionListener extends RunListener {
     @Override
     public void testFinished(Description description) throws Exception {
         super.testStarted(description);
-        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
+        ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
     }
 
     protected boolean isTestOnArkContainer(Description description) {

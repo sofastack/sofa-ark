@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.container.service;
 import com.alipay.sofa.ark.common.guice.AbstractArkGuiceModule;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.container.service.classloader.ClassloaderUtil;
+import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.service.ArkService;
 import com.google.inject.Binding;
@@ -56,7 +56,7 @@ public class ArkServiceContainer {
      */
     public void start() throws ArkException {
         if (started.compareAndSet(false, true)) {
-            ClassLoader oldClassloader = ClassloaderUtil.pushContextClassloader(getClass()
+            ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
                 .getClassLoader());
             try {
                 LOGGER.info("Begin to start ArkServiceContainer");
@@ -75,7 +75,7 @@ public class ArkServiceContainer {
                 ArkServiceContainerHolder.setContainer(this);
                 LOGGER.info("Finish to start ArkServiceContainer");
             } finally {
-                ClassloaderUtil.popContextClassloader(oldClassloader);
+                ClassloaderUtils.popContextClassloader(oldClassloader);
             }
 
         }
@@ -114,7 +114,7 @@ public class ArkServiceContainer {
         if (stopped.compareAndSet(false, true)) {
             LOGGER.info("Begin to stop ArkServiceContainer");
 
-            ClassLoader oldClassloader = ClassloaderUtil.pushContextClassloader(getClass()
+            ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
                 .getClassLoader());
             try {
                 for (ArkService arkService : arkServiceList) {
@@ -125,7 +125,7 @@ public class ArkServiceContainer {
 
                 LOGGER.info("Finish to stop ArkServiceContainer");
             } finally {
-                ClassloaderUtil.popContextClassloader(oldClassloader);
+                ClassloaderUtils.popContextClassloader(oldClassloader);
             }
         }
     }
