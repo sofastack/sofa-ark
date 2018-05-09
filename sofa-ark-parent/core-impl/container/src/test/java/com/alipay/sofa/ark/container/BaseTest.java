@@ -21,9 +21,7 @@ import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
 import mockit.MockUp;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -69,10 +67,4 @@ public class BaseTest {
             }
         };
     }
-
-    @AfterClass
-    public void afterClass() {
-        Thread.currentThread().setContextClassLoader(Test.class.getClassLoader());
-    }
-
 }
