@@ -16,23 +16,27 @@
  */
 package com.alipay.sofa.ark.sample;
 
-import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.alipay.sofa.ark.support.listener.TestNGOnArk;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
- * A UnitTest Demo
+ * A TestNGTest Demo
  *
  * @author qilong.zql
- * @since 0.1.0
+ * @since 0.3.0
  */
-@RunWith(ArkJUnit4Runner.class)
-public class UnitTest {
+@TestNGOnArk
+public class TestNGTest {
+
+    public static final String TEST_CLASSLOADER = "com.alipay.sofa.ark.container.test.TestClassLoader";
 
     @Test
     public void test() {
-        Assert.assertTrue(true);
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = this.getClass().getClassLoader();
+        Assert.assertTrue(tccl.equals(loader));
+        Assert.assertTrue(tccl.getClass().getCanonicalName().equals(TEST_CLASSLOADER));
     }
 
 }

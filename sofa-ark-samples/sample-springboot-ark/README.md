@@ -115,7 +115,7 @@ public class Application{
 ```
 
 ### 运行测试用例
-SOFAArk 提供了 `org.junit.runner.Runner` 的两个实现类，`ArkJUnit4Runner` 和 `ArkBootRunner`，分别用于集成 JUnit4 测试框架和 Spring Test；
+SOFAArk 提供了 `org.junit.runner.Runner` 的两个实现类，`ArkJUnit4Runner` 和 `ArkBootRunner`，分别用于集成 JUnit4 测试框架和 Spring Test；对于 TestNG 测试框架，提供了注解 `@TestNGOnArk`，对于任何 TestNG 测试用例，只有打有 `@TestNGOnArk` 的测试用例才会跑在 Ark Container 之上，否则普通用例一样。
 
 #### ArkJUnit4Runner
 `ArkJUnit4Runner` 类似 `JUnit4`，使用注解 `ArkJUnit4Runner`，即可在 SOFAArk 容器之上运行普通的 JUnit4 测试用例；示范代码如下：
@@ -154,3 +154,25 @@ public class IntegrationTest {
 ```
 
 `ArkBootRunner` 和 `SpringRunner` 使用基本完全一致；
+
+#### TestNGOnArk
+注解 `@TestNGOnArk` 是 SOFAArk 提供给开发者用于标记哪些 TestNG 用例跑在 SOFAArk 之上，哪些只是普通的运行。例如：
+
+```java
+@TestNGOnArk
+public class TestNGTest {
+
+    public static final String TEST_CLASSLOADER = "com.alipay.sofa.ark.container.test.TestClassLoader";
+
+    @Test
+    public void test() {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = this.getClass().getClassLoader();
+        Assert.assertTrue(tccl.equals(loader));
+        Assert.assertTrue(tccl.getClass().getCanonicalName().equals(TEST_CLASSLOADER));
+    }
+
+}
+```
+
+上述用例打了 `@TestNGTest`，因此在执行该测试用例时，会先启动 Ark Container。
