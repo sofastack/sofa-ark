@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.support;
+package com.alipay.sofa.ark.support.runner;
 
 import com.alipay.sofa.ark.bootstrap.ContainerClassLoader;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
-import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.model.InitializationError;

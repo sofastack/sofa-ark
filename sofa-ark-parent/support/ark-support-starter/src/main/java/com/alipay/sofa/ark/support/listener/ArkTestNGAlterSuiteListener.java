@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.support.listener;
 
+import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.testng.IAlterSuiteListener;
@@ -66,8 +67,7 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
                 if (testClass.getAnnotation(TestNGOnArk.class) != null) {
                     if (!DelegateArkContainer.isStarted()) {
                         DelegateArkContainer.launch();
-                        Thread.currentThread().setContextClassLoader(
-                            ClassLoader.getSystemClassLoader());
+                        ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
                     }
 
                     try {

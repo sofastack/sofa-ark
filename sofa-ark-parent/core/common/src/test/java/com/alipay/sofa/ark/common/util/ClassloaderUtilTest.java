@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.service.classloader;
+package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.container.service.classloader.ClassloaderUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,14 +32,14 @@ public class ClassloaderUtilTest {
     @Test
     public void testPushContextClassloader() {
         ClassLoader classLoader = new URLClassLoader(new URL[] {});
-        ClassloaderUtil.pushContextClassloader(classLoader);
+        ClassloaderUtils.pushContextClassloader(classLoader);
         Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
     }
 
     @Test
     public void testPopContextClassloader() {
         ClassLoader classLoader = new URLClassLoader(new URL[] {});
-        ClassloaderUtil.popContextClassloader(classLoader);
+        ClassloaderUtils.popContextClassloader(classLoader);
         Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
     }
 

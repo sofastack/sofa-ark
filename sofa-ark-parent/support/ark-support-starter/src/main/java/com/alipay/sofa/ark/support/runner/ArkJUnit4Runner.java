@@ -16,13 +16,14 @@
  */
 package com.alipay.sofa.ark.support.runner;
 
+import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 /**
- *
  * @author qilong.zql
  * @since 0.1.0
  */
@@ -45,10 +46,18 @@ public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
                 DelegateArkContainer.launch();
             }
             ClassLoader testClassLoader = DelegateArkContainer.getTestClassLoader();
-            return super.createTestClass(testClassLoader.loadClass(testClass.getName()));
+            TestClass testKlazz = super.createTestClass(testClassLoader.loadClass(testClass
+                .getName()));
+            ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
+            return testKlazz;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
+    @Override
+    public void run(RunNotifier notifier) {
+        notifier.addListener(JUnitExecutionListener.getRunListener());
+        super.run(notifier);
+    }
 }

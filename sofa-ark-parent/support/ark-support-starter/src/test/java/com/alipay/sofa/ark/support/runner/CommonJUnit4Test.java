@@ -14,33 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.service.classloader;
+package com.alipay.sofa.ark.support.runner;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Classloader Util
- *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.3.0
  */
-public class ClassloaderUtil {
+public class CommonJUnit4Test {
 
-    /**
-     * push ContextClassloader
-     * @param newClassloader new classloader
-     * @return old classloader
-     */
-    public static ClassLoader pushContextClassloader(ClassLoader newClassloader) {
-        ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(newClassloader);
-        return oldClassloader;
-    }
-
-    /**
-     * set ContextClassloader back
-     * @param oldClassloader old classloader
-     */
-    public static void popContextClassloader(ClassLoader oldClassloader) {
-        Thread.currentThread().setContextClassLoader(oldClassloader);
+    @Test
+    public void testClassLoader() {
+        Assert.assertTrue(Thread.currentThread().getContextClassLoader()
+            .equals(Test.class.getClassLoader()));
     }
 
 }

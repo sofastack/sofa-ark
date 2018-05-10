@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.support.thread;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -34,15 +35,14 @@ public class LaunchRunnerTest {
         }
     }
 
-    public void reset() {
-        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+    @Before
+    public void init() {
         LaunchRunnerTest.count = 0;
     }
 
     @Test
     public void testMainWithNoParameters() {
         synchronized (lock) {
-            reset();
             LaunchRunner launchRunner = new LaunchRunner(MainClass.class.getName());
             launchRunner.run();
             Assert.assertTrue(LaunchRunnerTest.count == 0);
@@ -52,7 +52,6 @@ public class LaunchRunnerTest {
     @Test
     public void testMainWithParameters() {
         synchronized (lock) {
-            reset();
             LaunchRunner launchRunner = new LaunchRunner(MainClass.class.getName(),
                 new String[] { "10" });
             launchRunner.run();
@@ -63,7 +62,6 @@ public class LaunchRunnerTest {
     @Test
     public void testNotMainMethodWithNoParameters() {
         synchronized (lock) {
-            reset();
             LaunchRunner launchRunner = new LaunchRunner(LaunchRunnerTest.class.getName(), "add",
                 new String[] {});
             launchRunner.run();
@@ -74,7 +72,6 @@ public class LaunchRunnerTest {
     @Test
     public void testNotMainMethodWithParameters() {
         synchronized (lock) {
-            reset();
             LaunchRunner launchRunner = new LaunchRunner(LaunchRunnerTest.class.getName(), "add",
                 new String[] { "10" });
             launchRunner.run();
