@@ -246,7 +246,7 @@ public class PluginModel implements Plugin {
         } catch (Throwable ex) {
             throw new ArkException(ex.getMessage(), ex);
         } finally {
-            ClassloaderUtils.pushContextClassloader(oldClassloader);
+            ClassloaderUtils.popContextClassloader(oldClassloader);
         }
     }
 

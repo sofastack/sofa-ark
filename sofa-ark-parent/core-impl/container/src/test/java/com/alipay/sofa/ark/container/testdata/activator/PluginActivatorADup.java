@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.testdata.Activator;
+package com.alipay.sofa.ark.container.testdata.activator;
 
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.testdata.impl.TestObjectA;

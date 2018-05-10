@@ -54,7 +54,7 @@ public class JarWriter implements LoaderClassesWriter {
      * @throws IOException           if the file cannot be opened
      * @throws FileNotFoundException if the file cannot be found
      */
-    public JarWriter(File file) throws FileNotFoundException, IOException {
+    public JarWriter(File file) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         this.jarOutput = new JarOutputStream(fileOutputStream);
     }

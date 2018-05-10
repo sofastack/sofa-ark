@@ -49,7 +49,7 @@ public class AssertUtils {
      */
     public static void isTrue(final boolean expression, final String message,
                               final Object... values) {
-        if (expression == false) {
+        if (!expression) {
             throw new IllegalArgumentException(String.format(message, values));
         }
     }
@@ -67,7 +67,7 @@ public class AssertUtils {
      */
     public static void isFalse(final boolean expression, final String message,
                                final Object... values) {
-        if (expression == true) {
+        if (expression) {
             throw new IllegalArgumentException(String.format(message, values));
         }
     }

@@ -68,7 +68,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
 
     @Override
     public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
-        List<Archive> nestedArchives = new ArrayList();
+        List<Archive> nestedArchives = new ArrayList<>();
         for (Entry entry : this) {
             if (filter.matches(entry)) {
                 nestedArchives.add(getNestedArchive(entry));

@@ -36,7 +36,7 @@ public class CentralDirectoryParserTest extends TestBase {
     @Test
     public void testParser() throws IOException {
         CentralDirectoryParser cdParser = new CentralDirectoryParser();
-        TestVisitor testVisitor = (TestVisitor) cdParser.addVisitor(new TestVisitor());
+        TestVisitor testVisitor = cdParser.addVisitor(new TestVisitor());
         RandomAccessDataFile dataFile = new RandomAccessDataFile(getTempDemoZip());
         cdParser.parse(dataFile, false);
         List<CentralDirectoryFileHeader> cdfhList = testVisitor.getCdfhList();

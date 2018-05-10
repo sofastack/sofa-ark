@@ -143,7 +143,7 @@ Considering to integrate with [JUnit4 FrameWork](https://github.com/junit-team/j
 
 + `ArkBootRunner`
 
-However, integration with [TestNG Framework](https://github.com/cbeust/testng/wiki) is different. SOFAArk provides a annotation `@TestNGOnArk`, when a test class is annotated with this annotation, it represents that it would be executed on ark container . Now, we would show how to run test case in `JUnit4 FrameWork`, `TestNG FrameWork` and `Spring Boot`;
+However, integration with [TestNG Framework](https://github.com/cbeust/testng/wiki) is different. SOFAArk provides an annotation `@TestNGOnArk`, when a test class is annotated with this annotation, it represents that it would be executed on ark container . Now, we would show how to run test case in `JUnit4 FrameWork`, `TestNG FrameWork` and `Spring Boot`;
 
 ### Run test case in JUnit4 FrameWork
 `ArkJUnit4Runner` is similar to `JUnit4`, the latter is the default implementation of runner in JUnit4 Framework; In other words, if you want run normal junit4 test case in SOFAArk container, you should use `@RunWith(ArkJUnit4Runner.class)` instead of the default one. Code as what the following shows:

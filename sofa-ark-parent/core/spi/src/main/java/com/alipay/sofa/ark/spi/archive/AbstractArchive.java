@@ -31,6 +31,7 @@ import java.util.List;
  */
 public abstract class AbstractArchive implements Archive {
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
         List<Archive> nestedArchives = new ArrayList();

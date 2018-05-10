@@ -180,7 +180,7 @@ public class RepackageMojo extends AbstractMojo {
     private LinkedHashSet<String> denyImportResources;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         if (this.project.getPackaging().equals("war")) {
             getLog().debug("repackage goal could not be applied to war project.");
             return;
@@ -222,6 +222,7 @@ public class RepackageMojo extends AbstractMojo {
         updateArtifact(appTarget, repackager.getModuleTargetFile());
     }
 
+    @SuppressWarnings("unchecked")
     private Set<Artifact> getAdditionalArtifact() throws MojoExecutionException {
         Artifact arkArtifact = artifactFactory.createArtifact(ArkConstants.getGroupId(),
             ArkConstants.getArtifactId(), arkVersion, ArkConstants.getScope(),
