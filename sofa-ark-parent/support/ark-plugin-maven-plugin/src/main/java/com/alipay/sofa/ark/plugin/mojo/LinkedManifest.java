@@ -56,7 +56,6 @@ public class LinkedManifest extends Manifest {
                 length += 3;
             }
         }
-        return;
     }
 
 }

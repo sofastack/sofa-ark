@@ -126,8 +126,9 @@ public class ArkPluginMojo extends AbstractMojo {
     private static final String     PLUGIN_SUFFIX     = ".ark.plugin";
     private static final String     PLUGIN_CLASSIFIER = "ark-plugin";
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
 
         Archiver archiver;
 
@@ -160,9 +161,7 @@ public class ArkPluginMojo extends AbstractMojo {
 
         try {
             archiver.createArchive();
-        } catch (ArchiverException e) {
-            throw new MojoExecutionException(e.getMessage());
-        } catch (IOException e) {
+        } catch (ArchiverException | IOException e) {
             throw new MojoExecutionException(e.getMessage());
         }
         if (isAttach()) {
@@ -389,12 +388,10 @@ public class ArkPluginMojo extends AbstractMojo {
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
-        PrintStream outputStream = null;
+        PrintStream outputStream;
         try {
             outputStream = new PrintStream(file, "UTF-8");
-        } catch (FileNotFoundException e) {
-            throw new MojoExecutionException(e.toString());
-        } catch (UnsupportedEncodingException e) {
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
             throw new MojoExecutionException(e.toString());
         }
         try {

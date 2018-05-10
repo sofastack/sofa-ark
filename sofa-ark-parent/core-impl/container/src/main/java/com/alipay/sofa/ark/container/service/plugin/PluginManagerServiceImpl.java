@@ -59,8 +59,7 @@ public class PluginManagerServiceImpl implements PluginManagerService {
 
     @Override
     public List<Plugin> getPluginsInOrder() {
-        List<Plugin> pluginList = new ArrayList<>();
-        pluginList.addAll(plugins.values());
+        List<Plugin> pluginList = new ArrayList<>(plugins.values());
         Collections.sort(pluginList, new Comparator<Plugin>() {
             @Override
             public int compare(Plugin o1, Plugin o2) {

@@ -49,7 +49,7 @@ public class DirectoryContainerArchive implements ContainerArchive {
     }
 
     public static Set<String> getArkContainerJarMarkers() {
-        return Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(AKR_CONTAINER_JAR)));
+        return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(AKR_CONTAINER_JAR)));
     }
 
     @Override

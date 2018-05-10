@@ -54,8 +54,7 @@ public class BizManagerServiceImpl implements BizManagerService {
 
     @Override
     public List<Biz> getBizsInOrder() {
-        List<Biz> bizList = new ArrayList<>();
-        bizList.addAll(bizs.values());
+        List<Biz> bizList = new ArrayList<>(bizs.values());
         Collections.sort(bizList, new Comparator<Biz>() {
             @Override
             public int compare(Biz o1, Biz o2) {

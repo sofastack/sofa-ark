@@ -62,11 +62,8 @@ public class JUnitExecutionListener extends RunListener {
         Class<?> runnerClass = runWith.value();
         String className = runnerClass.getName();
 
-        if (className.equals(ARK_JUNIT4_RUNNER) || className.equals(ARK_BOOT_RUNNER)) {
-            return true;
-        }
+        return ARK_JUNIT4_RUNNER.equals(className) || ARK_BOOT_RUNNER.equals(className);
 
-        return false;
     }
 
     public static RunListener getRunListener() {

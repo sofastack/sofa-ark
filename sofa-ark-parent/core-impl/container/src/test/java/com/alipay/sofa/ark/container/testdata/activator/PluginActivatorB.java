@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.testdata.Activator;
+package com.alipay.sofa.ark.container.testdata.activator;
 
 import com.alipay.sofa.ark.container.testdata.ITest;
-import com.alipay.sofa.ark.container.testdata.impl.TestObjectC;
+import com.alipay.sofa.ark.container.testdata.impl.TestObjectB;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
@@ -27,11 +27,11 @@ import com.alipay.sofa.ark.spi.service.PluginActivator;
  * @author ruoshan
  * @since 0.1.0
  */
-public class PluginActivatorC implements PluginActivator {
+public class PluginActivatorB implements PluginActivator {
 
     @Override
     public void start(PluginContext context) throws ArkException {
-        context.publishService(ITest.class, new TestObjectC());
+        context.publishService(ITest.class, new TestObjectB());
     }
 
     @Override

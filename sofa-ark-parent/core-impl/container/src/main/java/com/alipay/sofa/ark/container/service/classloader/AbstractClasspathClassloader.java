@@ -262,6 +262,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      * @param resourceName
      * @return
      */
+    @SuppressWarnings("unchecked")
     protected Enumeration<URL> getExportResources(String resourceName) throws IOException {
         if (shouldFindExportedResource(resourceName)) {
             List<ClassLoader> exportResourceClassloadersInOrder = classloaderService

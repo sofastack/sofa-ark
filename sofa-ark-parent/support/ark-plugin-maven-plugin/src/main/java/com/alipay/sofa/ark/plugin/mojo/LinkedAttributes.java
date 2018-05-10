@@ -67,7 +67,7 @@ public class LinkedAttributes extends Attributes {
         Iterator it = entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry e = (Map.Entry) it.next();
-            String name = ((Name) e.getKey()).toString();
+            String name = e.getKey().toString();
             if ((version != null) && !(name.equalsIgnoreCase(vername))) {
 
                 StringBuffer buffer = new StringBuffer(name);

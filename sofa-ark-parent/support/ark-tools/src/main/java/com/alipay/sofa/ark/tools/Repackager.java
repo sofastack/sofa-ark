@@ -222,8 +222,7 @@ public class Repackager {
     }
 
     private List<Library> getModuleLibraries() {
-        List<Library> libraries = new ArrayList<>();
-        libraries.addAll(arkModuleLibraries);
+        List<Library> libraries = new ArrayList<>(arkModuleLibraries);
         Library moduleLibrary = new Library(pluginModuleJar.getAbsoluteFile(), LibraryScope.MODULE);
         libraries.add(moduleLibrary);
         return libraries;

@@ -57,6 +57,7 @@ public class RegistryServiceImpl implements RegistryService {
         return publishService(ifClass, implObject, new ArkContainerServiceProvider());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject,
                                                   ServiceProvider serviceProvider) {
@@ -131,6 +132,7 @@ public class RegistryServiceImpl implements RegistryService {
         return referenceServices(ifClass, null);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass,
                                                            ServiceFilter serviceFilter) {
