@@ -14,43 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.plugin;
-
-import com.alipay.sofa.ark.spi.model.Plugin;
-
-import java.util.List;
-import java.util.Set;
+package com.alipay.sofa.ark.spi.service;
 
 /**
- * Service to manage ark plugin
+ * {@code Ordered} is an interface that can be implemented by objects that
+ * should be ordered.
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public interface PluginManagerService {
+public interface Ordered {
 
     /**
-     * Register ark plugin
-     * @param plugin ark plugin info
+     * Useful constant for the highest precedence value.
+     * @see java.lang.Integer#MIN_VALUE
      */
-    void registerPlugin(Plugin plugin);
+    int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
 
     /**
-     * Get plugin info by plugin name
-     * @param pluginName plugin name
-     * @return
+     * Useful constant for the lowest precedence value.
+     * @see java.lang.Integer#MAX_VALUE
      */
-    Plugin getPluginByName(String pluginName);
+    int LOWEST_PRECEDENCE  = Integer.MAX_VALUE;
 
     /**
-     * Get all plugin names
-     * @return
+     * Default priority
      */
-    Set<String> getAllPluginNames();
+    int DEFAULT_PRECEDENCE = 100;
 
     /**
-     * Get all plugins in priority Ordered
+     * Get the order value of this object. Higher values are interpreted as lower
+     * priority. As a consequence, the object with the lowest value has the highest
+     * priority.
      */
-    List<Plugin> getPluginsInOrder();
-
+    int getOrder();
 }

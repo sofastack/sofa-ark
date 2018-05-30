@@ -14,43 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.plugin;
+package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.Ordered;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Comparator;
 
 /**
- * Service to manage ark plugin
+ * {@link Comparator} implementation for {@link Ordered} objects, sorting
+ * by order value ascending.
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public interface PluginManagerService {
-
-    /**
-     * Register ark plugin
-     * @param plugin ark plugin info
-     */
-    void registerPlugin(Plugin plugin);
-
-    /**
-     * Get plugin info by plugin name
-     * @param pluginName plugin name
-     * @return
-     */
-    Plugin getPluginByName(String pluginName);
-
-    /**
-     * Get all plugin names
-     * @return
-     */
-    Set<String> getAllPluginNames();
-
-    /**
-     * Get all plugins in priority Ordered
-     */
-    List<Plugin> getPluginsInOrder();
-
+public class OrderComparator implements Comparator<Object> {
+    @Override
+    public int compare(Object o1, Object o2) {
+        int order1 = ((Ordered) o1).getOrder();
+        int order2 = ((Ordered) o2).getOrder();
+        return (order1 < order2) ? -1 : (order1 > order2) ? 1 : 0;
+    }
 }

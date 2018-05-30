@@ -20,14 +20,17 @@ import com.alipay.sofa.ark.common.guice.AbstractArkGuiceModule;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.service.ArkService;
+import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -67,6 +70,8 @@ public class ArkServiceContainer {
                     })) {
                     arkServiceList.add(binding.getProvider().get());
                 }
+                Collections.sort(arkServiceList, new OrderComparator());
+
                 for (ArkService arkService : arkServiceList) {
                     LOGGER.info(String.format("Init Service: %s", arkService.getClass().getName()));
                     arkService.init();
@@ -117,12 +122,12 @@ public class ArkServiceContainer {
             ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
                 .getClassLoader());
             try {
+                Collections.reverse(arkServiceList);
                 for (ArkService arkService : arkServiceList) {
                     LOGGER.info(String.format("Dispose service: %s", arkService.getClass()
                         .getName()));
                     arkService.dispose();
                 }
-
                 LOGGER.info("Finish to stop ArkServiceContainer");
             } finally {
                 ClassloaderUtils.popContextClassloader(oldClassloader);

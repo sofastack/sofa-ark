@@ -14,43 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.plugin;
-
-import com.alipay.sofa.ark.spi.model.Plugin;
-
-import java.util.List;
-import java.util.Set;
+package com.alipay.sofa.ark.spi.service.session;
 
 /**
- * Service to manage ark plugin
+ * Answer a string (may be as many lines as you like) with help
+ * texts that explain the command.
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public interface PluginManagerService {
+public interface CommandProvider {
+    String getHelp();
 
-    /**
-     * Register ark plugin
-     * @param plugin ark plugin info
-     */
-    void registerPlugin(Plugin plugin);
-
-    /**
-     * Get plugin info by plugin name
-     * @param pluginName plugin name
-     * @return
-     */
-    Plugin getPluginByName(String pluginName);
-
-    /**
-     * Get all plugin names
-     * @return
-     */
-    Set<String> getAllPluginNames();
-
-    /**
-     * Get all plugins in priority Ordered
-     */
-    List<Plugin> getPluginsInOrder();
-
+    String handleCommand(String command);
 }

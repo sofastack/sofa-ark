@@ -24,7 +24,7 @@ import com.alipay.sofa.ark.exception.ArkException;
  * @author ruoshan
  * @since 0.1.0
  */
-public interface ArkService {
+public interface ArkService extends Ordered {
 
     /**
      * Ark Service init

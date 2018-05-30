@@ -14,43 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.plugin;
+package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.spi.model.Plugin;
-
-import java.util.List;
-import java.util.Set;
+import java.util.Properties;
 
 /**
- * Service to manage ark plugin
+ * a utils class to get environment properties
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public interface PluginManagerService {
+public class EnvironmentUtils {
 
-    /**
-     * Register ark plugin
-     * @param plugin ark plugin info
-     */
-    void registerPlugin(Plugin plugin);
+    private static Properties properties = new Properties();
 
-    /**
-     * Get plugin info by plugin name
-     * @param pluginName plugin name
-     * @return
-     */
-    Plugin getPluginByName(String pluginName);
+    public static String getProperty(String key) {
+        if (properties.getProperty(key) == null) {
+            return System.getProperty(key);
+        }
+        return properties.getProperty(key);
+    }
 
-    /**
-     * Get all plugin names
-     * @return
-     */
-    Set<String> getAllPluginNames();
-
-    /**
-     * Get all plugins in priority Ordered
-     */
-    List<Plugin> getPluginsInOrder();
+    public static void setProperty(String key, String value) {
+        properties.setProperty(key, value);
+    }
 
 }
