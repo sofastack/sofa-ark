@@ -32,8 +32,10 @@ public class DelegateArkContainer {
 
     private static final String         TEST_HELPER             = "com.alipay.sofa.ark.container.test.TestHelper";
     private static final String         CREATE_TEST_CLASSLOADER = "createTestClassLoader";
+    private static final String         STOP_CONTAINER          = "stop";
 
     private static Method               CREATE_TEST_CLASSLOADER_METHOD;
+    private static Method               STOP_CONTAINER_METHOD;
 
     private static volatile Object      arkContainer;
     private static Object               testHelper;
@@ -67,6 +69,7 @@ public class DelegateArkContainer {
             Class<?> testHelperClass = container.getClass().getClassLoader().loadClass(TEST_HELPER);
             testHelper = testHelperClass.getConstructor(Object.class).newInstance(container);
             CREATE_TEST_CLASSLOADER_METHOD = testHelperClass.getMethod(CREATE_TEST_CLASSLOADER);
+            STOP_CONTAINER_METHOD = container.getClass().getMethod(STOP_CONTAINER);
         } catch (Exception ex) {
             // impossible situation
             throw new RuntimeException(ex);
@@ -113,6 +116,17 @@ public class DelegateArkContainer {
             return getTestClassLoader().loadClass(name);
         } catch (Exception ex) {
             throw new RuntimeException();
+        }
+    }
+
+    public static void shutdown() {
+        if (arkContainer != null) {
+            try {
+                STOP_CONTAINER_METHOD.invoke(arkContainer);
+                arkContainer = null;
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 

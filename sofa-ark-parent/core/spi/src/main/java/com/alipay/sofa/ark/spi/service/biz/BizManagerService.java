@@ -49,7 +49,7 @@ public interface BizManagerService {
     Set<String> getAllBizNames();
 
     /**
-     * Get all bizs in priority Ordered
+     * Get all bizs in priority PriorityOrdered
      */
     List<Biz> getBizsInOrder();
 

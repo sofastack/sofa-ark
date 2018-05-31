@@ -252,6 +252,8 @@ public class PluginModel implements Plugin {
 
     @Override
     public void stop() throws ArkException {
-        pluginActivator.stop(pluginContext);
+        if (pluginActivator != null) {
+            pluginActivator.stop(pluginContext);
+        }
     }
 }

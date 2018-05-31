@@ -26,10 +26,13 @@ public enum ServiceProviderType {
 
     ARK_PLUGIN("Ark Plugin"), ARK_CONTAINER("Ark Container");
 
-    private String typeName;
+    private String desc;
 
-    ServiceProviderType(String typeName) {
-        this.typeName = typeName;
+    ServiceProviderType(String desc) {
+        this.desc = desc;
     }
 
+    public String getDesc() {
+        return desc;
+    }
 }

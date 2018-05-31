@@ -16,12 +16,12 @@
  */
 package com.alipay.sofa.ark.container.model;
 
-import com.alipay.sofa.ark.container.registry.PluginNameServiceFilter;
-import com.alipay.sofa.ark.container.registry.PluginServiceFilter;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
+import com.alipay.sofa.ark.spi.registry.ServiceFilter;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
@@ -45,8 +45,6 @@ public class PluginContextImpl implements PluginContext {
     private RegistryService      registryService      = ArkServiceContainerHolder.getContainer()
                                                           .getService(RegistryService.class);
 
-    private PluginServiceFilter  pluginServiceFilter  = new PluginServiceFilter();
-
     public PluginContextImpl(Plugin plugin) {
         this.plugin = plugin;
     }
@@ -63,23 +61,28 @@ public class PluginContextImpl implements PluginContext {
 
     @Override
     public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject) {
-        return registryService.publishService(ifClass, implObject,
+        return publishService(ifClass, implObject, StringUtils.EMPTY_STRING);
+    }
+
+    @Override
+    public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject, String uniqueId) {
+        return registryService.publishService(ifClass, implObject, uniqueId,
             new PluginServiceProvider(plugin));
     }
 
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass) {
-        return registryService.referenceService(ifClass, pluginServiceFilter);
+        return registryService.referenceService(ifClass);
     }
 
     @Override
-    public <T> ServiceReference<T> referenceService(Class<T> ifClass, final String pluginName) {
-        return registryService.referenceService(ifClass, new PluginNameServiceFilter(pluginName));
+    public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
+        return registryService.referenceService(ifClass, uniqueId);
     }
 
     @Override
-    public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass) {
-        return registryService.referenceServices(ifClass, pluginServiceFilter);
+    public List<ServiceReference> referenceServices(ServiceFilter serviceFilter) {
+        return registryService.referenceServices(serviceFilter);
     }
 
     @Override

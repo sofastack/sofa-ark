@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.support.runner;
 import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.junit.runner.Description;
+import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.RunListener;
 
@@ -75,5 +76,11 @@ public class JUnitExecutionListener extends RunListener {
             }
         }
         return singleton;
+    }
+
+    @Override
+    public void testRunFinished(Result result) throws Exception {
+        super.testRunFinished(result);
+        DelegateArkContainer.shutdown();
     }
 }

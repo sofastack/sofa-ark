@@ -14,30 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.registry;
+package com.alipay.sofa.ark.container.registry;
 
-import java.util.Comparator;
+import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
 
 /**
- * Service Provider Comparator
- * 1. {@link ServiceProviderType#ARK_PLUGIN } is higher than  {@link ServiceProviderType#ARK_CONTAINER }
- * 2. If the same {@link ServiceProviderType} then priority is higher as {@link ServiceProvider#getServiceProviderPriority()} is lower
+ * Ark Container Service Provider, default service provider if provider is not set
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public class ServiceProviderComparator implements Comparator<ServiceProvider> {
+public class ContainerServiceProvider extends AbstractServiceProvider {
+
+    private int order;
+
+    public ContainerServiceProvider() {
+        this(DEFAULT_PRECEDENCE);
+    }
+
+    public ContainerServiceProvider(int order) {
+        super(ServiceProviderType.ARK_CONTAINER);
+        this.order = order;
+    }
 
     @Override
-    public int compare(ServiceProvider o1, ServiceProvider o2) {
-        if (!o1.getServiceProviderType().equals(o2.getServiceProviderType())) {
-            if (ServiceProviderType.ARK_PLUGIN.equals(o1.getServiceProviderType())) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-
-        return Integer.compare(o1.getServiceProviderPriority(), o2.getServiceProviderPriority());
+    public int getOrder() {
+        return order;
     }
 }

@@ -16,13 +16,15 @@
  */
 package com.alipay.sofa.ark.spi.registry;
 
+import com.alipay.sofa.ark.spi.service.PriorityOrdered;
+
 /**
  * Service Reference which maintain Service and Service Metadata
  *
  * @author qilong.zql
  * @since 0.1.0
  */
-public interface ServiceReference<T> {
+public interface ServiceReference<T> extends PriorityOrdered {
 
     /**
      * get Service Object

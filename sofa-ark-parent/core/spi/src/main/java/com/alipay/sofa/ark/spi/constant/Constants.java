@@ -73,4 +73,8 @@ public abstract class Constants {
     public final static String TELNET_SERVER_THREAD_POOL_NAME = "telnet-server";
     public final static String TELNET_SESSION_PROMPT          = "sofa-ark>";
     public final static int    BUFFER_CHUNK                   = 128;
+
+    /**
+     * Service Registration
+     */
 }

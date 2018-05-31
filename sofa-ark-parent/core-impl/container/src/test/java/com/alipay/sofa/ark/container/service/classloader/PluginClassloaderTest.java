@@ -25,6 +25,7 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +43,8 @@ import java.util.List;
  */
 public class PluginClassloaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
-                                                  .getResource("");
+    private URL                  classPathURL        = PluginClassloaderTest.class.getClassLoader()
+                                                         .getResource("");
 
     private PluginManagerService pluginManagerService;
 
@@ -51,9 +52,10 @@ public class PluginClassloaderTest extends BaseTest {
 
     private ClassloaderService   classloaderService;
 
+    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
+
     @Before
     public void before() {
-        ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
         arkServiceContainer.start();
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
             PluginManagerService.class);
@@ -266,5 +268,10 @@ public class PluginClassloaderTest extends BaseTest {
 
         PluginClassLoader pluginClassLoader = (PluginClassLoader) mockPlugin.getPluginClassLoader();
         Assert.assertNotNull(pluginClassLoader.loadClass("SampleClass", false));
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
     }
 }

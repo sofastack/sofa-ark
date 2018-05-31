@@ -16,12 +16,14 @@
  */
 package com.alipay.sofa.ark.spi.registry;
 
+import com.alipay.sofa.ark.spi.service.PriorityOrdered;
+
 /**
  * Service Provider Interface
  * @author ruoshan
  * @since 0.1.0
  */
-public interface ServiceProvider {
+public interface ServiceProvider extends PriorityOrdered {
 
     /**
      * Get Service Provider Type, see {@link ServiceProviderType}
@@ -30,15 +32,8 @@ public interface ServiceProvider {
     ServiceProviderType getServiceProviderType();
 
     /**
-     * Get Service Provider Name
-     * @return service provider name
+     * Get Service Provider Description
+     * @return service provider Description
      */
-    String getServiceProviderName();
-
-    /**
-     * Get Service Provider Priority, priority is higher as number is lower
-     * @return service provider priority
-     */
-    int getServiceProviderPriority();
-
+    String getServiceProviderDesc();
 }

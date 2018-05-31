@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
@@ -44,7 +45,7 @@ public class BaseTest {
 
     static {
         // fix cobertura bug
-        new PluginServiceProvider(null);
+        new PluginServiceProvider(new PluginModel());
     }
 
     static {

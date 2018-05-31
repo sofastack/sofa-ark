@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.ark.container.registry;
 
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.spi.model.Plugin;
-import com.alipay.sofa.ark.spi.registry.ServiceProvider;
 import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
 
 /**
@@ -26,58 +26,49 @@ import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
  * @author ruoshan
  * @since 0.1.0
  */
-public class PluginServiceProvider implements ServiceProvider {
+public class PluginServiceProvider extends AbstractServiceProvider {
 
     private Plugin plugin;
 
     public PluginServiceProvider(Plugin plugin) {
+        super(ServiceProviderType.ARK_PLUGIN);
+        AssertUtils.assertNotNull(plugin, "Plugin should not be null.");
         this.plugin = plugin;
     }
 
     @Override
-    public ServiceProviderType getServiceProviderType() {
-        return ServiceProviderType.ARK_PLUGIN;
+    public String getServiceProviderDesc() {
+        return String.format("%s:%s", super.getServiceProviderDesc(), plugin.getPluginName());
     }
 
     @Override
-    public String getServiceProviderName() {
-        return plugin.getPluginName();
-    }
-
-    @Override
-    public int getServiceProviderPriority() {
+    public int getOrder() {
         return plugin.getPriority();
     }
 
-    @Override
-    public String toString() {
-        return "PluginServiceProvider{" + "pluginName='" + plugin.getPluginName() + '\''
-               + ", priority=" + plugin.getPriority() + '}';
+    public String getPluginName() {
+        return plugin.getPluginName();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        PluginServiceProvider that = (PluginServiceProvider) o;
-
-        if (getServiceProviderPriority() != that.getServiceProviderPriority()) {
-            return false;
-        }
-        return getServiceProviderName() != null ? getServiceProviderName().equals(
-            that.getServiceProviderName()) : that.getServiceProviderName() == null;
-
+    public Plugin getPlugin() {
+        return plugin;
     }
 
     @Override
     public int hashCode() {
-        int result = getServiceProviderName() != null ? getServiceProviderName().hashCode() : 0;
-        result = 31 * result + getServiceProviderPriority();
+        int result = super.hashCode();
+        result = 31 * result + plugin.hashCode();
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        PluginServiceProvider serviceProvider = (PluginServiceProvider) obj;
+
+        return plugin.equals(serviceProvider.getPlugin());
     }
 }

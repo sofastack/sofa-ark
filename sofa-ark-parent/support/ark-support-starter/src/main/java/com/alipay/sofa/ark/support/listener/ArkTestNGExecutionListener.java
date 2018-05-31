@@ -14,22 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.registry;
+package com.alipay.sofa.ark.support.listener;
 
-import com.alipay.sofa.ark.spi.registry.ServiceFilter;
-import com.alipay.sofa.ark.spi.registry.ServiceProvider;
-import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
+import com.alipay.sofa.ark.support.common.DelegateArkContainer;
+import org.testng.IExecutionListener;
 
 /**
- * Plugin Service Filter, filter service by any plugins
+ * Shutdown ark container
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public class PluginServiceFilter implements ServiceFilter {
+public class ArkTestNGExecutionListener implements IExecutionListener {
+    @Override
+    public void onExecutionStart() {
+
+    }
 
     @Override
-    public boolean match(ServiceProvider serviceProvider) {
-        return ServiceProviderType.ARK_PLUGIN.equals(serviceProvider.getServiceProviderType());
+    public void onExecutionFinish() {
+        DelegateArkContainer.shutdown();
     }
 }

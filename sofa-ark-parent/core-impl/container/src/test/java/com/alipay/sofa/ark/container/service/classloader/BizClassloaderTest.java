@@ -27,6 +27,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +43,8 @@ import java.util.HashSet;
  */
 public class BizClassloaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
-                                                  .getResource("");
+    private URL                  classPathURL        = PluginClassloaderTest.class.getClassLoader()
+                                                         .getResource("");
 
     private PluginManagerService pluginManagerService;
 
@@ -53,9 +54,10 @@ public class BizClassloaderTest extends BaseTest {
 
     private BizManagerService    bizManagerService;
 
+    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
+
     @Before
     public void before() {
-        ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
         arkServiceContainer.start();
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
             PluginManagerService.class);
@@ -190,5 +192,10 @@ public class BizClassloaderTest extends BaseTest {
         Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
     }
 }

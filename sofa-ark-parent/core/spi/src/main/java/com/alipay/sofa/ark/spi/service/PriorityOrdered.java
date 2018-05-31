@@ -17,13 +17,13 @@
 package com.alipay.sofa.ark.spi.service;
 
 /**
- * {@code Ordered} is an interface that can be implemented by objects that
+ * {@code PriorityOrdered} is an interface that can be implemented by objects that
  * should be ordered.
  *
  * @author qilong.zql
  * @since 0.4.0
  */
-public interface Ordered {
+public interface PriorityOrdered {
 
     /**
      * Useful constant for the highest precedence value.

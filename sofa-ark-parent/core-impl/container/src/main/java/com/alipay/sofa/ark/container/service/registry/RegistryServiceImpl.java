@@ -18,9 +18,11 @@ package com.alipay.sofa.ark.container.service.registry;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.container.registry.ArkContainerServiceProvider;
+import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.OrderComparator;
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.container.registry.ServiceMetadataImpl;
-import com.alipay.sofa.ark.spi.registry.ServiceProviderComparator;
 import com.alipay.sofa.ark.container.registry.ServiceReferenceImpl;
 import com.alipay.sofa.ark.spi.registry.ServiceFilter;
 import com.alipay.sofa.ark.spi.registry.ServiceMetadata;
@@ -32,8 +34,8 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Registry Service Implement
@@ -44,34 +46,28 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Singleton
 public class RegistryServiceImpl implements RegistryService {
 
-    private static final ArkLogger                               LOGGER                    = ArkLoggerFactory
-                                                                                               .getDefaultLogger();
+    private static final ArkLogger                   LOGGER          = ArkLoggerFactory
+                                                                         .getDefaultLogger();
+    private CopyOnWriteArraySet<ServiceReference<?>> services        = new CopyOnWriteArraySet<>();
 
-    private ConcurrentHashMap<String, List<ServiceReference<?>>> services                  = new ConcurrentHashMap<>();
+    private OrderComparator                          orderComparator = new OrderComparator();
 
-    private ServiceProviderComparator                            serviceProviderComparator = new ServiceProviderComparator();
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject) {
-        return publishService(ifClass, implObject, new ArkContainerServiceProvider());
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject,
                                                   ServiceProvider serviceProvider) {
-        ServiceMetadata serviceMetadata = new ServiceMetadataImpl(ifClass.getName(), ifClass,
+        return publishService(ifClass, implObject, StringUtils.EMPTY_STRING, serviceProvider);
+    }
+
+    @Override
+    public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject, String uniqueId,
+                                                  ServiceProvider serviceProvider) {
+        AssertUtils.assertNotNull(ifClass, "Service interface should not be null.");
+        AssertUtils.assertNotNull(implObject, "Service implementation should not be null.");
+        AssertUtils.assertNotNull(serviceProvider, "ServiceProvider should not be null.");
+
+        ServiceMetadata serviceMetadata = new ServiceMetadataImpl(ifClass, uniqueId,
             serviceProvider);
-        if (!services.containsKey(serviceMetadata.getServiceName())) {
-            services.putIfAbsent(serviceMetadata.getServiceName(),
-                new CopyOnWriteArrayList<ServiceReference<?>>());
-        }
-
-        List<ServiceReference<?>> serviceReferences = services
-            .get(serviceMetadata.getServiceName());
-
-        for (ServiceReference<?> serviceReference : serviceReferences) {
+        for (ServiceReference<?> serviceReference : services) {
             if (serviceMetadata.equals(serviceReference.getServiceMetadata())) {
                 LOGGER.warn(String.format("Service: %s publish by: %s already exist",
                     serviceMetadata.getServiceName(), serviceProvider));
@@ -85,7 +81,7 @@ public class RegistryServiceImpl implements RegistryService {
         LOGGER.info(String.format("Service: %s publish by: %s succeed",
             serviceMetadata.getServiceName(), serviceProvider));
 
-        serviceReferences.add(serviceReference);
+        services.add(serviceReference);
 
         return serviceReference;
     }
@@ -93,60 +89,58 @@ public class RegistryServiceImpl implements RegistryService {
     @SuppressWarnings("unchecked")
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass) {
-        return referenceService(ifClass, null);
+        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter()
+            .setServiceInterface(ifClass));
+        return references.isEmpty() ? null : references.get(0);
     }
 
     @Override
-    public <T> ServiceReference<T> referenceService(Class<T> ifClass, ServiceFilter serviceFilter) {
-        String serviceName = ifClass.getName();
-        if (services.containsKey(serviceName)) {
-            return findHighestOrderService(services.get(serviceName), serviceFilter);
-        }
-        return null;
+    public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
+        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter()
+            .setServiceInterface(ifClass).setUniqueId(uniqueId));
+        return references.isEmpty() ? null : references.get(0);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> ServiceReference<T> findHighestOrderService(List<ServiceReference<?>> serviceReferences,
-                                                            ServiceFilter serviceFilter) {
-        ServiceReference<T> result = null;
-        for (ServiceReference<?> serviceReference : serviceReferences) {
-            if (serviceFilter != null
-                && !serviceFilter.match(serviceReference.getServiceMetadata().getServiceProvider())) {
-                continue;
-            }
-            if (result == null) {
-                result = (ServiceReference<T>) serviceReference;
-            } else if (serviceProviderComparator.compare(serviceReference.getServiceMetadata()
-                .getServiceProvider(), result.getServiceMetadata().getServiceProvider()) < 0) {
-
-                result = (ServiceReference<T>) serviceReference;
-            }
-
-        }
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass) {
-        return referenceServices(ifClass, null);
+        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter()
+            .setServiceInterface(ifClass));
+        return references;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass,
-                                                           ServiceFilter serviceFilter) {
-        String serviceName = ifClass.getName();
-        if (services.containsKey(serviceName)) {
-            List<ServiceReference<T>> serviceReferences = new ArrayList<>();
-            for (ServiceReference<?> reference : services.get(serviceName)) {
-                if (serviceFilter == null
-                    || serviceFilter.match(reference.getServiceMetadata().getServiceProvider())) {
-                    serviceReferences.add((ServiceReference<T>) reference);
-                }
-            }
-            return serviceReferences;
-        }
-        return Collections.emptyList();
+    public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, String uniqueId) {
+        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter<T>()
+            .setServiceInterface(ifClass).setUniqueId(uniqueId));
+        return references;
     }
+
+    @Override
+    public <T> List<ServiceReference<T>> referenceServices(ServiceFilter<T> serviceFilter) {
+        List<ServiceReference<T>> serviceReferences = new ArrayList<>();
+
+        for (ServiceReference<?> reference : services) {
+            if (serviceFilter.match(reference)) {
+                serviceReferences.add((ServiceReference<T>) reference);
+            }
+        }
+        Collections.sort(serviceReferences, orderComparator);
+
+        return serviceReferences;
+    }
+
+    @Override
+    public int unPublishServices(ServiceFilter serviceFilter) {
+        int count = 0;
+
+        for (ServiceReference<?> reference : services) {
+            if (serviceFilter.match(reference)) {
+                services.remove(reference);
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
 }

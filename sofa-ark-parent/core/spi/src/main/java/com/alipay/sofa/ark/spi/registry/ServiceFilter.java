@@ -22,12 +22,12 @@ package com.alipay.sofa.ark.spi.registry;
  * @author ruoshan
  * @since 0.1.0
  */
-public interface ServiceFilter {
+public interface ServiceFilter<T> {
 
     /**
-     * Filter Service Provider
-     * @param serviceProvider service provider
+     * @param serviceReference whether the given serviceReference
+     * match {@code ServiceFilter}
      * @return true if match; false if not match
      */
-    boolean match(ServiceProvider serviceProvider);
+    boolean match(ServiceReference serviceReference);
 }

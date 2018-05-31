@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.model;
 
+import com.alipay.sofa.ark.spi.registry.ServiceFilter;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 
 import java.util.List;
@@ -64,6 +65,16 @@ public interface PluginContext {
     <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject);
 
     /**
+     * Publish Plugin Service
+     * @param ifClass service interface
+     * @param implObject service implement object
+     * @param uniqueId service implementation id
+     * @param <T>
+     * @return
+     */
+    <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject, String uniqueId);
+
+    /**
      * Get Service publish by plugin, when there are multiple services, return the highest priority plugin service
      * @param ifClass service interface
      * @param <T>
@@ -75,17 +86,16 @@ public interface PluginContext {
      * Get Service publish  by one specific plugin
      * @param ifClass service interface
      * @param <T>
-     * @param pluginName the name of the plugin which publish the service
+     * @param uniqueId service implementation
      * @return service reference
      */
-    <T> ServiceReference<T> referenceService(Class<T> ifClass, String pluginName);
+    <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId);
 
     /**
      * Get Service List publish by plugin
-     * @param ifClass service interface
-     * @param <T>
+     * @param serviceFilter service filter
      * @return
      */
-    <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass);
+    List<ServiceReference> referenceServices(ServiceFilter serviceFilter);
 
 }
