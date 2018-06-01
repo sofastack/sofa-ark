@@ -47,5 +47,5 @@ public interface PriorityOrdered {
      * priority. As a consequence, the object with the lowest value has the highest
      * priority.
      */
-    int getOrder();
+    int getPriority();
 }

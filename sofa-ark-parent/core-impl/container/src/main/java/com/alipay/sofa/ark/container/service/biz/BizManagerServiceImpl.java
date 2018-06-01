@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -55,12 +56,7 @@ public class BizManagerServiceImpl implements BizManagerService {
     @Override
     public List<Biz> getBizsInOrder() {
         List<Biz> bizList = new ArrayList<>(bizs.values());
-        Collections.sort(bizList, new Comparator<Biz>() {
-            @Override
-            public int compare(Biz o1, Biz o2) {
-                return Integer.compare(o1.getPriority(), o2.getPriority());
-            }
-        });
+        Collections.sort(bizList, new OrderComparator());
         return bizList;
     }
 }

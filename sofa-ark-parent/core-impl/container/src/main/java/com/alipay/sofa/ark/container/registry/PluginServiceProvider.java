@@ -42,7 +42,7 @@ public class PluginServiceProvider extends AbstractServiceProvider {
     }
 
     @Override
-    public int getOrder() {
+    public int getPriority() {
         return plugin.getPriority();
     }
 

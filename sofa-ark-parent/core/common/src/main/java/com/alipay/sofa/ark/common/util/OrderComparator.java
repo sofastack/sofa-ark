@@ -30,8 +30,8 @@ import java.util.Comparator;
 public class OrderComparator implements Comparator<Object> {
     @Override
     public int compare(Object o1, Object o2) {
-        int order1 = ((PriorityOrdered) o1).getOrder();
-        int order2 = ((PriorityOrdered) o2).getOrder();
+        int order1 = ((PriorityOrdered) o1).getPriority();
+        int order2 = ((PriorityOrdered) o2).getPriority();
         return Integer.compare(order1, order2);
     }
 }

@@ -17,15 +17,18 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.registry.ServiceFilter;
+import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -72,17 +75,30 @@ public class PluginContextImpl implements PluginContext {
 
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass) {
-        return registryService.referenceService(ifClass);
+        return referenceService(ifClass, StringUtils.EMPTY_STRING);
     }
 
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
-        return registryService.referenceService(ifClass, uniqueId);
+        List<ServiceReference<T>> references = registryService
+            .referenceServices(new DefaultServiceFilter<T>()
+                .setProviderType(ServiceProviderType.ARK_PLUGIN).setServiceInterface(ifClass)
+                .setUniqueId(uniqueId));
+        return references.size() == 0 ? null : references.get(0);
     }
 
     @Override
     public List<ServiceReference> referenceServices(ServiceFilter serviceFilter) {
-        return registryService.referenceServices(serviceFilter);
+        List<ServiceReference> references = registryService
+            .referenceServices(new DefaultServiceFilter()
+                .setProviderType(ServiceProviderType.ARK_PLUGIN));
+        List<ServiceReference> result = new ArrayList<>();
+        for (ServiceReference reference : references) {
+            if (serviceFilter.match(reference)) {
+                result.add(reference);
+            }
+        }
+        return result;
     }
 
     @Override

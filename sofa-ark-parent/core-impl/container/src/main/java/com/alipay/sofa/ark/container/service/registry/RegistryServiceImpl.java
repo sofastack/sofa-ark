@@ -24,17 +24,13 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.container.registry.ServiceMetadataImpl;
 import com.alipay.sofa.ark.container.registry.ServiceReferenceImpl;
-import com.alipay.sofa.ark.spi.registry.ServiceFilter;
-import com.alipay.sofa.ark.spi.registry.ServiceMetadata;
-import com.alipay.sofa.ark.spi.registry.ServiceProvider;
-import com.alipay.sofa.ark.spi.registry.ServiceReference;
+import com.alipay.sofa.ark.spi.registry.*;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.google.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -89,29 +85,45 @@ public class RegistryServiceImpl implements RegistryService {
     @SuppressWarnings("unchecked")
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass) {
-        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter()
-            .setServiceInterface(ifClass));
-        return references.isEmpty() ? null : references.get(0);
+        return referenceService(ifClass, null);
     }
 
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
-        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter()
-            .setServiceInterface(ifClass).setUniqueId(uniqueId));
+        DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
+        defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
+
+        List<ServiceReference<T>> references = referenceServices(defaultServiceFilter
+            .setProviderType(ServiceProviderType.ARK_PLUGIN).setServiceInterface(ifClass)
+            .setUniqueId(uniqueId));
+
+        List<ServiceReference<T>> containerReferences = referenceServices(defaultServiceFilter
+            .setProviderType(ServiceProviderType.ARK_CONTAINER).setServiceInterface(ifClass)
+            .setUniqueId(uniqueId));
+
+        references.addAll(containerReferences);
         return references.isEmpty() ? null : references.get(0);
     }
 
     @Override
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass) {
-        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter()
-            .setServiceInterface(ifClass));
-        return references;
+        return referenceServices(new DefaultServiceFilter<T>().setServiceInterface(ifClass));
     }
 
     @Override
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, String uniqueId) {
-        List<ServiceReference<T>> references = referenceServices(new DefaultServiceFilter<T>()
-            .setServiceInterface(ifClass).setUniqueId(uniqueId));
+        DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
+        defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
+
+        List<ServiceReference<T>> references = referenceServices(defaultServiceFilter
+            .setProviderType(ServiceProviderType.ARK_PLUGIN).setServiceInterface(ifClass)
+            .setUniqueId(uniqueId));
+
+        List<ServiceReference<T>> containerReferences = referenceServices(defaultServiceFilter
+            .setProviderType(ServiceProviderType.ARK_CONTAINER).setServiceInterface(ifClass)
+            .setUniqueId(uniqueId));
+
+        references.addAll(containerReferences);
         return references;
     }
 

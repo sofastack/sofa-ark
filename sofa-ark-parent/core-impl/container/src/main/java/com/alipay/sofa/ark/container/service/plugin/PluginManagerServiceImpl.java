@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
+import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -60,12 +61,7 @@ public class PluginManagerServiceImpl implements PluginManagerService {
     @Override
     public List<Plugin> getPluginsInOrder() {
         List<Plugin> pluginList = new ArrayList<>(plugins.values());
-        Collections.sort(pluginList, new Comparator<Plugin>() {
-            @Override
-            public int compare(Plugin o1, Plugin o2) {
-                return Integer.compare(o1.getPriority(), o2.getPriority());
-            }
-        });
+        Collections.sort(pluginList, new OrderComparator());
         return pluginList;
     }
 }

@@ -14,31 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.registry;
-
-import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
+package com.alipay.sofa.ark.spi.service.biz;
 
 /**
- * Ark Container Service Provider, default service provider if provider is not set
+ * BizDeployer to deploy Biz
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public class ContainerServiceProvider extends AbstractServiceProvider {
+public interface BizDeployer {
+    /**
+     * Initialize biz deployer
+     *
+     * @param args command line arguments
+     */
+    void init(String[] args);
 
-    private int order;
+    /**
+     * Start to deploy biz
+     */
+    void deploy();
 
-    public ContainerServiceProvider() {
-        this(DEFAULT_PRECEDENCE);
-    }
+    /**
+     * un-deploy biz, whose resources and service would be unloaded.
+     */
+    void unDeploy();
 
-    public ContainerServiceProvider(int order) {
-        super(ServiceProviderType.ARK_CONTAINER);
-        this.order = order;
-    }
-
-    @Override
-    public int getPriority() {
-        return order;
-    }
+    /**
+     * Get description of biz deployer
+     *
+     * @return description
+     */
+    String getDesc();
 }

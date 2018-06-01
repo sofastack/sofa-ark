@@ -146,7 +146,7 @@ public class StandardTelnetServer implements TelnetServerService {
     }
 
     @Override
-    public int getOrder() {
+    public int getPriority() {
         return HIGHEST_PRECEDENCE;
     }
 }

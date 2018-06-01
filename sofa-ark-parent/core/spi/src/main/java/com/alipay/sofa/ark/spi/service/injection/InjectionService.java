@@ -14,31 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.registry;
-
-import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
+package com.alipay.sofa.ark.spi.service.injection;
 
 /**
- * Ark Container Service Provider, default service provider if provider is not set
+ * Process annotation {@link com.alipay.sofa.ark.spi.service.ArkInject}
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public class ContainerServiceProvider extends AbstractServiceProvider {
-
-    private int order;
-
-    public ContainerServiceProvider() {
-        this(DEFAULT_PRECEDENCE);
-    }
-
-    public ContainerServiceProvider(int order) {
-        super(ServiceProviderType.ARK_CONTAINER);
-        this.order = order;
-    }
-
-    @Override
-    public int getPriority() {
-        return order;
-    }
+public interface InjectionService {
+    void doInject();
 }

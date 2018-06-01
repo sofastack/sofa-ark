@@ -14,33 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.pipeline;
+package com.alipay.sofa.ark.spi.service.biz;
 
 import com.alipay.sofa.ark.exception.ArkException;
-import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.alipay.sofa.ark.spi.service.ArkService;
 
 /**
- * Pipeline Stage to Deploy Biz
+ * Service to deploy Biz
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-@Singleton
-public class DeployBizStage implements PipelineStage {
+public interface BizDeployService extends ArkService {
 
-    @Inject
-    private BizDeployService bizDeployService;
+    /**
+     * Deploy all ark biz
+     * @throws ArkException
+     */
+    void deploy(String[] args) throws ArkException;
 
-    @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
-        if (pipelineContext.getLaunchCommand().isTestMode()) {
-            return;
-        }
-        String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
-        bizDeployService.deploy(args);
-    }
+    /**
+     * Un-deploy all ark ark biz
+     * @throws ArkException
+     */
+    void unDeploy() throws ArkException;
+
 }

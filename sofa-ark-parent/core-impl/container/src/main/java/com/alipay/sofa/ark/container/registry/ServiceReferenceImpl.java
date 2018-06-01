@@ -47,12 +47,17 @@ public class ServiceReferenceImpl<T> implements ServiceReference<T> {
     }
 
     @Override
-    public int getOrder() {
-        return getServiceMetadata().getServiceProvider().getOrder();
+    public int getPriority() {
+        return getServiceMetadata().getServiceProvider().getPriority();
     }
 
     @Override
     public int hashCode() {
         return serviceMetadata.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return serviceMetadata.toString();
     }
 }

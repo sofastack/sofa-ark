@@ -44,7 +44,7 @@ public abstract class AbstractServiceProvider implements ServiceProvider {
             return false;
         }
 
-        if (getOrder() != ((PriorityOrdered) obj).getOrder()) {
+        if (getPriority() != ((PriorityOrdered) obj).getPriority()) {
             return false;
         }
 
@@ -64,13 +64,13 @@ public abstract class AbstractServiceProvider implements ServiceProvider {
     @Override
     public String toString() {
         return String.format("ServiceProvider{provider=\'%s\', order=%d}",
-            getServiceProviderDesc(), getOrder());
+            getServiceProviderDesc(), getPriority());
     }
 
     @Override
     public int hashCode() {
         int result = getServiceProviderType().hashCode();
-        result = 31 * result + getOrder();
+        result = 31 * result + getPriority();
         return result;
     }
 }

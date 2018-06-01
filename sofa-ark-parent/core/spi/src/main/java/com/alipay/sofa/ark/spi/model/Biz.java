@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.spi.model;
 
 import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
 import java.net.URL;
 import java.util.Set;
@@ -27,7 +28,7 @@ import java.util.Set;
  * @author ruoshan
  * @since 0.1.0
  */
-public interface Biz {
+public interface Biz extends PriorityOrdered {
 
     /**
      * get Biz Name
@@ -46,13 +47,6 @@ public interface Biz {
      * @return biz classpath
      */
     URL[] getClassPath();
-
-    /**
-     * get biz startup priority, priority is higher as the number is smaller
-     *
-     * @return biz startup priority
-     */
-    int getPriority();
 
     /**
      * get denied imported packages

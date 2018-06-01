@@ -105,7 +105,7 @@ public class PluginDeployServiceImpl implements PluginDeployService {
     }
 
     @Override
-    public int getOrder() {
+    public int getPriority() {
         return DEFAULT_PRECEDENCE;
     }
 }

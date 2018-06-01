@@ -286,7 +286,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public int getOrder() {
+    public int getPriority() {
         return DEFAULT_PRECEDENCE;
     }
 }

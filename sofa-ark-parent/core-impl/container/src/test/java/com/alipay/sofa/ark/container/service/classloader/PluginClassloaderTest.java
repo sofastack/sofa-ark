@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
