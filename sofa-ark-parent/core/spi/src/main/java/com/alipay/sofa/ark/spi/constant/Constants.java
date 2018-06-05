@@ -29,7 +29,7 @@ public abstract class Constants {
 
     public final static String ARK_PLUGIN_MARK_ENTRY          = "com/alipay/sofa/ark/plugin/mark";
 
-    public final static String ARK_MODULE_MARK_ENTRY          = "com/alipay/sofa/ark/biz/mark";
+    public final static String ARK_BIZ_MARK_ENTRY             = "com/alipay/sofa/ark/biz/mark";
 
     /**
      * Ark Plugin Attribute
@@ -50,6 +50,7 @@ public abstract class Constants {
      */
     public final static String MAIN_CLASS_ATTRIBUTE           = "Main-Class";
     public final static String ARK_BIZ_NAME                   = "Ark-Biz-Name";
+    public final static String ARK_BIZ_VERSION                = "Ark-Biz-Version";
     public final static String DENY_IMPORT_CLASSES            = "deny-import-classes";
     public final static String DENY_IMPORT_PACKAGES           = "deny-import-packages";
     public final static String DENY_IMPORT_RESOURCES          = "deny-import-resources";
@@ -69,12 +70,14 @@ public abstract class Constants {
      */
     public final static String TELNET_PORT_ATTRIBUTE          = "sofa.ark.telnet";
     public final static int    DEFAULT_TELNET_PORT            = 1234;
-    public final static String HOST_PORT_SPLIT                = ":";
     public final static String TELNET_SERVER_THREAD_POOL_NAME = "telnet-server";
     public final static String TELNET_SESSION_PROMPT          = "sofa-ark>";
     public final static int    BUFFER_CHUNK                   = 128;
 
     /**
-     * Service Registration
+     * String Constants
      */
+    public final static String SPACE_SPLIT                    = " ";
+    public final static String STRING_COLON                   = ":";
+
 }

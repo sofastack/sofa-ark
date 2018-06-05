@@ -26,7 +26,6 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
-import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
 
 import java.io.File;
 import java.io.IOException;

@@ -124,14 +124,13 @@ public class ClasspathLauncher extends ArkLauncher {
 
         @Override
         public List<BizArchive> getBizArchives() throws Exception {
-            List<URL> urlList = filterUrls(Constants.ARK_MODULE_MARK_ENTRY);
+            List<URL> urlList = filterUrls(Constants.ARK_BIZ_MARK_ENTRY);
 
             List<BizArchive> bizArchives = new LinkedList<>();
             bizArchives.add(createDirectoryBizModuleArchive());
 
             for (URL url : urlList) {
-                bizArchives
-                    .add(new JarBizModuleArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
             }
 
             return bizArchives;

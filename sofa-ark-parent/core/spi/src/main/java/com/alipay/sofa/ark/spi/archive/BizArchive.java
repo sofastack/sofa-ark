@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.archive;
 
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -31,6 +32,6 @@ public interface BizArchive extends Archive {
      *
      * @return the classpath contained in ark-biz archive
      */
-    URL[] getUrls() throws Exception;
+    URL[] getUrls() throws IOException;
 
 }

@@ -46,7 +46,7 @@ public class DefaultBizDeployer implements BizDeployer {
 
     @Override
     public void deploy() {
-        for (Biz biz : bizManagerService.getBizsInOrder()) {
+        for (Biz biz : bizManagerService.getBizInOrder()) {
             try {
                 LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
                 biz.start(arguments);

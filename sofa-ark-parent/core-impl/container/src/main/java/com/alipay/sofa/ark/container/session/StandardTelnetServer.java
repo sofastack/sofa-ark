@@ -27,6 +27,7 @@ import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
 import com.alipay.sofa.ark.spi.service.session.TelnetSession;
+import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,7 +35,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_TELNET_PORT;
-import static com.alipay.sofa.ark.spi.constant.Constants.HOST_PORT_SPLIT;
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_PORT_ATTRIBUTE;
 
 /**
@@ -43,6 +44,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_PORT_ATTRIBUTE;
  * @author qilong.zql
  * @since 0.4.0
  */
+@Singleton
 public class StandardTelnetServer implements TelnetServerService {
 
     private static final ArkLogger LOGGER   = ArkLoggerFactory.getDefaultLogger();
@@ -127,7 +129,7 @@ public class StandardTelnetServer implements TelnetServerService {
     }
 
     private void parseHostAndPort(String telnetValue) {
-        int index = telnetValue.lastIndexOf(HOST_PORT_SPLIT);
+        int index = telnetValue.lastIndexOf(STRING_COLON);
         if (index > -1) {
             host = telnetValue.substring(0, index);
         }

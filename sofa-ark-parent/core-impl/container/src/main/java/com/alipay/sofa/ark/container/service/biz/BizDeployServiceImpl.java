@@ -18,12 +18,10 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 
 import javax.inject.Inject;
@@ -51,7 +49,7 @@ public class BizDeployServiceImpl implements BizDeployService {
             .referenceService(BizDeployer.class);
         bizDeployer = serviceReference.getService();
 
-        LOGGER.info(String.format("BizDeployer=\'%s\' start work.", bizDeployer.getDesc()));
+        LOGGER.info(String.format("BizDeployer=\'%s\' is starting.", bizDeployer.getDesc()));
 
         bizDeployer.init(args);
         bizDeployer.deploy();
@@ -60,6 +58,7 @@ public class BizDeployServiceImpl implements BizDeployService {
     @Override
     public void unDeploy() throws ArkException {
         if (bizDeployer != null) {
+            LOGGER.info(String.format("BizDeployer=\'%s\' is stopping.", bizDeployer.getDesc()));
             bizDeployer.unDeploy();
         }
     }

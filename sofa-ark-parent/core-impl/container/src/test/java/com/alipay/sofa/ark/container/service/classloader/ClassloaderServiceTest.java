@@ -117,22 +117,22 @@ public class ClassloaderServiceTest extends BaseTest {
 
     @Test
     public void testIsDeniedImportClass() {
-        Biz biz = new BizModel().setBizName("mockBiz").setDenyImportPackages("a.c, a.b.c.*, a.b.c")
-            .setDenyImportClasses("");
+        Biz biz = new BizModel().setBizName("mockBiz").setBizVersion("1.0.0")
+            .setDenyImportPackages("a.c, a.b.c.*, a.b.c").setDenyImportClasses("");
         bizManagerService.registerBiz(biz);
-        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.c"),
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c"),
             "Exception error");
 
-        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.c.E"),
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.E"),
             "Exception error");
-        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.c.e.G"),
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.e.G"),
             "Exception error");
 
-        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.b.c.E"),
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.E"),
             "Exception error");
-        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.b.c.e.G"),
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.e.G"),
             "Exception error");
-        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.b.c"),
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c"),
             "Exception error");
     }
 

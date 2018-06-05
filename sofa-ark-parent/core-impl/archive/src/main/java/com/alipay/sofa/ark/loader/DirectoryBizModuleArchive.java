@@ -16,8 +16,10 @@
  */
 package com.alipay.sofa.ark.loader;
 
+import com.alipay.sofa.ark.spi.archive.AbstractArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +40,8 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
 public class DirectoryBizModuleArchive implements BizArchive {
 
     public static final String MOCK_IDE_ARK_BIZ_NAME         = "Startup In IDE";
+    public static final String MOCK_IDE_ARK_BIZ_VERSION      = "Mock version";
+    public static final String MOCK_IDE_MAIN_CLASS           = "Mock Main Class";
     public static final int    MOCK_IDE_BIZ_STARTUP_PRIORITY = 0;
 
     private final String       className;
@@ -55,10 +59,11 @@ public class DirectoryBizModuleArchive implements BizArchive {
         this.className = className;
         this.methodName = methodName;
         this.methodDescription = methodDescription;
-        manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, className);
+        manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, MOCK_IDE_MAIN_CLASS);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE,
             String.valueOf(MOCK_IDE_BIZ_STARTUP_PRIORITY));
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, MOCK_IDE_ARK_BIZ_NAME);
+        manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, MOCK_IDE_ARK_BIZ_VERSION);
         this.urls = urls;
     }
 
@@ -75,7 +80,7 @@ public class DirectoryBizModuleArchive implements BizArchive {
     }
 
     @Override
-    public URL[] getUrls() throws Exception {
+    public URL[] getUrls() {
         return this.urls;
     }
 
@@ -96,6 +101,9 @@ public class DirectoryBizModuleArchive implements BizArchive {
 
     @Override
     public Archive getNestedArchive(Entry entry) throws IOException {
+        if (Constants.ARK_BIZ_MARK_ENTRY.equals(entry.getName())) {
+            return new NoopBizArchive();
+        }
         throw new RuntimeException("unreachable invocation.");
     }
 
@@ -107,5 +115,11 @@ public class DirectoryBizModuleArchive implements BizArchive {
     @Override
     public Iterator<Entry> iterator() {
         throw new RuntimeException("unreachable invocation.");
+    }
+
+    class NoopBizArchive extends JarBizArchive {
+        public NoopBizArchive() {
+            super(null);
+        }
     }
 }

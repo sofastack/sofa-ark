@@ -58,6 +58,8 @@ public class Repackager {
 
     private String                                bizName;
 
+    private String                                bizVersion;
+
     private LinkedHashSet<String>                 denyImportPackages;
 
     private LinkedHashSet<String>                 denyImportClasses;
@@ -118,6 +120,10 @@ public class Repackager {
      */
     public void setBizName(String bizName) {
         this.bizName = bizName;
+    }
+
+    public void setBizVersion(String bizVersion) {
+        this.bizVersion = bizVersion;
     }
 
     public void setArkVersion(String arkVersion) {
@@ -289,7 +295,7 @@ public class Repackager {
     }
 
     private boolean isArkModule(JarFile jarFile) {
-        return jarFile.getEntry(Constants.ARK_MODULE_MARK_ENTRY) != null;
+        return jarFile.getEntry(Constants.ARK_BIZ_MARK_ENTRY) != null;
     }
 
     private boolean isZip(InputStream inputStream) throws IOException {
@@ -323,6 +329,7 @@ public class Repackager {
 
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, startClass);
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, this.bizName);
+        manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, this.bizVersion);
         manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
             StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,

@@ -37,6 +37,17 @@ public interface Biz extends PriorityOrdered {
     String getBizName();
 
     /**
+     * get Biz Version
+     */
+    String getBizVersion();
+
+    /**
+     * get identity id in runtime, an unique-id of ark biz
+     * @return
+     */
+    String getIdentity();
+
+    /**
      * get Biz Main Entry Class Name
      * @return main class name
      */
@@ -83,4 +94,9 @@ public interface Biz extends PriorityOrdered {
      * @throws ArkException
      */
     void stop() throws ArkException;
+
+    /**
+     * get Biz State
+     */
+    BizState getBizState();
 }

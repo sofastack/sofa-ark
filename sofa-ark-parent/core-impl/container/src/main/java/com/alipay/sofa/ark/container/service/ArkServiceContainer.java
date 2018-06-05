@@ -23,7 +23,6 @@ import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.service.ArkService;
-import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -14,21 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.session;
+package com.alipay.sofa.ark.spi.model;
 
 /**
- * Answer a string (may be as many lines as you like) with help
- * texts that explain the command.
+ * Biz State
  *
  * @author qilong.zql
  * @since 0.4.0
  */
-public interface CommandProvider {
-    String getHelp();
+public enum BizState {
+    UNRESOLVED("unresolved"), RESOLVED("resolved"), ACTIVATED("activated"), DEACTIVATED(
+                                                                                        "deactivated"), UNLOADED(
+                                                                                                                 "unloaded");
 
-    String helpCommand(String commandMarker);
+    private String state;
 
-    boolean validate(String command);
+    BizState(String state) {
+        this.state = state;
+    }
 
-    String handleCommand(String command);
+    public String getBizState() {
+        return state;
+    }
+
 }

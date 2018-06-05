@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.session;
+package com.alipay.sofa.ark.spi.service.biz;
+
+import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.model.Biz;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Answer a string (may be as many lines as you like) with help
- * texts that explain the command.
+ * Create Biz according to {@link File} and {@link BizArchive}
  *
  * @author qilong.zql
  * @since 0.4.0
  */
-public interface CommandProvider {
-    String getHelp();
+public interface BizFactoryService {
+    Biz createBiz(BizArchive bizArchive) throws IOException, IllegalArgumentException;
 
-    String helpCommand(String commandMarker);
-
-    boolean validate(String command);
-
-    String handleCommand(String command);
+    Biz createBiz(File file) throws IOException;
 }

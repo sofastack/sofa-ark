@@ -77,8 +77,8 @@ public class JarWriter implements LoaderClassesWriter {
 
     public void writeMarkEntry() throws IOException {
         StringBuffer stringBuffer = new StringBuffer("a mark file included in sofa-ark module.");
-        writeEntry(Constants.ARK_MODULE_MARK_ENTRY, new ByteArrayInputStream(stringBuffer
-            .toString().getBytes()));
+        writeEntry(Constants.ARK_BIZ_MARK_ENTRY, new ByteArrayInputStream(stringBuffer.toString()
+            .getBytes()));
     }
 
     /**

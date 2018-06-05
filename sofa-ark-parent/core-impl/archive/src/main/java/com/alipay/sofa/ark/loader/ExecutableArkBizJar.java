@@ -125,7 +125,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
 
         List<BizArchive> bizArchives = new ArrayList<>();
         for (Archive archive : archives) {
-            bizArchives.add(new JarBizModuleArchive(archive));
+            bizArchives.add(new JarBizArchive(archive));
         }
         return bizArchives;
 

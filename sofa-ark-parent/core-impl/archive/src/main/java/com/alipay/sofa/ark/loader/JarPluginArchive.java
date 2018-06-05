@@ -83,7 +83,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
      *
      * @return
      */
-    public URL[] getUrls() throws Exception {
+    public URL[] getUrls() throws IOException {
         return getUrls(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
@@ -93,7 +93,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
         });
     }
 
-    public Set<String> getExportIndex() throws Exception {
+    public Set<String> getExportIndex() throws IOException {
         InputStream inputStream = archive
             .getInputStream(new ZipEntry(SOFA_ARK_PLUGIN_EXPORT_INDEX));
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);

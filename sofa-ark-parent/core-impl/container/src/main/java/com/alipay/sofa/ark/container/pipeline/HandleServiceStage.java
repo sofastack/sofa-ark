@@ -16,27 +16,16 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
-import com.alipay.sofa.ark.common.log.ArkLogger;
-import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.ReflectionUtils;
-import com.alipay.sofa.ark.common.util.ReflectionUtils.FieldCallback;
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
-import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.biz.DefaultBizDeployer;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.registry.ServiceReference;
-import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * Handle service contained in {@link com.alipay.sofa.ark.spi.service.registry.RegistryService},

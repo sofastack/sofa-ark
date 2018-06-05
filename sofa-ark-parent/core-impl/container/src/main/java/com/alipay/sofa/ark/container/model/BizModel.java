@@ -17,11 +17,13 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 
 import java.net.URL;
 import java.util.Set;
@@ -38,6 +40,10 @@ public class BizModel implements Biz {
 
     private String           bizName;
 
+    private String           bizVersion;
+
+    private BizState         bizState;
+
     private String           mainClass;
 
     private URL[]            urls;
@@ -53,11 +59,24 @@ public class BizModel implements Biz {
     private Set<String>      denyImportResources;
 
     public BizModel setBizName(String bizName) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
         this.bizName = bizName;
         return this;
     }
 
+    public BizModel setBizVersion(String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz Version must not be empty!");
+        this.bizVersion = bizVersion;
+        return this;
+    }
+
+    public BizModel setBizState(BizState bizState) {
+        this.bizState = bizState;
+        return this;
+    }
+
     public BizModel setMainClass(String mainClass) {
+        AssertUtils.isFalse(StringUtils.isEmpty(mainClass), "Biz Main Class must not be empty!");
         this.mainClass = mainClass;
         return this;
     }
@@ -98,6 +117,16 @@ public class BizModel implements Biz {
     @Override
     public String getBizName() {
         return bizName;
+    }
+
+    @Override
+    public String getBizVersion() {
+        return bizVersion;
+    }
+
+    @Override
+    public String getIdentity() {
+        return BizIdentityGenerator.generateBizIdentity(this);
     }
 
     @Override
@@ -155,5 +184,30 @@ public class BizModel implements Biz {
     @Override
     public void stop() throws ArkException {
 
+    }
+
+    @Override
+    public BizState getBizState() {
+        return bizState;
+    }
+
+    public static class BizIdentityGenerator {
+        public static String generateBizIdentity(Biz biz) {
+            return biz.getBizName() + Constants.STRING_COLON + biz.getBizVersion();
+        }
+
+        public static boolean isValid(String bizIdentity) {
+            if (StringUtils.isEmpty(bizIdentity)) {
+                return false;
+            }
+            String[] str = bizIdentity.split(Constants.STRING_COLON);
+            if (str.length != 2) {
+                return false;
+            }
+            if (StringUtils.isEmpty(str[0]) || StringUtils.isEmpty(str[1])) {
+                return false;
+            }
+            return true;
+        }
     }
 }

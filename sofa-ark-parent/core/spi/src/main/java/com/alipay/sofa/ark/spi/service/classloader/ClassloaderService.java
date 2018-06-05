@@ -103,17 +103,17 @@ public interface ClassloaderService extends ArkService {
 
     /**
      * Whether class is denied by biz
-     * @param bizName biz name
+     * @param bizIdentity biz identity
      * @param className class name
      * @return
      */
-    boolean isDeniedImportClass(String bizName, String className);
+    boolean isDeniedImportClass(String bizIdentity, String className);
 
     /**
      * Whether resource is denied by biz
-     * @param bizName biz name
+     * @param bizIdentity biz identity
      * @param resourceName resource name
      * @return
      */
-    boolean isDeniedImportResource(String bizName, String resourceName);
+    boolean isDeniedImportResource(String bizIdentity, String resourceName);
 }

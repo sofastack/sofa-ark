@@ -88,8 +88,9 @@ public class BizClassloaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setBizName("biz A").setBizVersion("1.0.0")
+            .setClassPath(new URL[] { classPathURL })
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -119,11 +120,11 @@ public class BizClassloaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A").setClassPath(new URL[0])
+        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[0])
             .setDenyImportClasses(StringUtils.EMPTY_STRING)
             .setDenyImportResources(StringUtils.EMPTY_STRING)
             .setDenyImportPackages(StringUtils.EMPTY_STRING)
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
 
         bizManagerService.registerBiz(bizModel);
 
@@ -134,8 +135,8 @@ public class BizClassloaderTest extends BaseTest {
     @Test
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("MockBiz").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setBizName("MockBiz").setBizVersion("1.0.0").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -165,8 +166,8 @@ public class BizClassloaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = new BizModel();
-        bizModel.setBizName("bizA").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);

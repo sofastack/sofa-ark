@@ -246,9 +246,8 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public boolean isDeniedImportClass(String bizName, String className) {
-
-        Biz biz = bizManagerService.getBizByName(bizName);
+    public boolean isDeniedImportClass(String bizIdentity, String className) {
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
         if (biz == null) {
             return false;
         }
@@ -270,8 +269,8 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public boolean isDeniedImportResource(String bizName, String resourceName) {
-        Biz biz = bizManagerService.getBizByName(bizName);
+    public boolean isDeniedImportResource(String bizIdentity, String resourceName) {
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
         if (biz == null) {
             return false;
         }
