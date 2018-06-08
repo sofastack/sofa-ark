@@ -42,24 +42,23 @@ public class BizManagerServiceImpl implements BizManagerService {
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> bizRegistration = new ConcurrentHashMap<>();
 
     @Override
-    public void registerBiz(Biz biz) {
+    public boolean registerBiz(Biz biz) {
         AssertUtils.assertNotNull(biz, "Biz must not be null.");
+        AssertUtils.isTrue(biz.getBizState() == BizState.RESOLVED, "BizState must be RESOLVED.");
         bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<String, Biz>());
         ConcurrentHashMap bizCache = bizRegistration.get(biz.getBizName());
-        if (bizCache.putIfAbsent(biz.getBizVersion(), biz) != null) {
-            throw new ArkException(String.format("duplicate biz: %s-%s exists.", biz.getBizName(),
-                biz.getBizVersion()));
-        }
+        return bizCache.putIfAbsent(biz.getBizVersion(), biz) == null;
     }
 
     @Override
-    public void unRegisterBiz(String bizName, String bizVersion) {
+    public Biz unRegisterBiz(String bizName, String bizVersion) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
         AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
-        ConcurrentHashMap bizCache = bizRegistration.get(bizName);
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(bizName);
         if (bizCache != null) {
-            bizCache.remove(bizVersion);
+            return bizCache.remove(bizVersion);
         }
+        return null;
     }
 
     @Override
@@ -108,21 +107,21 @@ public class BizManagerServiceImpl implements BizManagerService {
     }
 
     @Override
-    public boolean isBizActive(String bizName) {
+    public Biz getActiveBiz(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
         Map<String, Biz> bizCache = bizRegistration.get(bizName);
         if (bizCache != null) {
             for (Biz biz : bizCache.values()) {
                 if (biz.getBizState() == BizState.ACTIVATED) {
-                    return true;
+                    return biz;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean isBizActive(String bizName, String bizVersion) {
+    public boolean isActiveBiz(String bizName, String bizVersion) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
         AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
         Map<String, Biz> bizCache = bizRegistration.get(bizName);
@@ -131,6 +130,20 @@ public class BizManagerServiceImpl implements BizManagerService {
             return biz != null && (biz.getBizState() == BizState.ACTIVATED);
         }
         return false;
+    }
+
+    @Override
+    public void activeBiz(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        Biz biz = getBiz(bizName, bizVersion);
+        Biz activeBiz = getActiveBiz(bizName);
+        if (biz != null && biz.getBizState() == BizState.DEACTIVATED) {
+            if (activeBiz != null) {
+                ((BizModel) activeBiz).setBizState(BizState.DEACTIVATED);
+            }
+            ((BizModel) biz).setBizState(BizState.ACTIVATED);
+        }
     }
 
     @Override

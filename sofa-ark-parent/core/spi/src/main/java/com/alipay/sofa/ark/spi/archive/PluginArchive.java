@@ -43,4 +43,13 @@ public interface PluginArchive extends Archive {
      */
     Set<String> getExportIndex() throws IOException;
 
+    /**
+     * check whether the entry satisfy the given {@link com.alipay.sofa.ark.spi.archive.Archive.EntryFilter}
+     * exists or not
+     *
+     * @param filter
+     * @return
+     */
+    boolean isEntryExist(EntryFilter filter);
+
 }

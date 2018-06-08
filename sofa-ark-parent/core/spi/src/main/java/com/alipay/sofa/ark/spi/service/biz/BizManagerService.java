@@ -34,13 +34,14 @@ public interface BizManagerService {
      * Register Biz
      *
      * @param biz
+     * @return
      */
-    void registerBiz(Biz biz);
+    boolean registerBiz(Biz biz);
 
     /**
      * Un-Register Biz
      */
-    void unRegisterBiz(String bizName, String bizVersion);
+    Biz unRegisterBiz(String bizName, String bizVersion);
 
     /**
      * Get Biz List by name
@@ -81,13 +82,13 @@ public interface BizManagerService {
     List<Biz> getBizInOrder();
 
     /**
-     * Check whether exists a biz with given biz name whose state
+     * Get active biz with given biz name whose state
      * is {@link BizState#ACTIVATED}
      *
      * @param bizName
      * @return
      */
-    boolean isBizActive(String bizName);
+    Biz getActiveBiz(String bizName);
 
     /**
      * Check whether the biz specified with a given name and a given version
@@ -95,9 +96,15 @@ public interface BizManagerService {
      *
      * @param bizName
      * @param bizVersion
-     * @return
      */
-    boolean isBizActive(String bizName, String bizVersion);
+    boolean isActiveBiz(String bizName, String bizVersion);
+
+    /**
+     * Active biz with specified biz name and biz version.
+     * @param bizName
+     * @param bizVersion
+     */
+    void activeBiz(String bizName, String bizVersion);
 
     /**
      * Get {@link BizState} according to biz name and biz version.

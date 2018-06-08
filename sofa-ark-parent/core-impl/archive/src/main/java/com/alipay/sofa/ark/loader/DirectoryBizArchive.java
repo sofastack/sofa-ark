@@ -37,11 +37,11 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class DirectoryBizModuleArchive implements BizArchive {
+public class DirectoryBizArchive implements BizArchive {
 
     public static final String MOCK_IDE_ARK_BIZ_NAME         = "Startup In IDE";
     public static final String MOCK_IDE_ARK_BIZ_VERSION      = "Mock version";
-    public static final String MOCK_IDE_MAIN_CLASS           = "Mock Main Class";
+    public static final String MOCK_IDE_ARK_BIZ_MAIN_CLASS   = "Mock Main Class";
     public static final int    MOCK_IDE_BIZ_STARTUP_PRIORITY = 0;
 
     private final String       className;
@@ -54,12 +54,12 @@ public class DirectoryBizModuleArchive implements BizArchive {
 
     private final Manifest     manifest                      = new Manifest();
 
-    public DirectoryBizModuleArchive(String className, String methodName, String methodDescription,
-                                     URL[] urls) {
-        this.className = className;
+    public DirectoryBizArchive(String className, String methodName, String methodDescription,
+                               URL[] urls) {
+        this.className = (className == null ? MOCK_IDE_ARK_BIZ_MAIN_CLASS : className);
         this.methodName = methodName;
         this.methodDescription = methodDescription;
-        manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, MOCK_IDE_MAIN_CLASS);
+        manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, this.className);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE,
             String.valueOf(MOCK_IDE_BIZ_STARTUP_PRIORITY));
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, MOCK_IDE_ARK_BIZ_NAME);
@@ -82,6 +82,21 @@ public class DirectoryBizModuleArchive implements BizArchive {
     @Override
     public URL[] getUrls() {
         return this.urls;
+    }
+
+    @Override
+    public boolean isEntryExist(EntryFilter filter) {
+        return filter.matches(new Entry() {
+            @Override
+            public boolean isDirectory() {
+                return false;
+            }
+
+            @Override
+            public String getName() {
+                return Constants.ARK_BIZ_MARK_ENTRY;
+            }
+        });
     }
 
     @Override

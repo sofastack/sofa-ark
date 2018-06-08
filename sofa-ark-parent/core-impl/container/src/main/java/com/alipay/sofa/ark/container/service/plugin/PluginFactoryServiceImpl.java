@@ -27,7 +27,6 @@ import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Plugin;
-import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.google.inject.Singleton;
 
@@ -40,7 +39,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_RESOURCES_ATTRIB
 import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_RESOURCES_ATTRIBUTE;
 
 /**
- * {@link BizFactoryService}
+ * {@link PluginFactoryService}
  *
  * @author qilong.zql
  * @since 0.4.0
@@ -58,7 +57,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
             .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
             .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
-            .setPriority(Integer.valueOf(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE)))
+            .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(pluginArchive.getUrls())
             .setExportClasses(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE))
@@ -82,20 +81,13 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         return createPlugin(jarPluginArchive);
     }
 
-    private boolean isArkPlugin(PluginArchive pluginArchive) throws IOException {
-        if (pluginArchive.getNestedArchive(new Archive.Entry() {
+    private boolean isArkPlugin(PluginArchive pluginArchive) {
+        return pluginArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
-            public boolean isDirectory() {
-                return false;
+            public boolean matches(Archive.Entry entry) {
+                return !entry.isDirectory()
+                       && entry.getName().equals(Constants.ARK_PLUGIN_MARK_ENTRY);
             }
-
-            @Override
-            public String getName() {
-                return Constants.ARK_PLUGIN_MARK_ENTRY;
-            }
-        }) != null) {
-            return true;
-        }
-        return false;
+        });
     }
 }

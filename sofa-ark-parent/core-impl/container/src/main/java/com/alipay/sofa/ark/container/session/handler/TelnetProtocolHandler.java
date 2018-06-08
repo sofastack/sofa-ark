@@ -347,7 +347,7 @@ public class TelnetProtocolHandler implements Runnable {
         }
     }
 
-    public void echoContent(String content) throws IOException {
+    public void echoResponse(String content) throws IOException {
         AssertUtils.assertNotNull(content, "Echo message should not be null");
         out.write(content.getBytes());
         out.write(new byte[] { CR, LF });

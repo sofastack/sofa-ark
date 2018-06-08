@@ -25,7 +25,9 @@ import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.container.registry.ServiceMetadataImpl;
 import com.alipay.sofa.ark.container.registry.ServiceReferenceImpl;
 import com.alipay.sofa.ark.spi.registry.*;
+import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public class RegistryServiceImpl implements RegistryService {
     private CopyOnWriteArraySet<ServiceReference<?>> services        = new CopyOnWriteArraySet<>();
 
     private OrderComparator                          orderComparator = new OrderComparator();
+
+    @Inject
+    private InjectionService                         injectionService;
 
     @Override
     public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject,
@@ -73,6 +78,7 @@ public class RegistryServiceImpl implements RegistryService {
 
         ServiceReference<T> serviceReference = new ServiceReferenceImpl<>(serviceMetadata,
             implObject);
+        injectionService.inject(serviceReference);
 
         LOGGER.info(String.format("Service: %s publish by: %s succeed",
             serviceMetadata.getServiceName(), serviceProvider));

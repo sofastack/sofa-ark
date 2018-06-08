@@ -32,13 +32,13 @@ public interface PluginActivator {
      * @param context plugin context
      * @throws ArkException
      */
-    void start(PluginContext context) throws ArkException;
+    void start(PluginContext context);
 
     /**
      * Stop Plugin
      * @param context
      * @throws ArkException
      */
-    void stop(PluginContext context) throws ArkException;
+    void stop(PluginContext context);
 
 }

@@ -160,7 +160,7 @@ public class ServiceRegistrationTest extends BaseTest {
         PluginModel pluginA = new PluginModel();
         pluginA
             .setPluginName("plugin A")
-            .setPriority(10)
+            .setPriority("10")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -195,7 +195,7 @@ public class ServiceRegistrationTest extends BaseTest {
         PluginModel pluginA = new PluginModel();
         pluginA
             .setPluginName("plugin A")
-            .setPriority(10)
+            .setPriority("10")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -210,7 +210,7 @@ public class ServiceRegistrationTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("plugin B")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(INTERFACE_CLASS)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -225,7 +225,7 @@ public class ServiceRegistrationTest extends BaseTest {
         PluginModel pluginC = new PluginModel();
         pluginC
             .setPluginName("plugin C")
-            .setPriority(100)
+            .setPriority("100")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(INTERFACE_CLASS)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -270,10 +270,10 @@ public class ServiceRegistrationTest extends BaseTest {
     @Test
     public void testFilter() {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A").setPriority(10);
+        pluginA.setPluginName("plugin A").setPriority("10");
 
         PluginModel pluginB = new PluginModel();
-        pluginB.setPluginName("plugin B").setPriority(1);
+        pluginB.setPluginName("plugin B").setPriority("1");
 
         pluginManagerService.registerPlugin(pluginA);
         pluginManagerService.registerPlugin(pluginB);

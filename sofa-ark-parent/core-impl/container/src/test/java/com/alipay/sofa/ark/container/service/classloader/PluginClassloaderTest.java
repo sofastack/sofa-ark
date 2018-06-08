@@ -81,7 +81,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("plugin B")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(ITest.class.getName())
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -118,7 +118,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("plugin B")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -155,7 +155,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("pluginB")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[0])
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -186,7 +186,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginA = new PluginModel();
         pluginA
             .setPluginName("pluginA")
-            .setPriority(100)
+            .setPriority("100")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -199,7 +199,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("pluginB")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -212,7 +212,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginC = new PluginModel();
         pluginC
             .setPluginName("pluginC")
-            .setPriority(1000)
+            .setPriority("1000")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -256,7 +256,7 @@ public class PluginClassloaderTest extends BaseTest {
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
         PluginModel mockPlugin = new PluginModel();
         mockPlugin
-            .setPluginName("Mock Plugin")
+            .setPluginName("Mock plugin")
             .setClassPath(new URL[] {})
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)

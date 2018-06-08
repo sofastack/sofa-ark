@@ -22,7 +22,6 @@ import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
-import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -35,18 +34,14 @@ import com.google.inject.Singleton;
  * @since 0.4.0
  */
 @Singleton
-public class HandleServiceStage implements PipelineStage {
+public class RegisterServiceStage implements PipelineStage {
 
     @Inject
-    private RegistryService  registryService;
-
-    @Inject
-    private InjectionService injectionService;
+    private RegistryService registryService;
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
         registryDefaultService();
-        injectionService.doInject();
     }
 
     /**

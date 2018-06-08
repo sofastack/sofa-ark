@@ -60,6 +60,8 @@ public class Repackager {
 
     private String                                bizVersion;
 
+    private String                                priority;
+
     private LinkedHashSet<String>                 denyImportPackages;
 
     private LinkedHashSet<String>                 denyImportClasses;
@@ -128,6 +130,10 @@ public class Repackager {
 
     public void setArkVersion(String arkVersion) {
         this.arkVersion = arkVersion;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public void setDenyImportPackages(LinkedHashSet<String> denyImportPackages) {
@@ -330,6 +336,7 @@ public class Repackager {
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, startClass);
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, this.bizName);
         manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, this.bizVersion);
+        manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE, priority);
         manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
             StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,

@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.spi.service.injection;
 
+import com.alipay.sofa.ark.spi.registry.ServiceReference;
+
 /**
  * Process annotation {@link com.alipay.sofa.ark.spi.service.ArkInject}
  *
@@ -23,5 +25,5 @@ package com.alipay.sofa.ark.spi.service.injection;
  * @since 0.4.0
  */
 public interface InjectionService {
-    void doInject();
+    void inject(ServiceReference reference);
 }

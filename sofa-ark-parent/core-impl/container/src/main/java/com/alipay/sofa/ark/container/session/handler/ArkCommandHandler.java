@@ -16,9 +16,14 @@
  */
 package com.alipay.sofa.ark.container.session.handler;
 
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.registry.ServiceReference;
+import com.alipay.sofa.ark.spi.service.registry.RegistryService;
+import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 import com.alipay.sofa.ark.spi.service.session.TelnetSession;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * Collect implementation of {@link com.alipay.sofa.ark.spi.service.session.CommandProvider}
@@ -30,10 +35,13 @@ public class ArkCommandHandler implements Runnable {
 
     private TelnetSession         telnetSession;
     private TelnetProtocolHandler inputHandler;
+    private RegistryService       registryService;
 
     public ArkCommandHandler(TelnetSession telnetSession, TelnetProtocolHandler inputHandler) {
         this.telnetSession = telnetSession;
         this.inputHandler = inputHandler;
+        registryService = ArkServiceContainerHolder.getContainer()
+            .getService(RegistryService.class);
     }
 
     @Override
@@ -41,16 +49,46 @@ public class ArkCommandHandler implements Runnable {
         try {
             while (telnetSession.isAlive()) {
                 inputHandler.echoPrompt();
-                handleCommand(inputHandler.getArkCommand());
+                String response = handleCommand(inputHandler.getArkCommand());
+                inputHandler.echoResponse(response);
             }
-        } catch (IOException ex) {
+        } catch (Throwable throwable) {
             // ignore
         } finally {
             telnetSession.close();
         }
     }
 
-    private void handleCommand(String command) {
-        // TODO
+    public String handleCommand(String cmdLine) {
+        List<ServiceReference<CommandProvider>> commandProviders = registryService
+            .referenceServices(CommandProvider.class);
+        for (ServiceReference<CommandProvider> commandService : commandProviders) {
+            CommandProvider commandProvider = commandService.getService();
+            if (commandProvider.validate(cmdLine)) {
+                return commandProvider.handleCommand(cmdLine);
+            }
+        }
+        return helpMessage(commandProviders, cmdLine);
+    }
+
+    public String helpMessage(List<ServiceReference<CommandProvider>> commandProviders,
+                              String cmdLine) {
+        String[] phrases = cmdLine.trim().split(Constants.SPACE_SPLIT);
+        StringBuilder sb = new StringBuilder();
+        if (phrases.length == 2 && phrases[0].equals("help")) {
+            for (ServiceReference<CommandProvider> commandService : commandProviders) {
+                CommandProvider commandProvider = commandService.getService();
+                String response = commandProvider.getHelp(phrases[1]);
+                if (response != null) {
+                    sb.append(response);
+                }
+            }
+        } else {
+            for (ServiceReference<CommandProvider> commandService : commandProviders) {
+                CommandProvider commandProvider = commandService.getService();
+                sb.append(commandProvider.getHelp());
+            }
+        }
+        return sb.toString();
     }
 }

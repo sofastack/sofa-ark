@@ -14,31 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.model;
+package com.alipay.sofa.ark.spi.event;
 
 /**
- * Biz State
+ * An Event
  *
  * @author qilong.zql
  * @since 0.4.0
  */
-public enum BizState {
-    UNRESOLVED("unresolved"), RESOLVED("resolved"), ACTIVATED("activated"), DEACTIVATED(
-                                                                                        "deactivated");
-
-    private String state;
-
-    BizState(String state) {
-        this.state = state;
-    }
-
-    public String getBizState() {
-        return state;
-    }
-
-    @Override
-    public String toString() {
-        return getBizState();
-    }
-
+public interface ArkEvent {
+    /**
+     * Returns the topic of event
+     */
+    String getTopic();
 }

@@ -20,10 +20,14 @@ import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.BizEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.net.URL;
 import java.util.Set;
@@ -36,27 +40,25 @@ import java.util.Set;
  */
 public class BizModel implements Biz {
 
-    private static final int DEFAULT_PRIORITY = 1000;
+    private String      bizName;
 
-    private String           bizName;
+    private String      bizVersion;
 
-    private String           bizVersion;
+    private BizState    bizState;
 
-    private BizState         bizState;
+    private String      mainClass;
 
-    private String           mainClass;
+    private URL[]       urls;
 
-    private URL[]            urls;
+    private ClassLoader classLoader;
 
-    private ClassLoader      classLoader;
+    private int         priority = DEFAULT_PRECEDENCE;
 
-    private int              priority;
+    private Set<String> denyImportPackages;
 
-    private Set<String>      denyImportPackages;
+    private Set<String> denyImportClasses;
 
-    private Set<String>      denyImportClasses;
-
-    private Set<String>      denyImportResources;
+    private Set<String> denyImportResources;
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -92,7 +94,7 @@ public class BizModel implements Biz {
     }
 
     public BizModel setPriority(String priority) {
-        this.priority = (priority == null ? DEFAULT_PRIORITY : Integer.valueOf(priority));
+        this.priority = (priority == null ? DEFAULT_PRECEDENCE : Integer.valueOf(priority));
         return this;
     }
 
@@ -166,6 +168,7 @@ public class BizModel implements Biz {
 
     @Override
     public void start(String[] args) throws ArkException {
+        AssertUtils.isTrue(bizState == BizState.RESOLVED, "BizState must be RESOLVED");
         if (mainClass == null) {
             throw new ArkException(String.format("biz: %s has no main method", getBizName()));
         }
@@ -179,11 +182,33 @@ public class BizModel implements Biz {
         } finally {
             ClassloaderUtils.popContextClassloader(oldClassloader);
         }
+
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        if (bizManagerService.getActiveBiz(bizName) == null) {
+            bizState = BizState.ACTIVATED;
+        } else {
+            bizState = BizState.DEACTIVATED;
+        }
     }
 
     @Override
     public void stop() throws ArkException {
-
+        AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED,
+            "BizState must be ACTIVATED or DEACTIVATED.");
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
+        eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
+        bizState = BizState.UNRESOLVED;
+        priority = 0;
+        bizName = null;
+        bizVersion = null;
+        mainClass = null;
+        urls = null;
+        classLoader = null;
+        denyImportPackages = null;
+        denyImportClasses = null;
+        denyImportResources = null;
     }
 
     @Override

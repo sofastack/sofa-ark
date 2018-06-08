@@ -43,7 +43,7 @@ public class PluginModel implements Plugin {
 
     private String          version;
 
-    private int             priority;
+    private int             priority = DEFAULT_PRECEDENCE;
 
     private Set<String>     exportPackages;
 
@@ -89,8 +89,8 @@ public class PluginModel implements Plugin {
         return this;
     }
 
-    public PluginModel setPriority(int priority) {
-        this.priority = priority;
+    public PluginModel setPriority(String priority) {
+        this.priority = (priority == null ? DEFAULT_PRECEDENCE : Integer.valueOf(priority));
         return this;
     }
 

@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
@@ -118,7 +119,8 @@ public class ClassloaderServiceTest extends BaseTest {
     @Test
     public void testIsDeniedImportClass() {
         Biz biz = new BizModel().setBizName("mockBiz").setBizVersion("1.0.0")
-            .setDenyImportPackages("a.c, a.b.c.*, a.b.c").setDenyImportClasses("");
+            .setDenyImportPackages("a.c, a.b.c.*, a.b.c").setDenyImportClasses("")
+            .setBizState(BizState.RESOLVED);
         bizManagerService.registerBiz(biz);
         AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c"),
             "Exception error");

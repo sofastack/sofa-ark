@@ -77,7 +77,12 @@ public abstract class Constants {
     /**
      * String Constants
      */
-    public final static String SPACE_SPLIT                    = " ";
+    public final static String SPACE_SPLIT                    = "//s+";
     public final static String STRING_COLON                   = ":";
+
+    /**
+     * Event
+     */
+    public final static String BIZ_EVENT_TOPIC_UNINSTALL      = "UnInstall-Ark-Biz";
 
 }

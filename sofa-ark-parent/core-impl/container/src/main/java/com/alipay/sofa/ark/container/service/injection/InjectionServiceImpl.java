@@ -20,18 +20,16 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ReflectionUtils;
 import com.alipay.sofa.ark.common.util.ReflectionUtils.FieldCallback;
-import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.ArkInject;
+import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
-import com.alipay.sofa.ark.spi.service.registry.RegistryService;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * {@link InjectionService}
@@ -44,46 +42,48 @@ public class InjectionServiceImpl implements InjectionService {
 
     private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
-    @Inject
-    private RegistryService        registryService;
-
     @Override
-    public void doInject() {
-        List<ServiceReference> services = registryService
-            .referenceServices(new DefaultServiceFilter());
+    public void inject(final ServiceReference reference) {
 
-        for (final ServiceReference reference : services) {
-            final Object obj = reference.getService();
-            Class<?> implClass = obj.getClass();
-            ReflectionUtils.doWithFields(implClass, new FieldCallback() {
-                @Override
-                public void doWith(Field field) throws ArkException {
-                    ArkInject arkInjectAnnotation = field.getAnnotation(ArkInject.class);
-                    if (arkInjectAnnotation == null) {
-                        return;
-                    }
+        Class implClass = reference.getService().getClass();
 
-                    Class<?> serviceType = field.getType();
-                    Object value = ArkServiceContainerHolder.getContainer().getService(serviceType);
-
-                    if (value == null) {
-                        LOGGER.warn(
-                            String.format("Inject {field=\'%s\'} of {service=\'%s\'} fail!",
-                                field.getName(), reference.toString()), field.getName(),
-                            reference.toString());
-                        return;
-                    }
-                    ReflectionUtils.makeAccessible(field);
-                    try {
-                        field.set(obj, value);
-                        LOGGER.info(String.format(
-                            "Inject {field=\'%s\'} of {service=\'%s\'} success!", field.getName(),
-                            reference.toString()), field.getName(), reference.toString());
-                    } catch (Throwable throwable) {
-                        throw new ArkException(throwable);
-                    }
+        ReflectionUtils.doWithFields(implClass, new FieldCallback() {
+            @Override
+            public void doWith(Field field) throws ArkException {
+                ArkInject arkInjectAnnotation = field.getAnnotation(ArkInject.class);
+                if (arkInjectAnnotation == null) {
+                    return;
                 }
-            });
+
+                Class<?> serviceType = field.getType();
+                Object value = getService(serviceType);
+
+                if (value == null) {
+                    LOGGER.warn(
+                        String.format("Inject {field=\'%s\'} of {service=\'%s\'} fail!",
+                            field.getName(), reference.toString()), field.getName(),
+                        reference.toString());
+                    return;
+                }
+                ReflectionUtils.makeAccessible(field);
+                try {
+                    field.set(reference.getService(), value);
+                    LOGGER.info(
+                        String.format("Inject {field=\'%s\'} of {service=\'%s\'} success!",
+                            field.getName(), reference.toString()), field.getName(),
+                        reference.toString());
+                } catch (Throwable throwable) {
+                    throw new ArkException(throwable);
+                }
+            }
+        });
+    }
+
+    private Object getService(Class serviceType) {
+        if (serviceType.equals(BizManagerService.class)
+            || serviceType.equals(BizFactoryService.class)) {
+            return ArkServiceContainerHolder.getContainer().getService(serviceType);
         }
+        return null;
     }
 }

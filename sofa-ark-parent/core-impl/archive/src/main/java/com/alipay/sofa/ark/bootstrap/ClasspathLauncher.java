@@ -35,7 +35,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH
 import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH_SPLIT;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
@@ -180,7 +179,7 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         protected BizArchive createDirectoryBizModuleArchive() {
-            return new DirectoryBizModuleArchive(className, methodName, methodDescription, urls);
+            return new DirectoryBizArchive(className, methodName, methodDescription, urls);
         }
 
         protected ContainerArchive createDirectoryContainerArchive() {

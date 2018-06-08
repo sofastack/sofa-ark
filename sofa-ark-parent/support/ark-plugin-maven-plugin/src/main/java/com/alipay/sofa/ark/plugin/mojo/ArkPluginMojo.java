@@ -84,7 +84,7 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.artifactId}")
     public String                   pluginName;
 
-    @Parameter(defaultValue = "1000", property = "sofa.ark.plugin.priority")
+    @Parameter(defaultValue = "100", property = "sofa.ark.plugin.priority")
     protected Integer               priority;
 
     @Parameter

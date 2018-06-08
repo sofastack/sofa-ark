@@ -14,31 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.model;
+package com.alipay.sofa.ark.spi.service.event;
+
+import com.alipay.sofa.ark.spi.event.ArkEvent;
+import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
 /**
- * Biz State
- *
  * @author qilong.zql
  * @since 0.4.0
  */
-public enum BizState {
-    UNRESOLVED("unresolved"), RESOLVED("resolved"), ACTIVATED("activated"), DEACTIVATED(
-                                                                                        "deactivated");
-
-    private String state;
-
-    BizState(String state) {
-        this.state = state;
-    }
-
-    public String getBizState() {
-        return state;
-    }
-
-    @Override
-    public String toString() {
-        return getBizState();
-    }
-
+public interface EventHandler extends PriorityOrdered {
+    /**
+     * Called by the {@link EventAdminService} service to notify the listener of an
+     * event.
+     *
+     * @param event The event that occurred.
+     */
+    void handleEvent(ArkEvent event);
 }

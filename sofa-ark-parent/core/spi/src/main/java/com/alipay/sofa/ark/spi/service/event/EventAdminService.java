@@ -14,31 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.model;
+package com.alipay.sofa.ark.spi.service.event;
+
+import com.alipay.sofa.ark.spi.event.ArkEvent;
 
 /**
- * Biz State
- *
  * @author qilong.zql
  * @since 0.4.0
  */
-public enum BizState {
-    UNRESOLVED("unresolved"), RESOLVED("resolved"), ACTIVATED("activated"), DEACTIVATED(
-                                                                                        "deactivated");
+public interface EventAdminService {
 
-    private String state;
-
-    BizState(String state) {
-        this.state = state;
-    }
-
-    public String getBizState() {
-        return state;
-    }
-
-    @Override
-    public String toString() {
-        return getBizState();
-    }
+    /**
+     * Initiate synchronous delivery of an event. This method does not return to
+     * the caller until delivery of the event is completed.
+     *
+     * @param event The event to send to all listeners which subscribe to the
+     *        topic of the event.
+     */
+    void sendEvent(ArkEvent event);
 
 }

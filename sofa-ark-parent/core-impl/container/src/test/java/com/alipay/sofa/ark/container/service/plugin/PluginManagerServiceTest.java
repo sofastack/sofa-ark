@@ -61,15 +61,15 @@ public class PluginManagerServiceTest {
     @Test
     public void testGetPluginsInOrder() {
         PluginModel pluginA = new PluginModel();
-        pluginA.setPluginName("plugin A").setPriority(100);
+        pluginA.setPluginName("plugin A").setPriority("100");
         pluginManagerService.registerPlugin(pluginA);
 
         PluginModel pluginB = new PluginModel();
-        pluginB.setPluginName("plugin B").setPriority(10);
+        pluginB.setPluginName("plugin B").setPriority("10");
         pluginManagerService.registerPlugin(pluginB);
 
         PluginModel pluginC = new PluginModel();
-        pluginC.setPluginName("plugin C").setPriority(1000);
+        pluginC.setPluginName("plugin C").setPriority("1000");
         pluginManagerService.registerPlugin(pluginC);
 
         Assert.assertEquals(3, pluginManagerService.getPluginsInOrder().size());

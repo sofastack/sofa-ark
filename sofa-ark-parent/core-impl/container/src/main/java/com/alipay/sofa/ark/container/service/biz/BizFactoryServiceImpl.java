@@ -72,19 +72,11 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) throws IOException {
-        if (bizArchive.getNestedArchive(new Archive.Entry() {
+        return bizArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
-            public boolean isDirectory() {
-                return false;
+            public boolean matches(Archive.Entry entry) {
+                return !entry.isDirectory() && entry.getName().equals(Constants.ARK_BIZ_MARK_ENTRY);
             }
-
-            @Override
-            public String getName() {
-                return Constants.ARK_BIZ_MARK_ENTRY;
-            }
-        }) != null) {
-            return true;
-        }
-        return false;
+        });
     }
 }

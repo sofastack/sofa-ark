@@ -34,7 +34,7 @@ public class StringUtils {
      * @return <code>true</code> if the String is empty or null
      */
     public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
+        return str == null || str.trim().length() == 0;
     }
 
     /**

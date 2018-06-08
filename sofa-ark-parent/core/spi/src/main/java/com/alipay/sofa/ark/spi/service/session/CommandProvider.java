@@ -26,7 +26,7 @@ package com.alipay.sofa.ark.spi.service.session;
 public interface CommandProvider {
     String getHelp();
 
-    String helpCommand(String commandMarker);
+    String getHelp(String commandMarker);
 
     boolean validate(String command);
 
