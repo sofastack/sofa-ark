@@ -77,7 +77,7 @@ public abstract class Constants {
     /**
      * String Constants
      */
-    public final static String SPACE_SPLIT                    = "//s+";
+    public final static String SPACE_SPLIT                    = "\\s+";
     public final static String STRING_COLON                   = ":";
 
     /**
