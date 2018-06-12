@@ -167,7 +167,7 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public void start(String[] args) throws ArkException {
+    public void start(String[] args) throws Throwable {
         AssertUtils.isTrue(bizState == BizState.RESOLVED, "BizState must be RESOLVED");
         if (mainClass == null) {
             throw new ArkException(String.format("biz: %s has no main method", getBizName()));
@@ -178,7 +178,8 @@ public class BizModel implements Biz {
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
         } catch (Throwable e) {
-            throw new ArkException(e.getMessage(), e);
+            bizState = BizState.BROKEN;
+            throw e;
         } finally {
             ClassloaderUtils.popContextClassloader(oldClassloader);
         }
@@ -193,17 +194,14 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public void stop() throws ArkException {
-        AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED,
-            "BizState must be ACTIVATED or DEACTIVATED.");
+    public void stop() throws Throwable {
+        AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
+                           || bizState == BizState.BROKEN,
+            "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
         bizState = BizState.UNRESOLVED;
-        priority = 0;
-        bizName = null;
-        bizVersion = null;
-        mainClass = null;
         urls = null;
         classLoader = null;
         denyImportPackages = null;

@@ -79,6 +79,8 @@ public abstract class Constants {
      */
     public final static String SPACE_SPLIT                    = "\\s+";
     public final static String STRING_COLON                   = ":";
+    public final static String TELNET_STRING_END              = new String(new byte[] { (byte) 13,
+            (byte) 10                                        });
 
     /**
      * Event

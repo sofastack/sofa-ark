@@ -52,7 +52,7 @@ public class EventAdminServiceTest extends BaseTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws Throwable {
         RegistryService registryService = ArkServiceContainerHolder.getContainer().getService(
             RegistryService.class);
         registryService.publishService(EventHandler.class, new LowPriorityMockEventHandler(),

@@ -54,6 +54,8 @@ public class BizManagerServiceImpl implements BizManagerService {
     public Biz unRegisterBiz(String bizName, String bizVersion) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
         AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        AssertUtils.isTrue(getBizState(bizName, bizVersion) != BizState.RESOLVED,
+            "Biz whose state is resolved must not be un-registered.");
         ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(bizName);
         if (bizCache != null) {
             return bizCache.remove(bizVersion);

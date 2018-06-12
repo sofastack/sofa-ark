@@ -24,7 +24,8 @@ package com.alipay.sofa.ark.spi.model;
  */
 public enum BizState {
     UNRESOLVED("unresolved"), RESOLVED("resolved"), ACTIVATED("activated"), DEACTIVATED(
-                                                                                        "deactivated");
+                                                                                        "deactivated"), BROKEN(
+                                                                                                               "broken");
 
     private String state;
 

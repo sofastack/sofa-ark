@@ -82,6 +82,10 @@ public class ServiceMetadataImpl implements ServiceMetadata {
             return false;
         }
 
+        if (!interfaceClass.equals(serviceMetadata.getInterfaceClass())) {
+            return false;
+        }
+
         return serviceProvider.equals(serviceMetadata.getServiceProvider());
     }
 

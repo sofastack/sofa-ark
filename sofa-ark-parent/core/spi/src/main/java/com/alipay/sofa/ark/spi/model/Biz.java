@@ -85,15 +85,15 @@ public interface Biz extends PriorityOrdered {
 
     /**
      * start Biz
-     * @throws ArkException
+     * @throws Throwable
      */
-    void start(String[] args) throws ArkException;
+    void start(String[] args) throws Throwable;
 
     /**
      * stop Biz
-     * @throws ArkException
+     * @throws Throwable
      */
-    void stop() throws ArkException;
+    void stop() throws Throwable;
 
     /**
      * get Biz State

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.session.handler;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
@@ -60,6 +61,9 @@ public class ArkCommandHandler implements Runnable {
     }
 
     public String handleCommand(String cmdLine) {
+        if (StringUtils.isEmpty(cmdLine)) {
+            return StringUtils.EMPTY_STRING;
+        }
         List<ServiceReference<CommandProvider>> commandProviders = registryService
             .referenceServices(CommandProvider.class);
         for (ServiceReference<CommandProvider> commandService : commandProviders) {
@@ -75,7 +79,7 @@ public class ArkCommandHandler implements Runnable {
                               String cmdLine) {
         String[] phrases = cmdLine.trim().split(Constants.SPACE_SPLIT);
         StringBuilder sb = new StringBuilder();
-        if (phrases.length == 2 && phrases[0].equals("help")) {
+        if (phrases.length > 1 && phrases[0].equals("help")) {
             for (ServiceReference<CommandProvider> commandService : commandProviders) {
                 CommandProvider commandProvider = commandService.getService();
                 String response = commandProvider.getHelp(phrases[1]);

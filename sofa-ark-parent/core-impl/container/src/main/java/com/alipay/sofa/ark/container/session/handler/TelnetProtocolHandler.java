@@ -16,21 +16,17 @@
  */
 package com.alipay.sofa.ark.container.session.handler;
 
-import com.alipay.sofa.ark.common.log.ArkLogger;
-import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.common.util.SimpleByteBuffer;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.session.TelnetSession;
 import com.alipay.sofa.ark.container.session.handler.AbstractTerminalTypeMapping.KEYS;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -349,8 +345,16 @@ public class TelnetProtocolHandler implements Runnable {
 
     public void echoResponse(String content) throws IOException {
         AssertUtils.assertNotNull(content, "Echo message should not be null");
+        content = content.replace("\n", Constants.TELNET_STRING_END);
+        if (StringUtils.isEmpty(content)) {
+            content = Constants.TELNET_STRING_END;
+        } else if (!content.endsWith(Constants.TELNET_STRING_END)) {
+            content = content + Constants.TELNET_STRING_END + Constants.TELNET_STRING_END;
+        } else if (!content.endsWith(Constants.TELNET_STRING_END
+            .concat(Constants.TELNET_STRING_END))) {
+            content = content + Constants.TELNET_STRING_END;
+        }
         out.write(content.getBytes());
-        out.write(new byte[] { CR, LF });
         out.flush();
     }
 
