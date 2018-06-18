@@ -65,10 +65,6 @@ public class StandardTelnetSession implements TelnetSession {
         TelnetProtocolHandler telnetProtocolHandler = new TelnetProtocolHandler(this);
         ThreadPoolManager.getThreadPool(Constants.TELNET_SERVER_THREAD_POOL_NAME).getExecutor()
             .execute(telnetProtocolHandler);
-        ArkCommandHandler arkCommandHandler = new ArkCommandHandler(this, telnetProtocolHandler);
-        ThreadPoolManager.getThreadPool(Constants.TELNET_SERVER_THREAD_POOL_NAME).getExecutor()
-            .execute(arkCommandHandler);
-
     }
 
     @Override

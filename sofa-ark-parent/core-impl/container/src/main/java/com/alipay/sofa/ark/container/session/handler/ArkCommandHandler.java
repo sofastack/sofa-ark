@@ -32,32 +32,13 @@ import java.util.List;
  * @author qilong.zql
  * @since 0.4.0
  */
-public class ArkCommandHandler implements Runnable {
+public class ArkCommandHandler {
 
-    private TelnetSession         telnetSession;
-    private TelnetProtocolHandler inputHandler;
-    private RegistryService       registryService;
+    private RegistryService registryService;
 
-    public ArkCommandHandler(TelnetSession telnetSession, TelnetProtocolHandler inputHandler) {
-        this.telnetSession = telnetSession;
-        this.inputHandler = inputHandler;
+    public ArkCommandHandler() {
         registryService = ArkServiceContainerHolder.getContainer()
             .getService(RegistryService.class);
-    }
-
-    @Override
-    public void run() {
-        try {
-            while (telnetSession.isAlive()) {
-                inputHandler.echoPrompt();
-                String response = handleCommand(inputHandler.getArkCommand());
-                inputHandler.echoResponse(response);
-            }
-        } catch (Throwable throwable) {
-            // ignore
-        } finally {
-            telnetSession.close();
-        }
     }
 
     public String handleCommand(String cmdLine) {

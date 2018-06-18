@@ -48,7 +48,7 @@ public class CommandHandlerTest extends BaseTest {
 
     @Test
     public void test() {
-        ArkCommandHandler arkCommandHandler = new ArkCommandHandler(null, null);
+        ArkCommandHandler arkCommandHandler = new ArkCommandHandler();
         RegistryService registryService = ArkServiceContainerHolder.getContainer().getService(
             RegistryService.class);
         registryService.publishService(CommandProvider.class, new MockCommandProvider(),

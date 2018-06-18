@@ -62,6 +62,11 @@ public class TelnetProtocolHandler implements Runnable {
     private Map<String, AbstractTerminalTypeMapping> terminalTypeMapping;
 
     /**
+     * Ark Command Handler
+     */
+    private ArkCommandHandler                        commandHandler     = new ArkCommandHandler();
+
+    /**
      * Telnet NVT
      * http://www.ietf.org/rfc/rfc854.txt
      * https://www.ietf.org/rfc/rfc1091.txt
@@ -132,7 +137,6 @@ public class TelnetProtocolHandler implements Runnable {
             // ignore
         } finally {
             telnetSession.close();
-            sendCommand();
         }
 
     }
@@ -204,13 +208,18 @@ public class TelnetProtocolHandler implements Runnable {
         } else if ((b == LF && !isCr) || b == CR) {
             out.write(new byte[] { CR, LF });
             out.flush();
-            sendCommand();
+            handleCommand();
         }
         isCr = (b == CR);
     }
 
-    private synchronized void sendCommand() {
-        notify();
+    private void handleCommand() {
+        try {
+            echoResponse(commandHandler.handleCommand(getArkCommand()));
+            echoPrompt();
+        } catch (Throwable throwable) {
+            telnetSession.close();
+        }
     }
 
     private void erase() throws IOException {
@@ -310,6 +319,7 @@ public class TelnetProtocolHandler implements Runnable {
                 if (clientTerminalType.contains(terminalType)) {
                     isSuccess = true;
                     clientTerminalType = terminalType;
+                    echoPrompt();
                     break;
                 }
             }
@@ -334,13 +344,7 @@ public class TelnetProtocolHandler implements Runnable {
     }
 
     public synchronized String getArkCommand() {
-        try {
-            wait();
-            return new String(arkCommandBuffer.getAndClearBuffer());
-        } catch (InterruptedException ex) {
-            // no action;
-            return StringUtils.EMPTY_STRING;
-        }
+        return new String(arkCommandBuffer.getAndClearBuffer());
     }
 
     public void echoResponse(String content) throws IOException {

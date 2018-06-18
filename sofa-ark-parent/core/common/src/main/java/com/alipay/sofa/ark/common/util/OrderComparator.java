@@ -27,11 +27,11 @@ import java.util.Comparator;
  * @author qilong.zql
  * @since 0.4.0
  */
-public class OrderComparator implements Comparator<Object> {
+public class OrderComparator implements Comparator<PriorityOrdered> {
     @Override
-    public int compare(Object o1, Object o2) {
-        int order1 = ((PriorityOrdered) o1).getPriority();
-        int order2 = ((PriorityOrdered) o2).getPriority();
+    public int compare(PriorityOrdered o1, PriorityOrdered o2) {
+        int order1 = o1.getPriority();
+        int order2 = o2.getPriority();
         return Integer.compare(order1, order2);
     }
 }

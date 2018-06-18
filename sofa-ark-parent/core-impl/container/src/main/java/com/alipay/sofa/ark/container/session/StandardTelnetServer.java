@@ -64,7 +64,7 @@ public class StandardTelnetServer implements TelnetServerService {
                 parseHostAndPort(telnetValue);
             }
         } catch (NumberFormatException e) {
-            LOGGER.error(String.format("Invalid host/port in ", telnetValue), e);
+            LOGGER.error(String.format("Invalid host/port in %s", telnetValue), e);
             throw new ArkException(e);
         }
     }
@@ -107,8 +107,7 @@ public class StandardTelnetServer implements TelnetServerService {
                 }
             };
 
-            ThreadPoolManager.getThreadPool(Constants.TELNET_SERVER_THREAD_POOL_NAME).getExecutor()
-                .execute(action);
+            sessionPool.getExecutor().execute(action);
         } catch (IOException e) {
             LOGGER.error("Unable to open telnet.", e);
             throw new ArkException(e);
