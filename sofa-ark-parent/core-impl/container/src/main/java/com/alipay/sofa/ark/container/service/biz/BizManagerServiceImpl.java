@@ -51,10 +51,15 @@ public class BizManagerServiceImpl implements BizManagerService {
 
     @Override
     public Biz unRegisterBiz(String bizName, String bizVersion) {
-        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
-        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
         AssertUtils.isTrue(getBizState(bizName, bizVersion) != BizState.RESOLVED,
             "Biz whose state is resolved must not be un-registered.");
+        return unRegisterBizStrictly(bizName, bizVersion);
+    }
+
+    @Override
+    public Biz unRegisterBizStrictly(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
         ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(bizName);
         if (bizCache != null) {
             return bizCache.remove(bizVersion);

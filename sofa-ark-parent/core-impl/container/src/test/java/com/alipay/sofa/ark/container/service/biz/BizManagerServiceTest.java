@@ -66,7 +66,7 @@ public class BizManagerServiceTest extends BaseTest {
         Biz biz = bizManagerService.unRegisterBiz("test-biz", "1.0.1");
         Assert.assertNull(biz);
         Assert.assertTrue(bizManagerService.getBiz("test-biz").size() == 1);
-        biz = bizManagerService.unRegisterBiz("test-biz", "1.0.0");
+        biz = bizManagerService.unRegisterBizStrictly("test-biz", "1.0.0");
         Assert.assertNotNull(biz);
         Assert.assertTrue(bizManagerService.getBiz("test-biz").size() == 0);
 

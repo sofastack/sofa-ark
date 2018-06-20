@@ -44,6 +44,11 @@ public interface BizManagerService {
     Biz unRegisterBiz(String bizName, String bizVersion);
 
     /**
+     * Un-Register Biz in strict mode
+     */
+    Biz unRegisterBizStrictly(String bizName, String bizVersion);
+
+    /**
      * Get Biz List by name
      *
      * @param bizName
