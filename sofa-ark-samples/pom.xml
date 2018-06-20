@@ -37,14 +37,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- ark plugin -->
-            <dependency>
-                <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-jarslink-ark-integration</artifactId>
-                <classifier>ark-plugin</classifier>
-                <version>${sofa.jarslink.version}</version>
-            </dependency>
-
             <!--sample projects-->
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
