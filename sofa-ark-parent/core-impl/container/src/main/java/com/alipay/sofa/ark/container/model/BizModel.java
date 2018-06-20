@@ -177,6 +177,9 @@ public class BizModel implements Biz {
         try {
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
+            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
+                .getService(EventAdminService.class);
+            eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_HEALTH_CHECK));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
@@ -199,15 +202,18 @@ public class BizModel implements Biz {
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
         bizState = BizState.DEACTIVATED;
-        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
-            EventAdminService.class);
-        eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
-        bizState = BizState.UNRESOLVED;
-        urls = null;
-        classLoader = null;
-        denyImportPackages = null;
-        denyImportClasses = null;
-        denyImportResources = null;
+        try {
+            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
+                .getService(EventAdminService.class);
+            eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
+        } finally {
+            bizState = BizState.UNRESOLVED;
+            urls = null;
+            classLoader = null;
+            denyImportPackages = null;
+            denyImportClasses = null;
+            denyImportResources = null;
+        }
     }
 
     @Override

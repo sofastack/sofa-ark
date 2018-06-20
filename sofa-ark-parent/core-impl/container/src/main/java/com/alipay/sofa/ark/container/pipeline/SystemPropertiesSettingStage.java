@@ -14,33 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.common.util;
+package com.alipay.sofa.ark.container.pipeline;
 
-import java.util.Properties;
+import com.alipay.sofa.ark.common.util.EnvironmentUtils;
+import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
+import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
+import com.google.inject.Singleton;
 
 /**
- * a utils class to get environment properties
+ * Set necessary environment properties
  *
  * @author qilong.zql
  * @since 0.4.0
  */
-public class EnvironmentUtils {
+@Singleton
+public class SystemPropertiesSettingStage implements PipelineStage {
 
-    private static Properties properties = new Properties();
-
-    public static String getProperty(String key) {
-        if (properties.getProperty(key) == null) {
-            return System.getProperty(key);
-        }
-        return properties.getProperty(key);
+    @Override
+    public void process(PipelineContext pipelineContext) throws ArkException {
+        EnvironmentUtils.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
+            String.valueOf(false));
     }
-
-    public static void setProperty(String key, String value) {
-        properties.setProperty(key, value);
-    }
-
-    public static void setSystemProperty(String key, String value) {
-        System.setProperty(key, value);
-    }
-
 }
