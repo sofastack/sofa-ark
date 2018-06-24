@@ -49,7 +49,7 @@ public class ThreadPoolUtils {
     public static BlockingQueue<Runnable> buildQueue(int size, boolean isPriority) {
         BlockingQueue<Runnable> queue;
         if (size == 0) {
-            queue = new SynchronousQueue<Runnable>();
+            queue = new SynchronousQueue<>();
         } else {
             if (isPriority) {
                 queue = size < 0 ? new PriorityBlockingQueue<Runnable>()

@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.model;
 
-import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
 import java.net.URL;

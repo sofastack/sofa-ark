@@ -71,7 +71,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         return createBiz(bizArchive);
     }
 
-    private boolean isArkBiz(BizArchive bizArchive) throws IOException {
+    private boolean isArkBiz(BizArchive bizArchive) {
         return bizArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
             public boolean matches(Archive.Entry entry) {

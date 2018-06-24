@@ -150,8 +150,7 @@ public abstract class Launcher {
      * @return the classloader load ark container
      * @throws Exception
      */
-    protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent)
-                                                                                    throws Exception {
+    protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent) {
         return new ContainerClassLoader(urls, parent);
     }
 

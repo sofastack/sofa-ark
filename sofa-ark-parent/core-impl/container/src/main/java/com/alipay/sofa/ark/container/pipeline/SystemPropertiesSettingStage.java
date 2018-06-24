@@ -34,6 +34,7 @@ public class SystemPropertiesSettingStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
+        // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
         EnvironmentUtils.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
             String.valueOf(false));
     }

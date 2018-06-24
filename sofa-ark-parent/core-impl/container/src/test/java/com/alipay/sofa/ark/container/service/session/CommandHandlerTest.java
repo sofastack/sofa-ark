@@ -72,10 +72,7 @@ public class CommandHandlerTest extends BaseTest {
 
         @Override
         public boolean validate(String command) {
-            if (command.contains("mock")) {
-                return true;
-            }
-            return false;
+            return command.contains("mock");
         }
 
         @Override

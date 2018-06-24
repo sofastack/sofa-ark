@@ -100,22 +100,22 @@ public class DirectoryBizArchive implements BizArchive {
     }
 
     @Override
-    public URL getUrl() throws MalformedURLException {
+    public URL getUrl() {
         throw new RuntimeException("unreachable invocation.");
     }
 
     @Override
-    public Manifest getManifest() throws IOException {
+    public Manifest getManifest() {
         return manifest;
     }
 
     @Override
-    public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
+    public List<Archive> getNestedArchives(EntryFilter filter) {
         throw new RuntimeException("unreachable invocation.");
     }
 
     @Override
-    public Archive getNestedArchive(Entry entry) throws IOException {
+    public Archive getNestedArchive(Entry entry) {
         if (Constants.ARK_BIZ_MARK_ENTRY.equals(entry.getName())) {
             return new NoopBizArchive();
         }
@@ -123,7 +123,7 @@ public class DirectoryBizArchive implements BizArchive {
     }
 
     @Override
-    public InputStream getInputStream(ZipEntry zipEntry) throws IOException {
+    public InputStream getInputStream(ZipEntry zipEntry) {
         throw new RuntimeException("unreachable invocation.");
     }
 

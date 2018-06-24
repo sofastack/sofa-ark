@@ -81,7 +81,7 @@ public class ClassloaderServiceTest extends BaseTest {
     }
 
     @Test
-    public void testJDKClassloader() throws Exception {
+    public void testJDKClassloader() {
         String sunToolClass = "sun.tools.attach.BsdVirtualMachine";
         ClassLoader jdkClassloader = classloaderService.getJDKClassloader();
         Assert.assertNotNull(jdkClassloader);

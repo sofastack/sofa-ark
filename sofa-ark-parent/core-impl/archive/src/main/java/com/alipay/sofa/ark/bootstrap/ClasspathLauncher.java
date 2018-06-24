@@ -149,27 +149,27 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         @Override
-        public URL getUrl() throws MalformedURLException {
+        public URL getUrl() {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public Manifest getManifest() throws IOException {
+        public Manifest getManifest() {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
+        public List<Archive> getNestedArchives(EntryFilter filter) {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public Archive getNestedArchive(Entry entry) throws IOException {
+        public Archive getNestedArchive(Entry entry) {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public InputStream getInputStream(ZipEntry zipEntry) throws IOException {
+        public InputStream getInputStream(ZipEntry zipEntry) {
             throw new RuntimeException("unreachable invocation.");
         }
 

@@ -197,7 +197,7 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public void stop() throws Throwable {
+    public void stop() {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
@@ -234,10 +234,7 @@ public class BizModel implements Biz {
             if (str.length != 2) {
                 return false;
             }
-            if (StringUtils.isEmpty(str[0]) || StringUtils.isEmpty(str[1])) {
-                return false;
-            }
-            return true;
+            return !StringUtils.isEmpty(str[0]) && !StringUtils.isEmpty(str[1]);
         }
     }
 }

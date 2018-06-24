@@ -43,7 +43,7 @@ public class ArkLauncher extends ExecutableArchiveLauncher {
     }
 
     @Override
-    protected String getMainClass() throws Exception {
+    protected String getMainClass() {
         return SOFA_ARK_MAIN;
     }
 }

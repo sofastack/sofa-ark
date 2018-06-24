@@ -39,12 +39,13 @@ public interface BizManagerService {
     boolean registerBiz(Biz biz);
 
     /**
-     * Un-Register Biz
+     * Un-Register Biz, it requires the biz state must be {@link BizState#ACTIVATED}
+     * or {@link BizState#DEACTIVATED} or {@link BizState#BROKEN}
      */
     Biz unRegisterBiz(String bizName, String bizVersion);
 
     /**
-     * Un-Register Biz in strict mode
+     * Un-Register Biz in strict mode, it ignores the biz state, generally invoked when install biz failed.
      */
     Biz unRegisterBizStrictly(String bizName, String bizVersion);
 

@@ -83,7 +83,7 @@ public class SofaArkBootstrap {
 
     }
 
-    private static String getClasspath(URL[] urls) throws Exception {
+    private static String getClasspath(URL[] urls) {
 
         StringBuilder sb = new StringBuilder();
         for (URL url : urls) {

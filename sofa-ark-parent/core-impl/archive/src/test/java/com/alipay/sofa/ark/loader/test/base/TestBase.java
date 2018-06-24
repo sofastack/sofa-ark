@@ -110,7 +110,7 @@ public abstract class TestBase {
         jos.close();
     }
 
-    private static byte[] generateManifest() throws IOException {
+    private static byte[] generateManifest() {
         AsciiBytes asciiBytes = new AsciiBytes("").append("k1: v1\n").append("k2: v2\n");
         return asciiBytes.toString().getBytes();
     }

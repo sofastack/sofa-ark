@@ -102,7 +102,7 @@ public class BizClassloaderTest extends BaseTest {
     }
 
     @Test
-    public void testGetPluginClassResource() throws Exception {
+    public void testGetPluginClassResource() {
         PluginModel pluginA = new PluginModel();
         pluginA
             .setPluginName("plugin A")
