@@ -56,4 +56,12 @@ public abstract class AbstractArchive implements Archive {
         return urls.toArray(new URL[urls.size()]);
     }
 
+    public boolean isEntryExist(EntryFilter filter) {
+        for (Entry entry : this) {
+            if (filter.matches(entry)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

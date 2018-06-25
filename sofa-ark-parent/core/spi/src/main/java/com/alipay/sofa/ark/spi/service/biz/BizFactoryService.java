@@ -14,22 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.registry;
+package com.alipay.sofa.ark.spi.service.biz;
 
-import com.alipay.sofa.ark.spi.registry.ServiceFilter;
-import com.alipay.sofa.ark.spi.registry.ServiceProvider;
-import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
+import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.model.Biz;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Plugin Service Filter, filter service by any plugins
+ * Create Biz according to {@link File} and {@link BizArchive}
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public class PluginServiceFilter implements ServiceFilter {
+public interface BizFactoryService {
+    /**
+     * @param bizArchive the {@link BizArchive} model
+     * @return Biz
+     * @throws IOException throw io exception when {@link BizArchive} is invalid.
+     */
+    Biz createBiz(BizArchive bizArchive) throws IOException;
 
-    @Override
-    public boolean match(ServiceProvider serviceProvider) {
-        return ServiceProviderType.ARK_PLUGIN.equals(serviceProvider.getServiceProviderType());
-    }
+    /**
+     * @param file the ark biz file
+     * @return Biz
+     * @throws IOException throw io exception when {@link File} is invalid.
+     */
+    Biz createBiz(File file) throws IOException;
 }

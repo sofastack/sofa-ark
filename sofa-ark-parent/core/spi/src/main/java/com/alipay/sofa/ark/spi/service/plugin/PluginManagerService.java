@@ -49,7 +49,7 @@ public interface PluginManagerService {
     Set<String> getAllPluginNames();
 
     /**
-     * Get all plugins in priority Order
+     * Get all plugins in priority PriorityOrdered
      */
     List<Plugin> getPluginsInOrder();
 

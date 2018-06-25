@@ -103,4 +103,9 @@ public class PluginDeployServiceImpl implements PluginDeployService {
     public void dispose() throws ArkException {
         unDeploy();
     }
+
+    @Override
+    public int getPriority() {
+        return DEFAULT_PRECEDENCE;
+    }
 }

@@ -16,13 +16,10 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
-import com.alipay.sofa.ark.common.log.ArkLogger;
-import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkException;
-import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -36,26 +33,14 @@ import com.google.inject.Singleton;
 public class DeployBizStage implements PipelineStage {
 
     @Inject
-    private BizManagerService      bizManagerService;
-
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
+    private BizDeployService bizDeployService;
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
-
         if (pipelineContext.getLaunchCommand().isTestMode()) {
             return;
         }
-
-        for (Biz biz : bizManagerService.getBizsInOrder()) {
-            try {
-                LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
-                biz.start(pipelineContext.getLaunchCommand().getLaunchArgs());
-                LOGGER.info(String.format("Finish to start biz: %s", biz.getBizName()));
-            } catch (Throwable e) {
-                LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
-                throw new ArkException(e);
-            }
-        }
+        String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
+        bizDeployService.deploy(args);
     }
 }

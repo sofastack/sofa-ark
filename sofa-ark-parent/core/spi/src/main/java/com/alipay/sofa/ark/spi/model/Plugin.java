@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.spi.model;
 
 import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
 import java.net.URL;
 import java.util.Set;
@@ -27,7 +28,7 @@ import java.util.Set;
  * @author qilong.zql
  * @since 0.1.0
  */
-public interface Plugin {
+public interface Plugin extends PriorityOrdered {
     /**
      * get Plugin Name
      * @return plugin name

@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.container.registry;
 
+import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.registry.ServiceMetadata;
 import com.alipay.sofa.ark.spi.registry.ServiceProvider;
 
@@ -27,20 +29,22 @@ import com.alipay.sofa.ark.spi.registry.ServiceProvider;
  */
 public class ServiceMetadataImpl implements ServiceMetadata {
 
-    private String          serviceName;
+    private String          uniqueId;
     private Class<?>        interfaceClass;
     private ServiceProvider serviceProvider;
 
-    public ServiceMetadataImpl(String serviceName, Class<?> interfaceClass,
+    public ServiceMetadataImpl(Class<?> interfaceClass, String uniqueId,
                                ServiceProvider serviceProvider) {
-        this.serviceName = serviceName;
+        AssertUtils.assertNotNull(interfaceClass, "Service interface should not be null.");
+        AssertUtils.assertNotNull(serviceProvider, "Service provider should not be null.");
+        this.uniqueId = uniqueId;
         this.interfaceClass = interfaceClass;
         this.serviceProvider = serviceProvider;
     }
 
     @Override
-    public String getServiceName() {
-        return serviceName;
+    public String getUniqueId() {
+        return uniqueId;
     }
 
     @Override
@@ -54,6 +58,15 @@ public class ServiceMetadataImpl implements ServiceMetadata {
     }
 
     @Override
+    public String getServiceName() {
+        if (StringUtils.isEmpty(uniqueId)) {
+            return interfaceClass.getCanonicalName();
+        } else {
+            return String.format("%s:%s", interfaceClass.getCanonicalName(), uniqueId);
+        }
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -63,9 +76,13 @@ public class ServiceMetadataImpl implements ServiceMetadata {
             return false;
         }
 
-        ServiceMetadata serviceMetadata = (ServiceMetadataImpl) obj;
+        ServiceMetadata serviceMetadata = (ServiceMetadata) obj;
 
-        if (!serviceName.equals(serviceMetadata.getServiceName())) {
+        if (!uniqueId.equals(serviceMetadata.getUniqueId())) {
+            return false;
+        }
+
+        if (!interfaceClass.equals(serviceMetadata.getInterfaceClass())) {
             return false;
         }
 
@@ -75,8 +92,15 @@ public class ServiceMetadataImpl implements ServiceMetadata {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + serviceName.hashCode();
+        result = 31 * result + uniqueId.hashCode();
+        result = 31 * result + interfaceClass.hashCode();
         result = 31 * result + serviceProvider.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ServiceMetadata{service=\'%s\', provider=\'%s\'}", getServiceName(),
+            getServiceProvider().toString());
     }
 }

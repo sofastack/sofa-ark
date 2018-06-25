@@ -33,11 +33,11 @@ import java.util.List;
  */
 public class BizClassLoader extends AbstractClasspathClassloader {
 
-    private String bizName;
+    private String bizIdentity;
 
-    public BizClassLoader(String bizName, URL[] urls) {
+    public BizClassLoader(String bizIdentity, URL[] urls) {
         super(urls);
-        this.bizName = bizName;
+        this.bizIdentity = bizIdentity;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class BizClassLoader extends AbstractClasspathClassloader {
                 String
                     .format(
                         "[ArkBiz Loader] %s : can not load class: %s, this class can only be loaded by sun.reflect.DelegatingClassLoader",
-                        bizName, name));
+                        bizIdentity, name));
         }
 
         // 2. findLoadedClass
@@ -88,7 +88,7 @@ public class BizClassLoader extends AbstractClasspathClassloader {
         }
 
         throw new ArkLoaderException(String.format("[ArkBiz Loader] %s : can not load class: %s",
-            bizName, name));
+            bizIdentity, name));
     }
 
     @SuppressWarnings("unchecked")
@@ -127,20 +127,20 @@ public class BizClassLoader extends AbstractClasspathClassloader {
 
     @Override
     boolean shouldFindExportedClass(String className) {
-        return !classloaderService.isDeniedImportClass(bizName, className);
+        return !classloaderService.isDeniedImportClass(bizIdentity, className);
     }
 
     @Override
     boolean shouldFindExportedResource(String resourceName) {
-        return !classloaderService.isDeniedImportResource(bizName, resourceName);
+        return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
     }
 
     /**
-     * Getter method for property <tt>bizName</tt>.
+     * Getter method for property <tt>bizIdentity</tt>.
      *
-     * @return property value of bizName
+     * @return property value of bizIdentity
      */
-    public String getBizName() {
-        return bizName;
+    public String getBizIdentity() {
+        return bizIdentity;
     }
 }

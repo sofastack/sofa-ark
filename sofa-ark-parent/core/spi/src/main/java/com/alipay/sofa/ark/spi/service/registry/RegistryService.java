@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.spi.service.registry;
 
 import com.alipay.sofa.ark.spi.registry.ServiceFilter;
 import com.alipay.sofa.ark.spi.registry.ServiceProvider;
-import com.alipay.sofa.ark.spi.registry.ServiceProviderComparator;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 
 import java.util.List;
@@ -35,15 +34,6 @@ public interface RegistryService {
      * Publish Service
      * @param ifClass service interface
      * @param implObject service implement object
-     * @param <T>
-     * @return
-     */
-    <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject);
-
-    /**
-     * Publish Service
-     * @param ifClass service interface
-     * @param implObject service implement object
      * @param serviceProvider service provider
      * @param <T>
      * @return
@@ -52,8 +42,20 @@ public interface RegistryService {
                                            ServiceProvider serviceProvider);
 
     /**
+     * Publish Service
+     * @param ifClass service interface
+     * @param implObject service implement object
+     * @param uniqueId service implementation unique-id
+     * @param serviceProvider service provider
+     * @param <T>
+     * @return
+     */
+    <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject, String uniqueId,
+                                           ServiceProvider serviceProvider);
+
+    /**
      * Get Service, when there are multiple services, return the highest priority service
-     * see {@link ServiceProviderComparator } to get service priority definition
+     * {@link com.alipay.sofa.ark.spi.service.PriorityOrdered}
      *
      * @param ifClass service interface
      * @param <T>
@@ -62,18 +64,20 @@ public interface RegistryService {
     <T> ServiceReference<T> referenceService(Class<T> ifClass);
 
     /**
-     * Get Service with filter, see {@link ServiceFilter}
-     * when there are multiple services, return the highest priority service matched with filter
-     * see {@link ServiceProviderComparator } to get service priority definition
+     * Get Service, when there are multiple services, return the highest priority service
+     * {@link com.alipay.sofa.ark.spi.service.PriorityOrdered}
+     *
      * @param ifClass service interface
+     * @param uniqueId service implementation unique-id
      * @param <T>
-     * @param serviceFilter service filter
      * @return service reference
      */
-    <T> ServiceReference<T> referenceService(Class<T> ifClass, ServiceFilter serviceFilter);
+    <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId);
 
     /**
-     * Get Service List
+     * Get Service List, ordered by priority.
+     * {@link com.alipay.sofa.ark.spi.service.PriorityOrdered}
+     *
      * @param ifClass service interface
      * @param <T>
      * @return service reference list
@@ -81,12 +85,30 @@ public interface RegistryService {
     <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass);
 
     /**
-     * Get Service List with filter, see {@link ServiceFilter}
+     * Get Service List, ordered by priority.
+     * {@link com.alipay.sofa.ark.spi.service.PriorityOrdered}
+     *
      * @param ifClass service interface
      * @param <T>
-     * @param serviceFilter service filter
      * @return service reference list
      */
-    <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, ServiceFilter serviceFilter);
+    <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, String uniqueId);
+
+    /**
+     * Get Service List, ordered by priority.
+     * {@link com.alipay.sofa.ark.spi.service.PriorityOrdered}
+     *
+     * @param serviceFilter service filter
+     * @return service reference
+     */
+    <T> List<ServiceReference<T>> referenceServices(ServiceFilter<T> serviceFilter);
+
+    /**
+     * Drive out service which match the given serviceFilter.
+     *
+     * @param serviceFilter
+     * @return return the count of deleted services
+     */
+    int unPublishServices(ServiceFilter serviceFilter);
 
 }

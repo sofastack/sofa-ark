@@ -16,8 +16,13 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.OrderComparator;
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.google.inject.Singleton;
 
@@ -33,34 +38,138 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class BizManagerServiceImpl implements BizManagerService {
 
-    private ConcurrentHashMap<String, Biz> bizs = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> bizRegistration = new ConcurrentHashMap<>();
 
     @Override
-    public void registerBiz(Biz biz) {
-        if (bizs.putIfAbsent(biz.getBizName(), biz) != null) {
-            throw new ArkException(String.format("duplicate biz: %s exists.", biz.getBizName()));
-        }
+    @SuppressWarnings("unchecked")
+    public boolean registerBiz(Biz biz) {
+        AssertUtils.assertNotNull(biz, "Biz must not be null.");
+        AssertUtils.isTrue(biz.getBizState() == BizState.RESOLVED, "BizState must be RESOLVED.");
+        bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<String, Biz>(16));
+        ConcurrentHashMap bizCache = bizRegistration.get(biz.getBizName());
+        return bizCache.putIfAbsent(biz.getBizVersion(), biz) == null;
     }
 
     @Override
-    public Biz getBizByName(String bizName) {
-        return bizs.get(bizName);
+    public Biz unRegisterBiz(String bizName, String bizVersion) {
+        AssertUtils.isTrue(getBizState(bizName, bizVersion) != BizState.RESOLVED,
+            "Biz whose state is resolved must not be un-registered.");
+        return unRegisterBizStrictly(bizName, bizVersion);
+    }
+
+    @Override
+    public Biz unRegisterBizStrictly(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(bizName);
+        if (bizCache != null) {
+            return bizCache.remove(bizVersion);
+        }
+        return null;
+    }
+
+    @Override
+    public List<Biz> getBiz(String bizName) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(bizName);
+        List<Biz> bizList = new ArrayList<>();
+        if (bizCache != null) {
+            bizList.addAll(bizCache.values());
+        }
+        return bizList;
+    }
+
+    @Override
+    public Biz getBiz(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(bizName);
+        if (bizCache != null) {
+            return bizCache.get(bizVersion);
+        }
+        return null;
+    }
+
+    @Override
+    public Biz getBizByIdentity(String bizIdentity) {
+        AssertUtils.isTrue(BizModel.BizIdentityGenerator.isValid(bizIdentity),
+            "Format of Biz Identity is error.");
+        String[] str = bizIdentity.split(Constants.STRING_COLON);
+        return getBiz(str[0], str[1]);
     }
 
     @Override
     public Set<String> getAllBizNames() {
-        return bizs.keySet();
+        return bizRegistration.keySet();
     }
 
     @Override
-    public List<Biz> getBizsInOrder() {
-        List<Biz> bizList = new ArrayList<>(bizs.values());
-        Collections.sort(bizList, new Comparator<Biz>() {
-            @Override
-            public int compare(Biz o1, Biz o2) {
-                return Integer.compare(o1.getPriority(), o2.getPriority());
-            }
-        });
+    public List<Biz> getBizInOrder() {
+        List<Biz> bizList = new ArrayList<>();
+        for (String bizName : bizRegistration.keySet()) {
+            bizList.addAll(bizRegistration.get(bizName).values());
+        }
+        Collections.sort(bizList, new OrderComparator());
         return bizList;
+    }
+
+    @Override
+    public Biz getActiveBiz(String bizName) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        Map<String, Biz> bizCache = bizRegistration.get(bizName);
+        if (bizCache != null) {
+            for (Biz biz : bizCache.values()) {
+                if (biz.getBizState() == BizState.ACTIVATED) {
+                    return biz;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isActiveBiz(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        Map<String, Biz> bizCache = bizRegistration.get(bizName);
+        if (bizCache != null) {
+            Biz biz = bizCache.get(bizVersion);
+            return biz != null && (biz.getBizState() == BizState.ACTIVATED);
+        }
+        return false;
+    }
+
+    @Override
+    public void activeBiz(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        Biz biz = getBiz(bizName, bizVersion);
+        Biz activeBiz = getActiveBiz(bizName);
+        if (biz != null && biz.getBizState() == BizState.DEACTIVATED) {
+            if (activeBiz != null) {
+                ((BizModel) activeBiz).setBizState(BizState.DEACTIVATED);
+            }
+            ((BizModel) biz).setBizState(BizState.ACTIVATED);
+        }
+    }
+
+    @Override
+    public BizState getBizState(String bizName, String bizVersion) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz version must not be empty.");
+        Map<String, Biz> bizCache = bizRegistration.get(bizName);
+        if (bizCache != null) {
+            Biz biz = bizCache.get(bizVersion);
+            return biz != null ? biz.getBizState() : BizState.UNRESOLVED;
+        }
+        return BizState.UNRESOLVED;
+    }
+
+    @Override
+    public BizState getBizState(String bizIdentity) {
+        AssertUtils.isTrue(BizModel.BizIdentityGenerator.isValid(bizIdentity),
+            "Format of Biz Identity is error.");
+        String[] str = bizIdentity.split(Constants.STRING_COLON);
+        return getBizState(str[0], str[1]);
     }
 }

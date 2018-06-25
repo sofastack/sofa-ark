@@ -23,7 +23,6 @@ import com.alipay.sofa.ark.spi.archive.*;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -35,7 +34,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH
 import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH_SPLIT;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
@@ -124,14 +122,13 @@ public class ClasspathLauncher extends ArkLauncher {
 
         @Override
         public List<BizArchive> getBizArchives() throws Exception {
-            List<URL> urlList = filterUrls(Constants.ARK_MODULE_MARK_ENTRY);
+            List<URL> urlList = filterUrls(Constants.ARK_BIZ_MARK_ENTRY);
 
             List<BizArchive> bizArchives = new LinkedList<>();
             bizArchives.add(createDirectoryBizModuleArchive());
 
             for (URL url : urlList) {
-                bizArchives
-                    .add(new JarBizModuleArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
             }
 
             return bizArchives;
@@ -151,27 +148,27 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         @Override
-        public URL getUrl() throws MalformedURLException {
+        public URL getUrl() {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public Manifest getManifest() throws IOException {
+        public Manifest getManifest() {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
+        public List<Archive> getNestedArchives(EntryFilter filter) {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public Archive getNestedArchive(Entry entry) throws IOException {
+        public Archive getNestedArchive(Entry entry) {
             throw new RuntimeException("unreachable invocation.");
         }
 
         @Override
-        public InputStream getInputStream(ZipEntry zipEntry) throws IOException {
+        public InputStream getInputStream(ZipEntry zipEntry) {
             throw new RuntimeException("unreachable invocation.");
         }
 
@@ -181,7 +178,7 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         protected BizArchive createDirectoryBizModuleArchive() {
-            return new DirectoryBizModuleArchive(className, methodName, methodDescription, urls);
+            return new DirectoryBizArchive(className, methodName, methodDescription, urls);
         }
 
         protected ContainerArchive createDirectoryContainerArchive() {

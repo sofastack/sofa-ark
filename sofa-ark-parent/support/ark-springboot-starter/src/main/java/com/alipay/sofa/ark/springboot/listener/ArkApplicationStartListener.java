@@ -43,7 +43,7 @@ public class ArkApplicationStartListener implements ApplicationListener<Applicat
 
     }
 
-    private boolean shouldStartArk() throws Exception {
+    private boolean shouldStartArk() {
         return LAUNCH_CLASSLOADER_NAME
             .equals(this.getClass().getClassLoader().getClass().getName());
     }

@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.pipeline.StandardPipeline;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +58,11 @@ public class ArkServiceContainerTest extends BaseTest {
         Pipeline pipeline = arkServiceContainer.getService(Pipeline.class);
         Assert.assertNotNull(pipeline);
         Assert.assertTrue(pipeline instanceof StandardPipeline);
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
     }
 
 }

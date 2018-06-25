@@ -23,10 +23,12 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,14 +38,13 @@ import java.util.Collections;
 import java.util.HashSet;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
 public class BizClassloaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
-                                                  .getResource("");
+    private URL                  classPathURL        = PluginClassloaderTest.class.getClassLoader()
+                                                         .getResource("");
 
     private PluginManagerService pluginManagerService;
 
@@ -53,9 +54,10 @@ public class BizClassloaderTest extends BaseTest {
 
     private BizManagerService    bizManagerService;
 
+    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
+
     @Before
     public void before() {
-        ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
         arkServiceContainer.start();
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
             PluginManagerService.class);
@@ -85,9 +87,10 @@ public class BizClassloaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A").setClassPath(new URL[] { classPathURL })
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("biz A").setBizVersion("1.0.0")
+            .setClassPath(new URL[] { classPathURL })
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -99,7 +102,7 @@ public class BizClassloaderTest extends BaseTest {
     }
 
     @Test
-    public void testGetPluginClassResource() throws Exception {
+    public void testGetPluginClassResource() {
         PluginModel pluginA = new PluginModel();
         pluginA
             .setPluginName("plugin A")
@@ -116,12 +119,12 @@ public class BizClassloaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel();
-        bizModel.setBizName("biz A").setClassPath(new URL[0])
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[0])
             .setDenyImportClasses(StringUtils.EMPTY_STRING)
             .setDenyImportResources(StringUtils.EMPTY_STRING)
             .setDenyImportPackages(StringUtils.EMPTY_STRING)
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
 
         bizManagerService.registerBiz(bizModel);
 
@@ -131,9 +134,9 @@ public class BizClassloaderTest extends BaseTest {
 
     @Test
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
-        BizModel bizModel = new BizModel();
-        bizModel.setBizName("MockBiz").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("MockBiz").setBizVersion("1.0.0").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -162,9 +165,9 @@ public class BizClassloaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel();
-        bizModel.setBizName("bizA").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getBizName(), bizModel.getClassPath()));
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
@@ -190,5 +193,10 @@ public class BizClassloaderTest extends BaseTest {
         Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
     }
 }

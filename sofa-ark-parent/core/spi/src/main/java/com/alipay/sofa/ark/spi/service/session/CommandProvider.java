@@ -14,27 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.registry;
-
-import com.alipay.sofa.ark.spi.registry.ServiceProvider;
+package com.alipay.sofa.ark.spi.service.session;
 
 /**
- * Plugin name service filter, filter service publish by one specific plugin
+ * Answer a string (may be as many lines as you like) with help
+ * texts that explain the command.
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.4.0
  */
-public class PluginNameServiceFilter extends PluginServiceFilter {
+public interface CommandProvider {
+    String getHelp();
 
-    private String pluginName;
+    String getHelp(String commandMarker);
 
-    public PluginNameServiceFilter(String pluginName) {
-        this.pluginName = pluginName;
-    }
+    boolean validate(String command);
 
-    @Override
-    public boolean match(ServiceProvider serviceProvider) {
-        return super.match(serviceProvider)
-               && this.pluginName.equals(serviceProvider.getServiceProviderName());
-    }
+    String handleCommand(String command);
 }

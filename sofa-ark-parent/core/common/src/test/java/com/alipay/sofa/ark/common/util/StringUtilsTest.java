@@ -47,6 +47,7 @@ public class StringUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testListToStr() {
         Assert.assertTrue("".equals(StringUtils.listToStr(null, ",")));
         Assert.assertTrue("".equals(StringUtils.listToStr(Collections.<String> emptySet(), ",")));

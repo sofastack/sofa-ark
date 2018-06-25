@@ -26,10 +26,12 @@ package com.alipay.sofa.ark.spi.registry;
 public interface ServiceMetadata {
 
     /**
-     * get Service Unique Name
+     * get service id, different service implementation of same interface can be
+     * recognised by uniqueId
+     *
      * @return service name
      */
-    String getServiceName();
+    String getUniqueId();
 
     /**
      * get Service Interface Class
@@ -42,5 +44,13 @@ public interface ServiceMetadata {
      * @return
      */
     ServiceProvider getServiceProvider();
+
+    /**
+     * Service name, generally speaking, it's combined by {@link ServiceMetadata#getUniqueId()} and
+     * {@link ServiceMetadata#getInterfaceClass}
+     *
+     * @return
+     */
+    String getServiceName();
 
 }

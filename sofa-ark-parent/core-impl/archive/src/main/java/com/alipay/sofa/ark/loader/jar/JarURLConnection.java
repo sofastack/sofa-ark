@@ -46,7 +46,7 @@ final public class JarURLConnection extends java.net.JarURLConnection {
         try {
             EMPTY_JAR_URL = new URL("jar:", null, 0, "file:!/", new URLStreamHandler() {
                 @Override
-                protected URLConnection openConnection(URL u) throws IOException {
+                protected URLConnection openConnection(URL u) {
                     // Stub URLStreamHandler to prevent the wrong JAR Handler from being
                     // Instantiated and cached.
                     return null;

@@ -48,7 +48,7 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
     }
 
     @Override
-    protected ExecutableArchive getExecutableArchive() throws Exception {
+    protected ExecutableArchive getExecutableArchive() {
         return this.executableArchive;
     }
 

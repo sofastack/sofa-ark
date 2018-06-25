@@ -39,6 +39,7 @@ public class ArkContainerTest extends BaseTest {
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
         ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
         Assert.assertTrue(arkContainer.isStarted());
+        arkContainer.stop();
     }
 
     @Test

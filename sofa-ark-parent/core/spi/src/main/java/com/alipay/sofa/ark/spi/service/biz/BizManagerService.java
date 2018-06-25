@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.spi.service.biz;
 
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 
 import java.util.List;
 import java.util.Set;
@@ -30,27 +31,102 @@ import java.util.Set;
 public interface BizManagerService {
 
     /**
-     * register Biz Module
+     * Register Biz
+     *
      * @param biz
+     * @return
      */
-    void registerBiz(Biz biz);
+    boolean registerBiz(Biz biz);
 
     /**
-     * get Biz Model by name
+     * Un-Register Biz, it requires the biz state must be {@link BizState#ACTIVATED}
+     * or {@link BizState#DEACTIVATED} or {@link BizState#BROKEN}
+     */
+    Biz unRegisterBiz(String bizName, String bizVersion);
+
+    /**
+     * Un-Register Biz in strict mode, it ignores the biz state, generally invoked when install biz failed.
+     */
+    Biz unRegisterBizStrictly(String bizName, String bizVersion);
+
+    /**
+     * Get Biz List by name
+     *
      * @param bizName
      * @return
      */
-    Biz getBizByName(String bizName);
+    List<Biz> getBiz(String bizName);
+
+    /**
+     * Get Biz determined by bizName and BizVersion
+     *
+     * @param bizName Biz Name
+     * @param bizVersion Biz Version
+     * @return
+     */
+    Biz getBiz(String bizName, String bizVersion);
+
+    /**
+     * Get Biz by identity id, an identity is usually consist of
+     * biz name and biz version.
+     *
+     * @param bizIdentity
+     * @return
+     */
+    Biz getBizByIdentity(String bizIdentity);
 
     /**
      * get All biz names
+     *
      * @return
      */
     Set<String> getAllBizNames();
 
     /**
-     * Get all bizs in priority Order
+     * Get all biz in priority PriorityOrdered
      */
-    List<Biz> getBizsInOrder();
+    List<Biz> getBizInOrder();
+
+    /**
+     * Get active biz with given biz name whose state
+     * is {@link BizState#ACTIVATED}
+     *
+     * @param bizName
+     * @return
+     */
+    Biz getActiveBiz(String bizName);
+
+    /**
+     * Check whether the biz specified with a given name and a given version
+     * is active {@link BizState#ACTIVATED}
+     *
+     * @param bizName
+     * @param bizVersion
+     */
+    boolean isActiveBiz(String bizName, String bizVersion);
+
+    /**
+     * Active biz with specified biz name and biz version.
+     * @param bizName
+     * @param bizVersion
+     */
+    void activeBiz(String bizName, String bizVersion);
+
+    /**
+     * Get {@link BizState} according to biz name and biz version.
+     *
+     * @param bizName
+     * @param bizVersion
+     * @return
+     */
+    BizState getBizState(String bizName, String bizVersion);
+
+    /**
+     * Get {@link BizState} according to biz identity.
+     *
+     * @param bizIdentity
+     * @return
+     */
+    BizState getBizState(String bizIdentity);
 
 }

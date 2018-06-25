@@ -32,7 +32,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
@@ -101,6 +100,20 @@ public class RepackageMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project.artifactId}")
     private String                bizName;
+
+    /**
+     * ark biz version
+     * @since 0.4.0
+     */
+    @Parameter(defaultValue = "${project.version}")
+    private String                bizVersion;
+
+    /**
+     * ark biz version
+     * @since 0.4.0
+     */
+    @Parameter(defaultValue = "100", property = "sofa.ark.biz.priority")
+    protected Integer             priority;
 
     /**
      * Classifier to add to the executable artifact generated, if needed,
@@ -273,6 +286,8 @@ public class RepackageMojo extends AbstractMojo {
         repackager.addMainClassTimeoutWarningListener(new LoggingMainClassTimeoutWarningListener());
         repackager.setMainClass(this.mainClass);
         repackager.setBizName(bizName);
+        repackager.setBizVersion(bizVersion);
+        repackager.setPriority(String.valueOf(priority));
         repackager.setArkVersion(arkVersion);
         repackager.setDenyImportClasses(denyImportClasses);
         repackager.setDenyImportPackages(denyImportPackages);

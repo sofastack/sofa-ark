@@ -33,7 +33,7 @@ public interface PluginArchive extends Archive {
      *
      * @return the classpath contained in ark-plugin archive
      */
-    URL[] getUrls() throws Exception;
+    URL[] getUrls() throws IOException;
 
     /**
      * fetch plugin export index file content
@@ -41,6 +41,15 @@ public interface PluginArchive extends Archive {
      * @return export index
      * @throws IOException
      */
-    Set<String> getExportIndex() throws Exception;
+    Set<String> getExportIndex() throws IOException;
+
+    /**
+     * check whether the entry satisfy the given {@link com.alipay.sofa.ark.spi.archive.Archive.EntryFilter}
+     * exists or not
+     *
+     * @param filter
+     * @return
+     */
+    boolean isEntryExist(EntryFilter filter);
 
 }

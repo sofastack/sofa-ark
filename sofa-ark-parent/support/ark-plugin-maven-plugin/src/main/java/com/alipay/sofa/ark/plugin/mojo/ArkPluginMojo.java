@@ -29,7 +29,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -84,7 +83,7 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.artifactId}")
     public String                   pluginName;
 
-    @Parameter(defaultValue = "1000", property = "sofa.ark.plugin.priority")
+    @Parameter(defaultValue = "100", property = "sofa.ark.plugin.priority")
     protected Integer               priority;
 
     @Parameter

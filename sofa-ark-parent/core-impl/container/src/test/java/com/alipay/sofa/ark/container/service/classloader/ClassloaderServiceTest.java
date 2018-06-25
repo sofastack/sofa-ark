@@ -23,10 +23,12 @@ import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,10 +45,10 @@ public class ClassloaderServiceTest extends BaseTest {
     private ClassloaderService   classloaderService;
     private BizManagerService    bizManagerService;
     private PluginManagerService pluginManagerService;
+    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
 
     @Before
     public void before() {
-        ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
         arkServiceContainer.start();
         classloaderService = ArkServiceContainerHolder.getContainer().getService(
             ClassloaderService.class);
@@ -79,7 +81,7 @@ public class ClassloaderServiceTest extends BaseTest {
     }
 
     @Test
-    public void testJDKClassloader() throws Exception {
+    public void testJDKClassloader() {
         String sunToolClass = "sun.tools.attach.BsdVirtualMachine";
         ClassLoader jdkClassloader = classloaderService.getJDKClassloader();
         Assert.assertNotNull(jdkClassloader);
@@ -116,22 +118,23 @@ public class ClassloaderServiceTest extends BaseTest {
 
     @Test
     public void testIsDeniedImportClass() {
-        Biz biz = new BizModel().setBizName("mockBiz").setDenyImportPackages("a.c, a.b.c.*, a.b.c")
-            .setDenyImportClasses("");
+        Biz biz = new BizModel().setBizName("mockBiz").setBizVersion("1.0.0")
+            .setDenyImportPackages("a.c, a.b.c.*, a.b.c").setDenyImportClasses("")
+            .setBizState(BizState.RESOLVED);
         bizManagerService.registerBiz(biz);
-        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.c"),
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c"),
             "Exception error");
 
-        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.c.E"),
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.E"),
             "Exception error");
-        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.c.e.G"),
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.e.G"),
             "Exception error");
 
-        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.b.c.E"),
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.E"),
             "Exception error");
-        AssertUtils.isTrue(classloaderService.isDeniedImportClass("mockBiz", "a.b.c.e.G"),
+        AssertUtils.isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.e.G"),
             "Exception error");
-        AssertUtils.isFalse(classloaderService.isDeniedImportClass("mockBiz", "a.b.c"),
+        AssertUtils.isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c"),
             "Exception error");
     }
 
@@ -149,6 +152,11 @@ public class ClassloaderServiceTest extends BaseTest {
         Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e"));
         Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e.f"));
 
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
     }
 
 }

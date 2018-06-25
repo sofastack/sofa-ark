@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.archive;
 
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -30,7 +31,17 @@ public interface BizArchive extends Archive {
      * fetch classpath of archive to startup ark-biz module
      *
      * @return the classpath contained in ark-biz archive
+     * @throws IOException throw io exception when get biz classpath
      */
-    URL[] getUrls() throws Exception;
+    URL[] getUrls() throws IOException;
+
+    /**
+     * check whether the entry satisfy the given {@link com.alipay.sofa.ark.spi.archive.Archive.EntryFilter}
+     * exists or not
+     *
+     * @param filter
+     * @return
+     */
+    boolean isEntryExist(EntryFilter filter);
 
 }

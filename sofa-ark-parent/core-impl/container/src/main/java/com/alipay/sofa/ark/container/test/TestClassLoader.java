@@ -34,10 +34,12 @@ public class TestClassLoader extends BizClassLoader {
                                              // Junit
             "org.junit", "junit", "org.hamcrest",
             // TestNG
-            "org.testng", "com.beust.jcommander", "bsh" };
+            "org.testng", "com.beust.jcommander", "bsh",
+            // Ark
+            "com.alipay.sofa.ark.support.common" };
 
-    public TestClassLoader(String bizName, URL[] urls, ClassLoader delegate) {
-        super(bizName, urls);
+    public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
+        super(bizIdentity, urls);
         delegateClassLoader = delegate;
     }
 
@@ -48,7 +50,7 @@ public class TestClassLoader extends BizClassLoader {
                 return delegateClassLoader.loadClass(name);
             } catch (ClassNotFoundException e) {
                 throw new ArkLoaderException(String.format(
-                    "[TestClass Loader] %s : can not load class: %s", getBizName(), name));
+                    "[TestClass Loader] %s : can not load class: %s", getBizIdentity(), name));
             }
         } else {
             return super.loadClassInternal(name, resolve);

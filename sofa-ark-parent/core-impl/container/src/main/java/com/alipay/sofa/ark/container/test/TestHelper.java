@@ -28,7 +28,7 @@ import java.net.URL;
  */
 public class TestHelper {
 
-    private final static String TESTER = "JustForTester";
+    private final static String MOCK_BIZ_IDENTITY = "Mock Biz:Mock Version";
     private ArkContainer        arkContainer;
 
     public TestHelper(Object object) {
@@ -40,7 +40,8 @@ public class TestHelper {
         URL[] classpath = context.getLaunchCommand().getClasspath();
         ClassloaderService classloaderService = arkContainer.getArkServiceContainer().getService(
             ClassloaderService.class);
-        return new TestClassLoader(TESTER, classpath, classloaderService.getSystemClassloader());
+        return new TestClassLoader(MOCK_BIZ_IDENTITY, classpath,
+            classloaderService.getSystemClassloader());
     }
 
     public boolean isStarted() {

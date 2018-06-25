@@ -37,13 +37,13 @@ import java.util.zip.ZipEntry;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class JarBizModuleArchive extends AbstractArchive implements BizArchive {
+public class JarBizArchive extends AbstractArchive implements BizArchive {
 
     public final Archive archive;
 
     private final String SOFA_ARK_BIZ_LIB = "lib/";
 
-    public JarBizModuleArchive(Archive archive) {
+    public JarBizArchive(Archive archive) {
         this.archive = archive;
     }
 

@@ -188,7 +188,7 @@ public class RandomAccessDataFile implements RandomAccessData {
         }
 
         @Override
-        public long skip(long n) throws IOException {
+        public long skip(long n) {
             return (n <= 0 ? 0 : moveOn(cap(n)));
         }
 

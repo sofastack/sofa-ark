@@ -25,6 +25,7 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,14 +37,13 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
 public class PluginClassloaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
-                                                  .getResource("");
+    private URL                  classPathURL        = PluginClassloaderTest.class.getClassLoader()
+                                                         .getResource("");
 
     private PluginManagerService pluginManagerService;
 
@@ -51,9 +51,10 @@ public class PluginClassloaderTest extends BaseTest {
 
     private ClassloaderService   classloaderService;
 
+    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
+
     @Before
     public void before() {
-        ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
         arkServiceContainer.start();
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
             PluginManagerService.class);
@@ -80,7 +81,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("plugin B")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(ITest.class.getName())
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -117,7 +118,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("plugin B")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -154,7 +155,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("pluginB")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[0])
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -185,7 +186,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginA = new PluginModel();
         pluginA
             .setPluginName("pluginA")
-            .setPriority(100)
+            .setPriority("100")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -198,7 +199,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginB = new PluginModel();
         pluginB
             .setPluginName("pluginB")
-            .setPriority(1)
+            .setPriority("1")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -211,7 +212,7 @@ public class PluginClassloaderTest extends BaseTest {
         PluginModel pluginC = new PluginModel();
         pluginC
             .setPluginName("pluginC")
-            .setPriority(1000)
+            .setPriority("1000")
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -255,7 +256,7 @@ public class PluginClassloaderTest extends BaseTest {
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
         PluginModel mockPlugin = new PluginModel();
         mockPlugin
-            .setPluginName("Mock Plugin")
+            .setPluginName("Mock plugin")
             .setClassPath(new URL[] {})
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
@@ -266,5 +267,10 @@ public class PluginClassloaderTest extends BaseTest {
 
         PluginClassLoader pluginClassLoader = (PluginClassLoader) mockPlugin.getPluginClassLoader();
         Assert.assertNotNull(pluginClassLoader.loadClass("SampleClass", false));
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
     }
 }
