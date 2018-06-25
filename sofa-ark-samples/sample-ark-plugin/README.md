@@ -7,9 +7,9 @@
 
 * 导出类：其他插件如果导入了该类，优先从本插件加载；
 
-* 导入资源：插件在查找资源时，优先委托给导出改资源的插件负责加载，如果加载不到，才会尝试从本插件内部加载；
+* 导入资源：插件在查找资源时，优先委托给导出该资源的插件负责加载，如果加载不到，才会尝试从本插件内部加载；
 
-* 导入资源：其他插件如果导入了该资源，优先从本插件加载；
+* 导出资源：其他插件如果导入了该资源，优先从本插件加载；
 
 
 **[详细请参考插件规范](https://alipay.github.io/sofastack.github.io/docs/ark-plugin.html#插件规范)**
@@ -22,7 +22,7 @@
 <plugin>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-plugin-maven-plugin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0-SNAPSHOT</version>
 </plugin>
 ```
 
@@ -103,7 +103,7 @@
      <groupId>com.alipay.sofa</groupId>
      <artifactId>sample-ark-plugin</artifactId>
      <classifier>ark-plugin</classifier>
-     <version>0.3.0</version>
+     <version>0.4.0-SNAPSHOT</version>
  </dependency>
 ```
 
