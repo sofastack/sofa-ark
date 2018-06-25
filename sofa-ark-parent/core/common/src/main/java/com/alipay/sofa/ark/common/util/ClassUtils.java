@@ -50,8 +50,9 @@ public class ClassUtils {
     public static String getPackageName(String className) {
         AssertUtils.isFalse(StringUtils.isEmpty(className), "ClassName should not be empty!");
         int index = className.lastIndexOf('.');
-        if (index > 0)
+        if (index > 0) {
             return className.substring(0, index);
+        }
         return Constants.DEFAULT_PACKAGE;
     }
 

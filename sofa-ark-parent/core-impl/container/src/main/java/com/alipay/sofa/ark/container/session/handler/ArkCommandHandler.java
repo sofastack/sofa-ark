@@ -22,7 +22,6 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
-import com.alipay.sofa.ark.spi.service.session.TelnetSession;
 
 import java.util.List;
 

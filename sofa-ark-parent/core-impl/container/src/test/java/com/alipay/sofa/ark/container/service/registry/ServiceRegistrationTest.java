@@ -86,6 +86,7 @@ public class ServiceRegistrationTest extends BaseTest {
     }
 
     @After
+    @SuppressWarnings("unchecked")
     public void after() {
         registryService.unPublishServices(new DefaultServiceFilter()
             .setServiceInterface(ITest.class));
@@ -93,6 +94,7 @@ public class ServiceRegistrationTest extends BaseTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testPublishService() {
         ServiceReference<ITest> iTestServiceReference = registryService.publishService(ITest.class,
             new TestObjectA(), new ContainerServiceProvider());
@@ -118,6 +120,7 @@ public class ServiceRegistrationTest extends BaseTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testPublishDuplicateService() {
         registryService.publishService(ITest.class, new TestObjectA(),
             new ContainerServiceProvider());
@@ -187,6 +190,7 @@ public class ServiceRegistrationTest extends BaseTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testMultipleService() throws Exception {
         // 非插件发布的服务，优先级别最低
         registryService.publishService(ITest.class, new TestObjectA(),
@@ -268,6 +272,7 @@ public class ServiceRegistrationTest extends BaseTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testFilter() {
         PluginModel pluginA = new PluginModel();
         pluginA.setPluginName("plugin A").setPriority("10");

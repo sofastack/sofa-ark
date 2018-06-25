@@ -31,6 +31,7 @@ public interface BizArchive extends Archive {
      * fetch classpath of archive to startup ark-biz module
      *
      * @return the classpath contained in ark-biz archive
+     * @throws IOException throw io exception when get biz classpath
      */
     URL[] getUrls() throws IOException;
 

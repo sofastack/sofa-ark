@@ -100,8 +100,8 @@ public class DelegateArkContainer {
 
     /**
      * Check whether {@literal com.alipay.sofa.ark.container.ArkContainer} startup or not.
-     * @return
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isStarted() {
         return arkContainer != null;
     }

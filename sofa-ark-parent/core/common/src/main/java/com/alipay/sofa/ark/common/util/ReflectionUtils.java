@@ -45,11 +45,7 @@ public class ReflectionUtils {
         do {
             Field[] fields = searchType.getDeclaredFields();
             for (Field field : fields) {
-                try {
-                    fc.doWith(field);
-                } catch (ArkException ex) {
-                    throw ex;
-                }
+                fc.doWith(field);
             }
             searchType = searchType.getSuperclass();
         } while (searchType != null && searchType != Object.class);

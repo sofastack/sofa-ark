@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.container.session;
 
 import com.alipay.sofa.ark.common.thread.ThreadPoolManager;
-import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
 import com.alipay.sofa.ark.container.session.handler.TelnetProtocolHandler;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.session.TelnetSession;

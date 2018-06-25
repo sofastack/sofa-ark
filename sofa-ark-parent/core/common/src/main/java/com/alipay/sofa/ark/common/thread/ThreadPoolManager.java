@@ -40,7 +40,7 @@ public class ThreadPoolManager {
     public static synchronized void registerThreadPool(String threadPoolName,
                                                        CommonThreadPool commonThreadPool) {
         if (threadPoolMap == null) {
-            threadPoolMap = new ConcurrentHashMap<>();
+            threadPoolMap = new ConcurrentHashMap<>(16);
         }
         threadPoolMap.putIfAbsent(threadPoolName, commonThreadPool);
     }

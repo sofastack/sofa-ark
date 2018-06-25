@@ -79,6 +79,7 @@ public class PluginContextImpl implements PluginContext {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
         List<ServiceReference<T>> references = registryService
             .referenceServices(new DefaultServiceFilter<T>()
@@ -88,6 +89,7 @@ public class PluginContextImpl implements PluginContext {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<ServiceReference> referenceServices(ServiceFilter serviceFilter) {
         List<ServiceReference> references = registryService
             .referenceServices(new DefaultServiceFilter()

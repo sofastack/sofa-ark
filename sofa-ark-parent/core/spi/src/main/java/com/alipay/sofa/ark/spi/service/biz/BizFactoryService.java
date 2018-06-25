@@ -29,7 +29,17 @@ import java.io.IOException;
  * @since 0.4.0
  */
 public interface BizFactoryService {
-    Biz createBiz(BizArchive bizArchive) throws IOException, IllegalArgumentException;
+    /**
+     * @param bizArchive the {@link BizArchive} model
+     * @return Biz
+     * @throws IOException throw io exception when {@link BizArchive} is invalid.
+     */
+    Biz createBiz(BizArchive bizArchive) throws IOException;
 
+    /**
+     * @param file the ark biz file
+     * @return Biz
+     * @throws IOException throw io exception when {@link File} is invalid.
+     */
     Biz createBiz(File file) throws IOException;
 }

@@ -127,7 +127,7 @@ public class TelnetProtocolHandler implements Runnable {
     @Override
     public void run() {
         try {
-            int count = -1;
+            int count;
             while ((count = in.read(buffer)) > -1 && telnetSession.isAlive()) {
                 for (int i = 0; i < count; ++i) {
                     byteScanner(buffer[i]);
@@ -272,13 +272,14 @@ public class TelnetProtocolHandler implements Runnable {
             case UNKNOWN:
                 reset();
                 break;
+            default:
+                break;
         }
     }
 
     /**
      * Handle telnet command
      * @param b
-     * @throws IOException
      */
     private void handleCommand(byte b) throws IOException {
         if (b == SE) {
@@ -307,8 +308,6 @@ public class TelnetProtocolHandler implements Runnable {
 
     /**
      * Handle negotiation of terminal type
-     *
-     * @throws IOException
      */
     private void handleNegotiation() throws IOException {
         if (telnetCommand.contains(new String(new byte[] { TERMINAL_TYPE }))) {
@@ -343,11 +342,11 @@ public class TelnetProtocolHandler implements Runnable {
         escCommand = StringUtils.EMPTY_STRING;
     }
 
-    public synchronized String getArkCommand() {
+    private String getArkCommand() {
         return new String(arkCommandBuffer.getAndClearBuffer());
     }
 
-    public void echoResponse(String content) throws IOException {
+    private void echoResponse(String content) throws IOException {
         AssertUtils.assertNotNull(content, "Echo message should not be null");
         content = content.replace("\n", Constants.TELNET_STRING_END);
         if (StringUtils.isEmpty(content)) {
@@ -362,7 +361,7 @@ public class TelnetProtocolHandler implements Runnable {
         out.flush();
     }
 
-    public void echoPrompt() throws IOException {
+    private void echoPrompt() throws IOException {
         out.write(Constants.TELNET_SESSION_PROMPT.getBytes());
         out.flush();
     }

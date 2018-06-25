@@ -43,8 +43,8 @@ public class JarFileTest extends TestBase {
         Assert.assertTrue(jarFile.containsEntry(testEntry));
 
         ZipEntry zipEntry = jarFile.getEntry(testEntry);
-        Assert.assertTrue(zipEntry.getName().toString().equals(testEntry));
-        Assert.assertTrue(zipEntry.getComment().toString().equals(testEntryComment));
+        Assert.assertTrue(zipEntry.getName().equals(testEntry));
+        Assert.assertTrue(zipEntry.getComment().equals(testEntryComment));
         Assert.assertTrue(compareByteArray(zipEntry.getExtra(), testEntryExtra.getBytes()));
 
         JarEntry jarEntry = jarFile.getJarEntry("lib/junit-4.12.jar");

@@ -305,7 +305,7 @@ public class Handler extends URLStreamHandler {
     static void addToRootFileCache(File sourceFile, JarFile jarFile) {
         Map<File, JarFile> cache = rootFileCache.get();
         if (cache == null) {
-            cache = new ConcurrentHashMap<>();
+            cache = new ConcurrentHashMap<>(16);
             rootFileCache = new SoftReference<>(cache);
         }
         cache.put(sourceFile, jarFile);

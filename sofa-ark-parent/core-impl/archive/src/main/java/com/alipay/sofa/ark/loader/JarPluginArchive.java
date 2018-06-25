@@ -34,10 +34,10 @@ import java.util.zip.ZipEntry;
  */
 public class JarPluginArchive extends AbstractArchive implements PluginArchive {
 
-    public final Archive archive;
+    public final Archive        archive;
 
-    private final String SOFA_ARK_PLUGIN_LIB          = "lib/";
-    private final String SOFA_ARK_PLUGIN_EXPORT_INDEX = "conf/export.index";
+    private final static String SOFA_ARK_PLUGIN_LIB          = "lib/";
+    private final static String SOFA_ARK_PLUGIN_EXPORT_INDEX = "conf/export.index";
 
     public JarPluginArchive(Archive archive) {
         this.archive = archive;

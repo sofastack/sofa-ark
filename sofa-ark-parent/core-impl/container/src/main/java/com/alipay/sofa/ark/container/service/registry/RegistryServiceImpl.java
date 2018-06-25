@@ -60,6 +60,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> ServiceReference<T> publishService(Class<T> ifClass, T implObject, String uniqueId,
                                                   ServiceProvider serviceProvider) {
         AssertUtils.assertNotNull(ifClass, "Service interface should not be null.");
@@ -95,6 +96,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
         DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
         defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
@@ -112,11 +114,13 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass) {
         return referenceServices(new DefaultServiceFilter<T>().setServiceInterface(ifClass));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, String uniqueId) {
         DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
         defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
@@ -134,6 +138,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<ServiceReference<T>> referenceServices(ServiceFilter<T> serviceFilter) {
         List<ServiceReference<T>> serviceReferences = new ArrayList<>();
 

@@ -46,7 +46,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
 public class BizFactoryServiceImpl implements BizFactoryService {
 
     @Override
-    public Biz createBiz(BizArchive bizArchive) throws IOException, IllegalArgumentException {
+    public Biz createBiz(BizArchive bizArchive) throws IOException {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
         BizModel bizModel = new BizModel();
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();

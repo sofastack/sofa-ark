@@ -279,6 +279,7 @@ public class Repackager {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isZip(File file) {
         try {
             FileInputStream fileInputStream = new FileInputStream(file);

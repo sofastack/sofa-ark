@@ -78,7 +78,7 @@ final public class CentralDirectoryEndRecord {
 
     public boolean isValid() {
         if (this.block.length < MINIMUM_SIZE
-            || Bytes.littleEndianValue(this.block, this.offset + 0, 4) != SIGNATURE) {
+            || Bytes.littleEndianValue(this.block, this.offset, 4) != SIGNATURE) {
             return false;
         }
         // Total size must be the structure size + comment

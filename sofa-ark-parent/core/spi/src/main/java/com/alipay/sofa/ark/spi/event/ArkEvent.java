@@ -25,6 +25,8 @@ package com.alipay.sofa.ark.spi.event;
 public interface ArkEvent {
     /**
      * Returns the topic of event
+     *
+     * @return String return event topic
      */
     String getTopic();
 }

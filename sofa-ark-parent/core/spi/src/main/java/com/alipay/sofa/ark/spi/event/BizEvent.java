@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.event;
 
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 
 /**
