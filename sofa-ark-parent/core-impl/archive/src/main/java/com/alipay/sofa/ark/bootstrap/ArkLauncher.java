@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.bootstrap;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 
 /**
- * {@link Launcher} for JAR based archives. This launcher assumes that dependency jars are
+ * {@link AbstractLauncher} for JAR based archives. This launcher assumes that dependency jars are
  * included inside a {@code /SOFA-ARK/container/lib} directory and that application fat jar
  * are included inside a {@code /SOFA-ARK/biz/} directory and that ark plugin fat jar are included
  * inside a {@code /SOFA-ARK/plugin/} directory
@@ -27,7 +27,7 @@ import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class ArkLauncher extends ExecutableArchiveLauncher {
+public class ArkLauncher extends BaseExecutableArchiveLauncher {
 
     public final String SOFA_ARK_MAIN = "com.alipay.sofa.ark.container.ArkContainer";
 

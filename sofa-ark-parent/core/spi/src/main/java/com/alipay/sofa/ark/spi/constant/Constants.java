@@ -20,7 +20,7 @@ package com.alipay.sofa.ark.spi.constant;
  * @author qilong.zql
  * @since 0.1.0
  */
-public abstract class Constants {
+public class Constants {
 
     /**
      * Archiver Marker

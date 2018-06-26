@@ -32,6 +32,7 @@ public interface PluginArchive extends Archive {
      * fetch classpath of archive to startup ark-plugin
      *
      * @return the classpath contained in ark-plugin archive
+     * @throws IOException throw exception when meets error
      */
     URL[] getUrls() throws IOException;
 
@@ -39,7 +40,7 @@ public interface PluginArchive extends Archive {
      * fetch plugin export index file content
      *
      * @return export index
-     * @throws IOException
+     * @throws IOException throw exception when meets error
      */
     Set<String> getExportIndex() throws IOException;
 

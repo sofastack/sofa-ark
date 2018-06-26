@@ -26,9 +26,9 @@ import org.junit.Test;
  */
 public class AsciiBytesTest {
 
-    public static final String content    = "SofaArk is a class-isolated container";
+    public final String content    = "SofaArk is a class-isolated container";
 
-    AsciiBytes                 asciiBytes = new AsciiBytes(content);
+    AsciiBytes          asciiBytes = new AsciiBytes(content);
 
     @Test
     public void testAsciiBytes() {

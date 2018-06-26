@@ -59,7 +59,7 @@ public class ArkCommandHandler {
                               String cmdLine) {
         String[] phrases = cmdLine.trim().split(Constants.SPACE_SPLIT);
         StringBuilder sb = new StringBuilder();
-        if (phrases.length > 1 && phrases[0].equals("help")) {
+        if (phrases.length > 1 && "help".equals(phrases[0])) {
             for (ServiceReference<CommandProvider> commandService : commandProviders) {
                 CommandProvider commandProvider = commandService.getService();
                 String response = commandProvider.getHelp(phrases[1]);

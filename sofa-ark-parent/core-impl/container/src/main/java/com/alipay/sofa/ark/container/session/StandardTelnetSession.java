@@ -34,22 +34,22 @@ import java.net.Socket;
  */
 public class StandardTelnetSession implements TelnetSession {
 
-    private final Socket       socket;
+    private final Socket        socket;
 
-    private final InputStream  in;
+    private final InputStream   in;
 
-    private final OutputStream out;
+    private final OutputStream  out;
 
-    private volatile boolean   alive;
+    private volatile boolean    alive;
     /**
      * https://www.ietf.org/rfc/rfc857.txt
      * https://www.ietf.org/rfc/rfc858.txt
      * https://www.ietf.org/rfc/rfc1073.txt
      * https://www.ietf.org/rfc/rfc1091.txt
      */
-    static final byte[]        negotiationMessage = new byte[] { (byte) 255, (byte) 251, (byte) 1,
-            (byte) 255, (byte) 251, (byte) 3, (byte) 255, (byte) 253, (byte) 31, (byte) 255,
-            (byte) 253, (byte) 24                };
+    private static final byte[] NEGOTIATION_MESSAGE = new byte[] { (byte) 255, (byte) 251,
+            (byte) 1, (byte) 255, (byte) 251, (byte) 3, (byte) 255, (byte) 253, (byte) 31,
+            (byte) 255, (byte) 253, (byte) 24      };
 
     public StandardTelnetSession(Socket socket) throws IOException {
         this.socket = socket;
@@ -99,7 +99,7 @@ public class StandardTelnetSession implements TelnetSession {
      * @throws IOException
      */
     private void negotiate() throws IOException {
-        out.write(negotiationMessage);
+        out.write(NEGOTIATION_MESSAGE);
         out.flush();
     }
 }

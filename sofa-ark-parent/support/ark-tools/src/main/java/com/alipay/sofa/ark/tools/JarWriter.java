@@ -367,9 +367,13 @@ public class JarWriter implements LoaderClassesWriter {
      * entries} during the writing process.
      */
     interface EntryTransformer {
-
+        /**
+         * Transform {@link JarEntry}
+         *
+         * @param jarEntry
+         * @return
+         */
         JarEntry transform(JarEntry jarEntry);
-
     }
 
     /**

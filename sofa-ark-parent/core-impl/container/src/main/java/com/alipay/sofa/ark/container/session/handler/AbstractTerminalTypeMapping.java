@@ -34,13 +34,13 @@ public abstract class AbstractTerminalTypeMapping {
 
     protected Map<String, KEYS> escKeys;
 
-    protected byte              BACKSPACE;
+    protected byte              backSpace;
 
-    protected byte              DEL;
+    protected byte              del;
 
     public AbstractTerminalTypeMapping(byte backSpace, byte del) {
-        this.BACKSPACE = backSpace;
-        this.DEL = del;
+        this.backSpace = backSpace;
+        this.del = del;
         escKeys = new HashMap<>();
         escKeys.put("[C", KEYS.RIGHT);
         escKeys.put("[D", KEYS.LEFT);
@@ -48,11 +48,11 @@ public abstract class AbstractTerminalTypeMapping {
     }
 
     public byte getBackspace() {
-        return BACKSPACE;
+        return backSpace;
     }
 
-    public byte getDEL() {
-        return DEL;
+    public byte getDel() {
+        return del;
     }
 
     public KEYS getMatchKeys(String str) {

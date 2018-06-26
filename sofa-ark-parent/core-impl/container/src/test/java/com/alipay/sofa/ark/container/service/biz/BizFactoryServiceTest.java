@@ -34,19 +34,7 @@ import java.net.URL;
  */
 public class BizFactoryServiceTest extends BaseTest {
 
-    private BizFactoryService   bizFactoryService   = new BizFactoryServiceImpl();
-
-    private ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
-
-    @Before
-    public void before() {
-        arkServiceContainer.start();
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
+    private BizFactoryService bizFactoryService = new BizFactoryServiceImpl();
 
     @Test
     public void test() throws Throwable {

@@ -19,9 +19,12 @@ package com.alipay.sofa.ark.container;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
+import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
 import mockit.MockUp;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.io.File;
@@ -36,6 +39,17 @@ import java.util.List;
  * @since 0.1.0
  */
 public class BaseTest {
+    protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
+
+    @Before
+    public void before() {
+        arkServiceContainer.start();
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
+    }
 
     @BeforeClass
     public static void beforeClass() {

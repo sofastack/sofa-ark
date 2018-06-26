@@ -26,8 +26,8 @@ import org.junit.Test;
  */
 public class LaunchRunnerTest {
 
-    public static int          count = 0;
-    public static final Object lock  = new Object();
+    public static int   count = 0;
+    public final Object lock  = new Object();
 
     public static void add(String[] args) {
         if (args.length > 0) {

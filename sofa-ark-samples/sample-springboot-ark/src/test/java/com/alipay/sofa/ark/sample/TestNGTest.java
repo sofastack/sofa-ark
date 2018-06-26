@@ -36,7 +36,7 @@ public class TestNGTest {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         ClassLoader loader = this.getClass().getClassLoader();
         Assert.assertTrue(tccl.equals(loader));
-        Assert.assertTrue(tccl.getClass().getCanonicalName().equals(TEST_CLASSLOADER));
+        Assert.assertTrue(TEST_CLASSLOADER.equals(tccl.getClass().getCanonicalName()));
     }
 
 }

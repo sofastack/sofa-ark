@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.loader.test.jar;
 import com.alipay.sofa.ark.loader.data.RandomAccessData;
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
 import com.alipay.sofa.ark.loader.jar.Bytes;
-import com.alipay.sofa.ark.loader.test.base.TestBase;
+import com.alipay.sofa.ark.loader.test.base.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,22 +29,22 @@ import java.io.IOException;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class BytesTest extends TestBase {
+public class BytesTest extends BaseTest {
 
     @Test
     public void testBytes() throws IOException {
         RandomAccessDataFile tempFile = new RandomAccessDataFile(getTempDemoFile());
         byte[] content = Bytes.get(tempFile);
-        Assert.assertTrue(content.length == constantByte.length);
-        for (int i = 0; i < constantByte.length; ++i) {
-            Assert.assertTrue(content[i] == constantByte[i]);
+        Assert.assertTrue(content.length == CONSTANT_BYTE.length);
+        for (int i = 0; i < CONSTANT_BYTE.length; ++i) {
+            Assert.assertTrue(content[i] == CONSTANT_BYTE[i]);
         }
 
         byte[] bytes = new byte[3];
         Bytes.fill(tempFile.getInputStream(RandomAccessData.ResourceAccess.ONCE), bytes);
         String.valueOf(bytes).equals("112");
 
-        long value = Bytes.littleEndianValue(constantByte, 0, 4);
+        long value = Bytes.littleEndianValue(CONSTANT_BYTE, 0, 4);
         Assert.assertTrue(value == ('2' << 24) + ('2' << 16) + ('1' << 8) + '1');
     }
 

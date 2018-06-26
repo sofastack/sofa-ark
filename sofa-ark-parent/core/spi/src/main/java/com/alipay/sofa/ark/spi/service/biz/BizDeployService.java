@@ -29,7 +29,8 @@ public interface BizDeployService extends ArkService {
 
     /**
      * Deploy all ark biz
-     * @throws ArkException
+     * @param args biz startup arguments
+     * @throws ArkException throw exception when meets error
      */
     void deploy(String[] args) throws ArkException;
 

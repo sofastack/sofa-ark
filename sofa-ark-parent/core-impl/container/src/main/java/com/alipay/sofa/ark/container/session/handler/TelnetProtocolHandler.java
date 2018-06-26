@@ -189,7 +189,7 @@ public class TelnetProtocolHandler implements Runnable {
             arkCommandBuffer.backSpace();
             render();
             out.flush();
-        } else if (b == terminalTypeMapping.get(clientTerminalType).getDEL()) {
+        } else if (b == terminalTypeMapping.get(clientTerminalType).getDel()) {
             erase();
             arkCommandBuffer.delete();
             render();

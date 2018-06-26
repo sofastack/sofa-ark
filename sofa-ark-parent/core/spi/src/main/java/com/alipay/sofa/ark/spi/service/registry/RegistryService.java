@@ -89,6 +89,7 @@ public interface RegistryService {
      * {@link com.alipay.sofa.ark.spi.service.PriorityOrdered}
      *
      * @param ifClass service interface
+     * @param uniqueId service unique-id
      * @param <T>
      * @return service reference list
      */

@@ -17,11 +17,14 @@
 package com.alipay.sofa.ark.container.testdata;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
 public interface ITest {
 
+    /**
+     * a simple facade
+     * @return
+     */
     String test();
 }

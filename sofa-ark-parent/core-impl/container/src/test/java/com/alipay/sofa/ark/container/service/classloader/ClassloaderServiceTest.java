@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
@@ -28,7 +27,6 @@ import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,11 +43,10 @@ public class ClassloaderServiceTest extends BaseTest {
     private ClassloaderService   classloaderService;
     private BizManagerService    bizManagerService;
     private PluginManagerService pluginManagerService;
-    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
 
     @Before
     public void before() {
-        arkServiceContainer.start();
+        super.before();
         classloaderService = ArkServiceContainerHolder.getContainer().getService(
             ClassloaderService.class);
         bizManagerService = ArkServiceContainerHolder.getContainer().getService(
@@ -153,10 +150,4 @@ public class ClassloaderServiceTest extends BaseTest {
         Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e.f"));
 
     }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
-
 }

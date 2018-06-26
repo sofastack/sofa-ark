@@ -73,8 +73,7 @@ public class ServiceRegistrationTest extends BaseTest {
 
     @Before
     public void before() {
-        arkServiceContainer = new ArkServiceContainer();
-        arkServiceContainer.start();
+        super.before();
         registryService = ArkServiceContainerHolder.getContainer()
             .getService(RegistryService.class);
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
@@ -90,7 +89,7 @@ public class ServiceRegistrationTest extends BaseTest {
     public void after() {
         registryService.unPublishServices(new DefaultServiceFilter()
             .setServiceInterface(ITest.class));
-        arkServiceContainer.stop();
+        super.after();
     }
 
     @Test

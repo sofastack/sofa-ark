@@ -21,5 +21,9 @@ package com.alipay.sofa.ark.springboot.facade;
  * @since 0.1.0
  */
 public interface SampleService {
+    /**
+     * a simple test facade
+     * @return
+     */
     String say();
 }

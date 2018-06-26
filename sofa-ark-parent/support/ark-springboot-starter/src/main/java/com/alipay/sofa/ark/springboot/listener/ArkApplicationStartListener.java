@@ -21,7 +21,6 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
- *
  * Ark Spring boot starter when run on ide
  *
  * @author ruoshan

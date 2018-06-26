@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.archive;
 
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -30,7 +31,8 @@ public interface ContainerArchive extends Archive {
      * fetch classpath of archive to startup ark-container
      *
      * @return the classpath contained in ark-container archive
+     * @throws IOException throw exception when meets error
      */
-    URL[] getUrls() throws Exception;
+    URL[] getUrls() throws IOException;
 
 }

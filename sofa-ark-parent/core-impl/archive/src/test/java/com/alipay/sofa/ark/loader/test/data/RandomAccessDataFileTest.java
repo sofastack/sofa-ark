@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.loader.test.data;
 
 import com.alipay.sofa.ark.loader.data.RandomAccessData;
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
-import com.alipay.sofa.ark.loader.test.base.TestBase;
+import com.alipay.sofa.ark.loader.test.base.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ import java.io.InputStream;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class RandomAccessDataFileTest extends TestBase {
+public class RandomAccessDataFileTest extends BaseTest {
 
     @Test
     public void testInputStream() throws IOException {

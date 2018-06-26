@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.jar.JarEntry;
 import com.alipay.sofa.ark.loader.jar.JarFile;
-import com.alipay.sofa.ark.loader.test.base.TestBase;
+import com.alipay.sofa.ark.loader.test.base.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ import java.util.zip.ZipEntry;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class JarFileTest extends TestBase {
+public class JarFileTest extends BaseTest {
 
     @Test
     public void testJarFile() throws IOException {
@@ -40,12 +40,12 @@ public class JarFileTest extends TestBase {
         Assert.assertTrue(manifest.getMainAttributes().getValue("k1").equals("v1"));
         Assert.assertTrue(manifest.getMainAttributes().getValue("k2").equals("v2"));
 
-        Assert.assertTrue(jarFile.containsEntry(testEntry));
+        Assert.assertTrue(jarFile.containsEntry(TEST_ENTRY));
 
-        ZipEntry zipEntry = jarFile.getEntry(testEntry);
-        Assert.assertTrue(zipEntry.getName().equals(testEntry));
-        Assert.assertTrue(zipEntry.getComment().equals(testEntryComment));
-        Assert.assertTrue(compareByteArray(zipEntry.getExtra(), testEntryExtra.getBytes()));
+        ZipEntry zipEntry = jarFile.getEntry(TEST_ENTRY);
+        Assert.assertTrue(zipEntry.getName().equals(TEST_ENTRY));
+        Assert.assertTrue(zipEntry.getComment().equals(TEST_ENTRY_COMMENT));
+        Assert.assertTrue(compareByteArray(zipEntry.getExtra(), TEST_ENTRY_EXTRA.getBytes()));
 
         JarEntry jarEntry = jarFile.getJarEntry("lib/junit-4.12.jar");
         JarFile nestJarFile = jarFile.getNestedJarFile(jarEntry);

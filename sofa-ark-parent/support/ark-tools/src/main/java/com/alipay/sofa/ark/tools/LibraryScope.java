@@ -22,9 +22,6 @@ package com.alipay.sofa.ark.tools;
  */
 public interface LibraryScope {
 
-    @Override
-    String toString();
-
     /**
      * The library is used at compile time and runtime
      */

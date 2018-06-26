@@ -26,10 +26,25 @@ import java.util.List;
  */
 public interface ExecutableArchive extends Archive {
 
+    /**
+     * Get Ark Container Archiver
+     * @return
+     * @throws Exception throw exception when meets error
+     */
     ContainerArchive getContainerArchive() throws Exception;
 
+    /**
+     * Get all Biz Archiver
+     * @return
+     * @throws Exception throw exception when meets error
+     */
     List<BizArchive> getBizArchives() throws Exception;
 
+    /**
+     * Get all Plugin Archiver
+     * @return
+     * @throws Exception throw exception when meets error
+     */
     List<PluginArchive> getPluginArchives() throws Exception;
 
 }

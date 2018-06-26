@@ -88,7 +88,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
             @Override
             public boolean matches(Entry entry) {
                 return entry.getName().startsWith(SOFA_ARK_PLUGIN_LIB)
-                       && !entry.getName().equals(SOFA_ARK_PLUGIN_LIB);
+                       && !SOFA_ARK_PLUGIN_LIB.equals(entry.getName());
             }
         });
     }

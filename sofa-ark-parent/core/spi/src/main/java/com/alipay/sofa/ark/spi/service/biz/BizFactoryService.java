@@ -30,6 +30,8 @@ import java.io.IOException;
  */
 public interface BizFactoryService {
     /**
+     * Create Biz Model according to {@link BizArchive}
+     *
      * @param bizArchive the {@link BizArchive} model
      * @return Biz
      * @throws IOException throw io exception when {@link BizArchive} is invalid.
@@ -37,6 +39,8 @@ public interface BizFactoryService {
     Biz createBiz(BizArchive bizArchive) throws IOException;
 
     /**
+     * Create Biz Model according to {@link File}
+     *
      * @param file the ark biz file
      * @return Biz
      * @throws IOException throw io exception when {@link File} is invalid.

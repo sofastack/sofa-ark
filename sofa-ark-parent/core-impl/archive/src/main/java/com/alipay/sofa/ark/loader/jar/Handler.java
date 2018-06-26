@@ -93,10 +93,10 @@ public class Handler extends URLStreamHandler {
             return openConnection(getFallbackHandler(), url);
         } catch (Exception ex) {
             if (reason instanceof IOException) {
-                log(false, "Unable to open fallback handler", ex);
+                log(false, ex);
                 throw (IOException) reason;
             }
-            log(true, "Unable to open fallback handler", ex);
+            log(true, ex);
             if (reason instanceof RuntimeException) {
                 throw (RuntimeException) reason;
             }
@@ -104,13 +104,13 @@ public class Handler extends URLStreamHandler {
         }
     }
 
-    private void log(boolean warning, String message, Exception cause) {
+    private void log(boolean warning, Exception cause) {
         try {
             Logger.getLogger(getClass().getName()).log((warning ? Level.WARNING : Level.FINEST),
-                message, cause);
+                "Unable to open fallback handler", cause);
         } catch (Exception ex) {
             if (warning) {
-                System.err.println("WARNING: " + message); //NOPMD
+                System.err.println("WARNING: " + "Unable to open fallback handler"); //NOPMD
             }
         }
     }
@@ -237,7 +237,7 @@ public class Handler extends URLStreamHandler {
 
     @Override
     protected boolean sameFile(URL u1, URL u2) {
-        if (!u1.getProtocol().equals("jar") || !u2.getProtocol().equals("jar")) {
+        if (!"jar".equals(u1.getProtocol()) || !"jar".equals(u2.getProtocol())) {
             return false;
         }
         int separator1 = u1.getFile().indexOf(SEPARATOR);

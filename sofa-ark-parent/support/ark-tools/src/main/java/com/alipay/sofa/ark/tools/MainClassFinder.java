@@ -30,7 +30,7 @@ import java.util.jar.JarFile;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-public abstract class MainClassFinder {
+public class MainClassFinder {
 
     private static final String DOT_CLASS         = ".class";
 

@@ -33,21 +33,21 @@ import java.util.zip.ZipEntry;
  * @author qilong.zql
  * @since 0.1.0
  */
-public abstract class TestBase {
+public abstract class BaseTest {
 
-    public static final String tempDir          = "temp-workspace";
+    public static final String TEMP_DIR           = "temp-workspace";
 
-    public static final String tempFile         = "temp-file.info";
+    public static final String TEMP_FILE          = "temp-file.info";
 
-    public static final String tempZip          = "temp-fat-jar.jar";
+    public static final String TEMP_ZIP           = "temp-fat-jar.jar";
 
-    public static final String testEntry        = "testEntry/";
+    public static final String TEST_ENTRY         = "testEntry/";
 
-    public static final String testEntryComment = "testComment";
+    public static final String TEST_ENTRY_COMMENT = "testComment";
 
-    public static final String testEntryExtra   = "testExtra";
+    public static final String TEST_ENTRY_EXTRA   = "testExtra";
 
-    public static final byte[] constantByte     = new byte[] { '1', '1', '2', '2', '3', '3', '4',
+    public static final byte[] CONSTANT_BYTE      = new byte[] { '1', '1', '2', '2', '3', '3', '4',
             '4', '5', '5', '6', '6', '7', '7', '8', '8' };
 
     @BeforeClass
@@ -68,7 +68,7 @@ public abstract class TestBase {
         OutputStream outputStream = new FileOutputStream(getTempDemoFile());
 
         try {
-            outputStream.write(constantByte, 0, constantByte.length);
+            outputStream.write(CONSTANT_BYTE, 0, CONSTANT_BYTE.length);
         } finally {
             outputStream.close();
         }
@@ -101,9 +101,9 @@ public abstract class TestBase {
         jos.putNextEntry(jarEntry);
         jos.write(jarContent);
 
-        ZipEntry entryForTest = new ZipEntry(testEntry);
-        entryForTest.setComment(testEntryComment);
-        entryForTest.setExtra(testEntryExtra.getBytes());
+        ZipEntry entryForTest = new ZipEntry(TEST_ENTRY);
+        entryForTest.setComment(TEST_ENTRY_COMMENT);
+        entryForTest.setExtra(TEST_ENTRY_EXTRA.getBytes());
         jos.putNextEntry(entryForTest);
 
         jos.closeEntry();
@@ -116,7 +116,7 @@ public abstract class TestBase {
     }
 
     private static byte[] fetchResource(String resourceName) throws IOException {
-        URL resource = TestBase.class.getClassLoader().getResource(resourceName);
+        URL resource = BaseTest.class.getClassLoader().getResource(resourceName);
         RandomAccessDataFile dataFile = new RandomAccessDataFile(new File(resource.getFile()));
         return Bytes.get(dataFile);
     }
@@ -127,7 +127,7 @@ public abstract class TestBase {
     }
 
     public static File getWorkspace() {
-        File workSpace = new File(getTmpDir(), tempDir);
+        File workSpace = new File(getTmpDir(), TEMP_DIR);
         if (!workSpace.exists()) {
             workSpace.mkdirs();
         }
@@ -135,15 +135,15 @@ public abstract class TestBase {
     }
 
     public static File getTempDemoFile() {
-        return new File(getWorkspace(), tempFile);
+        return new File(getWorkspace(), TEMP_FILE);
     }
 
     public static File getTempDemoZip() {
-        return new File(getWorkspace(), tempZip);
+        return new File(getWorkspace(), TEMP_ZIP);
     }
 
     public static boolean cleanWorkspace() {
-        File workDir = new File(getTmpDir(), tempDir);
+        File workDir = new File(getTmpDir(), TEMP_DIR);
         return FileUtils.deleteQuietly(workDir);
     }
 

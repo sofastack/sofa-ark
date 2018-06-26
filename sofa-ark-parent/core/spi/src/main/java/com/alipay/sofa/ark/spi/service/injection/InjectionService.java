@@ -25,5 +25,9 @@ import com.alipay.sofa.ark.spi.registry.ServiceReference;
  * @since 0.4.0
  */
 public interface InjectionService {
+    /**
+     * auto inject Ark Service
+     * @param reference
+     */
     void inject(ServiceReference reference);
 }

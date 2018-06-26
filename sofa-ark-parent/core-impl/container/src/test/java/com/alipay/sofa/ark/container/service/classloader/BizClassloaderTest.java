@@ -21,14 +21,12 @@ import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,8 +41,8 @@ import java.util.HashSet;
  */
 public class BizClassloaderTest extends BaseTest {
 
-    private URL                  classPathURL        = PluginClassloaderTest.class.getClassLoader()
-                                                         .getResource("");
+    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
+                                                  .getResource("");
 
     private PluginManagerService pluginManagerService;
 
@@ -54,11 +52,9 @@ public class BizClassloaderTest extends BaseTest {
 
     private BizManagerService    bizManagerService;
 
-    private ArkServiceContainer  arkServiceContainer = new ArkServiceContainer();
-
     @Before
     public void before() {
-        arkServiceContainer.start();
+        super.before();
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
             PluginManagerService.class);
         pluginDeployService = ArkServiceContainerHolder.getContainer().getService(
@@ -195,8 +191,4 @@ public class BizClassloaderTest extends BaseTest {
 
     }
 
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
 }

@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.service.event;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
@@ -27,9 +26,7 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -38,18 +35,7 @@ import org.junit.Test;
  */
 public class EventAdminServiceTest extends BaseTest {
 
-    private ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
-    private static int          mark                = 5;
-
-    @Before
-    public void before() {
-        arkServiceContainer.start();
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
+    private static int mark = 5;
 
     @Test
     public void test() throws Throwable {

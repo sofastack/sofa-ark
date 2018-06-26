@@ -23,13 +23,27 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Create Biz according to {@link File} and {@link PluginArchive}
+ * Create Plugin according to {@link File} and {@link PluginArchive}
  *
  * @author qilong.zql
  * @since 0.4.0
  */
 public interface PluginFactoryService {
-    Plugin createPlugin(PluginArchive pluginArchive) throws IOException, IllegalArgumentException;
+    /**
+     * Create Plugin Model according to {@link PluginArchive}
+     *
+     * @param pluginArchive the {@link PluginArchive} model
+     * @return Biz
+     * @throws IOException throw io exception when {@link PluginArchive} is invalid.
+     */
+    Plugin createPlugin(PluginArchive pluginArchive) throws IOException;
 
+    /**
+     * Create Plugin Model according to {@link File}
+     *
+     * @param file the plugin file
+     * @return Plugin
+     * @throws IOException throw io exception when {@link PluginArchive} is invalid.
+     */
     Plugin createPlugin(File file) throws IOException;
 }

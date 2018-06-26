@@ -37,7 +37,7 @@ import com.alipay.sofa.ark.tools.LibraryScope;
  */
 public class ArtifactsLibraries implements Libraries {
 
-    private static final Map<String, LibraryScope> scopes;
+    private static final Map<String, LibraryScope> SCOPES;
 
     static {
         Map<String, LibraryScope> libraryScopes = new HashMap<>();
@@ -45,7 +45,7 @@ public class ArtifactsLibraries implements Libraries {
         libraryScopes.put(Artifact.SCOPE_RUNTIME, LibraryScope.RUNTIME);
         libraryScopes.put(Artifact.SCOPE_PROVIDED, LibraryScope.PROVIDED);
         libraryScopes.put(Artifact.SCOPE_SYSTEM, LibraryScope.PROVIDED);
-        scopes = Collections.unmodifiableMap(libraryScopes);
+        SCOPES = Collections.unmodifiableMap(libraryScopes);
     }
 
     private final Set<Artifact>                    artifacts;
@@ -64,7 +64,7 @@ public class ArtifactsLibraries implements Libraries {
     public void doWithLibraries(LibraryCallback callback) throws IOException {
         Set<String> duplicates = getDuplicates(artifacts);
         for (Artifact artifact : this.artifacts) {
-            LibraryScope scope = scopes.get(artifact.getScope());
+            LibraryScope scope = SCOPES.get(artifact.getScope());
             if (scope != null && artifact.getFile() != null) {
                 String name = getFileName(artifact);
                 if (duplicates.contains(name)) {

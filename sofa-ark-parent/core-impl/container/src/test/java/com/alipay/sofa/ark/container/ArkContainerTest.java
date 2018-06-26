@@ -34,6 +34,16 @@ public class ArkContainerTest extends BaseTest {
 
     private URL jarURL = ArkContainerTest.class.getClassLoader().getResource("test.jar");
 
+    @Override
+    public void before() {
+        // no op
+    }
+
+    @Override
+    public void after() {
+        // no op
+    }
+
     @Test
     public void testStart() throws ArkException {
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
