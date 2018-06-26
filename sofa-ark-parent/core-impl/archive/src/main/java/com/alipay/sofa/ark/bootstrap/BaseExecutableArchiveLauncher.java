@@ -26,16 +26,16 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
 /**
- * Base class for executable archive {@link Launcher}s.
+ * Base class for executable archive {@link AbstractLauncher}s.
  *
  * @author qilong.zql
  * @since 0.1.0
  */
-public abstract class ExecutableArchiveLauncher extends Launcher {
+public abstract class BaseExecutableArchiveLauncher extends AbstractLauncher {
 
     private final ExecutableArchive executableArchive;
 
-    public ExecutableArchiveLauncher() {
+    public BaseExecutableArchiveLauncher() {
         try {
             this.executableArchive = createArchive();
         } catch (Exception ex) {
@@ -43,7 +43,7 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
         }
     }
 
-    protected ExecutableArchiveLauncher(ExecutableArchive executableArchive) {
+    protected BaseExecutableArchiveLauncher(ExecutableArchive executableArchive) {
         this.executableArchive = executableArchive;
     }
 

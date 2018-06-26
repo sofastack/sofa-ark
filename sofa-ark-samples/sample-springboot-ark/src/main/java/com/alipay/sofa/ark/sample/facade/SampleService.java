@@ -22,6 +22,10 @@ package com.alipay.sofa.ark.sample.facade;
  */
 public interface SampleService {
 
+    /**
+     * a simple facade
+     * @return
+     */
     String service();
 
 }

@@ -16,12 +16,10 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,20 +29,8 @@ import java.net.URL;
  * @author qilong.zql
  * @since 0.4.0
  */
-public class PluginFactoryServiceTest {
+public class PluginFactoryServiceTest extends BaseTest {
     private PluginFactoryService pluginFactoryService = new PluginFactoryServiceImpl();
-
-    private ArkServiceContainer  arkServiceContainer  = new ArkServiceContainer();
-
-    @Before
-    public void before() {
-        arkServiceContainer.start();
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
 
     @Test
     public void test() throws Throwable {

@@ -41,11 +41,17 @@ public interface BizManagerService {
     /**
      * Un-Register Biz, it requires the biz state must be {@link BizState#ACTIVATED}
      * or {@link BizState#DEACTIVATED} or {@link BizState#BROKEN}
+     * @param bizName Biz Name
+     * @param bizVersion Biz Version
+     * @return Biz
      */
     Biz unRegisterBiz(String bizName, String bizVersion);
 
     /**
      * Un-Register Biz in strict mode, it ignores the biz state, generally invoked when install biz failed.
+     * @param bizName Biz Name
+     * @param bizVersion Biz Version
+     * @return Biz
      */
     Biz unRegisterBizStrictly(String bizName, String bizVersion);
 
@@ -84,6 +90,7 @@ public interface BizManagerService {
 
     /**
      * Get all biz in priority PriorityOrdered
+     * @return
      */
     List<Biz> getBizInOrder();
 
@@ -102,6 +109,7 @@ public interface BizManagerService {
      *
      * @param bizName
      * @param bizVersion
+     * @return
      */
     boolean isActiveBiz(String bizName, String bizVersion);
 

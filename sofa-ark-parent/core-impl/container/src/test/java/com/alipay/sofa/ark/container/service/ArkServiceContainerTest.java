@@ -19,25 +19,14 @@ package com.alipay.sofa.ark.container.service;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.pipeline.StandardPipeline;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * @author ruoshan
  * @since 0.1.0
  */
 public class ArkServiceContainerTest extends BaseTest {
-
-    private ArkServiceContainer arkServiceContainer;
-
-    @Before
-    public void before() {
-        arkServiceContainer = new ArkServiceContainer();
-    }
-
     @Test
     public void testStart() {
         arkServiceContainer.start();
@@ -59,10 +48,4 @@ public class ArkServiceContainerTest extends BaseTest {
         Assert.assertNotNull(pipeline);
         Assert.assertTrue(pipeline instanceof StandardPipeline);
     }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
-
 }

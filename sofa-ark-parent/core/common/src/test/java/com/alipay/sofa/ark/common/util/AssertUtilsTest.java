@@ -27,7 +27,7 @@ import org.junit.Test;
 public class AssertUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAssertNotNull_Null() {
+    public void testAssertNotNullNull() {
         String msg = "object is null";
         try {
             AssertUtils.assertNotNull(null, msg);
@@ -39,7 +39,7 @@ public class AssertUtilsTest {
     }
 
     @Test
-    public void testAssertNotNull_NotNull() {
+    public void testAssertNotNullNotNull() {
         AssertUtils.assertNotNull(new Object(), "object is null");
     }
 
@@ -49,7 +49,7 @@ public class AssertUtilsTest {
         try {
             AssertUtils.isTrue(false, "Exception %s", "error");
         } catch (IllegalArgumentException ex) {
-            Assert.assertTrue(ex.getMessage().equals("Exception error"));
+            Assert.assertTrue("Exception error".equals(ex.getMessage()));
         }
     }
 
@@ -59,7 +59,7 @@ public class AssertUtilsTest {
         try {
             AssertUtils.isFalse(true, "Exception %s", "error");
         } catch (IllegalArgumentException ex) {
-            Assert.assertTrue(ex.getMessage().equals("Exception error"));
+            Assert.assertTrue("Exception error".equals(ex.getMessage()));
         }
     }
 

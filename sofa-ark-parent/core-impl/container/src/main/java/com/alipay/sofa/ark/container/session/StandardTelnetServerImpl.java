@@ -45,7 +45,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_PORT_ATTRIBUTE;
  * @since 0.4.0
  */
 @Singleton
-public class StandardTelnetServer implements TelnetServerService {
+public class StandardTelnetServerImpl implements TelnetServerService {
 
     private static final ArkLogger LOGGER   = ArkLoggerFactory.getDefaultLogger();
 
@@ -57,7 +57,7 @@ public class StandardTelnetServer implements TelnetServerService {
 
     private volatile boolean       shutdown = false;
 
-    public StandardTelnetServer() {
+    public StandardTelnetServerImpl() {
         String telnetValue = EnvironmentUtils.getProperty(TELNET_PORT_ATTRIBUTE);
         try {
             if (!StringUtils.isEmpty(telnetValue)) {

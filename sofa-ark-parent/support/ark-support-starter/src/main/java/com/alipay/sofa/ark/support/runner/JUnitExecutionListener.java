@@ -31,7 +31,7 @@ public class JUnitExecutionListener extends RunListener {
 
     private final static String         ARK_JUNIT4_RUNNER = "com.alipay.sofa.ark.support.runner.ArkJUnit4Runner";
     private final static String         ARK_BOOT_RUNNER   = "com.alipay.sofa.ark.springboot.runner.ArkBootRunner";
-    private final static Object         lock              = new Object();
+    private final static Object         LOCK              = new Object();
     private static volatile RunListener singleton;
 
     private JUnitExecutionListener() {
@@ -69,7 +69,7 @@ public class JUnitExecutionListener extends RunListener {
 
     public static RunListener getRunListener() {
         if (singleton == null) {
-            synchronized (lock) {
+            synchronized (LOCK) {
                 if (singleton == null) {
                     singleton = new JUnitExecutionListener();
                 }

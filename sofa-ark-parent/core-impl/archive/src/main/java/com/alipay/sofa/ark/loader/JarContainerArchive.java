@@ -45,7 +45,7 @@ public class JarContainerArchive extends AbstractArchive implements ContainerArc
     }
 
     @Override
-    public URL[] getUrls() throws Exception {
+    public URL[] getUrls() throws IOException {
         return getUrls(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {

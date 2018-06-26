@@ -25,6 +25,8 @@ package com.alipay.sofa.ark.spi.registry;
 public interface ServiceFilter<T> {
 
     /**
+     * Filter ServiceReference
+     *
      * @param serviceReference whether the given serviceReference
      * match {@code ServiceFilter}
      * @return true if match; false if not match

@@ -25,13 +25,13 @@ package com.alipay.sofa.ark.common.util;
  */
 public class SimpleByteBuffer {
 
-    private static int BUFFER_CHUNK = 20;
+    private final static int BUFFER_CHUNK = 20;
 
-    private byte[]     buffer;
+    private byte[]           buffer;
 
-    private int        pos          = 0;
+    private int              pos          = 0;
 
-    private int        size         = 0;
+    private int              size         = 0;
 
     public SimpleByteBuffer() {
         buffer = new byte[BUFFER_CHUNK];

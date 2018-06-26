@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.loader.test.jar;
 import com.alipay.sofa.ark.loader.data.RandomAccessData;
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
 import com.alipay.sofa.ark.loader.jar.*;
-import com.alipay.sofa.ark.loader.test.base.TestBase;
+import com.alipay.sofa.ark.loader.test.base.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import java.util.List;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class CentralDirectoryParserTest extends TestBase {
+public class CentralDirectoryParserTest extends BaseTest {
 
     @Test
     public void testParser() throws IOException {
@@ -43,9 +43,10 @@ public class CentralDirectoryParserTest extends TestBase {
 
         Assert.assertTrue(testVisitor.getEntryNum() == 5);
         Assert.assertTrue(cdfhList.size() == 5);
-        Assert.assertTrue(cdfhList.get(4).getName().toString().equals(testEntry));
-        Assert.assertTrue(cdfhList.get(4).getComment().toString().equals(testEntryComment));
-        Assert.assertTrue(compareByteArray(cdfhList.get(4).getExtra(), testEntryExtra.getBytes()));
+        Assert.assertTrue(cdfhList.get(4).getName().toString().equals(TEST_ENTRY));
+        Assert.assertTrue(cdfhList.get(4).getComment().toString().equals(TEST_ENTRY_COMMENT));
+        Assert
+            .assertTrue(compareByteArray(cdfhList.get(4).getExtra(), TEST_ENTRY_EXTRA.getBytes()));
 
     }
 

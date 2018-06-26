@@ -36,12 +36,11 @@ import java.util.Set;
  */
 public class BizManagerServiceTest extends BaseTest {
 
-    private BizManagerService   bizManagerService   = new BizManagerServiceImpl();
-    private ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
+    private BizManagerService bizManagerService = new BizManagerServiceImpl();
 
     @Before
     public void before() {
-        arkServiceContainer.start();
+        super.before();
         Biz biz = new BizModel().setBizName("test-biz").setBizVersion("1.0.0")
             .setBizState(BizState.RESOLVED);
         bizManagerService.registerBiz(biz);
@@ -124,11 +123,6 @@ public class BizManagerServiceTest extends BaseTest {
         Assert
             .assertTrue(bizManagerService.getBizState("test-biz", "1.0.1") == BizState.DEACTIVATED);
 
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
     }
 
 }

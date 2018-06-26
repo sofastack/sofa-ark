@@ -28,11 +28,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
  * @author qilong.zql
  * @since 0.1.0
  */
-public abstract class Launcher {
+public abstract class AbstractLauncher {
 
     /**
      * Launch the ark container. This method is the initial entry point when execute an fat jar.

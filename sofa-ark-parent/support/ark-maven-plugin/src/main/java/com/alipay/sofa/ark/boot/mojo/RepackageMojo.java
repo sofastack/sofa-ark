@@ -194,11 +194,11 @@ public class RepackageMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        if (this.project.getPackaging().equals("war")) {
+        if ("war".equals(this.project.getPackaging())) {
             getLog().debug("repackage goal could not be applied to war project.");
             return;
         }
-        if (this.project.getPackaging().equals("pom")) {
+        if ("pom".equals(this.project.getPackaging())) {
             getLog().debug("repackage goal could not be applied to pom project.");
             return;
         }
@@ -364,7 +364,7 @@ public class RepackageMojo extends AbstractMojo {
         return result;
     }
 
-    public static abstract class ArkConstants {
+    public static class ArkConstants {
 
         private static String groupId    = "com.alipay.sofa";
 

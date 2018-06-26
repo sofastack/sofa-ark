@@ -18,14 +18,11 @@ package com.alipay.sofa.ark.container.service.session;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -33,18 +30,6 @@ import org.junit.Test;
  * @since 0.4.0
  */
 public class CommandHandlerTest extends BaseTest {
-
-    private ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
-
-    @Before
-    public void before() {
-        arkServiceContainer.start();
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
 
     @Test
     public void test() {

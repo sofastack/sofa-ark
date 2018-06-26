@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
 import com.alipay.sofa.ark.loader.jar.CentralDirectoryEndRecord;
-import com.alipay.sofa.ark.loader.test.base.TestBase;
+import com.alipay.sofa.ark.loader.test.base.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ import java.io.IOException;
  * @author qilong.zql
  * @since 0.1.0
  */
-public class CentralDirectoryEndRecordTest extends TestBase {
+public class CentralDirectoryEndRecordTest extends BaseTest {
 
     @Test
     public void testEOCD() throws IOException {

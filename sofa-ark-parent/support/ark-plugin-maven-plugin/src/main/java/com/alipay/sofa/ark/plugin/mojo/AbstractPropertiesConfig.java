@@ -100,6 +100,10 @@ public abstract class AbstractPropertiesConfig {
         return buf.toString();
     }
 
+    /**
+     * Store user configuration
+     * @param props
+     */
     public abstract void store(Properties props);
 
 }

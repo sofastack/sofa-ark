@@ -50,6 +50,7 @@ public interface PluginManagerService {
 
     /**
      * Get all plugins in priority PriorityOrdered
+     * @return
      */
     List<Plugin> getPluginsInOrder();
 

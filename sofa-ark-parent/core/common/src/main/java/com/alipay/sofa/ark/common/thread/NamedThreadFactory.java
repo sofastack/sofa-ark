@@ -30,12 +30,12 @@ public class NamedThreadFactory implements ThreadFactory {
     /**
      * The global thread pool counter
      */
-    private static final AtomicInteger POOL_COUNT  = new AtomicInteger();
+    private static final AtomicInteger POOL_COUNT   = new AtomicInteger();
 
     /**
      * The current thread pool counter
      */
-    private final AtomicInteger        threadCount = new AtomicInteger(1);
+    private final AtomicInteger        threadCount  = new AtomicInteger(1);
 
     /**
      * Thread group
@@ -55,7 +55,7 @@ public class NamedThreadFactory implements ThreadFactory {
     /**
      * The first default prefix of thread name
      */
-    private final String               firstPrefix = "SOFA-ARK-";
+    private final static String        FIRST_PREFIX = "SOFA-ARK-";
 
     /**
      * specify the second prefix of thread name, default the thread created is non-daemon
@@ -75,7 +75,7 @@ public class NamedThreadFactory implements ThreadFactory {
     public NamedThreadFactory(String secondPrefix, boolean daemon) {
         SecurityManager sm = System.getSecurityManager();
         group = (sm != null) ? sm.getThreadGroup() : Thread.currentThread().getThreadGroup();
-        namePrefix = firstPrefix + secondPrefix + "-" + POOL_COUNT.getAndIncrement() + "-T";
+        namePrefix = FIRST_PREFIX + secondPrefix + "-" + POOL_COUNT.getAndIncrement() + "-T";
         isDaemon = daemon;
     }
 
