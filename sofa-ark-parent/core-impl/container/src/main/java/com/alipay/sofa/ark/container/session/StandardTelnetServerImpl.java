@@ -66,10 +66,13 @@ public class StandardTelnetServerImpl implements TelnetServerService {
 
     private AtomicBoolean          shutdown    = new AtomicBoolean(false);
 
+    private final int WORKER_THREAD_POOL_SIZE = 1;
+    private final int SELECT_TIME_GAP = 1000;
+
     public StandardTelnetServerImpl() {
         String telnetValue = EnvironmentUtils.getProperty(TELNET_PORT_ATTRIBUTE);
         try {
-            CommonThreadPool workerPool = new CommonThreadPool().setAllowCoreThreadTimeOut(true)
+            CommonThreadPool workerPool = new CommonThreadPool().setCorePoolSize(WORKER_THREAD_POOL_SIZE)
                 .setDaemon(true).setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
             ThreadPoolManager.registerThreadPool(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME,
                 workerPool);
@@ -103,7 +106,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                 public void run() {
                     while (!shutdown.get()) {
                         try {
-                            selector.select(1000);
+                            selector.select(SELECT_TIME_GAP);
                             Set<SelectionKey> selectionKeys = selector.selectedKeys();
                             Iterator<SelectionKey> it = selectionKeys.iterator();
                             while (it.hasNext()) {
@@ -111,14 +114,14 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                                 it.remove();
                                 try {
                                     handlerSelectionKey(key);
-                                } catch (Exception ex) {
+                                } catch (Throwable t) {
                                     if (key != null) {
                                         key.cancel();
                                         if (key.channel() != null) {
                                             key.channel().close();
                                         }
                                     }
-                                    LOGGER.error("An error occurs in telnet session.", ex);
+                                    LOGGER.error("An error occurs in telnet session.", t);
                                 }
                             }
                         } catch (Throwable t) {
