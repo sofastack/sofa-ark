@@ -54,26 +54,27 @@ import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_PORT_ATTRIBUTE;
 @Singleton
 public class StandardTelnetServerImpl implements TelnetServerService {
 
-    private static final ArkLogger LOGGER      = ArkLoggerFactory.getDefaultLogger();
+    private static final ArkLogger LOGGER                  = ArkLoggerFactory.getDefaultLogger();
 
-    private Selector               selector    = null;
+    private Selector               selector                = null;
 
-    private ServerSocketChannel    acceptorSvr = null;
+    private ServerSocketChannel    acceptorSvr             = null;
 
-    private String                 host        = null;
+    private String                 host                    = null;
 
-    private int                    port        = DEFAULT_TELNET_PORT;
+    private int                    port                    = DEFAULT_TELNET_PORT;
 
-    private AtomicBoolean          shutdown    = new AtomicBoolean(false);
+    private AtomicBoolean          shutdown                = new AtomicBoolean(false);
 
-    private final int WORKER_THREAD_POOL_SIZE = 1;
-    private final int SELECT_TIME_GAP = 1000;
+    private final int              WORKER_THREAD_POOL_SIZE = 1;
+    private final int              SELECT_TIME_GAP         = 1000;
 
     public StandardTelnetServerImpl() {
         String telnetValue = EnvironmentUtils.getProperty(TELNET_PORT_ATTRIBUTE);
         try {
-            CommonThreadPool workerPool = new CommonThreadPool().setCorePoolSize(WORKER_THREAD_POOL_SIZE)
-                .setDaemon(true).setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
+            CommonThreadPool workerPool = new CommonThreadPool()
+                .setCorePoolSize(WORKER_THREAD_POOL_SIZE).setDaemon(true)
+                .setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
             ThreadPoolManager.registerThreadPool(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME,
                 workerPool);
             if (!StringUtils.isEmpty(telnetValue)) {
