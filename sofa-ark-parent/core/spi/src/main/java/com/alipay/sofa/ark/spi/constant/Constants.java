@@ -25,72 +25,72 @@ public class Constants {
     /**
      * Archiver Marker
      */
-    public final static String ARK_CONTAINER_MARK_ENTRY          = "com/alipay/sofa/ark/container/mark";
+    public final static String ARK_CONTAINER_MARK_ENTRY              = "com/alipay/sofa/ark/container/mark";
 
-    public final static String ARK_PLUGIN_MARK_ENTRY             = "com/alipay/sofa/ark/plugin/mark";
+    public final static String ARK_PLUGIN_MARK_ENTRY                 = "com/alipay/sofa/ark/plugin/mark";
 
-    public final static String ARK_BIZ_MARK_ENTRY                = "com/alipay/sofa/ark/biz/mark";
+    public final static String ARK_BIZ_MARK_ENTRY                    = "com/alipay/sofa/ark/biz/mark";
 
     /**
      * Ark Plugin Attribute
      */
-    public final static String PRIORITY_ATTRIBUTE                = "priority";
-    public final static String GROUP_ID_ATTRIBUTE                = "groupId";
-    public final static String ARTIFACT_ID_ATTRIBUTE             = "artifactId";
-    public final static String PLUGIN_NAME_ATTRIBUTE             = "pluginName";
-    public final static String PLUGIN_VERSION_ATTRIBUTE          = "version";
-    public final static String ACTIVATOR_ATTRIBUTE               = "activator";
-    public final static String IMPORT_CLASSES_ATTRIBUTE          = "import-classes";
-    public final static String IMPORT_PACKAGES_ATTRIBUTE         = "import-packages";
-    public final static String EXPORT_CLASSES_ATTRIBUTE          = "export-classes";
-    public final static String EXPORT_PACKAGES_ATTRIBUTE         = "export-packages";
+    public final static String PRIORITY_ATTRIBUTE                    = "priority";
+    public final static String GROUP_ID_ATTRIBUTE                    = "groupId";
+    public final static String ARTIFACT_ID_ATTRIBUTE                 = "artifactId";
+    public final static String PLUGIN_NAME_ATTRIBUTE                 = "pluginName";
+    public final static String PLUGIN_VERSION_ATTRIBUTE              = "version";
+    public final static String ACTIVATOR_ATTRIBUTE                   = "activator";
+    public final static String IMPORT_CLASSES_ATTRIBUTE              = "import-classes";
+    public final static String IMPORT_PACKAGES_ATTRIBUTE             = "import-packages";
+    public final static String EXPORT_CLASSES_ATTRIBUTE              = "export-classes";
+    public final static String EXPORT_PACKAGES_ATTRIBUTE             = "export-packages";
 
     /**
      * Ark Biz Attribute
      */
-    public final static String MAIN_CLASS_ATTRIBUTE              = "Main-Class";
-    public final static String ARK_BIZ_NAME                      = "Ark-Biz-Name";
-    public final static String ARK_BIZ_VERSION                   = "Ark-Biz-Version";
-    public final static String DENY_IMPORT_CLASSES               = "deny-import-classes";
-    public final static String DENY_IMPORT_PACKAGES              = "deny-import-packages";
-    public final static String DENY_IMPORT_RESOURCES             = "deny-import-resources";
+    public final static String MAIN_CLASS_ATTRIBUTE                  = "Main-Class";
+    public final static String ARK_BIZ_NAME                          = "Ark-Biz-Name";
+    public final static String ARK_BIZ_VERSION                       = "Ark-Biz-Version";
+    public final static String DENY_IMPORT_CLASSES                   = "deny-import-classes";
+    public final static String DENY_IMPORT_PACKAGES                  = "deny-import-packages";
+    public final static String DENY_IMPORT_RESOURCES                 = "deny-import-resources";
 
-    public final static String PACKAGE_PREFIX_MARK               = "*";
-    public final static String DEFAULT_PACKAGE                   = ".";
-    public final static String MANIFEST_VALUE_SPLIT              = ",";
+    public final static String PACKAGE_PREFIX_MARK                   = "*";
+    public final static String DEFAULT_PACKAGE                       = ".";
+    public final static String MANIFEST_VALUE_SPLIT                  = ",";
 
-    public final static String IMPORT_RESOURCES_ATTRIBUTE        = "import-resources";
-    public final static String EXPORT_RESOURCES_ATTRIBUTE        = "export-resources";
+    public final static String IMPORT_RESOURCES_ATTRIBUTE            = "import-resources";
+    public final static String EXPORT_RESOURCES_ATTRIBUTE            = "export-resources";
 
-    public final static String SUREFIRE_BOOT_CLASSPATH           = "Class-Path";
-    public final static String SUREFIRE_BOOT_CLASSPATH_SPLIT     = " ";
+    public final static String SUREFIRE_BOOT_CLASSPATH               = "Class-Path";
+    public final static String SUREFIRE_BOOT_CLASSPATH_SPLIT         = " ";
 
     /**
      * Telnet Server
      */
-    public final static String TELNET_PORT_ATTRIBUTE             = "sofa.ark.telnet";
-    public final static int    DEFAULT_TELNET_PORT               = 1234;
-    public final static String TELNET_SERVER_THREAD_POOL_NAME    = "telnet-server";
-    public final static String TELNET_SESSION_PROMPT             = "sofa-ark>";
-    public final static int    BUFFER_CHUNK                      = 128;
+    public final static String TELNET_PORT_ATTRIBUTE                 = "sofa.ark.telnet";
+    public final static int    DEFAULT_TELNET_PORT                   = 1234;
+    public final static String TELNET_SERVER_WORKER_THREAD_POOL_NAME = "telnet-server-worker";
+    public final static String TELNET_SESSION_PROMPT                 = "sofa-ark>";
+    public final static int    BUFFER_CHUNK                          = 128;
 
     /**
      * String Constants
      */
-    public final static String SPACE_SPLIT                       = "\\s+";
-    public final static String STRING_COLON                      = ":";
-    public final static String TELNET_STRING_END                 = new String(new byte[] {
-            (byte) 13, (byte) 10                                });
+    public final static String SPACE_SPLIT                           = "\\s+";
+    public final static String STRING_COLON                          = ":";
+    public final static String TELNET_STRING_END                     = new String(new byte[] {
+            (byte) 13, (byte) 10                                    });
 
     /**
      * Event
      */
-    public final static String BIZ_EVENT_TOPIC_UNINSTALL         = "UnInstall-Ark-Biz";
-    public final static String BIZ_EVENT_TOPIC_HEALTH_CHECK      = "Health-Check-Ark-Biz";
+    public final static String BIZ_EVENT_TOPIC_UNINSTALL             = "UnInstall-Ark-Biz";
+    public final static String BIZ_EVENT_TOPIC_HEALTH_CHECK          = "Health-Check-Ark-Biz";
 
     /**
      * Environment Properties
      */
-    public final static String SPRING_BOOT_ENDPOINTS_JMX_ENABLED = "endpoints.jmx.enabled";
+    public final static String SPRING_BOOT_ENDPOINTS_JMX_ENABLED     = "endpoints.jmx.enabled";
 
 }

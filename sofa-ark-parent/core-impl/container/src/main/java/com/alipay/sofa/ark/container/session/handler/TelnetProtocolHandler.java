@@ -20,12 +20,11 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.common.util.SimpleByteBuffer;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.service.session.TelnetSession;
 import com.alipay.sofa.ark.container.session.handler.AbstractTerminalTypeMapping.KEYS;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,64 +34,60 @@ import java.util.Map;
  * @author qilong.zql
  * @since 0.4.0
  */
-public class TelnetProtocolHandler implements Runnable {
+public class TelnetProtocolHandler {
 
     /**
-     * Telnet session
+     * https://www.ietf.org/rfc/rfc857.txt
+     * https://www.ietf.org/rfc/rfc858.txt
+     * https://www.ietf.org/rfc/rfc1073.txt
+     * https://www.ietf.org/rfc/rfc1091.txt
      */
-    private final TelnetSession                      telnetSession;
+    public static final byte[]                       NEGOTIATION_MESSAGE = new byte[] { (byte) 255,
+            (byte) 251, (byte) 1, (byte) 255, (byte) 251, (byte) 3, (byte) 255, (byte) 253,
+            (byte) 31, (byte) 255, (byte) 253, (byte) 24                };
 
-    /**
-     * Telnet session inputStream
-     */
-    private final InputStream                        in;
+    private SocketChannel                            socketChannel;
 
-    /**
-     * Telnet session outputStream
-     */
-    private final OutputStream                       out;
-
-    private byte[]                                   buffer;
     private String                                   telnetCommand;
     private String                                   escCommand;
-    private SimpleByteBuffer                         arkCommandBuffer   = new SimpleByteBuffer();
+    private SimpleByteBuffer                         arkCommandBuffer    = new SimpleByteBuffer();
 
-    private String                                   clientTerminalType = AbstractTerminalTypeMapping
-                                                                            .getDefaultTerminalType();
+    private String                                   clientTerminalType  = AbstractTerminalTypeMapping
+                                                                             .getDefaultTerminalType();
     private Map<String, AbstractTerminalTypeMapping> terminalTypeMapping;
 
     /**
      * Ark Command Handler
      */
-    private ArkCommandHandler                        commandHandler     = new ArkCommandHandler();
+    private ArkCommandHandler                        commandHandler      = new ArkCommandHandler();
 
     /**
      * Telnet NVT
      * http://www.ietf.org/rfc/rfc854.txt
      * https://www.ietf.org/rfc/rfc1091.txt
      */
-    private final static byte                        IAC                = (byte) 255;
-    private final static byte                        WILL               = (byte) 251;
-    private final static byte                        WONT               = (byte) 252;
-    private final static byte                        DO                 = (byte) 253;
-    private final static byte                        DONT               = (byte) 254;
-    private final static byte                        SB                 = (byte) 250;
-    private final static byte                        SE                 = (byte) 240;
-    private final static byte                        ECHO               = 1;
-    private final static byte                        GA                 = 3;
-    private final static byte                        NAWS               = 31;
-    private final static byte                        TERMINAL_TYPE      = 24;
+    private final static byte                        IAC                 = (byte) 255;
+    private final static byte                        WILL                = (byte) 251;
+    private final static byte                        WONT                = (byte) 252;
+    private final static byte                        DO                  = (byte) 253;
+    private final static byte                        DONT                = (byte) 254;
+    private final static byte                        SB                  = (byte) 250;
+    private final static byte                        SE                  = (byte) 240;
+    private final static byte                        ECHO                = 1;
+    private final static byte                        GA                  = 3;
+    private final static byte                        NAWS                = 31;
+    private final static byte                        TERMINAL_TYPE       = 24;
 
     /**
      * Special Character Value
      */
-    private final static byte                        MIN_VISUAL_BYTE    = 32;
-    private final static byte                        MAX_VISUAL_BYTE    = 126;
-    private final static byte                        SPACE              = 32;
-    private final static byte                        ESC                = 27;
-    private final static byte                        BS                 = 8;
-    private final static byte                        LF                 = 10;
-    private final static byte                        CR                 = 13;
+    private final static byte                        MIN_VISUAL_BYTE     = 32;
+    private final static byte                        MAX_VISUAL_BYTE     = 126;
+    private final static byte                        SPACE               = 32;
+    private final static byte                        ESC                 = 27;
+    private final static byte                        BS                  = 8;
+    private final static byte                        LF                  = 10;
+    private final static byte                        CR                  = 13;
 
     private boolean                                  isHandlingCommand;
     private boolean                                  isWill;
@@ -103,12 +98,8 @@ public class TelnetProtocolHandler implements Runnable {
     private boolean                                  isEsc;
     private boolean                                  isCr;
 
-    public TelnetProtocolHandler(TelnetSession telnetSession) {
-        this.telnetSession = telnetSession;
-        this.in = telnetSession.getInput();
-        this.out = telnetSession.getOutput();
-        buffer = new byte[Constants.BUFFER_CHUNK];
-        reset();
+    public TelnetProtocolHandler(SocketChannel sc) {
+        socketChannel = sc;
         terminalTypeMapping = new HashMap<>();
         terminalTypeMapping.put("ANSI", new AbstractTerminalTypeMapping((byte) 8, (byte) 127) {
         });
@@ -122,23 +113,18 @@ public class TelnetProtocolHandler implements Runnable {
         });
         terminalTypeMapping.put("XTERM", new AbstractTerminalTypeMapping((byte) 127, (byte) -1) {
         });
+        reset();
     }
 
-    @Override
-    public void run() {
-        try {
-            int count;
-            while ((count = in.read(buffer)) > -1 && telnetSession.isAlive()) {
-                for (int i = 0; i < count; ++i) {
-                    byteScanner(buffer[i]);
-                }
+    public void handle() throws IOException {
+        int count;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(Constants.BUFFER_CHUNK);
+        while ((count = socketChannel.read(byteBuffer)) > 0) {
+            byteBuffer.flip();
+            for (int i = 0; i < count; ++i) {
+                byteScanner(byteBuffer.get());
             }
-        } catch (IOException ex) {
-            // ignore
-        } finally {
-            telnetSession.close();
         }
-
     }
 
     private void byteScanner(byte b) throws IOException {
@@ -188,58 +174,47 @@ public class TelnetProtocolHandler implements Runnable {
             erase();
             arkCommandBuffer.backSpace();
             render();
-            out.flush();
         } else if (b == terminalTypeMapping.get(clientTerminalType).getDel()) {
             erase();
             arkCommandBuffer.delete();
             render();
-            out.flush();
         } else if (MIN_VISUAL_BYTE <= b && b <= MAX_VISUAL_BYTE) {
             if (arkCommandBuffer.getGap() > 0) {
                 erase();
                 arkCommandBuffer.insert(b);
                 render();
-                out.flush();
             } else {
                 arkCommandBuffer.insert(b);
-                out.write(b);
-                out.flush();
+                socketChannel.write(wrapSingleByte(b));
             }
         } else if ((b == LF && !isCr) || b == CR) {
-            out.write(new byte[] { CR, LF });
-            out.flush();
+            socketChannel.write(ByteBuffer.wrap(new byte[] { CR, LF }));
             handleCommand();
         }
         isCr = (b == CR);
     }
 
-    private void handleCommand() {
-        try {
-            echoResponse(commandHandler.handleCommand(getArkCommand()));
-            echoPrompt();
-        } catch (Throwable throwable) {
-            telnetSession.close();
-        }
+    private void handleCommand() throws IOException {
+        echoResponse(commandHandler.handleCommand(getArkCommand()));
+        echoPrompt();
     }
 
     private void erase() throws IOException {
         for (int i = 0; i < arkCommandBuffer.getPos(); ++i) {
-            out.write(BS);
+            socketChannel.write(wrapSingleByte(BS));
         }
         for (int i = 0; i < arkCommandBuffer.getSize(); ++i) {
-            out.write(SPACE);
+            socketChannel.write(wrapSingleByte(SPACE));
         }
         for (int i = 0; i < arkCommandBuffer.getSize(); ++i) {
-            out.write(BS);
+            socketChannel.write(wrapSingleByte(BS));
         }
     }
 
     private void render() throws IOException {
-        for (byte b : arkCommandBuffer.getBuffer()) {
-            out.write(b);
-        }
+        socketChannel.write(ByteBuffer.wrap(arkCommandBuffer.getBuffer()));
         for (int i = 0; i < arkCommandBuffer.getGap(); ++i) {
-            out.write(BS);
+            socketChannel.write(ByteBuffer.wrap(new byte[] { BS }));
         }
     }
 
@@ -247,16 +222,14 @@ public class TelnetProtocolHandler implements Runnable {
         switch (key) {
             case LEFT:
                 if (arkCommandBuffer.goLeft()) {
-                    out.write(BS);
-                    out.flush();
+                    socketChannel.write(wrapSingleByte(BS));
                 }
                 reset();
                 break;
             case RIGHT:
                 byte b = arkCommandBuffer.goRight();
                 if (b != -1) {
-                    out.write(b);
-                    out.flush();
+                    socketChannel.write(wrapSingleByte(b));
                 }
                 reset();
                 break;
@@ -264,7 +237,6 @@ public class TelnetProtocolHandler implements Runnable {
                 erase();
                 arkCommandBuffer.delete();
                 render();
-                out.flush();
                 reset();
                 break;
             case UNFINISHED:
@@ -288,18 +260,16 @@ public class TelnetProtocolHandler implements Runnable {
             reset();
         } else if (isWill || isDo) {
             if (isWill && b == TERMINAL_TYPE) {
-                out.write(new byte[] { IAC, SB, TERMINAL_TYPE, ECHO, IAC, SE });
-                out.flush();
+                socketChannel.write(ByteBuffer.wrap(new byte[] { IAC, SB, TERMINAL_TYPE, ECHO, IAC,
+                        SE }));
             } else if (b != ECHO && b != GA && b != NAWS) {
                 telnetCommand += (char) b;
-                out.write(telnetCommand.getBytes());
-                out.flush();
+                socketChannel.write(ByteBuffer.wrap(telnetCommand.getBytes()));
             }
             reset();
         } else if (isWont || isDont) {
             telnetCommand += (char) b;
-            out.write(telnetCommand.getBytes());
-            out.flush();
+            socketChannel.write(ByteBuffer.wrap(telnetCommand.getBytes()));
             reset();
         } else if (isSb) {
             telnetCommand += (char) b;
@@ -323,9 +293,8 @@ public class TelnetProtocolHandler implements Runnable {
                 }
             }
             if (!isSuccess) {
-                out.write("TerminalType negotiate failed.".getBytes());
-                out.flush();
-                telnetSession.close();
+                socketChannel.write(ByteBuffer.wrap("TerminalType negotiate failed.".getBytes()));
+                throw new RuntimeException("TerminalType negotiate failed.");
             }
         }
     }
@@ -357,12 +326,14 @@ public class TelnetProtocolHandler implements Runnable {
             .concat(Constants.TELNET_STRING_END))) {
             content = content + Constants.TELNET_STRING_END;
         }
-        out.write(content.getBytes());
-        out.flush();
+        socketChannel.write(ByteBuffer.wrap(content.getBytes()));
     }
 
     private void echoPrompt() throws IOException {
-        out.write(Constants.TELNET_SESSION_PROMPT.getBytes());
-        out.flush();
+        socketChannel.write(ByteBuffer.wrap(Constants.TELNET_SESSION_PROMPT.getBytes()));
+    }
+
+    private ByteBuffer wrapSingleByte(byte b) {
+        return ByteBuffer.wrap(new byte[] { b });
     }
 }

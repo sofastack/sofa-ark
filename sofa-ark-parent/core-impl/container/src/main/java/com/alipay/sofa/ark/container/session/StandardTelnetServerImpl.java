@@ -23,16 +23,23 @@ import com.alipay.sofa.ark.common.thread.ThreadPoolManager;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.session.handler.TelnetProtocolHandler;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
-import com.alipay.sofa.ark.spi.service.session.TelnetSession;
 import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_TELNET_PORT;
 import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
@@ -47,19 +54,29 @@ import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_PORT_ATTRIBUTE;
 @Singleton
 public class StandardTelnetServerImpl implements TelnetServerService {
 
-    private static final ArkLogger LOGGER   = ArkLoggerFactory.getDefaultLogger();
+    private static final ArkLogger LOGGER                  = ArkLoggerFactory.getDefaultLogger();
 
-    private ServerSocket           telnetServer;
+    private Selector               selector                = null;
 
-    private String                 host     = null;
+    private ServerSocketChannel    acceptorSvr             = null;
 
-    private int                    port     = DEFAULT_TELNET_PORT;
+    private String                 host                    = null;
 
-    private volatile boolean       shutdown = false;
+    private int                    port                    = DEFAULT_TELNET_PORT;
+
+    private AtomicBoolean          shutdown                = new AtomicBoolean(false);
+
+    private final int              WORKER_THREAD_POOL_SIZE = 1;
+    private final int              SELECT_TIME_GAP         = 1000;
 
     public StandardTelnetServerImpl() {
         String telnetValue = EnvironmentUtils.getProperty(TELNET_PORT_ATTRIBUTE);
         try {
+            CommonThreadPool workerPool = new CommonThreadPool()
+                .setCorePoolSize(WORKER_THREAD_POOL_SIZE).setDaemon(true)
+                .setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
+            ThreadPoolManager.registerThreadPool(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME,
+                workerPool);
             if (!StringUtils.isEmpty(telnetValue)) {
                 parseHostAndPort(telnetValue);
             }
@@ -73,53 +90,79 @@ public class StandardTelnetServerImpl implements TelnetServerService {
     public void run() {
         AssertUtils.isTrue(port > 0, "Telnet port should be positive integer.");
         try {
+            selector = Selector.open();
+            acceptorSvr = ServerSocketChannel.open();
             if (host == null) {
-                telnetServer = new ServerSocket(port);
+                acceptorSvr.socket().bind(new InetSocketAddress(port));
             } else {
-                telnetServer = new ServerSocket(port, 0, InetAddress.getByName(host));
+                acceptorSvr.socket().bind(new InetSocketAddress(InetAddress.getByName(host), port));
             }
-            telnetServer.setReuseAddress(true);
-            CommonThreadPool sessionPool = new CommonThreadPool().setAllowCoreThreadTimeOut(true)
-                .setDaemon(true).setThreadPoolName(Constants.TELNET_SERVER_THREAD_POOL_NAME);
-            ThreadPoolManager.registerThreadPool(Constants.TELNET_SERVER_THREAD_POOL_NAME,
-                sessionPool);
+            acceptorSvr.configureBlocking(false);
+            acceptorSvr.register(selector, SelectionKey.OP_ACCEPT);
+            LOGGER.info("Listening on port: "
+                        + Integer.toString(acceptorSvr.socket().getLocalPort()));
 
             Runnable action = new Runnable() {
                 @Override
                 public void run() {
-                    LOGGER.info("Listening on port: "
-                                + Integer.toString(telnetServer.getLocalPort()));
-                    while (!shutdown) {
+                    while (!shutdown.get()) {
                         try {
-                            Socket socket = telnetServer.accept();
-                            if (socket == null) {
-                                throw new ArkException(
-                                    "No socket available.  Probably caused by a shutdown.");
+                            selector.select(SELECT_TIME_GAP);
+                            Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                            Iterator<SelectionKey> it = selectionKeys.iterator();
+                            while (it.hasNext()) {
+                                SelectionKey key = it.next();
+                                it.remove();
+                                try {
+                                    handlerSelectionKey(key);
+                                } catch (Throwable t) {
+                                    if (key != null) {
+                                        key.cancel();
+                                        if (key.channel() != null) {
+                                            key.channel().close();
+                                        }
+                                    }
+                                    LOGGER.error("An error occurs in telnet session.", t);
+                                }
                             }
-                            TelnetSession session = new StandardTelnetSession(socket);
-                            session.start();
                         } catch (Throwable t) {
-                            if (!shutdown) {
-                                LOGGER.error("An error occurs during telnet session.", t);
+                            if (!shutdown.get()) {
+                                LOGGER.error("An error occurs in telnet server.", t);
                             }
                         }
                     }
                 }
             };
 
-            sessionPool.getExecutor().execute(action);
+            ThreadPoolManager.getThreadPool(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME)
+                .getExecutor().execute(action);
         } catch (IOException e) {
             LOGGER.error("Unable to open telnet.", e);
             throw new ArkException(e);
         }
     }
 
+    private void handlerSelectionKey(SelectionKey key) throws IOException {
+        if (!key.isValid()) {
+            return;
+        } else if (key.isAcceptable()) {
+            ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
+            SocketChannel sc = ssc.accept();
+            sc.configureBlocking(false);
+            sc.register(selector, SelectionKey.OP_READ, new TelnetProtocolHandler(sc));
+            sc.write(ByteBuffer.wrap(TelnetProtocolHandler.NEGOTIATION_MESSAGE));
+        } else if (key.isReadable()) {
+            TelnetProtocolHandler telnetProtocolHandler = (TelnetProtocolHandler) key.attachment();
+            telnetProtocolHandler.handle();
+        }
+    }
+
     @Override
     public void shutdown() {
-        if (telnetServer != null) {
+        if (shutdown.compareAndSet(false, true)) {
             try {
-                shutdown = true;
-                telnetServer.close();
+                acceptorSvr.close();
+                selector.close();
             } catch (Throwable t) {
                 LOGGER.error("An error occurs when shutdown telnet server.", t);
                 throw new ArkException(t);
