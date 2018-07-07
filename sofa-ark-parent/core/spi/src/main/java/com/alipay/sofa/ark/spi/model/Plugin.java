@@ -130,6 +130,12 @@ public interface Plugin extends PriorityOrdered {
     Set<String> getExportIndex();
 
     /**
+     * get Plugin Archive URL
+     * @return plugin archive url
+     */
+    URL getPluginURL();
+
+    /**
      * start Plugin
      * @throws ArkException
      */

@@ -27,11 +27,19 @@ import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -45,12 +53,16 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
 @Singleton
 public class BizFactoryServiceImpl implements BizFactoryService {
 
+    @Inject
+    private PluginManagerService pluginManagerService;
+
     @Override
     public Biz createBiz(BizArchive bizArchive) throws IOException {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
         BizModel bizModel = new BizModel();
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();
-        bizModel.setBizState(BizState.RESOLVED)
+        bizModel
+            .setBizState(BizState.RESOLVED)
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
             .setMainClass(manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE))
@@ -59,7 +71,8 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
             .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
             .setClassPath(bizArchive.getUrls())
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+            .setClassLoader(
+                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath())));
         return bizModel;
     }
 
@@ -78,5 +91,20 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                 return !entry.isDirectory() && entry.getName().equals(Constants.ARK_BIZ_MARK_ENTRY);
             }
         });
+    }
+
+    private URL[] getBizUcp(URL[] bizClassPath) {
+        List<URL> bizUcp = new ArrayList<>();
+        bizUcp.addAll(Arrays.asList(bizClassPath));
+        bizUcp.addAll(Arrays.asList(getPluginURLs()));
+        return bizUcp.toArray(new URL[bizUcp.size()]);
+    }
+
+    private URL[] getPluginURLs() {
+        List<URL> pluginUrls = new ArrayList<>();
+        for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
+            pluginUrls.add(plugin.getPluginURL());
+        }
+        return pluginUrls.toArray(new URL[pluginUrls.size()]);
     }
 }

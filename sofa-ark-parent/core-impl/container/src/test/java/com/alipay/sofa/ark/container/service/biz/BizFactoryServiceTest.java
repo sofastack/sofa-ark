@@ -17,12 +17,13 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
-import org.junit.After;
+import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -34,14 +35,32 @@ import java.net.URL;
  */
 public class BizFactoryServiceTest extends BaseTest {
 
-    private BizFactoryService bizFactoryService = new BizFactoryServiceImpl();
+    private PluginFactoryService pluginFactoryService;
+
+    private PluginManagerService pluginManagerService;
+
+    private BizFactoryService    bizFactoryService;
+
+    @Override
+    public void before() {
+        super.before();
+        pluginManagerService = arkServiceContainer.getService(PluginManagerService.class);
+        pluginFactoryService = arkServiceContainer.getService(PluginFactoryService.class);
+        bizFactoryService = arkServiceContainer.getService(BizFactoryService.class);
+    }
 
     @Test
     public void test() throws Throwable {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+        URL samplePlugin = cl.getResource("sample-plugin.jar");
+        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        pluginManagerService.registerPlugin(plugin);
+
         URL sampleBiz = cl.getResource("sample-biz.jar");
         Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
         Assert.assertNotNull(biz);
+        Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
     }
 
 }
