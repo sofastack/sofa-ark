@@ -37,5 +37,7 @@ public class SystemPropertiesSettingStage implements PipelineStage {
         // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
         EnvironmentUtils.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
             String.valueOf(false));
+        // ignore thread class loader when loading classes and resource in log4j
+        EnvironmentUtils.setSystemProperty(Constants.LOG4J_IGNORE_TCL, String.valueOf(true));
     }
 }
