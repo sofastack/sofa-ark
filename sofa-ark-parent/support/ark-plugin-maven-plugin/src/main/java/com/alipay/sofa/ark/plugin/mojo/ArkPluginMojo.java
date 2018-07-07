@@ -218,21 +218,22 @@ public class ArkPluginMojo extends AbstractMojo {
         for (String shade : getShades()) {
             ArtifactItem artifactItem = ArtifactItem.parseArtifactItemIgnoreVersion(shade);
             if (!artifact.getGroupId().equals(artifactItem.getGroupId())) {
-                return false;
+                continue;
             }
             if (!artifact.getArtifactId().equals(artifactItem.getArtifactId())) {
-                return false;
+                continue;
             }
             if (!StringUtils.isEmpty(artifactItem.getClassifier())
                 && !artifactItem.getClassifier().equals(artifact.getClassifier())) {
-                return false;
+                continue;
             }
             if (artifact.getArtifactId().equals(project.getArtifactId())
                 && artifact.getGroupId().equals(project.getGroupId())) {
                 throw new RuntimeException("Can't shade jar-self.");
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
