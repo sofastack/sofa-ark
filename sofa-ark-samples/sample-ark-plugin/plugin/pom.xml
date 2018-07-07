@@ -64,6 +64,10 @@
                             <!--specify destination where ark-plugin will be saved, default saved to ${project.build.directory}-->
                             <outputDirectory>../target</outputDirectory>
 
+                            <shades>
+                                <shade>com.alipay.sofa:sample-ark-plugin-common</shade>
+                            </shades>
+
                         </configuration>
                     </execution>
 

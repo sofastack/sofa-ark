@@ -91,7 +91,7 @@ public class JarWriter implements LoaderClassesWriter {
         this.writeEntries(jarFile, new IdentityEntryTransformer());
     }
 
-    void writeEntries(JarFile jarFile, EntryTransformer entryTransformer) throws IOException {
+    public void writeEntries(JarFile jarFile, EntryTransformer entryTransformer) throws IOException {
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -366,7 +366,7 @@ public class JarWriter implements LoaderClassesWriter {
      * An {@code EntryTransformer} enables the transformation of {@link JarEntry jar
      * entries} during the writing process.
      */
-    interface EntryTransformer {
+    public interface EntryTransformer {
         /**
          * Transform {@link JarEntry}
          *
@@ -379,7 +379,7 @@ public class JarWriter implements LoaderClassesWriter {
     /**
      * An {@code EntryTransformer} that returns the entry unchanged.
      */
-    private static final class IdentityEntryTransformer implements EntryTransformer {
+    public static final class IdentityEntryTransformer implements EntryTransformer {
 
         @Override
         public JarEntry transform(JarEntry jarEntry) {
