@@ -55,13 +55,10 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
             return null;
         }
         Handler.setUseFastConnectionExceptions(true);
-        ClassLoader old = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(getExpectedContextClassLoader(old));
             return loadClassInternal(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
-            Thread.currentThread().setContextClassLoader(old);
         }
     }
 
@@ -74,16 +71,6 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      */
     abstract protected Class<?> loadClassInternal(String name, boolean resolve)
                                                                                throws ArkLoaderException;
-
-    /**
-     * Get Expected Thread Context ClassLoader
-     *
-     * @param defaultClassLoader default thread context classloader
-     * @return
-     */
-    protected ClassLoader getExpectedContextClassLoader(ClassLoader defaultClassLoader) {
-        return defaultClassLoader;
-    }
 
     @Override
     public URL getResource(String name) {

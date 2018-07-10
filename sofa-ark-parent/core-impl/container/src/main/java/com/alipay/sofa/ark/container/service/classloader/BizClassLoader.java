@@ -91,11 +91,6 @@ public class BizClassLoader extends AbstractClasspathClassloader {
             bizIdentity, name));
     }
 
-    @Override
-    protected ClassLoader getExpectedContextClassLoader(ClassLoader defaultClassLoader) {
-        return this;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     protected URL getResourceInternal(String name) {
