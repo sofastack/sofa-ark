@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.plugin.mojo.test;
 
 import com.alipay.sofa.ark.plugin.mojo.ArkPluginMojo;
-import mockit.NonStrictExpectations;
+import mockit.Expectations;
 import org.apache.maven.artifact.Artifact;
 import mockit.Mocked;
 import org.apache.maven.project.MavenProject;
@@ -38,12 +38,14 @@ public class ArkPluginMojoTest {
     @Test
     public void testArkPluginMojo(@Mocked final Artifact artifact) throws Exception {
 
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 artifact.getGroupId();
                 result = "invalid";
+                minTimes = 0;
                 artifact.getArtifactId();
                 result = "invalid";
+                minTimes = 0;
             }
         };
 
@@ -68,22 +70,28 @@ public class ArkPluginMojoTest {
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
             .singleton("com.alipay.sofa:test-demo")));
 
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 projectOne.getGroupId();
                 result = "com.alipay.sofa";
+                minTimes = 0;
                 projectOne.getArtifactId();
                 result = "test-demo";
+                minTimes = 0;
 
                 projectTwo.getGroupId();
                 result = "com.alipay.sofa";
+                minTimes = 0;
                 projectTwo.getArtifactId();
                 result = "";
+                minTimes = 0;
 
                 artifact.getGroupId();
                 result = "com.alipay.sofa";
+                minTimes = 0;
                 artifact.getArtifactId();
                 result = "test-demo";
+                minTimes = 0;
             }
         };
 
