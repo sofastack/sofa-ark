@@ -63,6 +63,8 @@ public class PluginModel implements Plugin {
 
     private URL[]           urls;
 
+    private URL             pluginUrl;
+
     private ClassLoader     pluginClassLoader;
 
     private PluginContext   pluginContext;
@@ -151,6 +153,11 @@ public class PluginModel implements Plugin {
         return this;
     }
 
+    public PluginModel setPluginUrl(URL pluginUrl) {
+        this.pluginUrl = pluginUrl;
+        return this;
+    }
+
     @Override
     public int getPriority() {
         return this.priority;
@@ -229,6 +236,11 @@ public class PluginModel implements Plugin {
     @Override
     public Set<String> getExportResources() {
         return exportResources;
+    }
+
+    @Override
+    public URL getPluginURL() {
+        return pluginUrl;
     }
 
     @Override

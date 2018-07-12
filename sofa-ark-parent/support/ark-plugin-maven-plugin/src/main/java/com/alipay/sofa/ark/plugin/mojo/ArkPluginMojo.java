@@ -18,13 +18,16 @@ package com.alipay.sofa.ark.plugin.mojo;
 
 import java.io.*;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
+import com.alipay.sofa.ark.tools.JarWriter;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -99,7 +102,7 @@ public class ArkPluginMojo extends AbstractMojo {
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
      */
     @Parameter(defaultValue = "")
-    protected LinkedHashSet<String> excludes          = new LinkedHashSet<>();
+    protected LinkedHashSet<String> excludes           = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
@@ -113,6 +116,9 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     protected LinkedHashSet<String> excludeArtifactIds;
 
+    @Parameter(defaultValue = "")
+    protected LinkedHashSet<String> shades             = new LinkedHashSet<>();
+
     /**
      * whether install ark-plugin to local maven repository, if 'true',
      * it will be installed when execute 'mvn install' or 'mvn deploy';
@@ -121,9 +127,10 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private Boolean                 attach;
 
-    private static final String     ARCHIVE_MODE      = "zip";
-    private static final String     PLUGIN_SUFFIX     = ".ark.plugin";
-    private static final String     PLUGIN_CLASSIFIER = "ark-plugin";
+    private static final String     ARCHIVE_MODE       = "zip";
+    private static final String     PLUGIN_SUFFIX      = ".ark.plugin";
+    private static final String     TEMP_PLUGIN_SUFFIX = ".ark.plugin.bak";
+    private static final String     PLUGIN_CLASSIFIER  = "ark-plugin";
 
     @SuppressWarnings("unchecked")
     @Override
@@ -143,10 +150,14 @@ public class ArkPluginMojo extends AbstractMojo {
 
         String fileName = getFileName();
         File destination = new File(outputDirectory, fileName);
+        File tmpDestination = new File(outputDirectory, getTempFileName());
         if (destination.exists()) {
             destination.delete();
         }
-        archiver.setDestFile(destination);
+        if (tmpDestination.exists()) {
+            tmpDestination.delete();
+        }
+        archiver.setDestFile(tmpDestination);
 
         Set<Artifact> artifacts = project.getArtifacts();
 
@@ -160,12 +171,69 @@ public class ArkPluginMojo extends AbstractMojo {
 
         try {
             archiver.createArchive();
+            shadeJarIntoArkPlugin(destination, tmpDestination, artifacts);
         } catch (ArchiverException | IOException e) {
             throw new MojoExecutionException(e.getMessage());
+        } finally {
+            tmpDestination.delete();
         }
         if (isAttach()) {
             projectHelper.attachArtifact(project, destination, getClassifier());
         }
+    }
+
+    public void shadeJarIntoArkPlugin(File pluginFile, File tmpPluginFile, Set<Artifact> artifacts)
+                                                                                                   throws IOException {
+        Set<Artifact> shadeJars = new HashSet<>();
+        for (Artifact artifact : artifacts) {
+            if (isShadeJar(artifact)) {
+                shadeJars.add(artifact);
+            }
+        }
+
+        JarWriter writer = new JarWriter(pluginFile);
+        try {
+            writer.writeEntries(new JarFile(tmpPluginFile));
+            for (Artifact jar : shadeJars) {
+                writer.writeEntries(new JarFile(jar.getFile()));
+            }
+        } finally {
+            writer.close();
+        }
+    }
+
+    public LinkedHashSet<String> getShades() {
+        return shades;
+    }
+
+    public void setShades(LinkedHashSet<String> shades) {
+        this.shades = shades;
+    }
+
+    public void setProject(MavenProject project) {
+        this.project = project;
+    }
+
+    public boolean isShadeJar(Artifact artifact) {
+        for (String shade : getShades()) {
+            ArtifactItem artifactItem = ArtifactItem.parseArtifactItemIgnoreVersion(shade);
+            if (!artifact.getGroupId().equals(artifactItem.getGroupId())) {
+                continue;
+            }
+            if (!artifact.getArtifactId().equals(artifactItem.getArtifactId())) {
+                continue;
+            }
+            if (!StringUtils.isEmpty(artifactItem.getClassifier())
+                && !artifactItem.getClassifier().equals(artifact.getClassifier())) {
+                continue;
+            }
+            if (artifact.getArtifactId().equals(project.getArtifactId())
+                && artifact.getGroupId().equals(project.getGroupId())) {
+                throw new RuntimeException("Can't shade jar-self.");
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -191,6 +259,9 @@ public class ArkPluginMojo extends AbstractMojo {
      * @param artifactIdConflict whether artifact is conflicted, it will determine the final jar name.
      */
     protected void addArtifact(Archiver archiver, Artifact artifact, boolean artifactIdConflict) {
+        if (isShadeJar(artifact)) {
+            return;
+        }
         String destination = artifact.getFile().getName();
         if (artifactIdConflict) {
             destination = artifact.getGroupId() + "-" + destination;
@@ -282,6 +353,10 @@ public class ArkPluginMojo extends AbstractMojo {
      */
     protected String getFileName() {
         return String.format("%s%s", pluginName, PLUGIN_SUFFIX);
+    }
+
+    protected String getTempFileName() {
+        return String.format("%s%s", pluginName, TEMP_PLUGIN_SUFFIX);
     }
 
     /**
