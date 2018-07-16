@@ -101,6 +101,12 @@ public class ArkContainer {
     public Object start() throws ArkException {
         AssertUtils.assertNotNull(arkServiceContainer, "arkServiceContainer is null !");
         if (started.compareAndSet(false, true)) {
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    stop();
+                }
+            }));
             arkServiceContainer.start();
 
             Pipeline pipeline = arkServiceContainer.getService(Pipeline.class);
