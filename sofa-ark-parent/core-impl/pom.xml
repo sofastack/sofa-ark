@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sofa-ark-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>0.4.0</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sofa-ark-core-impl</artifactId>
