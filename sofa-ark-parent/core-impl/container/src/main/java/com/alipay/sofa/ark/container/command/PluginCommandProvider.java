@@ -7,7 +7,7 @@ import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 /**
- * 插件查询命令行提供者
+ * telnet plugin info provider
  *
  * @author joe
  * @version 2018.07.20 11:45
@@ -44,7 +44,7 @@ public class PluginCommandProvider extends AbstractCommandProvider {
                     break;
                 }
             default:
-                sb.append("命令错误\n");
+                sb.append("command error\n");
                 sb.append(getHelp());
                 break;
         }
