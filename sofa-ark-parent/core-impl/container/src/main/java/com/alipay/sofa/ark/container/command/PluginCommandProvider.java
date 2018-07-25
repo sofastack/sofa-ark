@@ -36,7 +36,11 @@ public class PluginCommandProvider extends AbstractCommandProvider {
             case "info":
                 if (commands.length == 3) {
                     Plugin plugin = service.getPluginByName(commands[2]);
-                    sb.append(getPrint(plugin));
+                    if (plugin == null) {
+                        sb.append(String.format("plugin %s not found", commands[2]));
+                    } else {
+                        sb.append(getPrint(plugin));
+                    }
                     break;
                 }
             default:
@@ -81,6 +85,9 @@ public class PluginCommandProvider extends AbstractCommandProvider {
     }
 
     private String getPrint(Set<String> set, String tab) {
+        if (set.isEmpty()) {
+            return "\tno plugin exist";
+        }
         StringBuilder sb = new StringBuilder();
         for (String str : set) {
             sb.append(tab).append(str).append("\n");
