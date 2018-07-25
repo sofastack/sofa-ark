@@ -5,6 +5,8 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 
 /**
+ * AbstractCommandProvider, provide common features.
+ *
  * @author joe
  * @version 2018.07.20 11:30
  */
@@ -35,30 +37,30 @@ public abstract class AbstractCommandProvider implements CommandProvider {
     public String getHelp(String commandMarker) {
         if (getCommandPre().equals(commandMarker)) {
             return getHelp();
-        }else{
+        } else {
             return null;
         }
     }
 
     /**
-     * 处理命令行（以空白符分隔）
-     * @param commandLine 命令行
-     * @return 处理后的每个有效字符
+     * deal commandLine(split by blank character)
+     * @param commandLine commandLine
+     * @return Every valid character after processing
      */
     protected String[] process(String commandLine) {
         return commandLine.trim().split(Constants.SPACE_SPLIT);
     }
 
     /**
-     * 获取该provider可以处理的命令前缀
-     * @return 命令前缀
+     * the command prefix that the provider can handle
+     * @return pre
      */
     protected abstract String getCommandPre();
 
     /**
-     * 处理命令行
-     * @param commands 命令行
-     * @return 处理结果
+     * deal command array
+     * @param commands command array
+     * @return result
      */
     protected abstract String handleCommandLine(String[] commands);
 }
