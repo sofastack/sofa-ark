@@ -32,6 +32,7 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
  * @version 0.5.0
  */
 public class PluginCommandProvider implements CommandProvider {
+    public static String         UNIQUEID    = "com.alipay.sofa.ark.container.command.PluginCommandProvider";
     private static String        COMMAND_PRE = "plugin";
     private PluginManagerService service     = ArkServiceContainerHolder.getContainer()
         .getService(PluginManagerService.class);

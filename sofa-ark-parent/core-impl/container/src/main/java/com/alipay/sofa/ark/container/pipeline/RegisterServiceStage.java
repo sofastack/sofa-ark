@@ -53,7 +53,7 @@ public class RegisterServiceStage implements PipelineStage {
         registryService.publishService(BizDeployer.class, new DefaultBizDeployer(),
             new ContainerServiceProvider());
         registryService.publishService(CommandProvider.class, new PluginCommandProvider(),
-            new ContainerServiceProvider());
+            PluginCommandProvider.UNIQUEID, new ContainerServiceProvider());
     }
 
 }
