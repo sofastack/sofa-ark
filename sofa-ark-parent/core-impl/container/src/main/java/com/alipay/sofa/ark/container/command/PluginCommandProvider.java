@@ -18,9 +18,12 @@ package com.alipay.sofa.ark.container.command;
 
 import java.util.Set;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 
 /**
  * telnet plugin info provider
@@ -28,25 +31,45 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
  * @author joe
  * @version 0.5.0
  */
-public class PluginCommandProvider extends AbstractCommandProvider {
+public class PluginCommandProvider implements CommandProvider {
     private static String        COMMAND_PRE = "plugin";
-    private PluginManagerService service     = ArkServiceContainerHolder.getContainer().getService(
-                                                 PluginManagerService.class);
+    private PluginManagerService service     = ArkServiceContainerHolder.getContainer()
+        .getService(PluginManagerService.class);
 
     @Override
-    protected String getCommandPre() {
-        return COMMAND_PRE;
+    public boolean validate(String command) {
+        if (StringUtils.isEmpty(command)) {
+            return false;
+        }
+
+        String[] strs = process(command);
+        if (command.length() < 2) {
+            return false;
+        }
+
+        command = strs[1];
+
+        if (!"list".equals(command) && !"info".equals(command)) {
+            return false;
+        } else if ("list".equals(command) && strs.length != 2) {
+            return false;
+        } else if ("info".equals(command) && strs.length != 3) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
-    protected String handleCommandLine(String[] commands) {
+    public String handleCommand(String commandLine) {
+        String[] commands = process(commandLine);
         String command = commands[1];
         StringBuilder sb = new StringBuilder();
 
         switch (command) {
             case "list":
                 if (commands.length == 2) {
-                    sb.append("plugins :\n").append(getPrint(service.getAllPluginNames(), "\t"));
+                    sb.append("plugins :\n").append(getPrint(service.getAllPluginNames(), "    "));
                     break;
                 }
             case "info":
@@ -68,6 +91,15 @@ public class PluginCommandProvider extends AbstractCommandProvider {
     }
 
     @Override
+    public String getHelp(String commandMarker) {
+        if (COMMAND_PRE.equals(commandMarker)) {
+            return getHelp();
+        } else {
+            return StringUtils.EMPTY_STRING;
+        }
+    }
+
+    @Override
     public String getHelp() {
         StringBuilder sb = new StringBuilder();
         sb.append("plugin list : list ark container all plugins name.\n");
@@ -78,36 +110,45 @@ public class PluginCommandProvider extends AbstractCommandProvider {
     private String getPrint(Plugin plugin) {
         StringBuilder sb = new StringBuilder();
         sb.append(plugin.getPluginName()).append(" :").append("\n");
-        sb.append("\t").append("group-id : ").append(plugin.getPluginName()).append("\n");
-        sb.append("\t").append("artifact-id :").append(plugin.getPluginName()).append("\n");
-        sb.append("\t").append("version : ").append(plugin.getPluginName()).append("\n");
-        sb.append("\t").append("priority : ").append(plugin.getPluginName()).append("\n");
-        sb.append("\t").append("activator : ").append(plugin.getPluginName()).append("\n");
-        sb.append("\t").append("export-packages : ").append("\n");
-        sb.append(getPrint(plugin.getExportPackages(), "\t\t"));
-        sb.append("\t").append("export-classes : ").append("\n");
-        sb.append(getPrint(plugin.getExportClasses(), "\t\t"));
-        sb.append("\t").append("import-packages : ").append("\n");
-        sb.append(getPrint(plugin.getImportPackages(), "\t\t"));
-        sb.append("\t").append("import-classes : ").append("\n");
-        sb.append(getPrint(plugin.getImportClasses(), "\t\t"));
-        sb.append("\t").append("import-resources : ").append("\n");
-        sb.append(getPrint(plugin.getImportResources(), "\t\t"));
-        sb.append("\t").append("export-resources : ").append("\n");
-        sb.append(getPrint(plugin.getExportResources(), "\t\t"));
-        sb.append("\t").append("export-index : ").append("\n");
-        sb.append(getPrint(plugin.getExportIndex(), "\t\t"));
+        sb.append("    ").append("group-id : ").append(plugin.getPluginName()).append("\n");
+        sb.append("    ").append("artifact-id :").append(plugin.getPluginName()).append("\n");
+        sb.append("    ").append("version : ").append(plugin.getPluginName()).append("\n");
+        sb.append("    ").append("priority : ").append(plugin.getPluginName()).append("\n");
+        sb.append("    ").append("activator : ").append(plugin.getPluginName()).append("\n");
+        sb.append("    ").append("export-packages : ").append("\n");
+        sb.append(getPrint(plugin.getExportPackages(), "        "));
+        sb.append("    ").append("export-classes : ").append("\n");
+        sb.append(getPrint(plugin.getExportClasses(), "        "));
+        sb.append("    ").append("import-packages : ").append("\n");
+        sb.append(getPrint(plugin.getImportPackages(), "        "));
+        sb.append("    ").append("import-classes : ").append("\n");
+        sb.append(getPrint(plugin.getImportClasses(), "        "));
+        sb.append("    ").append("import-resources : ").append("\n");
+        sb.append(getPrint(plugin.getImportResources(), "        "));
+        sb.append("    ").append("export-resources : ").append("\n");
+        sb.append(getPrint(plugin.getExportResources(), "        "));
+        sb.append("    ").append("export-index : ").append("\n");
+        sb.append(getPrint(plugin.getExportIndex(), "        "));
         return sb.toString();
     }
 
     private String getPrint(Set<String> set, String tab) {
         if (set.isEmpty()) {
-            return "\tno plugin exist";
+            return "    no plugin exist";
         }
         StringBuilder sb = new StringBuilder();
         for (String str : set) {
             sb.append(tab).append(str).append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * deal commandLine(split by blank character)
+     * @param commandLine commandLine
+     * @return Every valid character after processing
+     */
+    protected String[] process(String commandLine) {
+        return commandLine.trim().split(Constants.SPACE_SPLIT);
     }
 }
