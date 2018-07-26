@@ -61,9 +61,10 @@ public class PluginCommandProviderTest extends BaseTest {
             .referenceService(CommandProvider.class);
         CommandProvider provider = reference.getService();
 
-        Assert.assertTrue(provider.validate("plugin"));
+        Assert.assertFalse(provider.validate("plugin"));
+        Assert.assertFalse(provider.validate("plugin info"));
         Assert.assertTrue(provider.validate("plugin list"));
-        Assert.assertTrue(provider.validate("plugin info"));
+        Assert.assertTrue(provider.validate("plugin info abc"));
 
         Assert.assertTrue(provider.getHelp() != null);
         Assert.assertTrue(provider.getHelp("plugin") != null);
