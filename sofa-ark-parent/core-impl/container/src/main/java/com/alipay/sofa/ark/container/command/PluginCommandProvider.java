@@ -44,7 +44,7 @@ public class PluginCommandProvider implements CommandProvider {
         }
 
         String[] strs = process(command);
-        if (command.length() < 2) {
+        if (strs.length < 2) {
             return false;
         }
 
