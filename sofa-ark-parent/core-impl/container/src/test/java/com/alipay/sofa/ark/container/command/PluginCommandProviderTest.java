@@ -34,7 +34,7 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
  * test PluginCommandProvider
  *
  * @author joe
- * @version 2018.07.25 17:41
+ * @version 0.5.0
  */
 public class PluginCommandProviderTest extends BaseTest {
 

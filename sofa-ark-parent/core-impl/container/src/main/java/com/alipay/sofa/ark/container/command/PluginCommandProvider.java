@@ -26,7 +26,7 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
  * telnet plugin info provider
  *
  * @author joe
- * @version 2018.07.20 11:45
+ * @version 0.5.0
  */
 public class PluginCommandProvider extends AbstractCommandProvider {
     private static String        COMMAND_PRE = "plugin";
