@@ -34,8 +34,8 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 public class PluginCommandProvider implements CommandProvider {
     public static String         UNIQUEID    = "com.alipay.sofa.ark.container.command.PluginCommandProvider";
     private static String        COMMAND_PRE = "plugin";
-    private PluginManagerService service     = ArkServiceContainerHolder.getContainer()
-        .getService(PluginManagerService.class);
+    private PluginManagerService service     = ArkServiceContainerHolder.getContainer().getService(
+                                                 PluginManagerService.class);
 
     @Override
     public boolean validate(String command) {
