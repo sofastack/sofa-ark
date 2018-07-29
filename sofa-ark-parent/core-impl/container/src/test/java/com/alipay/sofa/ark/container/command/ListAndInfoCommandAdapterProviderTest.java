@@ -31,12 +31,12 @@ import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 
 /**
- * test PluginCommandProvider
+ * test ListAndInfoCommandAdapterProvider
  *
  * @author joe
  * @version 0.5.0
  */
-public class PluginCommandProviderTest extends BaseTest {
+public class ListAndInfoCommandAdapterProviderTest extends BaseTest {
 
     private URL jarURL = ArkContainerTest.class.getClassLoader().getResource("test.jar");
 
