@@ -7,7 +7,7 @@
     <parent>
         <artifactId>sofa-ark</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>0.4.1</version>
+        <version>0.4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>sofa-ark-samples</artifactId>
@@ -41,13 +41,6 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sample-ark-plugin</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.alipay.sofa</groupId>
-                <artifactId>sample-ark-plugin</artifactId>
-                <classifier>ark-plugin</classifier>
                 <version>${project.version}</version>
             </dependency>
 

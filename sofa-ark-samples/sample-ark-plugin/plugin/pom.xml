@@ -11,6 +11,10 @@
 
     <artifactId>sample-ark-plugin</artifactId>
 
+    <properties>
+        <ark.plugin.name>sample-ark-plugin</ark.plugin.name>
+    </properties>
+
     <dependencies>
 
         <dependency>
