@@ -18,10 +18,7 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -249,8 +246,8 @@ public class RepackageMojo extends AbstractMojo {
         try {
             artifactResolver.resolve(arkArtifact, project.getRemoteArtifactRepositories(),
                 mavenSession.getLocalRepository());
-            Set<Artifact> artifacts = filterExcludeArtifacts(project.getArtifacts());
-            artifacts.add(arkArtifact);
+            Set<Artifact> artifacts = new HashSet<>(Collections.singleton(arkArtifact));
+            artifacts.addAll(filterExcludeArtifacts(project.getArtifacts()));
             return artifacts;
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
@@ -298,7 +295,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setDenyImportClasses(denyImportClasses);
         repackager.setDenyImportPackages(denyImportPackages);
         repackager.setDenyImportResources(denyImportResources);
-        repackager.setPackageProvided(false);
+        repackager.setPackageProvided(packageProvided);
         return repackager;
     }
 
