@@ -192,6 +192,12 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     private LinkedHashSet<String> denyImportResources;
 
+    /**
+     * whether package provided dependencies into ark
+     */
+    @Parameter(defaultValue = "false")
+    private boolean               packageProvided;
+
     @Override
     public void execute() throws MojoExecutionException {
         if ("war".equals(this.project.getPackaging())) {
@@ -292,6 +298,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setDenyImportClasses(denyImportClasses);
         repackager.setDenyImportPackages(denyImportPackages);
         repackager.setDenyImportResources(denyImportResources);
+        repackager.setPackageProvided(false);
         return repackager;
     }
 
