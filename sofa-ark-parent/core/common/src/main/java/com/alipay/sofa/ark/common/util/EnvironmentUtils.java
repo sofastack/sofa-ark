@@ -39,6 +39,10 @@ public class EnvironmentUtils {
         properties.setProperty(key, value);
     }
 
+    public static String clearProperty(String key) {
+        return System.clearProperty(key);
+    }
+
     public static void setSystemProperty(String key, String value) {
         System.setProperty(key, value);
     }

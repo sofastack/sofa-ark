@@ -127,10 +127,15 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private Boolean                 attach;
 
+    /**
+     * default ark plugin artifact classifier: empty
+     */
+    @Parameter(defaultValue = "")
+    private String                  classifier;
+
     private static final String     ARCHIVE_MODE       = "zip";
     private static final String     PLUGIN_SUFFIX      = ".ark.plugin";
     private static final String     TEMP_PLUGIN_SUFFIX = ".ark.plugin.bak";
-    private static final String     PLUGIN_CLASSIFIER  = "ark-plugin";
 
     @SuppressWarnings("unchecked")
     @Override
@@ -178,7 +183,13 @@ public class ArkPluginMojo extends AbstractMojo {
             tmpDestination.delete();
         }
         if (isAttach()) {
-            projectHelper.attachArtifact(project, destination, getClassifier());
+            if (StringUtils.isEmpty(classifier)) {
+                Artifact artifact = project.getArtifact();
+                artifact.setFile(destination);
+                project.setArtifact(artifact);
+            } else {
+                projectHelper.attachArtifact(project, destination, classifier);
+            }
         }
     }
 
@@ -357,15 +368,6 @@ public class ArkPluginMojo extends AbstractMojo {
 
     protected String getTempFileName() {
         return String.format("%s%s", pluginName, TEMP_PLUGIN_SUFFIX);
-    }
-
-    /**
-     * default ark plugin artifact classifier: ark-plugin
-     *
-     * @return ark plugin artifact classifier
-     */
-    protected String getClassifier() {
-        return PLUGIN_CLASSIFIER;
     }
 
     /**
