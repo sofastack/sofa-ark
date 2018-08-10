@@ -275,7 +275,7 @@ public class Repackager {
 
     private void removeArkBizJar() {
         if (!keepArkBizJar) {
-            pluginModuleJar.getAbsoluteFile().delete();
+            pluginModuleJar.getAbsoluteFile().deleteOnExit();
         }
 
     }
