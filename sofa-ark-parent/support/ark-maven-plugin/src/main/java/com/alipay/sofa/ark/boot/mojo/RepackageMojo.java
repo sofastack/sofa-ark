@@ -195,6 +195,12 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean               packageProvided;
 
+    /**
+     * whether to keep ark biz jar after package finish, default value is true
+     */
+    @Parameter(defaultValue = "true")
+    private boolean               keepArkBizJar;
+
     @Override
     public void execute() throws MojoExecutionException {
         if ("war".equals(this.project.getPackaging())) {
@@ -296,6 +302,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setDenyImportPackages(denyImportPackages);
         repackager.setDenyImportResources(denyImportResources);
         repackager.setPackageProvided(packageProvided);
+        repackager.setKeepArkBizJar(keepArkBizJar);
         return repackager;
     }
 

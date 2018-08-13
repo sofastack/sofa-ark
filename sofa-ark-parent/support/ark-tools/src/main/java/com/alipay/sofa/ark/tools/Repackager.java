@@ -76,6 +76,8 @@ public class Repackager {
 
     private boolean                               packageProvided;
 
+    private boolean                               keepArkBizJar;
+
     private String                                arkVersion                         = null;
 
     private Library                               arkContainerLibrary                = null;
@@ -214,6 +216,7 @@ public class Repackager {
 
         repackageModule();
         repackageApp();
+        removeArkBizJar();
     }
 
     private void repackageModule() throws IOException {
@@ -268,6 +271,13 @@ public class Repackager {
                 // Ignore
             }
         }
+    }
+
+    private void removeArkBizJar() {
+        if (!keepArkBizJar) {
+            pluginModuleJar.getAbsoluteFile().deleteOnExit();
+        }
+
     }
 
     private void writeNestedLibraries(List<Library> libraries, Layout layout, JarWriter writer)
@@ -459,5 +469,9 @@ public class Repackager {
 
     public void setPackageProvided(boolean packageProvided) {
         this.packageProvided = packageProvided;
+    }
+
+    public void setKeepArkBizJar(boolean keepArkBizJar) {
+        this.keepArkBizJar = keepArkBizJar;
     }
 }
