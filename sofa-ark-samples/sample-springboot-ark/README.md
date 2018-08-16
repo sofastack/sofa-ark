@@ -11,7 +11,7 @@
 <plugin>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-maven-plugin</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.4.1</version>
 </plugin>
 ```
 
@@ -31,7 +31,7 @@
 <dependency>
      <groupId>com.alipay.sofa</groupId>
      <artifactId>sample-ark-plugin</artifactId>
-     <version>0.4.1-SNAPSHOT</version>
+     <version>0.4.1</version>
  </dependency>
 ```
 
@@ -86,7 +86,7 @@
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-springboot-starter</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.4.1</version>
 </dependency>
 ```
 
@@ -96,7 +96,7 @@
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-support-starter</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.4.1</version>
 </dependency>
 ```
 
