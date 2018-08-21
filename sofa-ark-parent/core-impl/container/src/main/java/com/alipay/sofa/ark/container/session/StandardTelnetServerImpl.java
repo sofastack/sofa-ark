@@ -41,9 +41,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_TELNET_PORT;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
-import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_PORT_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * {@link TelnetServerService}
@@ -66,23 +64,29 @@ public class StandardTelnetServerImpl implements TelnetServerService {
 
     private AtomicBoolean          shutdown                = new AtomicBoolean(false);
 
+    private boolean                enableTelnetServer      = EnvironmentUtils.getProperty(
+                                                               TELNET_SERVER_ENABLE, "true")
+                                                               .equalsIgnoreCase("true");
+
     private final int              WORKER_THREAD_POOL_SIZE = 1;
     private final int              SELECT_TIME_GAP         = 1000;
 
     public StandardTelnetServerImpl() {
-        String telnetValue = EnvironmentUtils.getProperty(TELNET_PORT_ATTRIBUTE);
-        try {
-            CommonThreadPool workerPool = new CommonThreadPool()
-                .setCorePoolSize(WORKER_THREAD_POOL_SIZE).setDaemon(true)
-                .setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
-            ThreadPoolManager.registerThreadPool(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME,
-                workerPool);
-            if (!StringUtils.isEmpty(telnetValue)) {
-                parseHostAndPort(telnetValue);
+        if (enableTelnetServer) {
+            String telnetValue = EnvironmentUtils.getProperty(TELNET_PORT_ATTRIBUTE);
+            try {
+                CommonThreadPool workerPool = new CommonThreadPool()
+                    .setCorePoolSize(WORKER_THREAD_POOL_SIZE).setDaemon(true)
+                    .setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
+                ThreadPoolManager.registerThreadPool(
+                    Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME, workerPool);
+                if (!StringUtils.isEmpty(telnetValue)) {
+                    parseHostAndPort(telnetValue);
+                }
+            } catch (NumberFormatException e) {
+                LOGGER.error(String.format("Invalid host/port in %s", telnetValue), e);
+                throw new ArkException(e);
             }
-        } catch (NumberFormatException e) {
-            LOGGER.error(String.format("Invalid host/port in %s", telnetValue), e);
-            throw new ArkException(e);
         }
     }
 
@@ -181,12 +185,18 @@ public class StandardTelnetServerImpl implements TelnetServerService {
 
     @Override
     public void init() throws ArkException {
-        run();
+        if (enableTelnetServer) {
+            run();
+        } else {
+            LOGGER.warn("Telnet server is disabled.");
+        }
     }
 
     @Override
     public void dispose() throws ArkException {
-        shutdown();
+        if (enableTelnetServer) {
+            shutdown();
+        }
     }
 
     @Override

@@ -29,10 +29,19 @@ public class EnvironmentUtils {
     private static Properties properties = new Properties();
 
     public static String getProperty(String key) {
-        if (properties.getProperty(key) == null) {
+        String value = properties.getProperty(key);
+        if (value == null) {
             return System.getProperty(key);
         }
-        return properties.getProperty(key);
+        return value;
+    }
+
+    public static String getProperty(String key, String defaultValue) {
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return System.getProperty(key, defaultValue);
+        }
+        return value;
     }
 
     public static void setProperty(String key, String value) {
