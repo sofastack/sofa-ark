@@ -68,6 +68,7 @@ public class Constants {
     /**
      * Telnet Server
      */
+    public final static String TELNET_SERVER_ENABLE                  = "telnet.server.enable";
     public final static String TELNET_PORT_ATTRIBUTE                 = "sofa.ark.telnet";
     public final static int    DEFAULT_TELNET_PORT                   = 1234;
     public final static String TELNET_SERVER_WORKER_THREAD_POOL_NAME = "telnet-server-worker";

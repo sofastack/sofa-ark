@@ -35,6 +35,13 @@ public class EnvironmentUtils {
         return properties.getProperty(key);
     }
 
+    public static String getProperty(String key, String defaultValue) {
+        if (properties.getProperty(key) == null) {
+            return System.getProperty(key, defaultValue);
+        }
+        return properties.getProperty(key);
+    }
+
     public static void setProperty(String key, String value) {
         properties.setProperty(key, value);
     }
