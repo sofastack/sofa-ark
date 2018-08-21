@@ -139,8 +139,7 @@ public abstract class AbstractLauncher {
      */
     protected ClassLoader createContainerClassLoader(ContainerArchive containerArchive)
                                                                                        throws Exception {
-        return createContainerClassLoader(containerArchive.getUrls(), this.getClass()
-            .getClassLoader());
+        return createContainerClassLoader(containerArchive.getUrls(), null);
     }
 
     /**
