@@ -19,10 +19,14 @@ package com.alipay.sofa.ark.container;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.net.URL;
 
 /**
@@ -59,5 +63,35 @@ public class ArkContainerTest extends BaseTest {
         arkContainer.start();
         arkContainer.stop();
         Assert.assertFalse(arkContainer.isRunning());
+    }
+
+    @Test
+    public void testTelnetServerDisable() throws ArkException {
+        System.setProperty(Constants.TELNET_SERVER_ENABLE, "false");
+        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
+        boolean enable = true;
+        try (Socket socket = new Socket(InetAddress.getLocalHost(), Constants.DEFAULT_TELNET_PORT)) {
+        } catch (IOException ex) {
+            enable = false;
+        } finally {
+            arkContainer.stop();
+        }
+        Assert.assertFalse(enable);
+    }
+
+    @Test
+    public void testTelnetServerEnable() throws ArkException {
+        System.setProperty(Constants.TELNET_SERVER_ENABLE, "true");
+        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
+        boolean enable = true;
+        try (Socket socket = new Socket(InetAddress.getLocalHost(), Constants.DEFAULT_TELNET_PORT)) {
+        } catch (IOException ex) {
+            enable = false;
+        } finally {
+            arkContainer.stop();
+        }
+        Assert.assertTrue(enable);
     }
 }
