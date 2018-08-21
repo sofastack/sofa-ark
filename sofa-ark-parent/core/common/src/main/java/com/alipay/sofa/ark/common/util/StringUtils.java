@@ -26,9 +26,6 @@ import java.util.*;
 public class StringUtils {
 
     public static final String EMPTY_STRING = "";
-    public static final int    CHAR_A       = 'A';
-    public static final int    CHAR_Z       = 'Z';
-    public static final int    CASE_GAP     = 32;
 
     /**
      * <p>Checks if a String is empty ("") or null.</p>
@@ -92,32 +89,5 @@ public class StringUtils {
             stringList.add(s.trim());
         }
         return stringList;
-    }
-
-    /**
-     * Check whether start with anotherString when transformed to lower case.
-     *
-     * @param thisString
-     * @param anotherString
-     * @return
-     */
-    public static boolean startWithToLowerCase(String thisString, String anotherString) {
-        AssertUtils.assertNotNull(thisString, "Param must not be null!");
-        AssertUtils.assertNotNull(anotherString, "Param must not be null!");
-
-        if (thisString.length() < anotherString.length()) {
-            return false;
-        }
-
-        boolean ret;
-        int index = 0;
-        do {
-            if (thisString.charAt(index) > CHAR_Z || thisString.charAt(index) < CHAR_A) {
-                ret = thisString.charAt(index) == anotherString.charAt(index);
-            } else {
-                ret = thisString.charAt(index) + CASE_GAP == anotherString.charAt(index);
-            }
-        } while (ret && ++index < anotherString.length());
-        return ret;
     }
 }
