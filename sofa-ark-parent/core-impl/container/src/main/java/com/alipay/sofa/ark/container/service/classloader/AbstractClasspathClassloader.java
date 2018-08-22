@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
