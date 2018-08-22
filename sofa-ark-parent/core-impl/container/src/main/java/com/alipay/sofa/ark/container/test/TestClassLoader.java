@@ -49,7 +49,7 @@ public class TestClassLoader extends BizClassLoader {
             try {
                 return delegateClassLoader.loadClass(name);
             } catch (ClassNotFoundException e) {
-                throw ArkLoaderException.getBizLoaderException(String.format(
+                throw new ArkLoaderException(String.format(
                     "[TestClass Loader] %s : can not load class: %s", getBizIdentity(), name));
             }
         } else {
