@@ -5,7 +5,7 @@ jdk:
 - oraclejdk8
 - openjdk7
 
-install:
+before_script:
 - mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -V
 
 script:
