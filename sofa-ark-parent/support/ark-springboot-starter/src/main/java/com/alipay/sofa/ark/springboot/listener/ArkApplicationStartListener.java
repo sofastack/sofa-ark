@@ -17,7 +17,8 @@
 package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -26,20 +27,32 @@ import org.springframework.context.ApplicationListener;
  * @author ruoshan
  * @since 0.1.0
  */
-public class ArkApplicationStartListener implements ApplicationListener<ApplicationStartedEvent> {
+public class ArkApplicationStartListener implements ApplicationListener<SpringApplicationEvent> {
 
-    private static final String LAUNCH_CLASSLOADER_NAME = "sun.misc.Launcher$AppClassLoader";
+    private static final String LAUNCH_CLASSLOADER_NAME    = "sun.misc.Launcher$AppClassLoader";
+    private static final String APPLICATION_STARTED_EVENT  = "org.springframework.boot.context.event.ApplicationStartedEvent";
+    private static final String APPLICATION_STARTING_EVENT = "org.springframework.boot.context.event.ApplicationStartingEvent";
+    private static final String INCOMPATIBLE_VERSION       = "2.0";
 
     @Override
-    public void onApplicationEvent(ApplicationStartedEvent event) {
+    public void onApplicationEvent(SpringApplicationEvent event) {
         try {
+            if (!APPLICATION_STARTED_EVENT.equals(event.getClass().getCanonicalName())
+                && !APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
+                return;
+            }
+
+            if (INCOMPATIBLE_VERSION.compareTo(SpringBootVersion.getVersion()) < 0
+                && !APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
+                return;
+            }
+
             if (shouldStartArk()) {
                 SofaArkBootstrap.launch(event.getArgs());
             }
         } catch (Throwable e) {
             throw new RuntimeException("Meet exception when determine whether to start SOFAArk!", e);
         }
-
     }
 
     private boolean shouldStartArk() {
