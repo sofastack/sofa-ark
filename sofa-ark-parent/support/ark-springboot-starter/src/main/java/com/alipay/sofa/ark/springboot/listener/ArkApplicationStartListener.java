@@ -16,7 +16,9 @@
  */
 package com.alipay.sofa.ark.springboot.listener;
 
+import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
+import com.alipay.sofa.common.log.Constants;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -33,6 +35,7 @@ public class ArkApplicationStartListener implements ApplicationListener<Applicat
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         try {
+            EnvironmentUtils.clearProperty(Constants.LOG_PATH);
             if (shouldStartArk()) {
                 SofaArkBootstrap.launch(event.getArgs());
             }

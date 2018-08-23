@@ -52,4 +52,8 @@ public class EnvironmentUtils {
         System.setProperty(key, value);
     }
 
+    public static void clearProperty(String key) {
+        System.clearProperty(key);
+    }
+
 }
