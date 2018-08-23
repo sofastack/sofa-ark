@@ -16,8 +16,12 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.loader.jar.Handler;
+
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 
 /**
  * Classloader to load Ark Container
@@ -29,5 +33,35 @@ public class ContainerClassLoader extends URLClassLoader {
 
     public ContainerClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Handler.setUseFastConnectionExceptions(true);
+        try {
+            return super.loadClass(name, resolve);
+        } finally {
+            Handler.setUseFastConnectionExceptions(false);
+        }
+    }
+
+    @Override
+    public URL getResource(String name) {
+        Handler.setUseFastConnectionExceptions(true);
+        try {
+            return super.getResource(name);
+        } finally {
+            Handler.setUseFastConnectionExceptions(false);
+        }
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        Handler.setUseFastConnectionExceptions(true);
+        try {
+            return new UseFastConnectionExceptionsEnumeration(super.getResources(name));
+        } finally {
+            Handler.setUseFastConnectionExceptions(false);
+        }
     }
 }
