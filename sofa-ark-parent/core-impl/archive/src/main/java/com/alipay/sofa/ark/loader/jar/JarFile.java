@@ -316,7 +316,9 @@ public class JarFile extends java.util.jar.JarFile {
 
     @Override
     public String getName() {
-        return this.rootFile.getFile() + this.pathFromRoot;
+        String str = this.rootFile.getFile().toString();
+        StringBuilder sb = new StringBuilder(str.length() + this.pathFromRoot.length());
+        return sb.append(str).append(this.pathFromRoot).toString();
     }
 
     boolean isSigned() {

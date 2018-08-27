@@ -88,4 +88,12 @@ public class StringUtilsTest {
         Assert.assertTrue(array[2].equals("cb"));
     }
 
+    @Test
+    public void testStartWithToLowerCase() {
+        Assert.assertFalse(StringUtils.startWithToLowerCase("ab", "abc"));
+        Assert.assertTrue(StringUtils.startWithToLowerCase("AbC", "abc"));
+        Assert.assertTrue(StringUtils.startWithToLowerCase("aB#", "ab#"));
+        Assert.assertTrue(StringUtils.startWithToLowerCase("~Ab", "~ab"));
+    }
+
 }
