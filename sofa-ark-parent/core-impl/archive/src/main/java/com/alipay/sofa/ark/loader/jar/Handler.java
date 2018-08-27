@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -141,7 +143,7 @@ public class Handler extends URLStreamHandler {
 
     @Override
     protected void parseURL(URL context, String spec, int start, int limit) {
-        if (spec.toLowerCase().startsWith(JAR_PROTOCOL)) {
+        if (StringUtils.startWithToLowerCase(spec, JAR_PROTOCOL)) {
             setFile(context, getFileFromSpec(spec.substring(start, limit)));
         } else {
             setFile(context, getFileFromContext(context, spec.substring(start, limit)));
@@ -163,17 +165,19 @@ public class Handler extends URLStreamHandler {
 
     private String getFileFromContext(URL context, String spec) {
         String file = context.getFile();
+        StringBuilder sb = new StringBuilder(file.length() + spec.length());
         if (spec.startsWith("/")) {
-            return trimToJarRoot(file) + SEPARATOR + spec.substring(1);
+            return sb.append(trimToJarRoot(file)).append(SEPARATOR).append(spec.substring(1))
+                .toString();
         }
         if (file.endsWith("/")) {
-            return file + spec;
+            return sb.append(file).append(spec).toString();
         }
         int lastSlashIndex = file.lastIndexOf('/');
         if (lastSlashIndex == -1) {
             throw new IllegalArgumentException("No / found in context URL's file '" + file + "'");
         }
-        return file.substring(0, lastSlashIndex + 1) + spec;
+        return sb.append(file.substring(0, lastSlashIndex + 1)).append(spec).toString();
     }
 
     private String trimToJarRoot(String file) {
@@ -193,7 +197,8 @@ public class Handler extends URLStreamHandler {
         String afterSeparator = file.substring(afterLastSeparatorIndex);
         afterSeparator = replaceParentDir(afterSeparator);
         afterSeparator = replaceCurrentDir(afterSeparator);
-        return file.substring(0, afterLastSeparatorIndex) + afterSeparator;
+        return new StringBuilder(afterLastSeparatorIndex + afterSeparator.length())
+            .append(file.substring(0, afterLastSeparatorIndex)).append(afterSeparator).toString();
     }
 
     private String replaceParentDir(String file) {
