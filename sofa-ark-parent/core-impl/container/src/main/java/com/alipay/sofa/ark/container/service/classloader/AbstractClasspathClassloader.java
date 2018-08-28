@@ -181,7 +181,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      */
     protected Class<?> resolveLocalClass(String name) {
         try {
-            return super.findClass(name);
+            return super.loadClass(name, false);
         } catch (ClassNotFoundException e) {
             // ignore
         }
