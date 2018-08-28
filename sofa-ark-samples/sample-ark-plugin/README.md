@@ -22,7 +22,7 @@
 <plugin>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-plugin-maven-plugin</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5.0</version>
 </plugin>
 ```
 
@@ -103,7 +103,7 @@
      <groupId>com.alipay.sofa</groupId>
      <artifactId>sample-ark-plugin</artifactId>
      <classifier>ark-plugin</classifier>
-     <version>0.5.0-SNAPSHOT</version>
+     <version>0.5.0</version>
  </dependency>
 ```
 
