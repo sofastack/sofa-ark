@@ -207,6 +207,9 @@ public class BizModel implements Biz {
                 .getService(EventAdminService.class);
             eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
         } finally {
+            BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
+                .getService(BizManagerService.class);
+            bizManagerService.unRegisterBiz(bizName, bizVersion);
             bizState = BizState.UNRESOLVED;
             urls = null;
             classLoader = null;

@@ -74,6 +74,10 @@ public class Repackager {
 
     private File                                  pluginModuleJar;
 
+    private boolean                               packageProvided;
+
+    private boolean                               keepArkBizJar;
+
     private String                                arkVersion                         = null;
 
     private Library                               arkContainerLibrary                = null;
@@ -178,6 +182,10 @@ public class Repackager {
             @Override
             public void library(Library library) throws IOException {
 
+                if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
+                    return;
+                }
+
                 if (!isZip(library.getFile())) {
                     return;
                 }
@@ -186,7 +194,7 @@ public class Repackager {
 
                     if (isArkContainer(jarFile)) {
                         if (arkContainerLibrary != null) {
-                            throw new RuntimeException("duplicate SOFAArk dependency");
+                            throw new RuntimeException("duplicate SOFAArk Container dependency");
                         }
                         arkContainerLibrary = library;
                     } else if (isArkModule(jarFile)) {
@@ -208,6 +216,7 @@ public class Repackager {
 
         repackageModule();
         repackageApp();
+        removeArkBizJar();
     }
 
     private void repackageModule() throws IOException {
@@ -262,6 +271,13 @@ public class Repackager {
                 // Ignore
             }
         }
+    }
+
+    private void removeArkBizJar() {
+        if (!keepArkBizJar) {
+            pluginModuleJar.getAbsoluteFile().deleteOnExit();
+        }
+
     }
 
     private void writeNestedLibraries(List<Library> libraries, Layout layout, JarWriter writer)
@@ -447,4 +463,15 @@ public class Repackager {
 
     }
 
+    public boolean isPackageProvided() {
+        return packageProvided;
+    }
+
+    public void setPackageProvided(boolean packageProvided) {
+        this.packageProvided = packageProvided;
+    }
+
+    public void setKeepArkBizJar(boolean keepArkBizJar) {
+        this.keepArkBizJar = keepArkBizJar;
+    }
 }
