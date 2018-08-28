@@ -18,8 +18,9 @@ package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
+import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.context.event.SpringApplicationEvent;
 import com.alipay.sofa.common.log.Constants;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -28,25 +29,42 @@ import org.springframework.context.ApplicationListener;
  * @author ruoshan
  * @since 0.1.0
  */
-public class ArkApplicationStartListener implements ApplicationListener<ApplicationStartedEvent> {
+public class ArkApplicationStartListener implements ApplicationListener<SpringApplicationEvent> {
 
-    private static final String LAUNCH_CLASSLOADER_NAME = "sun.misc.Launcher$AppClassLoader";
+    private static final String LAUNCH_CLASSLOADER_NAME    = "sun.misc.Launcher$AppClassLoader";
+    private static final String APPLICATION_STARTED_EVENT  = "org.springframework.boot.context.event.ApplicationStartedEvent";
+    private static final String APPLICATION_STARTING_EVENT = "org.springframework.boot.context.event.ApplicationStartingEvent";
+    private static final String INCOMPATIBLE_VERSION       = "2.0";
 
     @Override
-    public void onApplicationEvent(ApplicationStartedEvent event) {
+    public void onApplicationEvent(SpringApplicationEvent event) {
         try {
-            EnvironmentUtils.clearProperty(Constants.LOG_PATH);
-            if (shouldStartArk()) {
-                SofaArkBootstrap.launch(event.getArgs());
+            if (isSpringBoot2()
+                && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
+                startUpArk(event);
+            }
+
+            if (isSpringBoot1()
+                && APPLICATION_STARTED_EVENT.equals(event.getClass().getCanonicalName())) {
+                startUpArk(event);
             }
         } catch (Throwable e) {
             throw new RuntimeException("Meet exception when determine whether to start SOFAArk!", e);
         }
-
     }
 
-    private boolean shouldStartArk() {
-        return LAUNCH_CLASSLOADER_NAME
-            .equals(this.getClass().getClassLoader().getClass().getName());
+    public void startUpArk(SpringApplicationEvent event) {
+        EnvironmentUtils.clearProperty(Constants.LOG_PATH);
+        if (LAUNCH_CLASSLOADER_NAME.equals(this.getClass().getClassLoader().getClass().getName())) {
+            SofaArkBootstrap.launch(event.getArgs());
+        }
+    }
+
+    public boolean isSpringBoot2() {
+        return INCOMPATIBLE_VERSION.compareTo(SpringBootVersion.getVersion()) < 0;
+    }
+
+    public boolean isSpringBoot1() {
+        return INCOMPATIBLE_VERSION.compareTo(SpringBootVersion.getVersion()) > 0;
     }
 }
