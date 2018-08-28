@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.common.thread.CommonThreadPool;
 import com.alipay.sofa.ark.common.thread.ThreadPoolManager;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
+import com.alipay.sofa.ark.common.util.PortSelectUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.session.handler.TelnetProtocolHandler;
 import com.alipay.sofa.ark.exception.ArkException;
@@ -60,7 +61,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
 
     private String                 host                    = null;
 
-    private int                    port                    = DEFAULT_TELNET_PORT;
+    private int                    port                    = -1;
 
     private AtomicBoolean          shutdown                = new AtomicBoolean(false);
 
@@ -82,6 +83,9 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                     Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME, workerPool);
                 if (!StringUtils.isEmpty(telnetValue)) {
                     parseHostAndPort(telnetValue);
+                } else {
+                    port = PortSelectUtils.selectAvailablePort(DEFAULT_TELNET_PORT,
+                        DEFAULT_SELECT_PORT_SIZE);
                 }
             } catch (NumberFormatException e) {
                 LOGGER.error(String.format("Invalid host/port in %s", telnetValue), e);

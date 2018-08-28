@@ -46,13 +46,6 @@
 
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
-                <artifactId>sample-ark-plugin</artifactId>
-                <classifier>ark-plugin</classifier>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.alipay.sofa</groupId>
                 <artifactId>sample-ark-plugin-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
