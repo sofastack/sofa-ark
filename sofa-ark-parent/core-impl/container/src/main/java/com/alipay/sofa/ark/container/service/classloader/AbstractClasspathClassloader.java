@@ -103,25 +103,22 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
                         try {
                             URLConnection connection = url.openConnection();
                             if (connection instanceof JarURLConnection) {
-                                JarFile jarFile = ((JarURLConnection) connection)
-                                        .getJarFile();
+                                JarFile jarFile = ((JarURLConnection) connection).getJarFile();
                                 if (jarFile.getEntry(classEntryName) != null
-                                        && jarFile.getEntry(packageEntryName) != null
-                                        && jarFile.getManifest() != null) {
+                                    && jarFile.getEntry(packageEntryName) != null
+                                    && jarFile.getManifest() != null) {
                                     definePackage(packageName, jarFile.getManifest(), url);
                                     return null;
                                 }
                             }
-                        }
-                        catch (IOException ex) {
+                        } catch (IOException ex) {
                             // Ignore
                         }
                     }
                     return null;
                 }
             }, AccessController.getContext());
-        }
-        catch (java.security.PrivilegedActionException ex) {
+        } catch (java.security.PrivilegedActionException ex) {
             // Ignore
         }
     }
