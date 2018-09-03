@@ -64,9 +64,6 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
         try {
             definePackageIfNecessary(name);
             return loadClassInternal(name, resolve);
-        } catch (Throwable e) {
-            System.out.println("xx");
-            return null;
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -97,8 +94,12 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() throws Exception {
-                    String packageEntryName = packageName.replace('.', '/') + "/";
-                    String classEntryName = className.replace('.', '/') + ".class";
+                    StringBuilder pen = new StringBuilder(packageName.length() + 10);
+                    StringBuilder cen = new StringBuilder(className.length() + 10);
+                    String packageEntryName = pen.append(packageName.replace('.', '/')).append("/")
+                        .toString();
+                    String classEntryName = cen.append(className.replace('.', '/'))
+                        .append(".class").toString();
                     for (URL url : getURLs()) {
                         try {
                             URLConnection connection = url.openConnection();
