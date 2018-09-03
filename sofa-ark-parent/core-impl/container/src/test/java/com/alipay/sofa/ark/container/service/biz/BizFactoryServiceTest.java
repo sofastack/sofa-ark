@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -61,6 +62,18 @@ public class BizFactoryServiceTest extends BaseTest {
         Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
         Assert.assertNotNull(biz);
         Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
+    }
+
+    @Test
+    public void testPackageInfo() throws Throwable {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL samplePlugin = cl.getResource("sample-ark-plugin.jar");
+        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        ClassLoader pluginClassLoader = plugin.getPluginClassLoader();
+        pluginManagerService.registerPlugin(plugin);
+        Class mdc = pluginClassLoader.loadClass("org.slf4j.MDC");
+        Assert.assertTrue(mdc.getClassLoader().equals(pluginClassLoader));
+        Assert.assertNotNull(mdc.getPackage().getImplementationVersion());
     }
 
 }
