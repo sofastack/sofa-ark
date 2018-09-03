@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
