@@ -111,6 +111,6 @@ should add the following dependency in your consumer project:
      <groupId>com.alipay.sofa</groupId>
      <artifactId>sample-ark-plugin</artifactId>
      <classifier>ark-plugin</classifier>
-     <version>0.5.0</version>
+     <version>0.5.1</version>
  </dependency>
 ```
