@@ -63,4 +63,16 @@ public class BizFactoryServiceTest extends BaseTest {
         Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
     }
 
+    @Test
+    public void testPackageInfo() throws Throwable {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL samplePlugin = cl.getResource("sample-ark-plugin.jar");
+        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        ClassLoader pluginClassLoader = plugin.getPluginClassLoader();
+        pluginManagerService.registerPlugin(plugin);
+        Class mdc = pluginClassLoader.loadClass("org.slf4j.MDC");
+        Assert.assertTrue(mdc.getClassLoader().equals(pluginClassLoader));
+        Assert.assertNotNull(mdc.getPackage().getImplementationVersion());
+    }
+
 }
