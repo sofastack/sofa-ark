@@ -25,12 +25,17 @@ import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarFile;
 
 /**
  *
@@ -57,9 +62,65 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
         }
         Handler.setUseFastConnectionExceptions(true);
         try {
+            definePackageIfNecessary(name);
             return loadClassInternal(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
+        }
+    }
+
+    /**
+     * Define a package before a {@code findClass} call is made. This is necessary to
+     * ensure that the appropriate manifest for nested JARs is associated with the
+     * package.
+     * @param className the class name being found
+     */
+    private void definePackageIfNecessary(String className) {
+        int lastDot = className.lastIndexOf('.');
+        if (lastDot >= 0) {
+            String packageName = className.substring(0, lastDot);
+            if (getPackage(packageName) == null) {
+                try {
+                    definePackage(className, packageName);
+                } catch (IllegalArgumentException ex) {
+                    // Tolerate race condition due to being parallel capable
+                }
+            }
+        }
+    }
+
+    private void definePackage(final String className, final String packageName) {
+        try {
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    StringBuilder pen = new StringBuilder(packageName.length() + 10);
+                    StringBuilder cen = new StringBuilder(className.length() + 10);
+                    String packageEntryName = pen.append(packageName.replace('.', '/')).append("/")
+                        .toString();
+                    String classEntryName = cen.append(className.replace('.', '/'))
+                        .append(".class").toString();
+                    for (URL url : getURLs()) {
+                        try {
+                            URLConnection connection = url.openConnection();
+                            if (connection instanceof JarURLConnection) {
+                                JarFile jarFile = ((JarURLConnection) connection).getJarFile();
+                                if (jarFile.getEntry(classEntryName) != null
+                                    && jarFile.getEntry(packageEntryName) != null
+                                    && jarFile.getManifest() != null) {
+                                    definePackage(packageName, jarFile.getManifest(), url);
+                                    return null;
+                                }
+                            }
+                        } catch (IOException ex) {
+                            // Ignore
+                        }
+                    }
+                    return null;
+                }
+            }, AccessController.getContext());
+        } catch (java.security.PrivilegedActionException ex) {
+            // Ignore
         }
     }
 
