@@ -30,12 +30,4 @@ public class AgentClassLoader extends URLClassLoader {
     public AgentClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
-
-    public AgentClassLoader(URL[] urls) {
-        super(urls);
-    }
-
-    public AgentClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
-        super(urls, parent, factory);
-    }
 }
