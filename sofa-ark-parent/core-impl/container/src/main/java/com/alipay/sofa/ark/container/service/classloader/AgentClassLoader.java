@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
 
 /**
  * Used to collect classpath of java agent.
