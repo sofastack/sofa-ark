@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -128,7 +129,7 @@ public class BizModel implements Biz {
 
     @Override
     public String getIdentity() {
-        return BizIdentityGenerator.generateBizIdentity(this);
+        return BizIdentityUtils.generateBizIdentity(this);
     }
 
     @Override
@@ -222,22 +223,5 @@ public class BizModel implements Biz {
     @Override
     public BizState getBizState() {
         return bizState;
-    }
-
-    public static class BizIdentityGenerator {
-        public static String generateBizIdentity(Biz biz) {
-            return biz.getBizName() + Constants.STRING_COLON + biz.getBizVersion();
-        }
-
-        public static boolean isValid(String bizIdentity) {
-            if (StringUtils.isEmpty(bizIdentity)) {
-                return false;
-            }
-            String[] str = bizIdentity.split(Constants.STRING_COLON);
-            if (str.length != 2) {
-                return false;
-            }
-            return !StringUtils.isEmpty(str[0]) && !StringUtils.isEmpty(str[1]);
-        }
     }
 }

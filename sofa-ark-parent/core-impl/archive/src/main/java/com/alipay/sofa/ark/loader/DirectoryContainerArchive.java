@@ -42,7 +42,8 @@ public class DirectoryContainerArchive implements ContainerArchive {
             "sofa-ark-parent/core-impl/archive/target/classes",
             "sofa-ark-parent/core/spi/target/classes",
             "sofa-ark-parent/core/common/target/classes",
-            "sofa-ark-parent/core/exception/target/classes" };
+            "sofa-ark-parent/core/exception/target/classes",
+            "sofa-ark-parent/core/api/target/classes" };
 
     public DirectoryContainerArchive(URL[] urls) {
         this.urls = urls;
