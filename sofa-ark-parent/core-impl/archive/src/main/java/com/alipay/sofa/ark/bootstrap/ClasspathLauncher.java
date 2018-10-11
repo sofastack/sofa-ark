@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -117,7 +118,6 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             return new JarContainerArchive(new JarFileArchive(new File(urlList.get(0).getFile())));
-
         }
 
         @Override
@@ -178,7 +178,8 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         protected BizArchive createDirectoryBizModuleArchive() {
-            return new DirectoryBizArchive(className, methodName, methodDescription, urls);
+            return new DirectoryBizArchive(className, methodName, methodDescription,
+                filterBizUrls(urls));
         }
 
         protected ContainerArchive createDirectoryContainerArchive() {
@@ -193,7 +194,7 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         /**
-         * this method is used to chose jar file which is contained in sofa-ark-all.jar
+         * this method is used to choose jar file which is contained in sofa-ark-all.jar
          *
          * @return
          */
@@ -212,6 +213,27 @@ public class ClasspathLauncher extends ArkLauncher {
 
             return arkContainerJarMarkers.size() != containerClassPath.size() ? null
                 : containerClassPath.toArray(new URL[] {});
+        }
+
+        /**
+         * this method is used to eliminate agent classpath
+         *
+         * @param urls
+         * @return
+         */
+        protected URL[] filterBizUrls(URL[] urls) {
+            URL[] agentClassPath = ClassloaderUtils.getAgentClassPath();
+            Set<URL> bizURls = new HashSet<>();
+            for (URL url : urls) {
+                for (URL agentUrl : agentClassPath) {
+                    if (url.equals(agentUrl)) {
+                        break;
+                    }
+                    bizURls.add(url);
+                }
+            }
+
+            return bizURls.toArray(new URL[] {});
         }
 
         /**
