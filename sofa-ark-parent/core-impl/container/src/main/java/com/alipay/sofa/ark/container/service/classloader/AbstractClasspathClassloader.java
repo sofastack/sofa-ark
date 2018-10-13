@@ -136,9 +136,6 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
 
     @Override
     public URL getResource(String name) {
-        if (StringUtils.isEmpty(name)) {
-            return null;
-        }
         Handler.setUseFastConnectionExceptions(true);
         try {
             return getResourceInternal(name);
@@ -148,11 +145,27 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Real logic to get resource，need to implement by Sub Classloader
+     * Real logic to get resource
      * @param name
      * @return
      */
-    abstract protected URL getResourceInternal(String name);
+    @SuppressWarnings("unchecked")
+    protected URL getResourceInternal(String name) {
+        // 1. find export resource
+        URL url = getExportResource(name);
+
+        // 2. get .class resource
+        if (url == null) {
+            url = getClassResource(name);
+        }
+
+        // 3. get local resource
+        if (url == null) {
+            url = getLocalResource(name);
+        }
+
+        return url;
+    }
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
@@ -165,12 +178,25 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Real logic to get resources，need to implement by Sub Classloader
+     * Real logic to get resources
      * @param name
      * @return
      * @throws IOException
      */
-    abstract protected Enumeration<URL> getResourcesInternal(String name) throws IOException;
+    @SuppressWarnings("unchecked")
+    protected Enumeration<URL> getResourcesInternal(String name) throws IOException {
+        List<Enumeration<URL>> enumerationList = new ArrayList<>();
+
+        // 1. find exported resources
+        enumerationList.add(getExportResources(name));
+
+        // 2. find local resources
+        enumerationList.add(getLocalResources(name));
+
+        return new CompoundEnumeration<>(
+            enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+
+    }
 
     /**
      * Whether to find class that exported by other classloader
@@ -269,7 +295,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      * @return
      */
     protected URL getExportResource(String resourceName) {
-        if (shouldFindExportedResource(resourceName)) {
+        if (!StringUtils.isEmpty(resourceName) && shouldFindExportedResource(resourceName)) {
             URL url;
             List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
                 .findExportResourceClassloadersInOrder(resourceName);

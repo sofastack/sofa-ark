@@ -27,8 +27,11 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import sun.misc.URLClassPath;
 
+import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -263,6 +266,18 @@ public class PluginClassloaderTest extends BaseTest {
 
         PluginClassLoader pluginClassLoader = (PluginClassLoader) mockPlugin.getPluginClassLoader();
         Assert.assertNotNull(pluginClassLoader.loadClass("SampleClass", false));
+    }
+
+    @Test
+    public void testSlashResource() throws Throwable {
+        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
+        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
+        ucpFiled.setAccessible(true);
+        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("pluginName", ucp.getURLs());
+        URL url = pluginClassLoader.getResource("");
+        Assert.assertNotNull(url);
+        Assert.assertEquals(url, this.getClass().getResource("/"));
     }
 
 }
