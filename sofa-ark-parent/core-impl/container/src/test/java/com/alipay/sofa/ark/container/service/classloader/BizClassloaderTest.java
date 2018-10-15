@@ -100,6 +100,17 @@ public class BizClassloaderTest extends BaseTest {
     }
 
     @Test
+    public void testAgentClass() throws ClassNotFoundException {
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        Class clazz = bizModel.getBizClassLoader().loadClass("SampleClass");
+        Assert.assertFalse(clazz.getClassLoader() instanceof AgentClassLoader);
+        Assert.assertTrue(clazz.getClassLoader().getClass().getCanonicalName()
+            .contains("Launcher.AppClassLoader"));
+    }
+
+    @Test
     public void testGetPluginClassResource() {
         PluginModel pluginA = new PluginModel();
         pluginA

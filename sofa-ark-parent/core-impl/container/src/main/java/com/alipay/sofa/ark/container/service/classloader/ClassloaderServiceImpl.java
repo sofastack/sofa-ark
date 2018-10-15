@@ -247,8 +247,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
         }
 
-        return new URLClassLoader(agentPaths.toArray(new URL[] {}), null);
-
+        return new AgentClassLoader(agentPaths.toArray(new URL[] {}), null);
     }
 
     @Override
