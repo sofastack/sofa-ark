@@ -210,7 +210,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     private ClassLoader createAgentClassLoader() throws ArkException {
-        return new URLClassLoader(ClassloaderUtils.getAgentClassPath(), null);
+        return new AgentClassLoader(ClassloaderUtils.getAgentClassPath(), null);
     }
 
     @Override
