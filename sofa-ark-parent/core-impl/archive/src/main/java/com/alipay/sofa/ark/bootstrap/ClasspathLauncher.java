@@ -224,11 +224,16 @@ public class ClasspathLauncher extends ArkLauncher {
         protected URL[] filterBizUrls(URL[] urls) {
             URL[] agentClassPath = ClassloaderUtils.getAgentClassPath();
             Set<URL> bizURls = new HashSet<>();
+            boolean isAgent;
             for (URL url : urls) {
+                isAgent = false;
                 for (URL agentUrl : agentClassPath) {
                     if (url.equals(agentUrl)) {
+                        isAgent = true;
                         break;
                     }
+                }
+                if (!isAgent) {
                     bizURls.add(url);
                 }
             }
