@@ -16,6 +16,16 @@
  */
 package com.alipay.sofa.ark.common.util;
 
+import com.alipay.sofa.ark.exception.ArkException;
+
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Classloader Util
  *
@@ -23,6 +33,10 @@ package com.alipay.sofa.ark.common.util;
  * @since 0.1.0
  */
 public class ClassloaderUtils {
+
+    private static final String JAVA_AGENT_MARK        = "-javaagent:";
+
+    private static final String JAVA_AGENT_OPTION_MARK = "=";
 
     /**
      * push ContextClassloader
@@ -41,6 +55,32 @@ public class ClassloaderUtils {
      */
     public static void popContextClassloader(ClassLoader oldClassloader) {
         Thread.currentThread().setContextClassLoader(oldClassloader);
+    }
+
+    public static URL[] getAgentClassPath() {
+        List<String> inputArguments = AccessController
+            .doPrivileged(new PrivilegedAction<List<String>>() {
+                @Override
+                public List<String> run() {
+                    return ManagementFactory.getRuntimeMXBean().getInputArguments();
+                }
+            });
+
+        List<URL> agentPaths = new ArrayList<>();
+        for (String argument : inputArguments) {
+            if (!argument.startsWith(JAVA_AGENT_MARK)) {
+                continue;
+            }
+            argument = argument.substring(JAVA_AGENT_MARK.length());
+            try {
+                String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
+                URL url = new File(path).toURI().toURL();
+                agentPaths.add(url);
+            } catch (Throwable e) {
+                throw new ArkException("Failed to create java agent classloader", e);
+            }
+        }
+        return agentPaths.toArray(new URL[] {});
     }
 
 }
