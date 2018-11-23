@@ -148,11 +148,31 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Real logic to get resource，need to implement by Sub Classloader
+     * Real logic to get resource
      * @param name
      * @return
      */
-    abstract protected URL getResourceInternal(String name);
+    protected URL getResourceInternal(String name) {
+        // 1. find jdk resource
+        URL url = getJdkResource(name);
+
+        // 2. find export resource
+        if (url == null) {
+            url = getExportResource(name);
+        }
+
+        // 3. get .class resource
+        if (url == null) {
+            url = getClassResource(name);
+        }
+
+        // 4. get local resource
+        if (url == null) {
+            url = getLocalResource(name);
+        }
+
+        return url;
+    }
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
@@ -165,12 +185,25 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Real logic to get resources，need to implement by Sub Classloader
+     * Real logic to get resources
      * @param name
      * @return
      * @throws IOException
      */
-    abstract protected Enumeration<URL> getResourcesInternal(String name) throws IOException;
+    protected Enumeration<URL> getResourcesInternal(String name) throws IOException {
+        List<Enumeration<URL>> enumerationList = new ArrayList<>();
+        // 1. find jdk resources
+        enumerationList.add(getJdkResources(name));
+
+        // 2. find exported resources
+        enumerationList.add(getExportResources(name));
+
+        // 3. find local resources
+        enumerationList.add(getLocalResources(name));
+
+        return new CompoundEnumeration<>(
+            enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+    }
 
     /**
      * Whether to find class that exported by other classloader
@@ -288,6 +321,15 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
+     * Find jdk dir resource
+     * @param resourceName
+     * @return
+     */
+    protected URL getJdkResource(String resourceName) {
+        return classloaderService.getJDKClassloader().getResource(resourceName);
+    }
+
+    /**
      * Find .class resource
      * @param resourceName
      * @return
@@ -347,4 +389,8 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
         return new UseFastConnectionExceptionsEnumeration(super.getResources(resourceName));
     }
 
+    protected Enumeration<URL> getJdkResources(String resourceName) throws IOException {
+        return new UseFastConnectionExceptionsEnumeration(classloaderService.getJDKClassloader()
+            .getResources(resourceName));
+    }
 }

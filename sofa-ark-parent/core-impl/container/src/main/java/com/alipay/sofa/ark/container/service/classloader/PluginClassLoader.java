@@ -44,6 +44,10 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
         return pluginName;
     }
 
+    public PluginClassLoader(URL[] urls) {
+        super(urls);
+    }
+
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
 
@@ -93,40 +97,6 @@ public class PluginClassLoader extends AbstractClasspathClassloader {
 
         throw new ArkLoaderException(String.format(
             "[ArkPlugin Loader] %s : can not load class: %s", pluginName, name));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected URL getResourceInternal(String name) {
-        // 1. find export resource
-        URL url = getExportResource(name);
-
-        // 2. get .class resource
-        if (url == null) {
-            url = getClassResource(name);
-        }
-
-        // 3. get local resource
-        if (url == null) {
-            url = getLocalResource(name);
-        }
-
-        return url;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Enumeration<URL> getResourcesInternal(String name) throws IOException {
-        List<Enumeration<URL>> enumerationList = new ArrayList<>();
-
-        // 1. find exported resources
-        enumerationList.add(getExportResources(name));
-
-        // 2. find local resources
-        enumerationList.add(getLocalResources(name));
-
-        return new CompoundEnumeration<>(
-            enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
-
     }
 
     @Override
