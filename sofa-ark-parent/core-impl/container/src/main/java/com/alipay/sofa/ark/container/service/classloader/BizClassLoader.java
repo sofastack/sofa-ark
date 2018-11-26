@@ -91,40 +91,6 @@ public class BizClassLoader extends AbstractClasspathClassloader {
             bizIdentity, name));
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected URL getResourceInternal(String name) {
-        // 1. find export resource
-        URL url = getExportResource(name);
-
-        // 2. get .class resource
-        if (url == null) {
-            url = getClassResource(name);
-        }
-
-        // 3. get local resource
-        if (url == null) {
-            url = getLocalResource(name);
-        }
-
-        return url;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Enumeration<URL> getResourcesInternal(String name) throws IOException {
-        List<Enumeration<URL>> enumerationList = new ArrayList<>();
-
-        // 1. find exported resources
-        enumerationList.add(getExportResources(name));
-
-        // 2. find local resources
-        enumerationList.add(getLocalResources(name));
-
-        return new CompoundEnumeration<>(
-            enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
-
-    }
-
     @Override
     boolean shouldFindExportedClass(String className) {
         return !classloaderService.isDeniedImportClass(bizIdentity, className);

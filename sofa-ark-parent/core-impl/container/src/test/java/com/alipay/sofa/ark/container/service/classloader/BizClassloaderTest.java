@@ -27,13 +27,15 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import sun.misc.CompoundEnumeration;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * @author ruoshan
@@ -202,4 +204,27 @@ public class BizClassloaderTest extends BaseTest {
 
     }
 
+    @Test
+    public void testGetJdkResource() throws IOException {
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+
+        ClassLoader cl = bizModel.getBizClassLoader();
+        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+
+        URL res1 = cl.getResource(name);
+        Assert.assertNotNull(res1);
+
+        URL res2 = ClassLoader.getSystemClassLoader().getResource(name);
+        Assert.assertEquals(res2, res1);
+
+        Enumeration<URL> enu1 = cl.getResources(name);
+        Assert.assertTrue(enu1.hasMoreElements());
+
+        Enumeration<URL> enu2 = ClassLoader.getSystemClassLoader().getResources(name);
+        Assert.assertEquals(Sets.newHashSet(Collections.list(enu2)),
+            Sets.newHashSet(Collections.list(enu1)));
+
+    }
 }
