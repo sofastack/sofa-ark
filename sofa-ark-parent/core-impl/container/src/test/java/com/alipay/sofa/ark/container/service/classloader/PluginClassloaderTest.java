@@ -26,6 +26,7 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -296,8 +297,8 @@ public class PluginClassloaderTest extends BaseTest {
         Assert.assertTrue(enu1.hasMoreElements());
 
         Enumeration<URL> enu2 = ClassLoader.getSystemClassLoader().getResources(name);
-        Assert.assertEquals(Collections.list(enu2), Collections.list(enu1));
-
+        Assert.assertEquals(Sets.newHashSet(Collections.list(enu2)),
+            Sets.newHashSet(Collections.list(enu1)));
     }
 
 }
