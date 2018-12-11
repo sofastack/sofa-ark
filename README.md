@@ -51,3 +51,6 @@ SOFAArk初衷是为了解决包冲突问题，那什么情况下可以使用 SOF
 
 ## 文档
 * [SOFAArk 用户手册(中文)](http://www.sofastack.tech/sofa-boot/docs/sofa-ark-readme) : SOFAArk 用户手册及功能特性详细说明
+
+## 致谢
+SOFAArk 类隔离框架设计实现主要基于 OSGi 规范及蚂蚁金服的 CloudEngine 容器；同时也参考了 Spring Boot 及阿里的 PandoraBoot，感谢以上产品工作者的辛勤付出。
