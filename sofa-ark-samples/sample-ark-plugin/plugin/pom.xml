@@ -44,7 +44,7 @@
                             <activator>com.alipay.sofa.ark.sample.activator.SamplePluginActivator</activator>
 
                             <!--default none-->
-                            <arkClassifier>executable-ark</arkClassifier>
+                            <classifier>executable-ark</classifier>
 
                             <!-- configure exported class -->
                             <exported>

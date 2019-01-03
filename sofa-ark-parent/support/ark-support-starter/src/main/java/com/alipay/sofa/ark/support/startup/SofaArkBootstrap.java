@@ -28,7 +28,7 @@ import java.net.URLClassLoader;
 
 /**
  * relaunch a started main method with bootstrapping ark container
- * {@see org.springframework.boot.maven.RunMojo}
+ * {@literal org.springframework.boot.maven.RunMojo}
  *
  * @author qilong.zql
  * @author Phillip Webb
