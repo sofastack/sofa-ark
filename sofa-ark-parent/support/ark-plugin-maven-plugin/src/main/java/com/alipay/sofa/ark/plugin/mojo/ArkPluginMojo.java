@@ -16,8 +16,22 @@
  */
 package com.alipay.sofa.ark.plugin.mojo;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -86,6 +100,9 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.artifactId}")
     public String                   pluginName;
 
+    @Parameter(defaultValue = " ")
+    protected String                description;
+
     @Parameter(defaultValue = "100", property = "sofa.ark.plugin.priority")
     protected Integer               priority;
 
@@ -116,6 +133,9 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     protected LinkedHashSet<String> excludeArtifactIds;
 
+    /**
+     * Colon separated groupId, artifactId, classifier(optional), version.
+     */
     @Parameter(defaultValue = "")
     protected LinkedHashSet<String> shades             = new LinkedHashSet<>();
 
@@ -227,11 +247,14 @@ public class ArkPluginMojo extends AbstractMojo {
 
     public boolean isShadeJar(Artifact artifact) {
         for (String shade : getShades()) {
-            ArtifactItem artifactItem = ArtifactItem.parseArtifactItemIgnoreVersion(shade);
+            ArtifactItem artifactItem = ArtifactItem.parseArtifactItemWithVersion(shade);
             if (!artifact.getGroupId().equals(artifactItem.getGroupId())) {
                 continue;
             }
             if (!artifact.getArtifactId().equals(artifactItem.getArtifactId())) {
+                continue;
+            }
+            if (!artifact.getVersion().equals(artifactItem.getVersion())) {
                 continue;
             }
             if (!StringUtils.isEmpty(artifactItem.getClassifier())
@@ -400,6 +423,7 @@ public class ArkPluginMojo extends AbstractMojo {
         properties.setProperty("version", version);
         properties.setProperty("priority", String.valueOf(priority));
         properties.setProperty("pluginName", pluginName);
+        properties.setProperty("description", description);
         properties.setProperty("activator", activator == null ? "" : activator);
         properties.putAll(collectArkPluginImport());
         properties.putAll(collectArkPluginExport());
