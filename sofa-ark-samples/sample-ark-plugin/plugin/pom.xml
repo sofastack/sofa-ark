@@ -43,9 +43,6 @@
                             <!--can only configure no more than one activator-->
                             <activator>com.alipay.sofa.ark.sample.activator.SamplePluginActivator</activator>
 
-                            <!--default none-->
-                            <arkClassifier>executable-ark</arkClassifier>
-
                             <!-- configure exported class -->
                             <exported>
                                 <!-- configure package-level exported class-->
