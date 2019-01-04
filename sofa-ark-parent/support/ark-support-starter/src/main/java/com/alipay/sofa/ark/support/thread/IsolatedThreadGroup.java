@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.support.thread;
 
 /**
  * Isolated {@link ThreadGroup} to capture uncaught exceptions.
- * {@see org.springframework.boot.maven.IsolatedThreadGroup}
+ * {@literal org.springframework.boot.maven.IsolatedThreadGroup}
  *
  * @author qilong.zql
  * @author Phillip Webb
