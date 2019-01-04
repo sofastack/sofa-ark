@@ -51,7 +51,7 @@ public class ArkPluginMojoTest {
 
         ArkPluginMojo arkPluginMojo = new ArkPluginMojo();
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
-            .singleton("com.alipay.sofa:test-demo")));
+            .singleton("com.alipay.sofa:test-demo:1.0.0")));
         final URL url = this.getClass().getClassLoader().getResource("test-demo.jar");
         String path = url.getPath() + ".shaded";
         String shadedUrl = url.toExternalForm() + ".shaded";
@@ -68,7 +68,7 @@ public class ArkPluginMojoTest {
                              @Mocked final MavenProject projectTwo, @Mocked final Artifact artifact) {
         ArkPluginMojo arkPluginMojo = new ArkPluginMojo();
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
-            .singleton("com.alipay.sofa:test-demo")));
+            .singleton("com.alipay.sofa:test-demo:1.0.0")));
 
         new Expectations() {
             {
@@ -91,6 +91,8 @@ public class ArkPluginMojoTest {
                 minTimes = 0;
                 artifact.getArtifactId();
                 result = "test-demo";
+                artifact.getVersion();
+                result = "1.0.0";
                 minTimes = 0;
             }
         };

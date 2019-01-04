@@ -110,6 +110,7 @@ public class ArtifactItem {
             arr = s.split(GAV_SPLIT);
         }
 
+        // groupId, artifactId and classifier(optional)
         AssertUtils.isTrue(arr != null && arr.length >= 2 && arr.length <= 3,
             "artifact item format error: %s", s);
 
@@ -117,6 +118,32 @@ public class ArtifactItem {
         item.setGroupId(arr[0]);
         item.setArtifactId(arr[1]);
         if (arr.length == 3) {
+            item.setClassifier(arr[3]);
+        }
+        return item;
+    }
+
+    /**
+     * parse string pattern {groupId:artifactId:version} or {groupId:artifactId:version:classifier}
+     * @param s location pattern
+     * @return
+     */
+    public static ArtifactItem parseArtifactItemWithVersion(String s) {
+        String[] arr = new String[] {};
+
+        if (s != null && !s.isEmpty()) {
+            arr = s.split(GAV_SPLIT);
+        }
+
+        // groupId, artifactId, version and classifier(optional)
+        AssertUtils.isTrue(arr != null && arr.length >= 3 && arr.length <= 4,
+            "artifact item format error: %s", s);
+
+        ArtifactItem item = new ArtifactItem();
+        item.setGroupId(arr[0]);
+        item.setArtifactId(arr[1]);
+        item.setVersion(arr[2]);
+        if (arr.length == 4) {
             item.setClassifier(arr[3]);
         }
         return item;

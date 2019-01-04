@@ -44,7 +44,7 @@
                             <activator>com.alipay.sofa.ark.sample.activator.SamplePluginActivator</activator>
 
                             <!--default none-->
-                            <arkClassifier>executable-ark</arkClassifier>
+                            <classifier>executable-ark</classifier>
 
                             <!-- configure exported class -->
                             <exported>
@@ -69,7 +69,7 @@
 
                             <!--the specify dependency would not be contained in lib directory, but shaded in ark plugin-->
                             <shades>
-                                <shade>com.alipay.sofa:sample-ark-plugin-common</shade>
+                                <shade>com.alipay.sofa:sample-ark-plugin-common:0.6.0-SNAPSHOT</shade>
                             </shades>
 
                         </configuration>
