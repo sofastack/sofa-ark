@@ -49,7 +49,7 @@ public class ArkClient {
     }
 
     public static void setBizManagerService(BizManagerService bizManagerService) {
-        AssertUtils.assertNotNull(ArkClient.bizManagerService, "Biz Manager Service has been set.");
+        AssertUtils.assertNull(ArkClient.bizManagerService, "Biz Manager Service has been set.");
         ArkClient.bizManagerService = bizManagerService;
     }
 
@@ -58,7 +58,7 @@ public class ArkClient {
     }
 
     public static void setBizFactoryService(BizFactoryService bizFactoryService) {
-        AssertUtils.assertNotNull(bizFactoryService, "Biz Factory Service has been set.");
+        AssertUtils.assertNull(ArkClient.bizFactoryService, "Biz Factory Service has been set.");
         ArkClient.bizFactoryService = bizFactoryService;
     }
 
@@ -67,7 +67,7 @@ public class ArkClient {
     }
 
     public static void setArguments(String[] arguments) {
-        AssertUtils.assertNotNull(arguments, "Program arguments has been set.");
+        AssertUtils.assertNull(ArkClient.arguments, "Program arguments has been set.");
         ArkClient.arguments = arguments;
     }
 
