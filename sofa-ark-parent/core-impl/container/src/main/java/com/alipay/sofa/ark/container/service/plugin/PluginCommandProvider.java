@@ -16,7 +16,7 @@ public class PluginCommandProvider implements CommandProvider {
 
     @Override
     public String getHelp() {
-
+        return HELP_MESSAGE;
     }
 
     @Override
@@ -34,9 +34,10 @@ public class PluginCommandProvider implements CommandProvider {
         return DESCRIPTION;
     }
 
-    private static final String HELP_MESSAGE = "USAGE: plugin [option...] [pluginName...]" +
-            "  -h  Shows the help message." +
-            "  -m  Shows the meta info of specified pluginName" +
-            "  -s  Shows the service info of specified pluginName" +
-            "  -d  Shows the ";
+    private static final String HELP_MESSAGE = "USAGE: plugin [option...] [pluginName...]\n" +
+            "  -h  Shows the help message.\n" +
+            "  -m  Shows the meta info of specified pluginName\n" +
+            "  -s  Shows the service info of specified pluginName\n" +
+            "  -d  Shows the detail info of specified pluginName\n" +
+            "SAMPLE: plugin -ms plugin-*\n";
 }
