@@ -50,7 +50,7 @@ public class ArkClientTest extends BaseTest {
     }
 
     @Test
-    public void testOperationBiz() throws Throwable {
+    public void testInstallBiz() throws Throwable {
         ClientResponse response = ArkClient.checkBiz();
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         Assert.assertEquals(0, response.getBizInfos().size());
@@ -70,9 +70,13 @@ public class ArkClientTest extends BaseTest {
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
+    }
 
+    @Test
+    public void testCheckBiz() throws Throwable {
+        testInstallBiz();
         // test check all biz
-        response = ArkClient.checkBiz();
+        ClientResponse response = ArkClient.checkBiz();
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         Assert.assertEquals(2, response.getBizInfos().size());
 
@@ -88,20 +92,27 @@ public class ArkClientTest extends BaseTest {
         response = ArkClient.checkBiz("biz-demo", "3.0.0");
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         Assert.assertEquals(0, response.getBizInfos().size());
+    }
 
+    @Test
+    public void testUninstallBiz() throws Throwable {
+        testCheckBiz();
         // test uninstall biz
-        response = ArkClient.uninstallBiz("biz-demo", "1.0.0");
+        ClientResponse response = ArkClient.uninstallBiz("biz-demo", "1.0.0");
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
 
         // test check all biz
         response = ArkClient.checkBiz();
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         Assert.assertEquals(1, response.getBizInfos().size());
+    }
 
+    public void testSwitchBiz() throws Throwable {
+        testUninstallBiz();
         // test switch biz
-        response = ArkClient.installBiz(new File(bizUrl1.getFile()));
+        ClientResponse response = ArkClient.installBiz(new File(bizUrl1.getFile()));
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        bizInfo = response.getBizInfos().iterator().next();
+        BizInfo bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
 
         response = ArkClient.checkBiz("biz-demo", "2.0.0");

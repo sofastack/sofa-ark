@@ -52,7 +52,13 @@ public class ArkServiceContainer {
     private AtomicBoolean          started        = new AtomicBoolean(false);
     private AtomicBoolean          stopped        = new AtomicBoolean(false);
 
+    private final String[]         arguments;
+
     private static final ArkLogger LOGGER         = ArkLoggerFactory.getDefaultLogger();
+
+    public ArkServiceContainer(String[] arguments) {
+        this.arguments = arguments;
+    }
 
     /**
      * Start Ark Service Container
@@ -82,6 +88,7 @@ public class ArkServiceContainer {
                 ArkServiceContainerHolder.setContainer(this);
                 ArkClient.setBizFactoryService(getService(BizFactoryService.class));
                 ArkClient.setBizManagerService(getService(BizManagerService.class));
+                ArkClient.setArguments(arguments);
                 LOGGER.info("Finish to start ArkServiceContainer");
             } finally {
                 ClassloaderUtils.popContextClassloader(oldClassloader);

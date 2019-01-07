@@ -42,6 +42,7 @@ public class ArkClient {
     private static ArkLogger         LOGGER = ArkLoggerFactory.getDefaultLogger();
     private static BizManagerService bizManagerService;
     private static BizFactoryService bizFactoryService;
+    private static String[]          arguments;
 
     public static BizManagerService getBizManagerService() {
         return bizManagerService;
@@ -57,6 +58,14 @@ public class ArkClient {
 
     public static void setBizFactoryService(BizFactoryService bizFactoryService) {
         ArkClient.bizFactoryService = bizFactoryService;
+    }
+
+    public static String[] getArguments() {
+        return arguments;
+    }
+
+    public static void setArguments(String[] arguments) {
+        ArkClient.arguments = arguments;
     }
 
     /**
@@ -79,7 +88,7 @@ public class ArkClient {
         }
 
         try {
-            biz.start(new String[] {});
+            biz.start(arguments);
             response.setCode(ResponseCode.SUCCESS)
                 .setMessage(String.format("Install Biz: %s success.", biz.getIdentity()))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));

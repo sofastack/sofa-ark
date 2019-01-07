@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.api;
 
 import com.alipay.sofa.ark.spi.model.BizInfo;
 
-import java.util.List;
 import java.util.Set;
 
 /**
