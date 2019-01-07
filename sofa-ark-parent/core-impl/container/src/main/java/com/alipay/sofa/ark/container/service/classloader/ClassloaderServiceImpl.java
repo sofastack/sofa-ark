@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.ClassloaderUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -51,10 +52,6 @@ public class ClassloaderServiceImpl implements ClassloaderService {
 
     private static final ArkLogger                       LOGGER                          = ArkLoggerFactory
                                                                                              .getDefaultLogger();
-
-    private static final String                          JAVA_AGENT_MARK                 = "-javaagent:";
-
-    private static final String                          JAVA_AGENT_OPTION_MARK          = "=";
 
     private static final String                          ARK_SPI_PACKAGES                = "com.alipay.sofa.ark.spi";
     private static final String                          ARK_API_PACKAGES                = "com.alipay.sofa.ark.api";
@@ -219,35 +216,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     private ClassLoader createAgentClassLoader() throws ArkException {
-
-        List<String> inputArguments = AccessController
-            .doPrivileged(new PrivilegedAction<List<String>>() {
-                @Override
-                public List<String> run() {
-                    return ManagementFactory.getRuntimeMXBean().getInputArguments();
-                }
-            });
-
-        List<URL> agentPaths = new ArrayList<>();
-        for (String argument : inputArguments) {
-
-            if (!argument.startsWith(JAVA_AGENT_MARK)) {
-                continue;
-            }
-
-            argument = argument.substring(JAVA_AGENT_MARK.length());
-
-            try {
-                String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
-                URL url = new File(path).toURI().toURL();
-                agentPaths.add(url);
-            } catch (Throwable e) {
-                throw new ArkException("Failed to create java agent classloader", e);
-            }
-
-        }
-
-        return new AgentClassLoader(agentPaths.toArray(new URL[] {}), null);
+        return new AgentClassLoader(ClassloaderUtils.getAgentClassPath(), null);
     }
 
     @Override

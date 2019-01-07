@@ -19,16 +19,20 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -267,6 +271,38 @@ public class PluginClassloaderTest extends BaseTest {
 
         Class clazz = pluginClassLoader.loadClass(ArkClient.class.getCanonicalName());
         Assert.assertTrue(clazz.getClassLoader().equals(classloaderService.getArkClassloader()));
+    }
+
+    @Test
+    public void testGetJdkResource() throws IOException {
+
+        PluginModel mockPlugin = new PluginModel();
+        mockPlugin
+            .setPluginName("Mock plugin")
+            .setClassPath(new URL[] {})
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(
+                new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
+        pluginManagerService.registerPlugin(mockPlugin);
+
+        ClassLoader cl = mockPlugin.getPluginClassLoader();
+        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+
+        URL res1 = cl.getResource(name);
+        Assert.assertNotNull(res1);
+
+        URL res2 = ClassLoader.getSystemClassLoader().getResource(name);
+        Assert.assertEquals(res2, res1);
+
+        Enumeration<URL> enu1 = cl.getResources(name);
+        Assert.assertTrue(enu1.hasMoreElements());
+
+        Enumeration<URL> enu2 = ClassLoader.getSystemClassLoader().getResources(name);
+        Assert.assertEquals(Sets.newHashSet(Collections.list(enu2)),
+            Sets.newHashSet(Collections.list(enu1)));
     }
 
 }

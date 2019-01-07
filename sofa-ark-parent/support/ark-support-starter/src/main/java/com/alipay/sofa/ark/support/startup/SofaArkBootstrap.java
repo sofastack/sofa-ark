@@ -28,8 +28,10 @@ import java.net.URLClassLoader;
 
 /**
  * relaunch a started main method with bootstrapping ark container
+ * {@literal org.springframework.boot.maven.RunMojo}
  *
  * @author qilong.zql
+ * @author Phillip Webb
  * @since 0.1.0
  */
 public class SofaArkBootstrap {
