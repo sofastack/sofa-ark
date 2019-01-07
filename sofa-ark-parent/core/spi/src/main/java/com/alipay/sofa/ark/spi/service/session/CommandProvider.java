@@ -25,17 +25,10 @@ package com.alipay.sofa.ark.spi.service.session;
  */
 public interface CommandProvider {
     /**
-     * Get Command Help Message
+     * Get Command Help Message Tips
      * @return
      */
     String getHelp();
-
-    /**
-     * Get Specified Command Help Message
-     * @param commandMarker Specified Command
-     * @return
-     */
-    String getHelp(String commandMarker);
 
     /**
      * Validate whether command is valid
@@ -50,4 +43,10 @@ public interface CommandProvider {
      * @return
      */
     String handleCommand(String command);
+
+    /**
+     * Command provider description
+     * @return
+     */
+    String getDescription();
 }
