@@ -1,10 +1,33 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2019 All Rights Reserved.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.ArkInject;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
+
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author qilong.zql
@@ -12,7 +35,8 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
  */
 public class PluginCommandProvider implements CommandProvider {
 
-    private static final String DESCRIPTION = "Plugin Command Tips:";
+    @ArkInject
+    private PluginManagerService pluginManagerService;
 
     @Override
     public String getHelp() {
@@ -20,24 +44,207 @@ public class PluginCommandProvider implements CommandProvider {
     }
 
     @Override
-    public boolean validate(String command) {
-        return false;
-    }
-
-    @Override
     public String handleCommand(String command) {
-        return null;
+        return new PluginCommand(command).process();
     }
 
     @Override
-    public String getDescription() {
-        return DESCRIPTION;
+    public boolean validate(String command) {
+        return new PluginCommand(command).isValidate();
     }
 
-    private static final String HELP_MESSAGE = "USAGE: plugin [option...] [pluginName...]\n" +
-            "  -h  Shows the help message.\n" +
-            "  -m  Shows the meta info of specified pluginName\n" +
-            "  -s  Shows the service info of specified pluginName\n" +
-            "  -d  Shows the detail info of specified pluginName\n" +
-            "SAMPLE: plugin -ms plugin-*\n";
+    private static final String HELP_MESSAGE = "Plugin Command Tips:\n"
+                                               + "  USAGE: plugin [option...] [pluginName...]\n"
+                                               + "  SAMPLE: plugin -m plugin-A plugin-B or plugin -ms plugin-*\n"
+                                               + "  -h  Shows the help message.\n"
+                                               + "  -m  Shows the meta info of specified pluginName\n"
+                                               + "  -s  Shows the service info of specified pluginName\n"
+                                               + "  -d  Shows the detail info of specified pluginName\n";
+
+    class PluginCommand {
+        private boolean        isValidate;
+        private Set<Character> options    = new HashSet<>();
+        private Set<String>    parameters = new HashSet<>();
+
+        PluginCommand(String command) {
+            if (StringUtils.isEmpty(command)) {
+                isValidate = false;
+                return;
+            }
+
+            String[] syntax = command.trim().split(Constants.SPACE_SPLIT);
+            if (!"plugin".equals(syntax[0])) {
+                isValidate = false;
+                return;
+            }
+
+            int pluginNameIndex = syntax.length;
+            // fetch all options and allow repetition
+            for (int i = 1; i < syntax.length; ++i) {
+                if (!syntax[i].startsWith("-")) {
+                    pluginNameIndex = i;
+                    break;
+                }
+                if (syntax[i].startsWith("-") && syntax[i].length() == 1) {
+                    isValidate = false;
+                    return;
+                }
+                for (int j = 1; j < syntax[i].length(); ++j) {
+                    options.add(syntax[i].charAt(j));
+                }
+            }
+
+            // only four option can be allowed.
+            for (Character option : options) {
+                switch (option) {
+                    case 'h':
+                    case 'm':
+                    case 's':
+                    case 'd':
+                        continue;
+                    default:
+                        isValidate = false;
+                        return;
+                }
+            }
+
+            // '-h' option can not be combined with other option, such as '-m'
+            if (options.contains('h') && options.size() > 1) {
+                isValidate = false;
+                return;
+            }
+
+            // take the rest option as pluginName parameters
+            while (pluginNameIndex < syntax.length) {
+                parameters.add(syntax[pluginNameIndex++]);
+            }
+
+            // '-h' option need not pluginName parameter
+            if (options.contains('h') && parameters.size() > 0) {
+                isValidate = false;
+                return;
+            }
+
+            // no parameter is needed when no options
+            if (options.isEmpty() && parameters.size() > 0) {
+                isValidate = false;
+                return;
+            }
+
+            // if option is not 'h', parameter should not be empty
+            if (!options.contains('h') && !options.isEmpty() && parameters.isEmpty()) {
+                isValidate = false;
+                return;
+            }
+
+            isValidate = true;
+        }
+
+        boolean isValidate() {
+            return isValidate;
+        }
+
+        String process() {
+            if (!isValidate) {
+                return "Error command format. Pls type 'plugin -h' to get help message\n";
+            }
+            StringBuilder sb = new StringBuilder(512);
+            // print plugin command help message
+            if (options.contains('h')) {
+                sb.append(getHelp());
+            } else if (parameters.isEmpty()) {
+                return pluginList();
+            } else {
+                Set<String> candidates = pluginManagerService.getAllPluginNames();
+                for (String pattern : parameters) {
+                    for (String candidate : candidates) {
+                        if (Pattern.matches(pattern, candidate)) {
+                            sb.append(pluginInfo(candidate));
+                        }
+                    }
+                }
+            }
+            return sb.toString();
+        }
+
+        String pluginList() {
+            Set<String> pluginNames = pluginManagerService.getAllPluginNames();
+            StringBuilder sb = new StringBuilder(128).append("PluginList:").append("\n");
+            if (pluginNames.isEmpty()) {
+                sb.append("  no plugins.").append("\n");
+            } else {
+                for (String pluginName : pluginNames) {
+                    sb.append("  ").append(pluginName).append("\n");
+                }
+            }
+            sb.append("\n");
+            return sb.toString();
+        }
+
+        String pluginInfo(String pluginName) {
+            Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+            StringBuilder sb = new StringBuilder(256).append(pluginName).append(":\n");
+            // print plugin meta info
+            if (options.contains('m')) {
+                sb.append("           Version: ").append(plugin.getVersion()).append("\n");
+                sb.append("          Priority: ").append(plugin.getPriority()).append("\n");
+                sb.append("         Activator: ").append(plugin.getPluginActivator()).append("\n");
+                sb.append("   Export Packages: ").append(join(plugin.getExportPackages(), ","))
+                    .append("\n");
+                sb.append("   Import Packages: ").append(join(plugin.getImportPackages(), ","))
+                    .append("\n");
+                sb.append("    Export Classes: ").append(join(plugin.getExportClasses(), ","))
+                    .append("\n");
+                sb.append("    Import Classes: ").append(join(plugin.getImportClasses(), ","))
+                    .append("\n");
+                sb.append("  Export Resources: ").append(join(plugin.getExportResources(), ","))
+                    .append("\n");
+                sb.append("  Import Resources: ").append(join(plugin.getImportResources(), ","))
+                    .append("\n");
+            }
+            // print plugin service info
+            if (options.contains('s')) {
+
+            }
+            // print plugin detail info
+            if (options.contains('d')) {
+                sb.append("           GroupId: ").append(plugin.getGroupId()).append("\n");
+                sb.append("        ArtifactId: ").append(plugin.getArtifactId()).append("\n");
+                sb.append("           Version: ").append(plugin.getVersion()).append("\n");
+                sb.append("               URL: ").append(plugin.getPluginURL()).append("\n");
+                sb.append("       ClassLoader: ").append(plugin.getPluginClassLoader())
+                    .append("\n");
+                sb.append("         ClassPath: ").append(join(plugin.getClassPath(), ","))
+                    .append("\n");
+            }
+            sb.append("\n");
+            return sb.toString();
+        }
+
+        String join(URL[] urls, String separator) {
+            Set<String> set = new HashSet<>();
+            if (urls != null) {
+                for (URL url : urls) {
+                    set.add(url.getPath());
+                }
+            }
+            return join(set, separator);
+        }
+
+        String join(Set<String> set, String separator) {
+            if (set == null) {
+                return StringUtils.EMPTY_STRING;
+            }
+            StringBuilder sb = new StringBuilder(128);
+            Iterator<String> iterator = set.iterator();
+            while (iterator.hasNext()) {
+                sb.append(iterator.next());
+                if (iterator.hasNext()) {
+                    sb.append(separator);
+                }
+            }
+            return sb.toString();
+        }
+
+    }
 }

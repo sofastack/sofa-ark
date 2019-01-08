@@ -31,13 +31,6 @@ public interface CommandProvider {
     String getHelp();
 
     /**
-     * Validate whether command is valid
-     * @param command
-     * @return
-     */
-    boolean validate(String command);
-
-    /**
      * Handler Specified Command
      * @param command
      * @return
@@ -45,8 +38,9 @@ public interface CommandProvider {
     String handleCommand(String command);
 
     /**
-     * Command provider description
+     * Validate whether command is valid
+     * @param command
      * @return
      */
-    String getDescription();
+    boolean validate(String command);
 }

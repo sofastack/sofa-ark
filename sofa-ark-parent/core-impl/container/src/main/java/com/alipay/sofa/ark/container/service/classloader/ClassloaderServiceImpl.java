@@ -184,7 +184,6 @@ public class ClassloaderServiceImpl implements ClassloaderService {
         while (extClassloader.getParent() != null) {
             extClassloader = extClassloader.getParent();
         }
-        jdk.nashorn.api.scripting.NashornScriptEngine
         List<URL> jdkUrls = new ArrayList<>();
         try {
             String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
