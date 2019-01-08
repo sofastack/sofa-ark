@@ -63,7 +63,7 @@ public class StringUtils {
     }
 
     /**
-     * <p>Transform a string list to a long string separated by delimiter</p>
+     * <p>Transform a string set to a long string separated by delimiter</p>
      * @param stringSet
      * @param delimiter
      * @param defaultRet if stringSet is empty, return defaultRet
