@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.test;
 
 import com.alipay.sofa.ark.container.ArkContainer;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 
 import java.net.URL;
 
@@ -38,10 +38,10 @@ public class TestHelper {
     public ClassLoader createTestClassLoader() {
         PipelineContext context = arkContainer.getPipelineContext();
         URL[] classpath = context.getLaunchCommand().getClasspath();
-        ClassloaderService classloaderService = arkContainer.getArkServiceContainer().getService(
-            ClassloaderService.class);
+        ClassLoaderService classloaderService = arkContainer.getArkServiceContainer().getService(
+            ClassLoaderService.class);
         return new TestClassLoader(MOCK_BIZ_IDENTITY, classpath,
-            classloaderService.getSystemClassloader());
+            classloaderService.getSystemClassLoader());
     }
 
     public boolean isStarted() {

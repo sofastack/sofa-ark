@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.container.service;
 import com.alipay.sofa.ark.common.guice.AbstractArkGuiceModule;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.service.ArkService;
@@ -58,7 +58,7 @@ public class ArkServiceContainer {
      */
     public void start() throws ArkException {
         if (started.compareAndSet(false, true)) {
-            ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
+            ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(getClass()
                 .getClassLoader());
             try {
                 LOGGER.info("Begin to start ArkServiceContainer");
@@ -79,7 +79,7 @@ public class ArkServiceContainer {
                 ArkServiceContainerHolder.setContainer(this);
                 LOGGER.info("Finish to start ArkServiceContainer");
             } finally {
-                ClassloaderUtils.popContextClassloader(oldClassloader);
+                ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
 
         }
@@ -118,7 +118,7 @@ public class ArkServiceContainer {
         if (stopped.compareAndSet(false, true)) {
             LOGGER.info("Begin to stop ArkServiceContainer");
 
-            ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
+            ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(getClass()
                 .getClassLoader());
             try {
                 Collections.reverse(arkServiceList);
@@ -129,7 +129,7 @@ public class ArkServiceContainer {
                 }
                 LOGGER.info("Finish to stop ArkServiceContainer");
             } finally {
-                ClassloaderUtils.popContextClassloader(oldClassloader);
+                ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
         }
     }

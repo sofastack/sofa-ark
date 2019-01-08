@@ -17,21 +17,16 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.exception.ArkLoaderException;
-import sun.misc.CompoundEnumeration;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 
 /**
- * Ark Biz Classloader
+ * Ark Biz ClassLoader
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public class BizClassLoader extends AbstractClasspathClassloader {
+public class BizClassLoader extends AbstractClasspathClassLoader {
 
     private String bizIdentity;
 

@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkException;
@@ -173,7 +173,7 @@ public class BizModel implements Biz {
             throw new ArkException(String.format("biz: %s has no main method", getBizName()));
         }
 
-        ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(this.classLoader);
+        ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         try {
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
@@ -184,7 +184,7 @@ public class BizModel implements Biz {
             bizState = BizState.BROKEN;
             throw e;
         } finally {
-            ClassloaderUtils.popContextClassloader(oldClassloader);
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
 
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(

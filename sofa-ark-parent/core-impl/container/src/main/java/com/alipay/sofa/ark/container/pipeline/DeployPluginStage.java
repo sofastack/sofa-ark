@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.container.pipeline;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -34,7 +34,7 @@ import com.google.inject.Singleton;
 public class DeployPluginStage implements PipelineStage {
 
     @Inject
-    private ClassloaderService  classloaderService;
+    private ClassLoaderService  classloaderService;
 
     @Inject
     private PluginDeployService pluginDeployService;
