@@ -77,8 +77,8 @@ public interface Biz extends PriorityOrdered {
     Set<String> getDenyImportResources();
 
     /**
-     * get Biz Classloader
-     * @return biz classloader
+     * get Biz ClassLoader
+     * @return biz classLoader
      */
     ClassLoader getBizClassLoader();
 

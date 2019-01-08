@@ -14,33 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.common.util;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.net.URL;
-import java.net.URLClassLoader;
+package com.alipay.sofa.ark.container.testdata.classloader;
 
 /**
  *
  * @author ruoshan
- * @since 0.1.0
+ * @since 0.5.0
  */
-public class ClassloaderUtilTest {
-
-    @Test
-    public void testPushContextClassloader() {
-        ClassLoader classLoader = new URLClassLoader(new URL[] {});
-        ClassloaderUtils.pushContextClassloader(classLoader);
-        Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
-    }
-
-    @Test
-    public void testPopContextClassloader() {
-        ClassLoader classLoader = new URLClassLoader(new URL[] {});
-        ClassloaderUtils.popContextClassloader(classLoader);
-        Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
-    }
-
+public class ClassLoaderTestClass {
 }

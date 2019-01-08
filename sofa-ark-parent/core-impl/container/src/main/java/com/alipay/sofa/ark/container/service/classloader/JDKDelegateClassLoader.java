@@ -14,12 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.testdata.classloader;
+package com.alipay.sofa.ark.container.service.classloader;
+
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
+ * JDK Delegate ClassLoader, parent is excClassLoader, urls are jdk related path on SystemClassLoader
  *
  * @author ruoshan
- * @since 0.5.0
+ * @since 0.1.0
  */
-public class ClassloaderTestClass {
+public class JDKDelegateClassLoader extends URLClassLoader {
+
+    public JDKDelegateClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
+    }
 }

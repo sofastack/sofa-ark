@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.common.thread.CommonThreadPool;
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.testdata.classloader.ClassloaderTestClass;
+import com.alipay.sofa.ark.container.testdata.classloader.ClassLoaderTestClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,9 +32,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author ruoshan
  * @since 0.5.0
  */
-public class ClassloaderConcurrencyTest extends BaseTest {
+public class ClassLoaderConcurrencyTest extends BaseTest {
 
-    private URL classPathURL = ClassloaderConcurrencyTest.class.getClassLoader().getResource("");
+    private URL classPathURL = ClassLoaderConcurrencyTest.class.getClassLoader().getResource("");
 
     @Test
     public void concurrencyLoadClass() {
@@ -53,7 +53,7 @@ public class ClassloaderConcurrencyTest extends BaseTest {
                     @Override
                     public void run() {
                         try {
-                            bizClassLoader.loadClass(ClassloaderTestClass.class.getName(), true);
+                            bizClassLoader.loadClass(ClassLoaderTestClass.class.getName(), true);
                         } catch (ClassNotFoundException e) {
                             // ingore
                         } catch (LinkageError e) {

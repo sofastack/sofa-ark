@@ -24,14 +24,13 @@ import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,16 +40,16 @@ import java.util.*;
  * @author ruoshan
  * @since 0.1.0
  */
-public class BizClassloaderTest extends BaseTest {
+public class BizClassLoaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
+    private URL                  classPathURL = PluginClassLoaderTest.class.getClassLoader()
                                                   .getResource("");
 
     private PluginManagerService pluginManagerService;
 
     private PluginDeployService  pluginDeployService;
 
-    private ClassloaderService   classloaderService;
+    private ClassLoaderService   classloaderService;
 
     private BizManagerService    bizManagerService;
 
@@ -62,7 +61,7 @@ public class BizClassloaderTest extends BaseTest {
         pluginDeployService = ArkServiceContainerHolder.getContainer().getService(
             PluginDeployService.class);
         classloaderService = ArkServiceContainerHolder.getContainer().getService(
-            ClassloaderService.class);
+            ClassLoaderService.class);
         bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
     }

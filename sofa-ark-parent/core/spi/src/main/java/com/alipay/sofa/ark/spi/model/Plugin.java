@@ -76,8 +76,8 @@ public interface Plugin extends PriorityOrdered {
     URL[] getClassPath();
 
     /**
-     * get Plugin Classloader
-     * @return plugin classloader
+     * get Plugin ClassLoader
+     * @return plugin classLoader
      */
     ClassLoader getPluginClassLoader();
 
