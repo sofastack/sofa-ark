@@ -58,15 +58,20 @@ public class StringUtils {
         return a.equals(b);
     }
 
+    public static String setToStr(Set<String> stringSet, String delimiter) {
+        return setToStr(stringSet, delimiter, EMPTY_STRING);
+    }
+
     /**
-     * <p>Transform a string list to a long string separated by delimiter</p>
+     * <p>Transform a string set to a long string separated by delimiter</p>
      * @param stringSet
      * @param delimiter
+     * @param defaultRet if stringSet is empty, return defaultRet
      * @return
      */
-    public static String listToStr(Set<String> stringSet, String delimiter) {
+    public static String setToStr(Set<String> stringSet, String delimiter, String defaultRet) {
         if (stringSet == null || stringSet.isEmpty()) {
-            return EMPTY_STRING;
+            return defaultRet;
         }
 
         AssertUtils.assertNotNull(delimiter, "Delimiter should not be null.");

@@ -41,28 +41,13 @@ import java.util.List;
 public class BaseTest {
     protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer(new String[] {});
 
-    @Before
-    public void before() {
-        arkServiceContainer.start();
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
-
-    @BeforeClass
-    public static void beforeClass() {
-        System.setProperty(Constants.LOG_ENV_SUFFIX, ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE
-                                                     + ":dev");
-    }
-
     static {
         // fix cobertura bug
         new PluginServiceProvider(new PluginModel());
     }
 
-    static {
+    @Before
+    public void before() {
         new MockUp<ManagementFactory>() {
             @Mock
             public RuntimeMXBean getRuntimeMXBean() {
@@ -81,5 +66,17 @@ public class BaseTest {
                 }.getMockInstance();
             }
         };
+        arkServiceContainer.start();
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
+    }
+
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty(Constants.LOG_ENV_SUFFIX, ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE
+                                                     + ":dev");
     }
 }

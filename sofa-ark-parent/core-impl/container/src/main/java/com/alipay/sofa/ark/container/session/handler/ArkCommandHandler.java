@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.container.session.handler;
 
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
@@ -52,26 +51,14 @@ public class ArkCommandHandler {
                 return commandProvider.handleCommand(cmdLine);
             }
         }
-        return helpMessage(commandProviders, cmdLine);
+        return helpMessage(commandProviders);
     }
 
-    public String helpMessage(List<ServiceReference<CommandProvider>> commandProviders,
-                              String cmdLine) {
-        String[] phrases = cmdLine.trim().split(Constants.SPACE_SPLIT);
+    public String helpMessage(List<ServiceReference<CommandProvider>> commandProviders) {
         StringBuilder sb = new StringBuilder();
-        if (phrases.length > 1 && "help".equals(phrases[0])) {
-            for (ServiceReference<CommandProvider> commandService : commandProviders) {
-                CommandProvider commandProvider = commandService.getService();
-                String response = commandProvider.getHelp(phrases[1]);
-                if (response != null) {
-                    sb.append(response);
-                }
-            }
-        } else {
-            for (ServiceReference<CommandProvider> commandService : commandProviders) {
-                CommandProvider commandProvider = commandService.getService();
-                sb.append(commandProvider.getHelp());
-            }
+        for (ServiceReference<CommandProvider> commandService : commandProviders) {
+            CommandProvider commandProvider = commandService.getService();
+            sb.append(commandProvider.getHelp());
         }
         return sb.toString();
     }

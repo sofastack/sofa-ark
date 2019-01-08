@@ -27,6 +27,7 @@ import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Singleton;
 
 import java.lang.reflect.Field;
@@ -81,7 +82,8 @@ public class InjectionServiceImpl implements InjectionService {
 
     private Object getService(Class serviceType) {
         if (serviceType.equals(BizManagerService.class)
-            || serviceType.equals(BizFactoryService.class)) {
+            || serviceType.equals(BizFactoryService.class)
+            || serviceType.equals(PluginManagerService.class)) {
             return ArkServiceContainerHolder.getContainer().getService(serviceType);
         }
         return null;
