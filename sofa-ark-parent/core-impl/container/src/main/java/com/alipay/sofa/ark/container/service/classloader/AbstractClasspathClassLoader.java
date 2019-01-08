@@ -21,7 +21,7 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -39,19 +39,19 @@ import java.util.jar.JarFile;
 
 /**
  *
- * Abstract Classpath Classloader, basic logic to load class/resource, sub class need to implement
+ * Abstract Classpath ClassLoader, basic logic to load class/resource, sub class need to implement
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public abstract class AbstractClasspathClassloader extends URLClassLoader {
+public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     protected static final String CLASS_RESOURCE_SUFFIX = ".class";
 
-    protected ClassloaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
-                                                            .getService(ClassloaderService.class);
+    protected ClassLoaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
+                                                            .getService(ClassLoaderService.class);
 
-    public AbstractClasspathClassloader(URL[] urls) {
+    public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
     }
 
@@ -125,7 +125,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     /**
-     * Real logic to load class，need to implement by Sub Classloader
+     * Real logic to load class，need to implement by Sub ClassLoader
      * @param name
      * @param resolve
      * @return
@@ -226,7 +226,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      */
     protected Class<?> resolveJDKClass(String name) {
         try {
-            return classloaderService.getJDKClassloader().loadClass(name);
+            return classloaderService.getJDKClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }
@@ -240,10 +240,10 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      */
     protected Class<?> resolveExportClass(String name) {
         if (shouldFindExportedClass(name)) {
-            ClassLoader importClassloader = classloaderService.findExportClassloader(name);
-            if (importClassloader != null) {
+            ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
+            if (importClassLoader != null) {
                 try {
-                    return importClassloader.loadClass(name);
+                    return importClassLoader.loadClass(name);
                 } catch (ClassNotFoundException e) {
                     // ignore
                 }
@@ -260,7 +260,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     protected Class<?> resolveArkClass(String name) {
         if (classloaderService.isArkSpiClass(name)) {
             try {
-                return classloaderService.getArkClassloader().loadClass(name);
+                return classloaderService.getArkClassLoader().loadClass(name);
             } catch (ClassNotFoundException e) {
                 // ignore
             }
@@ -289,8 +289,8 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      */
     protected Class<?> resolveJavaAgentClass(String name) {
         try {
-            classloaderService.getAgentClassloader().loadClass(name);
-            return classloaderService.getSystemClassloader().loadClass(name);
+            classloaderService.getAgentClassLoader().loadClass(name);
+            return classloaderService.getSystemClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }
@@ -305,11 +305,11 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     protected URL getExportResource(String resourceName) {
         if (shouldFindExportedResource(resourceName)) {
             URL url;
-            List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
-                .findExportResourceClassloadersInOrder(resourceName);
-            if (exportResourceClassloadersInOrder != null) {
-                for (ClassLoader exportResourceClassloader : exportResourceClassloadersInOrder) {
-                    url = exportResourceClassloader.getResource(resourceName);
+            List<ClassLoader> exportResourceClassLoadersInOrder = classloaderService
+                .findExportResourceClassLoadersInOrder(resourceName);
+            if (exportResourceClassLoadersInOrder != null) {
+                for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
+                    url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null) {
                         return url;
                     }
@@ -326,7 +326,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
      * @return
      */
     protected URL getJdkResource(String resourceName) {
-        return classloaderService.getJDKClassloader().getResource(resourceName);
+        return classloaderService.getJDKClassLoader().getResource(resourceName);
     }
 
     /**
@@ -338,7 +338,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
         if (resourceName.endsWith(CLASS_RESOURCE_SUFFIX)) {
             String className = transformClassName(resourceName);
             if (shouldFindExportedClass(className)) {
-                ClassLoader classLoader = classloaderService.findExportClassloader(className);
+                ClassLoader classLoader = classloaderService.findExportClassLoader(className);
                 return classLoader == null ? null : classLoader.getResource(resourceName);
             }
 
@@ -370,12 +370,12 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     @SuppressWarnings("unchecked")
     protected Enumeration<URL> getExportResources(String resourceName) throws IOException {
         if (shouldFindExportedResource(resourceName)) {
-            List<ClassLoader> exportResourceClassloadersInOrder = classloaderService
-                .findExportResourceClassloadersInOrder(resourceName);
-            if (exportResourceClassloadersInOrder != null) {
+            List<ClassLoader> exportResourceClassLoadersInOrder = classloaderService
+                .findExportResourceClassLoadersInOrder(resourceName);
+            if (exportResourceClassLoadersInOrder != null) {
                 List<Enumeration<URL>> enumerationList = new ArrayList<>();
-                for (ClassLoader exportResourceClassloader : exportResourceClassloadersInOrder) {
-                    enumerationList.add(((AbstractClasspathClassloader) exportResourceClassloader)
+                for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
+                    enumerationList.add(((AbstractClasspathClassLoader) exportResourceClassLoader)
                         .getLocalResources(resourceName));
                 }
                 return new CompoundEnumeration<>(
@@ -390,7 +390,7 @@ public abstract class AbstractClasspathClassloader extends URLClassLoader {
     }
 
     protected Enumeration<URL> getJdkResources(String resourceName) throws IOException {
-        return new UseFastConnectionExceptionsEnumeration(classloaderService.getJDKClassloader()
+        return new UseFastConnectionExceptionsEnumeration(classloaderService.getJDKClassLoader()
             .getResources(resourceName));
     }
 }

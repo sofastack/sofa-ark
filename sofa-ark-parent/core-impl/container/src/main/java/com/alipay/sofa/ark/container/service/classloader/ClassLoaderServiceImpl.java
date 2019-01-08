@@ -20,35 +20,32 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Classloader Service Implementation
+ * ClassLoader Service Implementation
  *
  * @author ruoshan
  * @since 0.1.0
  */
 @Singleton
-public class ClassloaderServiceImpl implements ClassloaderService {
+public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     private static final ArkLogger                       LOGGER                          = ArkLoggerFactory
                                                                                              .getDefaultLogger();
@@ -58,14 +55,14 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     private static final List<String>                    SUN_REFLECT_GENERATED_ACCESSOR  = new ArrayList<>();
 
     /* export class and classloader relationship cache */
-    private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassloaderMap    = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassLoaderMap    = new ConcurrentHashMap<>();
 
     /* export cache and classloader relationship cache */
-    private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassloaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassLoaderMap = new ConcurrentHashMap<>();
 
-    private ClassLoader                                  jdkClassloader;
-    private ClassLoader                                  arkClassloader;
-    private ClassLoader                                  systemClassloader;
+    private ClassLoader                                  jdkClassLoader;
+    private ClassLoader                                  arkClassLoader;
+    private ClassLoader                                  systemClassLoader;
     private ClassLoader                                  agentClassLoader;
 
     @Inject
@@ -99,13 +96,13 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     public void prepareExportClassAndResourceCache() {
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
             for (String exportIndex : plugin.getExportIndex()) {
-                exportClassAndClassloaderMap
+                exportClassAndClassLoaderMap
                     .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
             }
             for (String resource : plugin.getExportResources()) {
-                exportResourceAndClassloaderMap
+                exportResourceAndClassLoaderMap
                     .putIfAbsent(resource, new LinkedList<ClassLoader>());
-                exportResourceAndClassloaderMap.get(resource).add(plugin.getPluginClassLoader());
+                exportResourceAndClassLoaderMap.get(resource).add(plugin.getPluginClassLoader());
             }
         }
     }
@@ -132,8 +129,8 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public ClassLoader findExportClassloader(String className) {
-        return exportClassAndClassloaderMap.get(className);
+    public ClassLoader findExportClassLoader(String className) {
+        return exportClassAndClassLoaderMap.get(className);
     }
 
     @Override
@@ -150,45 +147,45 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     @Override
-    public List<ClassLoader> findExportResourceClassloadersInOrder(String resourceName) {
-        return exportResourceAndClassloaderMap.get(resourceName);
+    public List<ClassLoader> findExportResourceClassLoadersInOrder(String resourceName) {
+        return exportResourceAndClassLoaderMap.get(resourceName);
     }
 
     @Override
-    public ClassLoader getJDKClassloader() {
-        return jdkClassloader;
+    public ClassLoader getJDKClassLoader() {
+        return jdkClassLoader;
     }
 
     @Override
-    public ClassLoader getArkClassloader() {
-        return arkClassloader;
+    public ClassLoader getArkClassLoader() {
+        return arkClassLoader;
     }
 
     @Override
-    public ClassLoader getSystemClassloader() {
-        return systemClassloader;
+    public ClassLoader getSystemClassLoader() {
+        return systemClassLoader;
     }
 
     @Override
-    public ClassLoader getAgentClassloader() {
+    public ClassLoader getAgentClassLoader() {
         return agentClassLoader;
     }
 
     @Override
     public void init() throws ArkException {
-        arkClassloader = this.getClass().getClassLoader();
-        systemClassloader = ClassLoader.getSystemClassLoader();
+        arkClassLoader = this.getClass().getClassLoader();
+        systemClassLoader = ClassLoader.getSystemClassLoader();
         agentClassLoader = createAgentClassLoader();
 
-        ClassLoader extClassloader = systemClassloader;
-        while (extClassloader.getParent() != null) {
-            extClassloader = extClassloader.getParent();
+        ClassLoader extClassLoader = systemClassLoader;
+        while (extClassLoader.getParent() != null) {
+            extClassLoader = extClassLoader.getParent();
         }
 
         List<URL> jdkUrls = new ArrayList<>();
         try {
             String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
-            URL[] urls = ((URLClassLoader) systemClassloader).getURLs();
+            URL[] urls = ((URLClassLoader) systemClassLoader).getURLs();
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
                     if (LOGGER.isDebugEnabled()) {
@@ -201,7 +198,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
             LOGGER.warn("Meet exception when parse JDK urls", e);
         }
 
-        jdkClassloader = new JDKDelegateClassloader(jdkUrls.toArray(new URL[0]), extClassloader);
+        jdkClassLoader = new JDKDelegateClassLoader(jdkUrls.toArray(new URL[0]), extClassLoader);
     }
 
     @Override
@@ -210,7 +207,7 @@ public class ClassloaderServiceImpl implements ClassloaderService {
     }
 
     private ClassLoader createAgentClassLoader() throws ArkException {
-        return new AgentClassLoader(ClassloaderUtils.getAgentClassPath(), null);
+        return new AgentClassLoader(ClassLoaderUtils.getAgentClassPath(), null);
     }
 
     @Override

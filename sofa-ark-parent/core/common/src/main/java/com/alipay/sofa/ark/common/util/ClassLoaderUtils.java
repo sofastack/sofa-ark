@@ -27,34 +27,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Classloader Util
+ * ClassLoader Util
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public class ClassloaderUtils {
+public class ClassLoaderUtils {
 
     private static final String JAVA_AGENT_MARK        = "-javaagent:";
 
     private static final String JAVA_AGENT_OPTION_MARK = "=";
 
     /**
-     * push ContextClassloader
-     * @param newClassloader new classloader
+     * push ContextClassLoader
+     * @param newClassLoader new classLoader
      * @return old classloader
      */
-    public static ClassLoader pushContextClassloader(ClassLoader newClassloader) {
-        ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(newClassloader);
-        return oldClassloader;
+    public static ClassLoader pushContextClassLoader(ClassLoader newClassLoader) {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(newClassLoader);
+        return oldClassLoader;
     }
 
     /**
-     * set ContextClassloader back
-     * @param oldClassloader old classloader
+     * set ContextClassLoader back
+     * @param oldClassLoader old classLoader
      */
-    public static void popContextClassloader(ClassLoader oldClassloader) {
-        Thread.currentThread().setContextClassLoader(oldClassloader);
+    public static void popContextClassLoader(ClassLoader oldClassLoader) {
+        Thread.currentThread().setContextClassLoader(oldClassLoader);
     }
 
     public static URL[] getAgentClassPath() {

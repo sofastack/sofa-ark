@@ -101,8 +101,8 @@ public class SofaArkBootstrap {
     }
 
     private static boolean isSofaArkStarted() {
-        Class<?> bizClassloader = SofaArkBootstrap.class.getClassLoader().getClass();
-        return BIZ_CLASSLOADER.equals(bizClassloader.getCanonicalName());
+        Class<?> bizClassLoader = SofaArkBootstrap.class.getClassLoader().getClass();
+        return BIZ_CLASSLOADER.equals(bizClassLoader.getCanonicalName());
     }
 
 }

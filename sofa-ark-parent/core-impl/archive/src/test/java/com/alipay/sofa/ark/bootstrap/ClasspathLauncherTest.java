@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import mockit.Mock;
@@ -60,7 +60,7 @@ public class ClasspathLauncherTest {
     @Test
     public void testFilterAgentClasspath() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("sample-biz.jar");
-        URL[] agentUrl = ClassloaderUtils.getAgentClassPath();
+        URL[] agentUrl = ClassLoaderUtils.getAgentClassPath();
         Assert.assertEquals(1, agentUrl.length);
 
         List<URL> urls = new ArrayList<>();

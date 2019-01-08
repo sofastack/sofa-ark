@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -222,7 +222,7 @@ public class ClasspathLauncher extends ArkLauncher {
          * @return
          */
         protected URL[] filterBizUrls(URL[] urls) {
-            URL[] agentClassPath = ClassloaderUtils.getAgentClassPath();
+            URL[] agentClassPath = ClassLoaderUtils.getAgentClassPath();
             Set<URL> bizURls = new HashSet<>();
             boolean isAgent;
             for (URL url : urls) {
