@@ -21,12 +21,12 @@ import com.alipay.sofa.ark.spi.service.ArkService;
 import java.util.List;
 
 /**
- * Classloader Service
+ * ClassLoader Service
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public interface ClassloaderService extends ArkService {
+public interface ClassLoaderService extends ArkService {
 
     /**
      * prepare plugin exported class and resource index Cache
@@ -67,7 +67,7 @@ public interface ClassloaderService extends ArkService {
      * @param className class name
      * @return
      */
-    ClassLoader findExportClassloader(String className);
+    ClassLoader findExportClassLoader(String className);
 
     /**
      * Whether resource is in import-resources
@@ -82,31 +82,31 @@ public interface ClassloaderService extends ArkService {
      * @param resourceName resource name
      * @return classloader list
      */
-    List<ClassLoader> findExportResourceClassloadersInOrder(String resourceName);
+    List<ClassLoader> findExportResourceClassLoadersInOrder(String resourceName);
 
     /**
      * Get JDK Related class classloader
      * @return
      */
-    ClassLoader getJDKClassloader();
+    ClassLoader getJDKClassLoader();
 
     /**
      * Get Ark Container classloader
      * @return
      */
-    ClassLoader getArkClassloader();
+    ClassLoader getArkClassLoader();
 
     /**
      * Get system classloader
      * @return
      */
-    ClassLoader getSystemClassloader();
+    ClassLoader getSystemClassLoader();
 
     /**
      * Get java agent classloader
      * @return
      */
-    ClassLoader getAgentClassloader();
+    ClassLoader getAgentClassLoader();
 
     /**
      * Whether class is denied by biz

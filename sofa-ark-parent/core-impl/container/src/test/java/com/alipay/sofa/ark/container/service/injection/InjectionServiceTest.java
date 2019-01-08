@@ -22,7 +22,7 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class InjectionServiceTest extends BaseTest {
             new ContainerServiceProvider());
         Assert.assertNotNull(pluginMockService.getBizFactoryService());
         Assert.assertNotNull(pluginMockService.getBizManagerService());
-        Assert.assertNull(pluginMockService.getClassloaderService());
+        Assert.assertNull(pluginMockService.getClassLoaderService());
     }
 
     public class PluginMockService {
@@ -52,7 +52,7 @@ public class InjectionServiceTest extends BaseTest {
         BizFactoryService         bizFactoryService;
 
         @ArkInject
-        public ClassloaderService classloaderService;
+        public ClassLoaderService classloaderService;
 
         public BizManagerService getBizManagerService() {
             return bizManagerService;
@@ -62,7 +62,7 @@ public class InjectionServiceTest extends BaseTest {
             return bizFactoryService;
         }
 
-        public ClassloaderService getClassloaderService() {
+        public ClassLoaderService getClassLoaderService() {
             return classloaderService;
         }
     }

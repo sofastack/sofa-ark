@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.support.runner;
 
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -40,9 +40,9 @@ public class JUnitExecutionListener extends RunListener {
     @Override
     public void testStarted(Description description) throws Exception {
         if (isTestOnArkContainer(description)) {
-            ClassloaderUtils.pushContextClassloader(DelegateArkContainer.getTestClassLoader());
+            ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer.getTestClassLoader());
         } else {
-            ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
+            ClassLoaderUtils.pushContextClassLoader(ClassLoader.getSystemClassLoader());
         }
         super.testStarted(description);
     }
@@ -50,7 +50,7 @@ public class JUnitExecutionListener extends RunListener {
     @Override
     public void testFinished(Description description) throws Exception {
         super.testStarted(description);
-        ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
+        ClassLoaderUtils.pushContextClassLoader(ClassLoader.getSystemClassLoader());
     }
 
     protected boolean isTestOnArkContainer(Description description) {

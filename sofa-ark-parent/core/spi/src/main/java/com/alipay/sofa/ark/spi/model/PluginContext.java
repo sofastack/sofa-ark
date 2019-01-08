@@ -50,7 +50,7 @@ public interface PluginContext {
     Set<String> getPluginNames();
 
     /**
-     * get Plugin Classloader
+     * get Plugin ClassLoader
      * @return plugin classloader
      */
     ClassLoader getClassLoader();
