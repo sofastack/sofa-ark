@@ -51,11 +51,6 @@ public class CommandHandlerTest extends BaseTest {
         }
 
         @Override
-        public String getHelp(String commandMarker) {
-            return "mock help";
-        }
-
-        @Override
         public boolean validate(String command) {
             return command.contains("mock");
         }

@@ -25,9 +25,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.util.List;
 
 /**
  *
@@ -76,6 +78,7 @@ public class ArkContainerTest extends BaseTest {
             enable = false;
         } finally {
             arkContainer.stop();
+            System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
         }
         Assert.assertFalse(enable);
     }
@@ -91,6 +94,7 @@ public class ArkContainerTest extends BaseTest {
             enable = false;
         } finally {
             arkContainer.stop();
+            System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
         }
         Assert.assertTrue(enable);
     }

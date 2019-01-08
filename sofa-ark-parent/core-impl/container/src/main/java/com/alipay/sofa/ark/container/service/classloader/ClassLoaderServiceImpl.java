@@ -181,7 +181,6 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
         while (extClassLoader.getParent() != null) {
             extClassLoader = extClassLoader.getParent();
         }
-
         List<URL> jdkUrls = new ArrayList<>();
         try {
             String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");

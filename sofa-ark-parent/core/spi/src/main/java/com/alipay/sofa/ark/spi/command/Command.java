@@ -14,33 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.session;
+package com.alipay.sofa.ark.spi.command;
 
 /**
- * Answer a string (may be as many lines as you like) with help
- * texts that explain the command.
- *
  * @author qilong.zql
- * @since 0.4.0
+ * @since 0.5.0
  */
-public interface CommandProvider {
-    /**
-     * Get Command Help Message Tips
-     * @return
-     */
-    String getHelp();
+public interface Command {
 
     /**
-     * Handler Specified Command
-     * @param command
+     * Get Command Prefix Marker.
      * @return
      */
-    String handleCommand(String command);
+    String getCommandMarker();
 
     /**
-     * Validate whether command is valid
-     * @param command
+     * Get Command Help message, usually command schema.
      * @return
      */
-    boolean validate(String command);
+    String getCommandHelp();
+
+    /**
+     * Process Command
+     * @return
+     * @throws Throwable
+     */
+    String process() throws Throwable;
+
 }
