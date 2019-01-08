@@ -18,12 +18,10 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.spi.model.BizState;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.common.collect.Sets;
@@ -42,16 +40,16 @@ import java.util.List;
  * @author ruoshan
  * @since 0.1.0
  */
-public class PluginClassloaderTest extends BaseTest {
+public class PluginClassLoaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassloaderTest.class.getClassLoader()
+    private URL                  classPathURL = PluginClassLoaderTest.class.getClassLoader()
                                                   .getResource("");
 
     private PluginManagerService pluginManagerService;
 
     private PluginDeployService  pluginDeployService;
 
-    private ClassloaderService   classloaderService;
+    private ClassLoaderService   classloaderService;
 
     @Before
     public void before() {
@@ -61,7 +59,7 @@ public class PluginClassloaderTest extends BaseTest {
         pluginDeployService = ArkServiceContainerHolder.getContainer().getService(
             PluginDeployService.class);
         classloaderService = ArkServiceContainerHolder.getContainer().getService(
-            ClassloaderService.class);
+            ClassLoaderService.class);
     }
 
     @Test
@@ -245,7 +243,7 @@ public class PluginClassloaderTest extends BaseTest {
         Assert.assertEquals(3, Collections.list(urlEnumeration).size());
 
         List<ClassLoader> classLoaders = classloaderService
-            .findExportResourceClassloadersInOrder(resourceName);
+            .findExportResourceClassLoadersInOrder(resourceName);
         Assert.assertEquals(3, classLoaders.size());
         Assert.assertEquals(pluginB.getPluginClassLoader(), classLoaders.get(0));
         Assert.assertEquals(pluginA.getPluginClassLoader(), classLoaders.get(1));

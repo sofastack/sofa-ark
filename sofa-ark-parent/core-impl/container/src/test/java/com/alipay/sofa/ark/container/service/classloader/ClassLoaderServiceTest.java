@@ -25,7 +25,7 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,9 +38,9 @@ import java.net.URLClassLoader;
  * @author ruoshan
  * @since 0.1.0
  */
-public class ClassloaderServiceTest extends BaseTest {
+public class ClassLoaderServiceTest extends BaseTest {
 
-    private ClassloaderService   classloaderService;
+    private ClassLoaderService   classloaderService;
     private BizManagerService    bizManagerService;
     private PluginManagerService pluginManagerService;
 
@@ -48,7 +48,7 @@ public class ClassloaderServiceTest extends BaseTest {
     public void before() {
         super.before();
         classloaderService = ArkServiceContainerHolder.getContainer().getService(
-            ClassloaderService.class);
+            ClassLoaderService.class);
         bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
         pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
@@ -78,15 +78,15 @@ public class ClassloaderServiceTest extends BaseTest {
     }
 
     @Test
-    public void testJDKClassloader() {
+    public void testJDKClassLoader() {
         String sunToolClass = "sun.tools.attach.BsdVirtualMachine";
-        ClassLoader jdkClassloader = classloaderService.getJDKClassloader();
-        Assert.assertNotNull(jdkClassloader);
+        ClassLoader jdkClassLoader = classloaderService.getJDKClassLoader();
+        Assert.assertNotNull(jdkClassLoader);
         try {
             // only when this class can be loaded from system classloader,
-            // then it should be loaded successfully from jdkClassloader
-            classloaderService.getSystemClassloader().loadClass(sunToolClass);
-            Assert.assertNotNull(jdkClassloader.loadClass(sunToolClass));
+            // then it should be loaded successfully from jdkClassLoader
+            classloaderService.getSystemClassLoader().loadClass(sunToolClass);
+            Assert.assertNotNull(jdkClassLoader.loadClass(sunToolClass));
         } catch (ClassNotFoundException e) {
             // ignore
         }
@@ -94,20 +94,20 @@ public class ClassloaderServiceTest extends BaseTest {
     }
 
     @Test
-    public void testArkClassloader() {
-        ClassLoader arkClassloader = classloaderService.getArkClassloader();
-        Assert.assertNotNull(arkClassloader);
+    public void testArkClassLoader() {
+        ClassLoader arkClassLoader = classloaderService.getArkClassLoader();
+        Assert.assertNotNull(arkClassLoader);
     }
 
     @Test
-    public void testSystemClassloader() {
-        ClassLoader systemClassloader = classloaderService.getSystemClassloader();
-        Assert.assertNotNull(systemClassloader);
+    public void testSystemClassLoader() {
+        ClassLoader systemClassLoader = classloaderService.getSystemClassLoader();
+        Assert.assertNotNull(systemClassLoader);
     }
 
     @Test
-    public void testAgentClassloader() throws ClassNotFoundException {
-        ClassLoader agentClassLoader = classloaderService.getAgentClassloader();
+    public void testAgentClassLoader() throws ClassNotFoundException {
+        ClassLoader agentClassLoader = classloaderService.getAgentClassLoader();
         Assert.assertNotNull(agentClassLoader);
         Assert.assertTrue(((URLClassLoader) agentClassLoader).getURLs().length == 2);
         Assert.assertNotNull(agentClassLoader.loadClass("SampleClass"));

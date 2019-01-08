@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.support.common;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 
 import java.lang.reflect.Method;
@@ -56,7 +56,7 @@ public class DelegateArkContainer {
             }
         }
 
-        ClassloaderUtils.pushContextClassloader(DelegateArkContainer.getTestClassLoader());
+        ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer.getTestClassLoader());
     }
 
     /**

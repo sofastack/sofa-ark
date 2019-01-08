@@ -14,20 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.service.classloader;
+package com.alipay.sofa.ark.common.util;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * JDK Delegate Classloader, parent is excClassloader, urls are jdk related path on SystemClassloader
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public class JDKDelegateClassloader extends URLClassLoader {
+public class ClassLoaderUtilTest {
 
-    public JDKDelegateClassloader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+    @Test
+    public void testPushContextClassLoader() {
+        ClassLoader classLoader = new URLClassLoader(new URL[] {});
+        ClassLoaderUtils.pushContextClassLoader(classLoader);
+        Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
     }
+
+    @Test
+    public void testPopContextClassLoader() {
+        ClassLoader classLoader = new URLClassLoader(new URL[] {});
+        ClassLoaderUtils.popContextClassLoader(classLoader);
+        Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
+    }
+
 }

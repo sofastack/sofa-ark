@@ -36,7 +36,7 @@ import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
 import com.alipay.sofa.ark.container.testdata.activator.PluginActivatorB;
 import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
@@ -62,7 +62,7 @@ public class ServiceRegistrationTest extends BaseTest {
 
     private PluginDeployService  pluginDeployService;
 
-    private ClassloaderService   classloaderService;
+    private ClassLoaderService   classloaderService;
 
     private URL                  classPathURL    = ServiceRegistrationTest.class.getClassLoader()
                                                      .getResource("");
@@ -81,7 +81,7 @@ public class ServiceRegistrationTest extends BaseTest {
         pluginDeployService = ArkServiceContainerHolder.getContainer().getService(
             PluginDeployService.class);
         classloaderService = ArkServiceContainerHolder.getContainer().getService(
-            ClassloaderService.class);
+            ClassLoaderService.class);
     }
 
     @After

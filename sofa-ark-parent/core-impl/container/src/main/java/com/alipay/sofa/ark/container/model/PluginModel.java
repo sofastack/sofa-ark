@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.container.model;
 
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -249,8 +249,8 @@ public class PluginModel implements Plugin {
             return;
         }
 
-        ClassLoader oldClassloader = ClassloaderUtils
-            .pushContextClassloader(this.pluginClassLoader);
+        ClassLoader oldClassLoader = ClassLoaderUtils
+            .pushContextClassLoader(this.pluginClassLoader);
         try {
             pluginActivator = (PluginActivator) pluginClassLoader.loadClass(activator)
                 .newInstance();
@@ -258,7 +258,7 @@ public class PluginModel implements Plugin {
         } catch (Throwable ex) {
             throw new ArkException(ex.getMessage(), ex);
         } finally {
-            ClassloaderUtils.popContextClassloader(oldClassloader);
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
     }
 
