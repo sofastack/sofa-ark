@@ -14,6 +14,7 @@
         <module>spi</module>
         <module>common</module>
         <module>exception</module>
+        <module>api</module>
     </modules>
 
 </project>

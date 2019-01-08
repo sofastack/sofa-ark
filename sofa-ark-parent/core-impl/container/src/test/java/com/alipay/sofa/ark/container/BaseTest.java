@@ -39,7 +39,7 @@ import java.util.List;
  * @since 0.1.0
  */
 public class BaseTest {
-    protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
+    protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer(new String[] {});
 
     static {
         // fix cobertura bug

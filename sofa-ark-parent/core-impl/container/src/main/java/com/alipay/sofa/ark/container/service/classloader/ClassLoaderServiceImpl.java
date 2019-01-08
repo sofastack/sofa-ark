@@ -51,6 +51,7 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
                                                                                              .getDefaultLogger();
 
     private static final String                          ARK_SPI_PACKAGES                = "com.alipay.sofa.ark.spi";
+    private static final String                          ARK_API_PACKAGES                = "com.alipay.sofa.ark.api";
 
     private static final List<String>                    SUN_REFLECT_GENERATED_ACCESSOR  = new ArrayList<>();
 
@@ -90,6 +91,11 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     @Override
     public boolean isArkSpiClass(String className) {
         return className.startsWith(ARK_SPI_PACKAGES);
+    }
+
+    @Override
+    public boolean isArkApiClass(String className) {
+        return className.startsWith(ARK_API_PACKAGES);
     }
 
     @Override

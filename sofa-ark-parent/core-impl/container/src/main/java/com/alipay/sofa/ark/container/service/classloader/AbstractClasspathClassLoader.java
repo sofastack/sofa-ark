@@ -258,7 +258,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveArkClass(String name) {
-        if (classloaderService.isArkSpiClass(name)) {
+        if (classloaderService.isArkSpiClass(name) || classloaderService.isArkApiClass(name)) {
             try {
                 return classloaderService.getArkClassLoader().loadClass(name);
             } catch (ClassNotFoundException e) {

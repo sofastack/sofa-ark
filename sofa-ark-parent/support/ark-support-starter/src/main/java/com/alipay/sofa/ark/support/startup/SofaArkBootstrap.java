@@ -73,7 +73,6 @@ public class SofaArkBootstrap {
     }
 
     private static void remain(String[] args) throws Exception {// NOPMD
-
         AssertUtils.assertNotNull(entryMethod, "No Entry Method Found.");
 
         /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
@@ -82,16 +81,13 @@ public class SofaArkBootstrap {
         URL[] urls = getURLClassPath();
         new ClasspathLauncher(new ClassPathArchive(urls)).launch(args, getClasspath(urls),
             entryMethod.getMethod());
-
     }
 
     private static String getClasspath(URL[] urls) {
-
         StringBuilder sb = new StringBuilder();
         for (URL url : urls) {
             sb.append(url.toExternalForm()).append(CommandArgument.CLASSPATH_SPLIT);
         }
-
         return sb.toString();
     }
 

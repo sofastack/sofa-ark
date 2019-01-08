@@ -14,26 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.model;
-
-import com.alipay.sofa.ark.spi.service.PriorityOrdered;
+package com.alipay.sofa.ark.api;
 
 /**
- * Ark Biz Model Interface
- *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.6.0
  */
-public interface Biz extends BizInfo, PriorityOrdered {
-    /**
-     * start Biz
-     * @throws Throwable
-     */
-    void start(String[] args) throws Throwable;
-
-    /**
-     * stop Biz
-     * @throws Throwable
-     */
-    void stop() throws Throwable;
+public enum ResponseCode {
+    SUCCESS, FAILED, REPEAT_BIZ, NOT_FOUND_BIZ, ILLEGAL_STATE_BIZ;
 }

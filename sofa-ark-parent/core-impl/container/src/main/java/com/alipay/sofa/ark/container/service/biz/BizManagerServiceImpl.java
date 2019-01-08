@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
@@ -92,7 +93,7 @@ public class BizManagerServiceImpl implements BizManagerService {
 
     @Override
     public Biz getBizByIdentity(String bizIdentity) {
-        AssertUtils.isTrue(BizModel.BizIdentityGenerator.isValid(bizIdentity),
+        AssertUtils.isTrue(BizIdentityUtils.isValid(bizIdentity),
             "Format of Biz Identity is error.");
         String[] str = bizIdentity.split(Constants.STRING_COLON);
         return getBiz(str[0], str[1]);
@@ -167,7 +168,7 @@ public class BizManagerServiceImpl implements BizManagerService {
 
     @Override
     public BizState getBizState(String bizIdentity) {
-        AssertUtils.isTrue(BizModel.BizIdentityGenerator.isValid(bizIdentity),
+        AssertUtils.isTrue(BizIdentityUtils.isValid(bizIdentity),
             "Format of Biz Identity is error.");
         String[] str = bizIdentity.split(Constants.STRING_COLON);
         return getBizState(str[0], str[1]);

@@ -86,7 +86,7 @@ public class ArkContainer {
     }
 
     public ArkContainer(ExecutableArchive executableArchive, LaunchCommand launchCommand) {
-        arkServiceContainer = new ArkServiceContainer();
+        arkServiceContainer = new ArkServiceContainer(launchCommand.getLaunchArgs());
         pipelineContext = new PipelineContext();
         pipelineContext.setExecutableArchive(executableArchive);
         pipelineContext.setLaunchCommand(launchCommand);

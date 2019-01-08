@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
@@ -265,6 +266,9 @@ public class PluginClassLoaderTest extends BaseTest {
 
         PluginClassLoader pluginClassLoader = (PluginClassLoader) mockPlugin.getPluginClassLoader();
         Assert.assertNotNull(pluginClassLoader.loadClass("SampleClass", false));
+
+        Class clazz = pluginClassLoader.loadClass(ArkClient.class.getCanonicalName());
+        Assert.assertTrue(clazz.getClassLoader().equals(classloaderService.getArkClassLoader()));
     }
 
     @Test
