@@ -31,7 +31,6 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
 import java.net.URL;

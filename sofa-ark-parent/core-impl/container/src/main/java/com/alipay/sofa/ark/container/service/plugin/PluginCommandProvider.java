@@ -25,7 +25,6 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -55,7 +54,7 @@ public class PluginCommandProvider implements CommandProvider {
 
     private static final String HELP_MESSAGE = "Plugin Command Tips:\n"
                                                + "  USAGE: plugin [option...] [pluginName...]\n"
-                                               + "  SAMPLE: plugin -m plugin-A plugin-B or plugin -ms plugin-*\n"
+                                               + "  SAMPLE: plugin -m plugin-A plugin-B\n"
                                                + "  -h  Shows the help message.\n"
                                                + "  -m  Shows the meta info of specified pluginName\n"
                                                + "  -s  Shows the service info of specified pluginName\n"
@@ -156,12 +155,17 @@ public class PluginCommandProvider implements CommandProvider {
                 return pluginList();
             } else {
                 Set<String> candidates = pluginManagerService.getAllPluginNames();
+                boolean matched = false;
                 for (String pattern : parameters) {
                     for (String candidate : candidates) {
                         if (Pattern.matches(pattern, candidate)) {
+                            matched = true;
                             sb.append(pluginInfo(candidate));
                         }
                     }
+                }
+                if (!matched) {
+                    sb.append("no matched plugin candidates.").append("\n");
                 }
             }
             return sb.toString();
@@ -169,12 +173,12 @@ public class PluginCommandProvider implements CommandProvider {
 
         String pluginList() {
             Set<String> pluginNames = pluginManagerService.getAllPluginNames();
-            StringBuilder sb = new StringBuilder(128).append("PluginList:").append("\n");
+            StringBuilder sb = new StringBuilder(128);
             if (pluginNames.isEmpty()) {
-                sb.append("  no plugins.").append("\n");
+                sb.append("no plugins.").append("\n");
             } else {
                 for (String pluginName : pluginNames) {
-                    sb.append("  ").append(pluginName).append("\n");
+                    sb.append(pluginName).append("\n");
                 }
             }
             sb.append("\n");
@@ -183,39 +187,44 @@ public class PluginCommandProvider implements CommandProvider {
 
         String pluginInfo(String pluginName) {
             Plugin plugin = pluginManagerService.getPluginByName(pluginName);
-            StringBuilder sb = new StringBuilder(256).append(pluginName).append(":\n");
+            StringBuilder sb = new StringBuilder(256);
             // print plugin meta info
             if (options.contains('m')) {
-                sb.append("           Version: ").append(plugin.getVersion()).append("\n");
-                sb.append("          Priority: ").append(plugin.getPriority()).append("\n");
-                sb.append("         Activator: ").append(plugin.getPluginActivator()).append("\n");
-                sb.append("   Export Packages: ").append(join(plugin.getExportPackages(), ","))
+                sb.append("PluginName:       ").append(pluginName).append("\n");
+                sb.append("Version:          ").append(plugin.getVersion()).append("\n");
+                sb.append("Priority:         ").append(plugin.getPriority()).append("\n");
+                sb.append("Activator:        ").append(plugin.getPluginActivator()).append("\n");
+                sb.append("Export Packages:  ")
+                    .append(StringUtils.setToStr(plugin.getExportPackages(), ",", "\\"))
                     .append("\n");
-                sb.append("   Import Packages: ").append(join(plugin.getImportPackages(), ","))
+                sb.append("Import Packages:  ")
+                    .append(StringUtils.setToStr(plugin.getImportPackages(), ",", "\\"))
                     .append("\n");
-                sb.append("    Export Classes: ").append(join(plugin.getExportClasses(), ","))
+                sb.append("Export Classes:   ")
+                    .append(StringUtils.setToStr(plugin.getExportClasses(), ",", "\\"))
                     .append("\n");
-                sb.append("    Import Classes: ").append(join(plugin.getImportClasses(), ","))
+                sb.append("Import Classes:   ")
+                    .append(StringUtils.setToStr(plugin.getImportClasses(), ",", "\\"))
                     .append("\n");
-                sb.append("  Export Resources: ").append(join(plugin.getExportResources(), ","))
+                sb.append("Export Resources: ")
+                    .append(StringUtils.setToStr(plugin.getExportResources(), ",", "\\"))
                     .append("\n");
-                sb.append("  Import Resources: ").append(join(plugin.getImportResources(), ","))
+                sb.append("Import Resources: ")
+                    .append(StringUtils.setToStr(plugin.getImportResources(), ",", "\\"))
                     .append("\n");
             }
             // print plugin service info
             if (options.contains('s')) {
-
+                // TODO
             }
             // print plugin detail info
             if (options.contains('d')) {
-                sb.append("           GroupId: ").append(plugin.getGroupId()).append("\n");
-                sb.append("        ArtifactId: ").append(plugin.getArtifactId()).append("\n");
-                sb.append("           Version: ").append(plugin.getVersion()).append("\n");
-                sb.append("               URL: ").append(plugin.getPluginURL()).append("\n");
-                sb.append("       ClassLoader: ").append(plugin.getPluginClassLoader())
-                    .append("\n");
-                sb.append("         ClassPath: ").append(join(plugin.getClassPath(), ","))
-                    .append("\n");
+                sb.append("GroupId:     ").append(plugin.getGroupId()).append("\n");
+                sb.append("ArtifactId:  ").append(plugin.getArtifactId()).append("\n");
+                sb.append("Version:     ").append(plugin.getVersion()).append("\n");
+                sb.append("URL:         ").append(plugin.getPluginURL()).append("\n");
+                sb.append("ClassLoader: ").append(plugin.getPluginClassLoader()).append("\n");
+                sb.append("ClassPath:   ").append(join(plugin.getClassPath(), ",")).append("\n");
             }
             sb.append("\n");
             return sb.toString();
@@ -228,23 +237,7 @@ public class PluginCommandProvider implements CommandProvider {
                     set.add(url.getPath());
                 }
             }
-            return join(set, separator);
+            return StringUtils.setToStr(set, separator, "\\");
         }
-
-        String join(Set<String> set, String separator) {
-            if (set == null) {
-                return StringUtils.EMPTY_STRING;
-            }
-            StringBuilder sb = new StringBuilder(128);
-            Iterator<String> iterator = set.iterator();
-            while (iterator.hasNext()) {
-                sb.append(iterator.next());
-                if (iterator.hasNext()) {
-                    sb.append(separator);
-                }
-            }
-            return sb.toString();
-        }
-
     }
 }

@@ -49,20 +49,20 @@ public class StringUtilsTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testListToStr() {
-        Assert.assertTrue("".equals(StringUtils.listToStr(null, ",")));
-        Assert.assertTrue("".equals(StringUtils.listToStr(Collections.<String> emptySet(), ",")));
-        Assert.assertTrue("ast".equals(StringUtils.listToStr(Collections.singleton("ast"), "&&")));
+        Assert.assertTrue("".equals(StringUtils.setToStr(null, ",")));
+        Assert.assertTrue("".equals(StringUtils.setToStr(Collections.<String> emptySet(), ",")));
+        Assert.assertTrue("ast".equals(StringUtils.setToStr(Collections.singleton("ast"), "&&")));
 
         LinkedHashSet linkedHashSet = new LinkedHashSet();
 
         linkedHashSet.add("ab");
         linkedHashSet.add("  ba  ");
-        Assert.assertTrue("ab,ba".equals(StringUtils.listToStr(linkedHashSet, ",")));
+        Assert.assertTrue("ab,ba".equals(StringUtils.setToStr(linkedHashSet, ",")));
 
         linkedHashSet.add("cb");
-        Assert.assertTrue("ab&&ba&&cb".equals(StringUtils.listToStr(linkedHashSet, "&&")));
+        Assert.assertTrue("ab&&ba&&cb".equals(StringUtils.setToStr(linkedHashSet, "&&")));
 
-        Assert.assertTrue("abbacb".equals(StringUtils.listToStr(linkedHashSet, "")));
+        Assert.assertTrue("abbacb".equals(StringUtils.setToStr(linkedHashSet, "")));
     }
 
     @Test

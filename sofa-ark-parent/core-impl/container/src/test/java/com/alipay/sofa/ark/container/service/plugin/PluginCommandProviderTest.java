@@ -103,14 +103,34 @@ public class PluginCommandProviderTest {
             // ignore
         }
 
-        System.out.println(pluginCommandProvider.handleCommand("plu"));
-        System.out.println(pluginCommandProvider.handleCommand("plugin"));
-        System.out.println(pluginCommandProvider.handleCommand("plugin -h"));
-        System.out.println(pluginCommandProvider.handleCommand("plugin -h pluginA"));
-        System.out.println(pluginCommandProvider.handleCommand("plugin -m pluginA"));
-        System.out.println(pluginCommandProvider.handleCommand("plugin -m pluginC"));
-        System.out.println(pluginCommandProvider.handleCommand("plugin -m plugin."));
-        System.out.println(pluginCommandProvider.handleCommand("plugin -s plugin."));
+        String errorMessage = "Error command format. Pls type 'plugin -h' to get help message\n";
+
+        Assert.assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
+        Assert.assertTrue(errorMessage.equals(pluginCommandProvider
+            .handleCommand("plugin -h pluginA")));
+        Assert.assertTrue(errorMessage.equals(pluginCommandProvider
+            .handleCommand("plugin -b pluginA")));
+        Assert.assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
+
+        Assert.assertTrue(pluginCommandProvider.getHelp().equals(
+            pluginCommandProvider.handleCommand("plugin -h")));
+        Assert.assertTrue("pluginA\npluginB\n\n".equals(pluginCommandProvider
+            .handleCommand("plugin ")));
+
+        String details = pluginCommandProvider.handleCommand("plugin -m -d -s pluginA");
+        Assert.assertTrue(details.contains("Activator"));
+        Assert.assertTrue(details.contains("GroupId"));
+
+        details = pluginCommandProvider.handleCommand("plugin -d pluginB");
+        Assert.assertTrue(details.contains("GroupId"));
+        Assert.assertFalse(details.contains("Activator"));
+
+        details = pluginCommandProvider.handleCommand("plugin -m plugin.");
+        Assert.assertTrue(details.contains("pluginA"));
+        Assert.assertTrue(details.contains("pluginB"));
+
+        details = pluginCommandProvider.handleCommand("plugin -m pluginC");
+        Assert.assertTrue(details.contains("no matched plugin candidates."));
     }
 
 }

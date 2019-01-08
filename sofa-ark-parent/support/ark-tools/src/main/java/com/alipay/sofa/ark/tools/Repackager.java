@@ -355,11 +355,11 @@ public class Repackager {
         manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, this.bizVersion);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE, priority);
         manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
-            StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
+            StringUtils.setToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,
-            StringUtils.listToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
+            StringUtils.setToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_RESOURCES,
-            StringUtils.listToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
+            StringUtils.setToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
 
         return manifest;
     }
