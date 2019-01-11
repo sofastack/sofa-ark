@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.tools;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.*;

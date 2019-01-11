@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -77,7 +77,7 @@ public class ClassLoaderUtils {
                 URL url = new File(path).toURI().toURL();
                 agentPaths.add(url);
             } catch (Throwable e) {
-                throw new ArkException("Failed to create java agent classloader", e);
+                throw new ArkRuntimeException("Failed to create java agent classloader", e);
             }
         }
         return agentPaths.toArray(new URL[] {});

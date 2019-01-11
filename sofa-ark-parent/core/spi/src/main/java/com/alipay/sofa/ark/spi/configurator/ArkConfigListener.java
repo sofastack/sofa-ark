@@ -14,28 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service;
-
-import com.alipay.sofa.ark.exception.ArkRuntimeException;
+package com.alipay.sofa.ark.spi.configurator;
 
 /**
- * Ark Service lifecycle, when a service need init/dispose action, it should implement this interface and register by guice
+ * Listen to the change of ark configuration
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @author  GengZhang
+ * @since 0.6.0
  */
-public interface ArkService extends PriorityOrdered {
-
+public interface ArkConfigListener<T> {
     /**
-     * Ark Service init
-     * @throws ArkRuntimeException
+     * On change.
+     *
+     * @param oldValue the old value
+     * @param newValue the new value
      */
-    void init() throws ArkRuntimeException;
-
-    /**
-     * Ark Service dispose
-     * @throws ArkRuntimeException
-     */
-    void dispose() throws ArkRuntimeException;
-
+    public void onChange(T oldValue, T newValue);
 }

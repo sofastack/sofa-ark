@@ -17,13 +17,13 @@
 package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
-import com.alipay.sofa.ark.exception.ArkException;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 
@@ -53,9 +53,9 @@ public class ArkContainer {
     private static final int    MINIMUM_ARGS_SIZE     = 1;
     private static final int    ARK_COMMAND_ARG_INDEX = 0;
 
-    public static Object main(String[] args) throws ArkException {
+    public static Object main(String[] args) throws ArkRuntimeException {
         if (args.length < MINIMUM_ARGS_SIZE) {
-            throw new ArkException("Please provide suitable arguments to continue !");
+            throw new ArkRuntimeException("Please provide suitable arguments to continue !");
         }
 
         try {
@@ -74,7 +74,7 @@ public class ArkContainer {
                 return new ArkContainer(classPathArchive, launchCommand).start();
             }
         } catch (IOException e) {
-            throw new ArkException(String.format("SOFAArk startup failed, commandline=%s",
+            throw new ArkRuntimeException(String.format("SOFAArk startup failed, commandline=%s",
                 LaunchCommand.toString(args)), e);
         }
 
@@ -95,10 +95,10 @@ public class ArkContainer {
     /**
      * Start Ark Container
      *
-     * @throws ArkException
+     * @throws ArkRuntimeException
      * @since 0.1.0
      */
-    public Object start() throws ArkException {
+    public Object start() throws ArkRuntimeException {
         AssertUtils.assertNotNull(arkServiceContainer, "arkServiceContainer is null !");
         if (started.compareAndSet(false, true)) {
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -130,9 +130,9 @@ public class ArkContainer {
     /**
      * Stop Ark Container
      *
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    public void stop() throws ArkException {
+    public void stop() throws ArkRuntimeException {
         AssertUtils.assertNotNull(arkServiceContainer, "arkServiceContainer is null !");
         if (stopped.compareAndSet(false, true)) {
             arkServiceContainer.stop();

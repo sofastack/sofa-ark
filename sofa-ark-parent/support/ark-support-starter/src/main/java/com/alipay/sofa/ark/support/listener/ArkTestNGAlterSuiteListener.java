@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.support.listener;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.testng.IAlterSuiteListener;
 import org.testng.xml.XmlClass;
@@ -74,8 +74,8 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
                         xmlClass.setClass(DelegateArkContainer.getTestClassLoader().loadClass(
                             testClass.getCanonicalName()));
                     } catch (ClassNotFoundException ex) {
-                        throw new ArkException(String.format("Load testNG test class %s failed.",
-                            testClass.getCanonicalName()), ex);
+                        throw new ArkRuntimeException(String.format(
+                            "Load testNG test class %s failed.", testClass.getCanonicalName()), ex);
                     }
                 }
             }

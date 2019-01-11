@@ -14,28 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service;
-
-import com.alipay.sofa.ark.exception.ArkRuntimeException;
+package com.alipay.sofa.ark.exception;
 
 /**
- * Ark Service lifecycle, when a service need init/dispose action, it should implement this interface and register by guice
+ * SOFAArk Runtime Exception
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public interface ArkService extends PriorityOrdered {
+public class ArkRuntimeException extends RuntimeException {
 
-    /**
-     * Ark Service init
-     * @throws ArkRuntimeException
-     */
-    void init() throws ArkRuntimeException;
+    public ArkRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    /**
-     * Ark Service dispose
-     * @throws ArkRuntimeException
-     */
-    void dispose() throws ArkRuntimeException;
+    public ArkRuntimeException(Throwable cause) {
+        super(cause);
+    }
 
+    public ArkRuntimeException(String message) {
+        super(message);
+    }
 }

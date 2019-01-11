@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.container.pipeline;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
@@ -65,7 +65,7 @@ public class StandardPipeline implements Pipeline {
     }
 
     @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
+    public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         for (PipelineStage pipelineStage : stages) {
             try {
                 LOGGER.info(String.format("Start to process pipeline stage: %s", pipelineStage
@@ -76,7 +76,7 @@ public class StandardPipeline implements Pipeline {
             } catch (Throwable e) {
                 LOGGER.error(String.format("Process pipeline stage fail: %s", pipelineStage
                     .getClass().getName()), e);
-                throw new ArkException(e);
+                throw new ArkRuntimeException(e);
             }
         }
     }

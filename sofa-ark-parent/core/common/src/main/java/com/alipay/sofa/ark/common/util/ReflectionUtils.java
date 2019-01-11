@@ -16,13 +16,17 @@
  */
 package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 
 /**
  * @author qilong.zql
+ * @author GengZhang
  * @since 0.4.0
  */
 public class ReflectionUtils {
@@ -35,9 +39,9 @@ public class ReflectionUtils {
         /**
          * Perform an operation using the given field.
          * @param field the field to operate on
-         * @throws ArkException throw exception when handle with field
+         * @throws ArkRuntimeException throw exception when handle with field
          */
-        void doWith(Field field) throws ArkException;
+        void doWith(Field field) throws ArkRuntimeException;
     }
 
     public static void doWithFields(Class<?> clazz, FieldCallback fc) {
@@ -58,5 +62,30 @@ public class ReflectionUtils {
             .isFinal(field.getModifiers())) && !field.isAccessible()) {
             field.setAccessible(true);
         }
+    }
+
+    /**
+     * Get class location
+     *
+     * @param cls
+     * @return
+     */
+    public static String getCodeBase(Class<?> cls) {
+        if (cls == null) {
+            return null;
+        }
+        ProtectionDomain domain = cls.getProtectionDomain();
+        if (domain == null) {
+            return null;
+        }
+        CodeSource source = domain.getCodeSource();
+        if (source == null) {
+            return null;
+        }
+        URL location = source.getLocation();
+        if (location == null) {
+            return null;
+        }
+        return location.getFile();
     }
 }

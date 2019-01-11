@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
@@ -244,7 +244,7 @@ public class PluginModel implements Plugin {
     }
 
     @Override
-    public void start() throws ArkException {
+    public void start() throws ArkRuntimeException {
         if (activator == null || activator.isEmpty()) {
             return;
         }
@@ -256,14 +256,14 @@ public class PluginModel implements Plugin {
                 .newInstance();
             pluginActivator.start(pluginContext);
         } catch (Throwable ex) {
-            throw new ArkException(ex.getMessage(), ex);
+            throw new ArkRuntimeException(ex.getMessage(), ex);
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
     }
 
     @Override
-    public void stop() throws ArkException {
+    public void stop() throws ArkRuntimeException {
         if (pluginActivator != null) {
             pluginActivator.stop(pluginContext);
         }

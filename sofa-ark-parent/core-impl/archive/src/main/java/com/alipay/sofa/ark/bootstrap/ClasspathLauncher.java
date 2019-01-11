@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.*;
@@ -100,7 +100,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             if (archive == null) {
-                throw new ArkException("No Ark Container Jar File Found.");
+                throw new ArkRuntimeException("No Ark Container Jar File Found.");
             }
 
             return archive;
@@ -114,7 +114,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             if (urlList.size() > 1) {
-                throw new ArkException("Duplicate Container Jar File Found.");
+                throw new ArkRuntimeException("Duplicate Container Jar File Found.");
             }
 
             return new JarContainerArchive(new JarFileArchive(new File(urlList.get(0).getFile())));
@@ -259,7 +259,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 }
                 return urls.toArray(new URL[] {});
             } catch (IOException ex) {
-                throw new ArkException("Parse classpath failed from surefire boot jar.", ex);
+                throw new ArkRuntimeException("Parse classpath failed from surefire boot jar.", ex);
             }
         }
     }

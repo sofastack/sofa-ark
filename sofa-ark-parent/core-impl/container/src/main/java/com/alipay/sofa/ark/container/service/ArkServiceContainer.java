@@ -22,7 +22,7 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.ArkService;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -62,10 +62,10 @@ public class ArkServiceContainer {
 
     /**
      * Start Ark Service Container
-     * @throws ArkException
+     * @throws ArkRuntimeException
      * @since 0.1.0
      */
-    public void start() throws ArkException {
+    public void start() throws ArkRuntimeException {
         if (started.compareAndSet(false, true)) {
             ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(getClass()
                 .getClassLoader());
@@ -98,7 +98,7 @@ public class ArkServiceContainer {
 
     }
 
-    private List<AbstractArkGuiceModule> findServiceModules() throws ArkException {
+    private List<AbstractArkGuiceModule> findServiceModules() throws ArkRuntimeException {
         try {
             List<AbstractArkGuiceModule> modules = new ArrayList<>();
             for (AbstractArkGuiceModule module : ServiceLoader.load(AbstractArkGuiceModule.class)) {
@@ -106,7 +106,7 @@ public class ArkServiceContainer {
             }
             return modules;
         } catch (Throwable e) {
-            throw new ArkException(e);
+            throw new ArkRuntimeException(e);
         }
     }
 
@@ -123,10 +123,10 @@ public class ArkServiceContainer {
 
     /**
      * Stop Ark Service Container
-     * @throws ArkException
+     * @throws ArkRuntimeException
      * @since 0.1.0
      */
-    public void stop() throws ArkException {
+    public void stop() throws ArkRuntimeException {
         if (stopped.compareAndSet(false, true)) {
             LOGGER.info("Begin to stop ArkServiceContainer");
 

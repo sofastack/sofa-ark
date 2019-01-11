@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
@@ -40,7 +40,7 @@ public class DeployPluginStage implements PipelineStage {
     private PluginDeployService pluginDeployService;
 
     @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
+    public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
     }

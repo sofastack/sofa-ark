@@ -14,25 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.exception;
+package com.alipay.sofa.ark.spi.configurator;
+
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * SOFAArk Runtime Exception
+ * extension point to update ark config during startup period
+ * usually implement by ark plugin
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author qilong.zql
+ * @since 0.6.0
  */
-public class ArkException extends RuntimeException {
-
-    public ArkException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ArkException(Throwable cause) {
-        super(cause);
-    }
-
-    public ArkException(String message) {
-        super(message);
-    }
+public interface ArkConfigHook {
+    void updateConfig(ConcurrentMap<String, Object> cfg);
 }

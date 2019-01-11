@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
@@ -51,7 +51,7 @@ public class HandleArchiveStage implements PipelineStage {
     private BizFactoryService    bizFactoryService;
 
     @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
+    public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
 
@@ -64,7 +64,7 @@ public class HandleArchiveStage implements PipelineStage {
                 bizManagerService.registerBiz(bizFactoryService.createBiz(bizArchive));
             }
         } catch (Throwable ex) {
-            throw new ArkException(ex.getMessage(), ex);
+            throw new ArkRuntimeException(ex.getMessage(), ex);
         }
     }
 

@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.testdata.activator;
 
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.testdata.impl.TestObjectB;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
 
@@ -30,12 +30,12 @@ import com.alipay.sofa.ark.spi.service.PluginActivator;
 public class PluginActivatorB implements PluginActivator {
 
     @Override
-    public void start(PluginContext context) throws ArkException {
+    public void start(PluginContext context) throws ArkRuntimeException {
         context.publishService(ITest.class, new TestObjectB());
     }
 
     @Override
-    public void stop(PluginContext context) throws ArkException {
+    public void stop(PluginContext context) throws ArkRuntimeException {
 
     }
 }

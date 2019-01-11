@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.tools;
+package com.alipay.sofa.ark.common.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +28,8 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Dave Syer
  * @author Phillip Webb
+ * @author qilong.zql
+ * @author GengZhang
  */
 public class FileUtils {
 
@@ -61,6 +63,44 @@ public class FileUtils {
             hex.append(String.format("%02x", b));
         }
         return hex.toString();
+    }
+
+    /**
+     * Get Project Base Dir
+      * @return base path
+     */
+    public static String getBaseDirName() {
+        String fileName = null;
+        // 先取classes
+        java.net.URL url1 = FileUtils.class.getResource("/");
+        if (url1 != null) {
+            fileName = url1.getFile();
+        } else {
+            // 取不到再取lib
+            String jarpath = ReflectionUtils.getCodeBase(FileUtils.class);
+            if (jarpath != null) {
+                int sofaidx = jarpath.lastIndexOf("sofa");
+                if (sofaidx > -1) { // 如果有sofa开头的jar包
+                    fileName = jarpath.substring(0, sofaidx);
+                } else {
+                    int sepidx = jarpath.lastIndexOf(File.separator);
+                    if (sepidx > -1) {
+                        fileName = jarpath.substring(0, sepidx + 1);
+                    }
+                }
+            }
+        }
+        // 将冒号去掉 “/”换成“-”
+        if (fileName != null) {
+            fileName = fileName.replace(":", "").replace(File.separator, "/").replace("/", "-");
+            if (fileName.startsWith("-")) {
+                fileName = fileName.substring(1);
+            }
+        } else {
+            // LOGGER.warn("can not parse webapp baseDir path");
+            fileName = "UNKNOW_";
+        }
+        return fileName;
     }
 
 }

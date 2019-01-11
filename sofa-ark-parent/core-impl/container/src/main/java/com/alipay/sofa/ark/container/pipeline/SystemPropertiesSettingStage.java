@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
@@ -33,7 +33,7 @@ import com.google.inject.Singleton;
 public class SystemPropertiesSettingStage implements PipelineStage {
 
     @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
+    public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
         EnvironmentUtils.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
             String.valueOf(false));

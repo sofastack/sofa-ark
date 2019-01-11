@@ -21,7 +21,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ReflectionUtils;
 import com.alipay.sofa.ark.common.util.ReflectionUtils.FieldCallback;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
@@ -50,7 +50,7 @@ public class InjectionServiceImpl implements InjectionService {
 
         ReflectionUtils.doWithFields(implClass, new FieldCallback() {
             @Override
-            public void doWith(Field field) throws ArkException {
+            public void doWith(Field field) throws ArkRuntimeException {
                 ArkInject arkInjectAnnotation = field.getAnnotation(ArkInject.class);
                 if (arkInjectAnnotation == null) {
                     return;
@@ -74,7 +74,7 @@ public class InjectionServiceImpl implements InjectionService {
                             field.getName(), reference.toString()), field.getName(),
                         reference.toString());
                 } catch (Throwable throwable) {
-                    throw new ArkException(throwable);
+                    throw new ArkRuntimeException(throwable);
                 }
             }
         });
