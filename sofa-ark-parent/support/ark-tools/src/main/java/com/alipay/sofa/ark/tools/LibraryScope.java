@@ -25,61 +25,73 @@ public interface LibraryScope {
     /**
      * The library is used at compile time and runtime
      */
-    LibraryScope COMPILE  = new LibraryScope() {
+    LibraryScope COMPILE   = new LibraryScope() {
 
-                              @Override
-                              public String toString() {
-                                  return "compile";
-                              }
+                               @Override
+                               public String toString() {
+                                   return "compile";
+                               }
 
-                          };
+                           };
 
     /**
      * The library is used at runtime but not needed for compile.
      */
-    LibraryScope RUNTIME  = new LibraryScope() {
+    LibraryScope RUNTIME   = new LibraryScope() {
 
-                              @Override
-                              public String toString() {
-                                  return "runtime";
-                              }
+                               @Override
+                               public String toString() {
+                                   return "runtime";
+                               }
 
-                          };
+                           };
 
     /**
      * The library is needed for compile but is usually provided when running.
      */
-    LibraryScope PROVIDED = new LibraryScope() {
+    LibraryScope PROVIDED  = new LibraryScope() {
 
-                              @Override
-                              public String toString() {
-                                  return "provided";
-                              }
+                               @Override
+                               public String toString() {
+                                   return "provided";
+                               }
 
-                          };
+                           };
 
     /**
      * Marker for sofa-ark plugin scope when custom configuration is used.
      */
-    LibraryScope PLUGIN   = new LibraryScope() {
+    LibraryScope PLUGIN    = new LibraryScope() {
 
-                              @Override
-                              public String toString() {
-                                  return "plugin";
-                              }
+                               @Override
+                               public String toString() {
+                                   return "plugin";
+                               }
 
-                          };
+                           };
 
     /**
      * Marker for sofa-ark module scope when custom configuration is used.
      */
-    LibraryScope MODULE   = new LibraryScope() {
+    LibraryScope MODULE    = new LibraryScope() {
 
-                              @Override
-                              public String toString() {
-                                  return "module";
-                              }
+                               @Override
+                               public String toString() {
+                                   return "module";
+                               }
 
-                          };
+                           };
+
+    /**
+     * Marker for sofa-ark container scope when custom configuration is used.
+     */
+    LibraryScope CONTAINER = new LibraryScope() {
+
+                               @Override
+                               public String toString() {
+                                   return "container";
+                               }
+
+                           };
 
 }
