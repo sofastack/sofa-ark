@@ -43,7 +43,7 @@ public class LaunchCommand {
 
     private String[] launchArgs;
 
-    private String  profile;
+    private String   profile;
 
     private Boolean  isTestMode;
 

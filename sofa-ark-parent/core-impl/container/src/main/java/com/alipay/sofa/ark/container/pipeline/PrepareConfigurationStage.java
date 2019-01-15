@@ -41,7 +41,7 @@ public class PrepareConfigurationStage implements PipelineStage {
     private void configureSystemProperties() {
         // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
         ArkConfigs.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
-                String.valueOf(false));
+            String.valueOf(false));
         // ignore thread class loader when loading classes and resource in log4j
         ArkConfigs.setSystemProperty(Constants.LOG4J_IGNORE_TCL, String.valueOf(true));
     }
