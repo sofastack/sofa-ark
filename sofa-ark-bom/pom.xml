@@ -13,8 +13,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <spring.boot.version>1.4.2.RELEASE</spring.boot.version>
-
         <log4j.version>1.7.21</log4j.version>
         <sofa.common.tools.version>1.0.12</sofa.common.tools.version>
 
@@ -139,15 +137,6 @@
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-ark-tools</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-
-            <!--spring boot-->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
             <!--third party libraries-->

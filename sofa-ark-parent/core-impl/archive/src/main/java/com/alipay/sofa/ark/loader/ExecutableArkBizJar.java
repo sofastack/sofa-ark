@@ -97,7 +97,8 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         List<Archive> archives = getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
-                return SOFA_ARK_CONTAINER.equals(entry.getName());
+                return !entry.getName().equals(SOFA_ARK_CONTAINER)
+                       && entry.getName().startsWith(SOFA_ARK_CONTAINER);
             }
         });
 
