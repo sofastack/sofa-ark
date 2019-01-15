@@ -56,6 +56,8 @@ public class Layouts {
                 return getArkPluginLocation();
             } else if (scope.equals(LibraryScope.MODULE)) {
                 return getArkModuleLocation();
+            } else if (scope.equals(LibraryScope.CONTAINER)) {
+                return getArkContainerLocation();
             }
             return "";
         }

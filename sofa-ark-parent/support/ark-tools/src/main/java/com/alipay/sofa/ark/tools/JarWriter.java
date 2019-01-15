@@ -94,17 +94,24 @@ public class JarWriter implements LoaderClassesWriter {
         this.writeEntries(jarFile, new IdentityEntryTransformer());
     }
 
-    public void writeEntries(JarFile jarFile, EntryTransformer entryTransformer) throws IOException {
-        Enumeration<JarEntry> entries = jarFile.entries();
+    public void writeBootstrapEntry(JarFile arkContainerJar) throws IOException {
+        Enumeration<JarEntry> entries = arkContainerJar.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
             if (entry.getName().contains(NESTED_ARCHIVE_LOADER_JAR)
                 || entry.getName().contains(NESTED_SPI_LOADER_JAR)
                 || entry.getName().contains(NESTED_COMMON_LOADER_JAR)) {
                 JarInputStream inputStream = new JarInputStream(new BufferedInputStream(
-                    jarFile.getInputStream(entry)));
+                    arkContainerJar.getInputStream(entry)));
                 writeLoaderClasses(inputStream);
             }
+        }
+    }
+
+    public void writeEntries(JarFile jarFile, EntryTransformer entryTransformer) throws IOException {
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
             ZipHeaderPeekInputStream inputStream = new ZipHeaderPeekInputStream(
                 jarFile.getInputStream(entry));
             try {
