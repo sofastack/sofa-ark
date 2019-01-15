@@ -196,6 +196,7 @@ public class Repackager {
                         if (arkContainerLibrary != null) {
                             throw new RuntimeException("duplicate SOFAArk Container dependency");
                         }
+                        library.setScope(LibraryScope.CONTAINER);
                         arkContainerLibrary = library;
                     } else if (isArkModule(jarFile)) {
                         library.setScope(LibraryScope.MODULE);
@@ -259,8 +260,9 @@ public class Repackager {
 
         try {
             writer.writeManifest(manifest);
-            writer.writeEntries(jarFileSource, new RenamingEntryTransformer(Layouts.Jar.jar()
-                .getArkContainerLocation()));
+            writer.writeBootstrapEntry(jarFileSource);
+            writeNestedLibraries(Collections.singletonList(arkContainerLibrary), Layouts.Jar.jar(),
+                writer);
             writeNestedLibraries(arkPluginLibraries, Layouts.Jar.jar(), writer);
             writeNestedLibraries(getModuleLibraries(), Layouts.Jar.jar(), writer);
         } finally {
