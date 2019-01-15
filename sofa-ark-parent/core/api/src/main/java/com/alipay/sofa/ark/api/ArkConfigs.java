@@ -20,15 +20,9 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.configurator.ArkConfigHook;
 import com.alipay.sofa.ark.spi.configurator.ArkConfigListener;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -77,6 +71,25 @@ public class ArkConfigs {
      * @throws IOException 加载异常
      */
     private static void loadConfigFile(String fileName) throws IOException {
+    }
+
+    /**
+     * configure system property
+     *
+     * @param key
+     * @param value
+     */
+    public static void setSystemProperty(String key, String value) {
+        System.setProperty(key, value);
+    }
+
+    /**
+     * clear system property
+     *
+     * @param key
+     */
+    public static void clearProperty(String key) {
+        System.clearProperty(key);
     }
 
 }

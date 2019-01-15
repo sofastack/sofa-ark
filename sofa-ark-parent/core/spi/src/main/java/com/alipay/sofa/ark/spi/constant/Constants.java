@@ -23,6 +23,12 @@ package com.alipay.sofa.ark.spi.constant;
 public class Constants {
 
     /**
+     * ark conf
+     */
+    public final static String ARK_CONF_BASE_DIR                     = "conf/";
+    public final static String ARK_CONF_FILE                         = "conf/ark/bootstrap.properties";
+
+    /**
      * Archiver Marker
      */
     public final static String ARK_CONTAINER_MARK_ENTRY              = "com/alipay/sofa/ark/container/mark";

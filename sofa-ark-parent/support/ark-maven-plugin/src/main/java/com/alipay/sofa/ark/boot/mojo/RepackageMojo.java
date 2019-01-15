@@ -69,6 +69,9 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}", required = true)
     private File                  outputDirectory;
 
+    @Parameter(defaultValue = "${project.basedir}", required = true)
+    private File                  baseDir;
+
     /**
      * Name of the generated archive
      * @since 0.1.0
@@ -303,6 +306,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setDenyImportResources(denyImportResources);
         repackager.setPackageProvided(packageProvided);
         repackager.setKeepArkBizJar(keepArkBizJar);
+        repackager.setBaseDir(baseDir);
         return repackager;
     }
 

@@ -43,6 +43,8 @@ public class LaunchCommand {
 
     private String[] launchArgs;
 
+    private String  profile;
+
     private Boolean  isTestMode;
 
     public boolean isExecutedByCommandLine() {
@@ -182,5 +184,13 @@ public class LaunchCommand {
             sb.append(arg);
         }
         return sb.toString();
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
     }
 }

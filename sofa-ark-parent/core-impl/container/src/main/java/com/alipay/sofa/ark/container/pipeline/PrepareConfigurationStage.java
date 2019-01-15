@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
-import com.alipay.sofa.ark.common.util.EnvironmentUtils;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
@@ -30,14 +30,23 @@ import com.google.inject.Singleton;
  * @since 0.4.0
  */
 @Singleton
-public class SystemPropertiesSettingStage implements PipelineStage {
+public class PrepareConfigurationStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
+        configureSystemProperties();
+        configureArkConfigs(pipelineContext);
+    }
+
+    private void configureSystemProperties() {
         // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
-        EnvironmentUtils.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
-            String.valueOf(false));
+        ArkConfigs.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
+                String.valueOf(false));
         // ignore thread class loader when loading classes and resource in log4j
-        EnvironmentUtils.setSystemProperty(Constants.LOG4J_IGNORE_TCL, String.valueOf(true));
+        ArkConfigs.setSystemProperty(Constants.LOG4J_IGNORE_TCL, String.valueOf(true));
+    }
+
+    private void configureArkConfigs(PipelineContext pipelineContext) {
+
     }
 }

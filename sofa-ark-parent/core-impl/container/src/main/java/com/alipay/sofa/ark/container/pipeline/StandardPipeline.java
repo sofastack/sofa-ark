@@ -46,10 +46,9 @@ public class StandardPipeline implements Pipeline {
 
     private void initializePipeline() {
         addPipelineStage(
-            ArkServiceContainerHolder.getContainer().getService(HandleArchiveStage.class))
+            ArkServiceContainerHolder.getContainer().getService(PrepareConfigurationStage.class))
             .addPipelineStage(
-                ArkServiceContainerHolder.getContainer().getService(
-                    SystemPropertiesSettingStage.class))
+                ArkServiceContainerHolder.getContainer().getService(HandleArchiveStage.class))
             .addPipelineStage(
                 ArkServiceContainerHolder.getContainer().getService(RegisterServiceStage.class))
             .addPipelineStage(

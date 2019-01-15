@@ -77,7 +77,6 @@ public class ArkContainer {
             throw new ArkRuntimeException(String.format("SOFAArk startup failed, commandline=%s",
                 LaunchCommand.toString(args)), e);
         }
-
     }
 
     public ArkContainer(ExecutableArchive executableArchive) throws Exception {

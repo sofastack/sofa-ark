@@ -30,5 +30,5 @@ public interface ArkConfigListener<T> {
      * @param oldValue the old value
      * @param newValue the new value
      */
-    public void onChange(T oldValue, T newValue);
+    void onChange(T oldValue, T newValue);
 }

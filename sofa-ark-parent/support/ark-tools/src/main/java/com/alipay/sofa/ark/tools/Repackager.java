@@ -74,6 +74,8 @@ public class Repackager {
 
     private File                                  pluginModuleJar;
 
+    private File                                  baseDir;
+
     private boolean                               packageProvided;
 
     private boolean                               keepArkBizJar;
@@ -259,6 +261,7 @@ public class Repackager {
 
         try {
             writer.writeManifest(manifest);
+            writeConfDir(new File(baseDir, Constants.ARK_CONF_BASE_DIR), writer);
             writer.writeEntries(jarFileSource, new RenamingEntryTransformer(Layouts.Jar.jar()
                 .getArkContainerLocation()));
             writeNestedLibraries(arkPluginLibraries, Layouts.Jar.jar(), writer);
@@ -277,7 +280,24 @@ public class Repackager {
         if (!keepArkBizJar) {
             pluginModuleJar.getAbsoluteFile().deleteOnExit();
         }
+    }
 
+    private void writeConfDir(File confDir, JarWriter jarWriter) throws IOException {
+        if (!confDir.exists()) {
+            return;
+        }
+
+        for (File subFile : confDir.listFiles()) {
+            if (subFile.isDirectory()) {
+                writeConfDir(subFile, jarWriter);
+            } else {
+                String entryName = subFile.getPath().substring(baseDir.getPath().length());
+                if (entryName.startsWith(File.separator)) {
+                    entryName = entryName.substring(1);
+                }
+                jarWriter.writeEntry(entryName, new FileInputStream(subFile));
+            }
+        }
     }
 
     private void writeNestedLibraries(List<Library> libraries, Layout layout, JarWriter writer)
@@ -473,5 +493,9 @@ public class Repackager {
 
     public void setKeepArkBizJar(boolean keepArkBizJar) {
         this.keepArkBizJar = keepArkBizJar;
+    }
+
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
     }
 }
