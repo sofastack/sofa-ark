@@ -125,7 +125,9 @@ public class ClasspathLauncher extends ArkLauncher {
             List<URL> urlList = filterUrls(Constants.ARK_BIZ_MARK_ENTRY);
 
             List<BizArchive> bizArchives = new LinkedList<>();
-            bizArchives.add(createDirectoryBizModuleArchive());
+            if (className != null && methodName != null) {
+                bizArchives.add(createDirectoryBizModuleArchive());
+            }
 
             for (URL url : urlList) {
                 bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));

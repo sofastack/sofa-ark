@@ -25,11 +25,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.util.List;
 
 /**
  *

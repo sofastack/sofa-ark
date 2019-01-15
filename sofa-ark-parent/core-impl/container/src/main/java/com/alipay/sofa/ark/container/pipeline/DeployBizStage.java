@@ -37,9 +37,6 @@ public class DeployBizStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkException {
-        if (pipelineContext.getLaunchCommand().isTestMode()) {
-            return;
-        }
         String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
         bizDeployService.deploy(args);
     }
