@@ -48,7 +48,6 @@ public abstract class AbstractLauncher {
                 CommandArgument.FAT_JAR_ARGUMENT_KEY, getExecutableArchive().getUrl()
                     .toExternalForm()));
         attachArgs.addAll(Arrays.asList(args));
-
         launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
     }
 
@@ -58,21 +57,17 @@ public abstract class AbstractLauncher {
      */
     public void launch(String[] args, String classpath, Method method) throws Exception {
         JarFile.registerUrlProtocolHandler();
-
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
-
         List<String> attachArgs = new ArrayList<>();
-        attachArgs.add(String.format("%s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s",
-            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
-            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY,
-            method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
-            method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, method.getDeclaringClass().getName()));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
             CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString()));
         attachArgs.addAll(Arrays.asList(args));
-
         launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
     }
 
@@ -86,16 +81,10 @@ public abstract class AbstractLauncher {
      */
     public Object launch(String classpath) throws Exception {
         JarFile.registerUrlProtocolHandler();
-
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
-
         List<String> attachArgs = new ArrayList<>();
-        attachArgs.add(String.format("%s%s=%s %s %s%s=%s",
-            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
-            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.BIZ_RUN_MODE,
-            CommandArgument.TEST_RUN_MODE));
-
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
         return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
             classLoader);
     }

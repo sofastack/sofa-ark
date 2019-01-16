@@ -29,7 +29,6 @@ import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -44,14 +43,17 @@ public class ArkContainer {
 
     private PipelineContext     pipelineContext;
 
-    private AtomicBoolean       started               = new AtomicBoolean(false);
+    private AtomicBoolean       started           = new AtomicBoolean(false);
 
-    private AtomicBoolean       stopped               = new AtomicBoolean(false);
+    private AtomicBoolean       stopped           = new AtomicBoolean(false);
 
-    private long                start                 = System.currentTimeMillis();
+    private long                start             = System.currentTimeMillis();
 
-    private static final int    MINIMUM_ARGS_SIZE     = 1;
-    private static final int    ARK_COMMAND_ARG_INDEX = 0;
+    /**
+     * -Aclasspath or -Ajar is needed at lease. it specify the abstract executable ark archive,
+     * default added by container itself
+     */
+    private static final int    MINIMUM_ARGS_SIZE = 1;
 
     public static Object main(String[] args) throws ArkRuntimeException {
         if (args.length < MINIMUM_ARGS_SIZE) {
@@ -59,9 +61,7 @@ public class ArkContainer {
         }
 
         try {
-            LaunchCommand launchCommand = LaunchCommand.parse(args[ARK_COMMAND_ARG_INDEX],
-                Arrays.copyOfRange(args, MINIMUM_ARGS_SIZE, args.length));
-
+            LaunchCommand launchCommand = LaunchCommand.parse(args);
             if (launchCommand.isExecutedByCommandLine()) {
                 ExecutableArkBizJar executableArchive = new ExecutableArkBizJar(new JarFileArchive(
                     new File(launchCommand.getExecutableArkBizJar().getFile())),
