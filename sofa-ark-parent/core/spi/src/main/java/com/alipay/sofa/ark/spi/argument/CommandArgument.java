@@ -36,10 +36,12 @@ public interface CommandArgument {
 
     String CLASSPATH_SPLIT                       = ",";
 
-    String KEY_VALUE_PAIR_SPLIT                  = "&&";
+    String PROFILE                               = "profile";
+
+    String DEFAULT_PROFILE                       = "default";
 
     /**
-     * command-line arguments received by ark biz when execute in IDE.
+     * command-line arguments received by bootstrap ark biz when execute in IDE.
      * pattern: -B[key]=[value]
      */
     String ARK_BIZ_ARGUMENTS_MARK                = "-B";
@@ -49,13 +51,4 @@ public interface CommandArgument {
     String ENTRY_METHOD_NAME_ARGUMENT_KEY        = "methodName";
 
     String ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY = "methodDescription";
-
-    /**
-     * run mode in which ark container startup. {@literal MAIN} or {@literal TEST}.
-     * pattern: -B[runMode]=[MAIN|TEST]
-     */
-    String BIZ_RUN_MODE                          = "runMode";
-
-    String TEST_RUN_MODE                         = "TEST";
-
 }

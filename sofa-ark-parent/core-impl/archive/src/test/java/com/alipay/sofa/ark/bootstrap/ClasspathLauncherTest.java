@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import mockit.Mock;
 import mockit.MockUp;
@@ -70,17 +69,8 @@ public class ClasspathLauncherTest {
         ClasspathLauncher.ClassPathArchive classPathArchive = new ClasspathLauncher.ClassPathArchive(
             urls.toArray(new URL[] {}));
         List<BizArchive> bizArchives = classPathArchive.getBizArchives();
-        Assert.assertEquals(2, bizArchives.size());
-
-        DirectoryBizArchive directoryBizArchive = null;
-        for (BizArchive bizArchive : bizArchives) {
-            if (bizArchive instanceof DirectoryBizArchive) {
-                directoryBizArchive = (DirectoryBizArchive) bizArchive;
-            }
-        }
-        Assert.assertNotNull(directoryBizArchive);
+        Assert.assertEquals(1, bizArchives.size());
         Assert.assertEquals(2, urls.size());
-        Assert.assertEquals(1, directoryBizArchive.getUrls().length);
     }
 
 }
