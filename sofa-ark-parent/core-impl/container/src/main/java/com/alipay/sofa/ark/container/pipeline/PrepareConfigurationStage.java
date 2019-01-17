@@ -18,10 +18,14 @@ package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.google.inject.Singleton;
+
+import java.net.URL;
+import java.util.List;
 
 /**
  * Set necessary environment properties
@@ -47,6 +51,13 @@ public class PrepareConfigurationStage implements PipelineStage {
     }
 
     private void configureArkConfigs(PipelineContext pipelineContext) {
-
+        try {
+            ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
+            List<URL> urls = executableArchive.getProfileFiles(pipelineContext.getLaunchCommand()
+                .getProfiles());
+            ArkConfigs.init(urls);
+        } catch (Throwable throwable) {
+            throw new ArkRuntimeException(throwable);
+        }
     }
 }

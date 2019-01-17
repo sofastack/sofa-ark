@@ -21,12 +21,14 @@ package com.alipay.sofa.ark.spi.constant;
  * @since 0.1.0
  */
 public class Constants {
-
     /**
      * ark conf
      */
-    public final static String ARK_CONF_BASE_DIR                     = "conf/";
-    public final static String ARK_CONF_FILE                         = "conf/ark/bootstrap.properties";
+    public final static String CONF_BASE_DIR                         = "conf/";
+    public final static String ARK_CONF_BASE_DIR                     = "conf/ark";
+    public final static String ARK_CONF_FILE                         = "bootstrap.properties";
+    public final static String ARK_CONF_FILE_FORMAT                  = "bootstrap-%s.properties";
+    public final static String DEFAULT_PROFILE                       = "";
 
     /**
      * Archiver Marker

@@ -20,9 +20,13 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.configurator.ArkConfigHook;
 import com.alipay.sofa.ark.spi.configurator.ArkConfigListener;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -48,14 +52,15 @@ public class ArkConfigs {
      */
     private final static ConcurrentMap<String, List<ArkConfigHook>>     CFG_HOOK     = new ConcurrentHashMap<String, List<ArkConfigHook>>();
 
-    static {
-        init(); // 加载配置文件
-    }
-
-    private static void init() {
+    /**
+     * executed only once
+     */
+    public static void init(List<URL> confFiles) {
         try {
             // load file configs
-            loadConfigFile("config/ark/bootstrap.json");
+            for (URL url : confFiles) {
+                loadConfigFile(url.getFile());
+            }
 
             // load system properties
             CFG.putAll(new HashMap(System.getProperties())); // 注意部分属性可能被覆盖为字符串
@@ -65,12 +70,17 @@ public class ArkConfigs {
     }
 
     /**
-     * 加载自定义配置文件
+     * load conf file
      *
-     * @param fileName 文件名
-     * @throws IOException 加载异常
+     * @param fileName conf file name
+     * @throws IOException loading exception
      */
     private static void loadConfigFile(String fileName) throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(new File(fileName)));
+        for (Object key : properties.keySet()) {
+            CFG.put((String) key, properties.get(key));
+        }
     }
 
     /**

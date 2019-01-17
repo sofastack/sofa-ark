@@ -41,7 +41,7 @@ public class ArkBootRunner extends Runner implements Filterable, Sortable {
     @SuppressWarnings("unchecked")
     public ArkBootRunner(Class<?> klazz) {
         if (!DelegateArkContainer.isStarted()) {
-            DelegateArkContainer.launch();
+            DelegateArkContainer.launch(klazz);
         }
 
         Class springRunnerClass = DelegateArkContainer.loadClass(SPRING_RUNNER);

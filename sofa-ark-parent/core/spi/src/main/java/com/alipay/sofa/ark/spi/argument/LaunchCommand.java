@@ -21,7 +21,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alipay.sofa.ark.spi.argument.CommandArgument.*;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_BIZ_ARGUMENTS_MARK;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_SPLIT;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.FAT_JAR_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE_SPLIT;
+import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PROFILE;
 
 /**
  * command argument parsed as a launchCommand
@@ -44,7 +54,7 @@ public class LaunchCommand {
 
     private String[] launchArgs;
 
-    private String   profile;
+    private String[] profiles;
 
     public boolean isExecutedByCommandLine() {
         return executableArkBizJar != null;
@@ -104,12 +114,12 @@ public class LaunchCommand {
         return this;
     }
 
-    public String getProfile() {
-        return profile == null ? DEFAULT_PROFILE : profile;
+    public String[] getProfiles() {
+        return profiles == null ? new String[] { DEFAULT_PROFILE } : profiles;
     }
 
-    public LaunchCommand setProfile(String profile) {
-        this.profile = profile;
+    public LaunchCommand setProfiles(String[] profiles) {
+        this.profiles = profiles;
         return this;
     }
 
@@ -156,7 +166,7 @@ public class LaunchCommand {
                 launchCommand.setClasspath(urlList.toArray(new URL[urlList.size()]));
             } else if (arg.startsWith(arkConfigProfilePrefix)) {
                 String profile = arg.substring(arkConfigProfilePrefix.length());
-                launchCommand.setProfile(profile);
+                launchCommand.setProfiles(profile.split(PROFILE_SPLIT));
             } else {
                 // -A and -B argument would not passed into biz main method.
                 arguments.add(arg);

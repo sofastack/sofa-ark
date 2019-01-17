@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.loader;
 
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.archive.*;
 
 import java.io.IOException;
@@ -28,6 +30,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
 
 /**
  * Executable Ark Biz Fat Jar
@@ -153,5 +158,32 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         }
         return pluginArchives;
 
+    }
+
+    @Override
+    public List<URL> getProfileFiles(String... profiles) throws Exception {
+        List<URL> urls = new ArrayList<>();
+        for (String profile : profiles) {
+            URL profileUrl = getProfileFile(profile);
+            if (profileUrl != null) {
+                urls.add(profileUrl);
+            } else {
+                ArkLoggerFactory.getDefaultLogger().warn(
+                    String.format("The %s profile conf file is not found!", profile));
+            }
+        }
+        return urls;
+    }
+
+    private URL getProfileFile(String profile) throws Exception {
+        final String profileConfFile = StringUtils.isEmpty(profile) ? ARK_CONF_FILE : String
+            .format(ARK_CONF_FILE_FORMAT, profile);
+        List<Archive> archives = getNestedArchives(new EntryFilter() {
+            @Override
+            public boolean matches(Entry entry) {
+                return entry.getName().equals(profileConfFile);
+            }
+        });
+        return archives.isEmpty() ? null : archives.get(0).getUrl();
     }
 }

@@ -38,7 +38,7 @@ public interface CommandArgument {
 
     String PROFILE                               = "profile";
 
-    String DEFAULT_PROFILE                       = "default";
+    String PROFILE_SPLIT                         = ",";
 
     /**
      * command-line arguments received by bootstrap ark biz when execute in IDE.

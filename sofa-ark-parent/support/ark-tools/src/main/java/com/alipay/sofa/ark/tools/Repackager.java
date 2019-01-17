@@ -262,7 +262,7 @@ public class Repackager {
 
         try {
             writer.writeManifest(manifest);
-            writeConfDir(new File(baseDir, Constants.ARK_CONF_BASE_DIR), writer);
+            writeConfDir(new File(baseDir, Constants.CONF_BASE_DIR), writer);
             writer.writeBootstrapEntry(jarFileSource);
             writeNestedLibraries(Collections.singletonList(arkContainerLibrary), Layouts.Jar.jar(),
                 writer);

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.archive;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -47,4 +48,12 @@ public interface ExecutableArchive extends Archive {
      */
     List<PluginArchive> getPluginArchives() throws Exception;
 
+    /**
+     * Get specified profile config file
+     *
+     * @param profiles config profile
+     * @return return config files url
+     * @throws Exception throw exception when meets error
+     */
+    List<URL> getProfileFiles(String... profiles) throws Exception;
 }

@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
+import com.alipay.sofa.ark.spi.command.Command;
 
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -72,19 +73,20 @@ public abstract class AbstractLauncher {
     }
 
     /**
-     * Launch the ark container in {@literal TEST} run mode. Only container and plugin
-     * would startup.
+     * Launch the ark container in {@literal TEST} run mode.
      *
      * @param classpath classpath of ark-biz
      * @return Object {@literal com.alipay.sofa.ark.container.ArkContainer}
      * @throws Exception
      */
-    public Object launch(String classpath) throws Exception {
+    public Object launch(String classpath, Class testClass) throws Exception {
         JarFile.registerUrlProtocolHandler();
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
         List<String> attachArgs = new ArrayList<>();
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
             CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, testClass.getCanonicalName()));
         return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
             classLoader);
     }

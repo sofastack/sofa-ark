@@ -16,7 +16,10 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -31,6 +34,9 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
 import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH;
 import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH_SPLIT;
 
@@ -58,12 +64,14 @@ public class ClasspathLauncher extends ArkLauncher {
 
         private final URLClassLoader urlClassLoader;
 
+        private File                 arkConfBaseDir;
+
         public ClassPathArchive(URL[] urls) {
             this.className = null;
             this.methodName = null;
             this.methodDescription = null;
             this.urls = urls;
-            urlClassLoader = new URLClassLoader(urls, null);
+            urlClassLoader = new URLClassLoader(this.urls, null);
         }
 
         public ClassPathArchive(String className, String methodName, String methodDescription,
@@ -72,7 +80,7 @@ public class ClasspathLauncher extends ArkLauncher {
             this.methodName = methodName;
             this.methodDescription = methodDescription;
             this.urls = urls;
-            urlClassLoader = new URLClassLoader(urls, null);
+            urlClassLoader = new URLClassLoader(this.urls, null);
         }
 
         public List<URL> filterUrls(String resource) throws Exception {
@@ -147,6 +155,50 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             return pluginArchives;
+        }
+
+        @Override
+        public List<URL> getProfileFiles(String... profiles) throws Exception {
+            List<URL> urls = new ArrayList<>();
+
+            if (arkConfBaseDir == null) {
+                arkConfBaseDir = deduceArkConfBaseDir();
+            }
+
+            for (String profile : profiles) {
+                File profileFile = null;
+                if (StringUtils.isEmpty(profile)) {
+                    profileFile = new File(arkConfBaseDir, ARK_CONF_FILE);
+                } else {
+                    profileFile = new File(String.format(ARK_CONF_FILE_FORMAT, profile));
+                }
+                if (profileFile.exists() && profileFile.isFile()) {
+                    urls.add(profileFile.toURI().toURL());
+                } else {
+                    ArkLoggerFactory.getDefaultLogger().warn(
+                        String.format("The %s profile conf file is not found!", profile));
+                }
+            }
+            return urls;
+        }
+
+        private File deduceArkConfBaseDir() {
+            try {
+                Class entryClass = urlClassLoader.loadClass(className);
+                String classLocation = ClassUtils.getCodeBase(entryClass);
+                File file = new File(classLocation);
+                File arkConfDir = null;
+                while (file.getParentFile().exists()) {
+                    file = file.getParentFile();
+                    arkConfDir = new File(file.getPath() + File.separator + ARK_CONF_BASE_DIR);
+                    if (arkConfDir.exists() && arkConfDir.isDirectory()) {
+                        return arkConfDir;
+                    }
+                }
+            } catch (Throwable throwable) {
+                throw new ArkRuntimeException(throwable);
+            }
+            return null;
         }
 
         @Override
