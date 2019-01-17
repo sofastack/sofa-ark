@@ -26,7 +26,6 @@ import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_CONTAINER_ARG
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_ARGUMENT_KEY;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_SPLIT;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY;
-import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.FAT_JAR_ARGUMENT_KEY;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE;
@@ -46,11 +45,10 @@ public class LaunchCommand {
     private URL[]    classpath;
 
     /**
-     * the following three configs are mainly used by bootstrap ark biz at startup of IDE.
+     * the following two configs are mainly used by bootstrap ark biz at startup of IDE.
      */
     private String   entryClassName;
     private String   entryMethodName;
-    private String   entryMethodDescriptor;
 
     private String[] launchArgs;
 
@@ -105,17 +103,13 @@ public class LaunchCommand {
         return this;
     }
 
-    public String getEntryMethodDescriptor() {
-        return entryMethodDescriptor;
-    }
-
-    public LaunchCommand setEntryMethodDescriptor(String entryMethodDescriptor) {
-        this.entryMethodDescriptor = entryMethodDescriptor;
-        return this;
-    }
-
     public String[] getProfiles() {
-        return profiles == null ? new String[] { DEFAULT_PROFILE } : profiles;
+        if (profiles != null) {
+            return profiles;
+        }
+        String profileVMArgs = System.getProperty(PROFILE);
+        return profileVMArgs == null ? new String[] { DEFAULT_PROFILE } : profileVMArgs
+            .split(PROFILE_SPLIT);
     }
 
     public LaunchCommand setProfiles(String[] profiles) {
@@ -134,8 +128,6 @@ public class LaunchCommand {
             ENTRY_CLASS_NAME_ARGUMENT_KEY);
         String entryMethodNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
             ENTRY_METHOD_NAME_ARGUMENT_KEY);
-        String entryMethodDescriptorPrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
-            ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY);
         String arkConfigProfilePrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK,
             PROFILE);
 
@@ -151,9 +143,6 @@ public class LaunchCommand {
             } else if (arg.startsWith(entryMethodNamePrefix)) {
                 String entryMethodName = arg.substring(entryMethodNamePrefix.length());
                 launchCommand.setEntryMethodName(entryMethodName);
-            } else if (arg.startsWith(entryMethodDescriptorPrefix)) {
-                String entryMethodDescriptor = arg.substring(entryMethodDescriptorPrefix.length());
-                launchCommand.setEntryMethodDescriptor(entryMethodDescriptor);
             } else if (arg.startsWith(arkClasspathPrefix)) {
                 String classpath = arg.substring(arkClasspathPrefix.length());
                 List<URL> urlList = new ArrayList<>();

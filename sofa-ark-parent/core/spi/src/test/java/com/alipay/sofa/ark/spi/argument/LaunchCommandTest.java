@@ -57,8 +57,6 @@ public class LaunchCommandTest {
             CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, method.getDeclaringClass().getName()));
         arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
             CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
-        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString()));
         LaunchCommandTest.count = 0;
     }
 
@@ -73,8 +71,6 @@ public class LaunchCommandTest {
 
             Assert.assertTrue(launchCommand.getEntryClassName().equals(
                 method.getDeclaringClass().getName()));
-            Assert.assertTrue(launchCommand.getEntryMethodDescriptor().equals(
-                method.toGenericString()));
             Assert.assertTrue(launchCommand.getEntryMethodName().equals(method.getName()));
             Assert.assertTrue(launchCommand.getExecutableArkBizJar().equals(fatJarUrl));
             Assert.assertTrue(launchCommand.getClasspath().length == classpath

@@ -63,8 +63,8 @@ public class SofaArkBootstrap {
     public static Object prepareContainerForTest(Class testClass) {
         try {
             URL[] urls = getURLClassPath();
-            return new ClasspathLauncher(new ClassPathArchive(urls)).launch(getClasspath(urls),
-                testClass);
+            return new ClasspathLauncher(new ClassPathArchive(testClass.getCanonicalName(), null,
+                urls)).launch(getClasspath(urls), testClass);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -73,7 +73,8 @@ public class SofaArkBootstrap {
     private static void remain(String[] args) throws Exception {// NOPMD
         AssertUtils.assertNotNull(entryMethod, "No Entry Method Found.");
         URL[] urls = getURLClassPath();
-        new ClasspathLauncher(new ClassPathArchive(urls)).launch(args, getClasspath(urls),
+        new ClasspathLauncher(new ClassPathArchive(entryMethod.getDeclaringClassName(),
+            entryMethod.getMethodName(), urls)).launch(args, getClasspath(urls),
             entryMethod.getMethod());
     }
 

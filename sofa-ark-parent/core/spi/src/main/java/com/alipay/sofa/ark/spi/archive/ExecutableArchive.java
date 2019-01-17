@@ -49,11 +49,10 @@ public interface ExecutableArchive extends Archive {
     List<PluginArchive> getPluginArchives() throws Exception;
 
     /**
-     * Get specified profile config file
+     * Get ark conf class path
      *
-     * @param profiles config profile
-     * @return return config files url
+     * @return return ark conf class path
      * @throws Exception throw exception when meets error
      */
-    List<URL> getProfileFiles(String... profiles) throws Exception;
+    List<URL> getConfClasspath() throws Exception;
 }

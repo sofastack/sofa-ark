@@ -33,6 +33,7 @@ import java.util.zip.ZipEntry;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
+import static com.alipay.sofa.ark.spi.constant.Constants.CONF_BASE_DIR;
 
 /**
  * Executable Ark Biz Fat Jar
@@ -161,29 +162,17 @@ public class ExecutableArkBizJar implements ExecutableArchive {
     }
 
     @Override
-    public List<URL> getProfileFiles(String... profiles) throws Exception {
-        List<URL> urls = new ArrayList<>();
-        for (String profile : profiles) {
-            URL profileUrl = getProfileFile(profile);
-            if (profileUrl != null) {
-                urls.add(profileUrl);
-            } else {
-                ArkLoggerFactory.getDefaultLogger().warn(
-                    String.format("The %s profile conf file is not found!", profile));
-            }
-        }
-        return urls;
-    }
-
-    private URL getProfileFile(String profile) throws Exception {
-        final String profileConfFile = StringUtils.isEmpty(profile) ? ARK_CONF_FILE : String
-            .format(ARK_CONF_FILE_FORMAT, profile);
+    public List<URL> getConfClasspath() throws Exception {
         List<Archive> archives = getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
-                return entry.getName().equals(profileConfFile);
+                return entry.getName().startsWith(CONF_BASE_DIR) && entry.isDirectory();
             }
         });
-        return archives.isEmpty() ? null : archives.get(0).getUrl();
+        List<URL> urls = new ArrayList<>();
+        for (Archive archive : archives) {
+            urls.add(archive.getUrl());
+        }
+        return urls;
     }
 }

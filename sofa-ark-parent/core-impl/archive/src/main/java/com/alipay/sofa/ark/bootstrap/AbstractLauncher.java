@@ -66,8 +66,6 @@ public abstract class AbstractLauncher {
             CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, method.getDeclaringClass().getName()));
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
             CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
-        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString()));
         attachArgs.addAll(Arrays.asList(args));
         launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
     }
@@ -130,7 +128,9 @@ public abstract class AbstractLauncher {
      */
     protected ClassLoader createContainerClassLoader(ContainerArchive containerArchive)
                                                                                        throws Exception {
-        return createContainerClassLoader(containerArchive.getUrls(), null);
+        List<URL> classpath = getExecutableArchive().getConfClasspath();
+        classpath.addAll(Arrays.asList(containerArchive.getUrls()));
+        return createContainerClassLoader(classpath.toArray(new URL[] {}), null);
     }
 
     /**

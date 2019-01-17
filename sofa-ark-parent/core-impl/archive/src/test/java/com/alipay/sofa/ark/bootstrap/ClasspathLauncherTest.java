@@ -67,7 +67,7 @@ public class ClasspathLauncherTest {
         urls.addAll(Arrays.asList(agentUrl));
 
         ClasspathLauncher.ClassPathArchive classPathArchive = new ClasspathLauncher.ClassPathArchive(
-            urls.toArray(new URL[] {}));
+            this.getClass().getCanonicalName(), null, urls.toArray(new URL[] {}));
         List<BizArchive> bizArchives = classPathArchive.getBizArchives();
         Assert.assertEquals(1, bizArchives.size());
         Assert.assertEquals(2, urls.size());
