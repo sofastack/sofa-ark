@@ -170,10 +170,10 @@ public class ArkContainer {
                 url = this.getClass().getClassLoader()
                     .getResource(String.format(ARK_CONF_FILE_FORMAT, profile));
             }
-            if (url == null) {
-                ReportUtil.reportWarn(String.format("The %s conf file is not found.", profile));
-            } else {
+            if (url != null) {
                 urls.add(url);
+            } else if (!StringUtils.isEmpty(profile)) {
+                ReportUtil.reportWarn(String.format("The %s conf file is not found.", profile));
             }
         }
         return urls;

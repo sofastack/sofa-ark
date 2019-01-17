@@ -76,7 +76,6 @@ public class BaseTest {
 
     @BeforeClass
     public static void beforeClass() {
-        System.setProperty(Constants.LOG_ENV_SUFFIX, ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE
-                                                     + ":dev");
+
     }
 }

@@ -175,7 +175,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 Class entryClass = tempClassLoader.loadClass(className);
                 String classLocation = ClassUtils.getCodeBase(entryClass);
                 File file = new File(classLocation);
-                while (file.getParentFile().exists()) {
+                while (file.getParentFile() != null) {
                     file = file.getParentFile();
                     arkConfDir = new File(file.getPath() + File.separator + ARK_CONF_BASE_DIR);
                     if (arkConfDir.exists() && arkConfDir.isDirectory()) {
