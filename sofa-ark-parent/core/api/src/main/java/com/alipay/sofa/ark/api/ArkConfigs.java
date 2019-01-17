@@ -24,8 +24,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -99,22 +102,42 @@ public class ArkConfigs {
     }
 
     /**
-     * Gets string value.
+     * Get string value.
      *
      * @param primaryKey the primary key
      * @return the string value
      */
     public static String getStringValue(String primaryKey) {
-
         String val = getSystemProperty(primaryKey);
         if (val == null) {
             val = (String) CFG.get(primaryKey);
         }
-        if (val == null) {
-            throw new ArkRuntimeException("Not Found Key: " + primaryKey);
-        } else {
-            return val;
-        }
+        return val;
     }
 
+    /**
+     * Get string value.
+     *
+     * @param primaryKey the primary key
+     * @param defaultValue
+     * @return the string value
+     */
+    public static String getStringValue(String primaryKey, String defaultValue) {
+        String val = getSystemProperty(primaryKey);
+        if (val == null) {
+            val = (String) CFG.get(primaryKey);
+        }
+        return val == null ? defaultValue : val;
+    }
+
+    /**
+     * Get ArkConfigs key set
+     *
+     * @return
+     */
+    public static Set<String> keySet() {
+        Set<String> keySet = new HashSet<>(CFG.keySet());
+        keySet.addAll(new HashMap(System.getProperties()).keySet());
+        return keySet;
+    }
 }

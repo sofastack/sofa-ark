@@ -16,20 +16,37 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
+import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
+import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.log.env.LogEnvUtils;
+import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.alipay.sofa.common.log.Constants.LOGGING_PATH_DEFAULT;
+import static com.alipay.sofa.common.log.Constants.LOG_ENCODING_PROP_KEY;
+import static com.alipay.sofa.common.log.Constants.LOG_PATH;
+import static com.alipay.sofa.common.log.Constants.UTF8_STR;
 
 /**
  * Ark Container Entry
@@ -106,8 +123,9 @@ public class ArkContainer {
                     stop();
                 }
             }));
+            prepareArkConfig(pipelineContext.getExecutableArchive());
+            reInitializeArkLogger();
             arkServiceContainer.start();
-
             Pipeline pipeline = arkServiceContainer.getService(Pipeline.class);
             pipeline.process(pipelineContext);
 
@@ -115,6 +133,58 @@ public class ArkContainer {
                                + " ms.");
         }
         return this;
+    }
+
+    /**
+     * Prepare to read ark conf
+     * @param executableArchive
+     * @throws ArkRuntimeException
+     */
+    public void prepareArkConfig(ExecutableArchive executableArchive) throws ArkRuntimeException {
+        try {
+            // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
+            ArkConfigs.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,
+                String.valueOf(false));
+            // ignore thread class loader when loading classes and resource in log4j
+            ArkConfigs.setSystemProperty(Constants.LOG4J_IGNORE_TCL, String.valueOf(true));
+            // read ark conf file
+            List<URL> urls = executableArchive.getProfileFiles(pipelineContext.getLaunchCommand()
+                .getProfiles());
+            ArkConfigs.init(urls);
+        } catch (Throwable throwable) {
+            throw new ArkRuntimeException(throwable);
+        }
+    }
+
+    /**
+     * reInitialize Ark Logger
+     *
+     * @throws ArkRuntimeException
+     */
+    public void reInitializeArkLogger() throws ArkRuntimeException {
+        for (Map.Entry<SpaceId, SpaceInfo> entry : MultiAppLoggerSpaceManager.getSpacesMap()
+            .entrySet()) {
+            SpaceId spaceId = entry.getKey();
+            SpaceInfo spaceInfo = entry.getValue();
+            if (!ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE.equals(spaceId.getSpaceName())) {
+                continue;
+            }
+            LogbackLoggerSpaceFactory arkLoggerSpaceFactory = (LogbackLoggerSpaceFactory) spaceInfo
+                .getAbstractLoggerSpaceFactory();
+            Map<String, String> arkLogConfig = new HashMap<>();
+            // set base logging.path
+            arkLogConfig.put(LOG_PATH, ArkConfigs.getStringValue(LOG_PATH, LOGGING_PATH_DEFAULT));
+            // set log file encoding
+            arkLogConfig.put(LOG_ENCODING_PROP_KEY,
+                ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
+            // set other log config
+            for (String key : ArkConfigs.keySet()) {
+                if (LogEnvUtils.filterAllLogConfig(key)) {
+                    arkLogConfig.put(key, ArkConfigs.getStringValue(key));
+                }
+            }
+            arkLoggerSpaceFactory.reInitialize(arkLogConfig);
+        }
     }
 
     /**

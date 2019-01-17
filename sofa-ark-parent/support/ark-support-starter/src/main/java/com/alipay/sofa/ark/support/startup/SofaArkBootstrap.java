@@ -62,9 +62,6 @@ public class SofaArkBootstrap {
 
     public static Object prepareContainerForTest(Class testClass) {
         try {
-            /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
-            System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
-
             URL[] urls = getURLClassPath();
             return new ClasspathLauncher(new ClassPathArchive(urls)).launch(getClasspath(urls),
                 testClass);
@@ -75,10 +72,6 @@ public class SofaArkBootstrap {
 
     private static void remain(String[] args) throws Exception {// NOPMD
         AssertUtils.assertNotNull(entryMethod, "No Entry Method Found.");
-
-        /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
-        System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
-
         URL[] urls = getURLClassPath();
         new ClasspathLauncher(new ClassPathArchive(urls)).launch(args, getClasspath(urls),
             entryMethod.getMethod());

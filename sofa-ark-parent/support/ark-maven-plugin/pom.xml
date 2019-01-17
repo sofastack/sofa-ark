@@ -29,7 +29,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.alipay.sofa.common</groupId>
-                    <artifactId>sofa-common-tools</artifactId>
+                    <artifactId>log-sofa-boot-starter</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
