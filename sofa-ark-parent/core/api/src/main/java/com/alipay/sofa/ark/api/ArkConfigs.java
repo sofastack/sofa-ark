@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,9 +60,6 @@ public class ArkConfigs {
             for (URL url : confFiles) {
                 loadConfigFile(url.getFile());
             }
-
-            // load system properties
-            CFG.putAll(new HashMap(System.getProperties())); // 注意部分属性可能被覆盖为字符串
         } catch (Exception e) {
             throw new ArkRuntimeException("Catch Exception when load ArkConfigs", e);
         }
@@ -98,8 +94,27 @@ public class ArkConfigs {
      *
      * @param key
      */
-    public static void clearProperty(String key) {
-        System.clearProperty(key);
+    public static String getSystemProperty(String key) {
+        return System.getProperty(key);
+    }
+
+    /**
+     * Gets string value.
+     *
+     * @param primaryKey the primary key
+     * @return the string value
+     */
+    public static String getStringValue(String primaryKey) {
+
+        String val = getSystemProperty(primaryKey);
+        if (val == null) {
+            val = (String) CFG.get(primaryKey);
+        }
+        if (val == null) {
+            throw new ArkRuntimeException("Not Found Key: " + primaryKey);
+        } else {
+            return val;
+        }
     }
 
 }
