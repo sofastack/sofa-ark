@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.loader;
 
-import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.archive.*;
 
 import java.io.IOException;
@@ -31,8 +29,6 @@ import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
 import static com.alipay.sofa.ark.spi.constant.Constants.CONF_BASE_DIR;
 
 /**

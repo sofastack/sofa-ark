@@ -20,8 +20,6 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.configurator.ArkConfigHook;
 import com.alipay.sofa.ark.spi.configurator.ArkConfigListener;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -124,10 +122,7 @@ public class ArkConfigs {
      * @return the string value
      */
     public static String getStringValue(String primaryKey, String defaultValue) {
-        String val = getSystemProperty(primaryKey);
-        if (val == null) {
-            val = (String) CFG.get(primaryKey);
-        }
+        String val = getStringValue(primaryKey);
         return val == null ? defaultValue : val;
     }
 

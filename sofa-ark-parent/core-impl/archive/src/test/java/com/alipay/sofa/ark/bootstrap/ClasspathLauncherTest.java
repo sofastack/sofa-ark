@@ -24,9 +24,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,6 +73,15 @@ public class ClasspathLauncherTest {
         List<BizArchive> bizArchives = classPathArchive.getBizArchives();
         Assert.assertEquals(1, bizArchives.size());
         Assert.assertEquals(2, urls.size());
+    }
+
+    @Test
+    public void testConfClasspath() throws IOException {
+        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
+        ClasspathLauncher.ClassPathArchive classPathArchive = new ClasspathLauncher.ClassPathArchive(
+            this.getClass().getCanonicalName(), null, urlClassLoader.getURLs());
+        List<URL> confClasspath = classPathArchive.getConfClasspath();
+        Assert.assertEquals(3, confClasspath.size());
     }
 
 }

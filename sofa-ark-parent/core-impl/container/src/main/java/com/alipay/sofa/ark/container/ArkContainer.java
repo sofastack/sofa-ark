@@ -128,7 +128,7 @@ public class ArkContainer {
                     stop();
                 }
             }));
-            prepareArkConfig(pipelineContext.getExecutableArchive());
+            prepareArkConfig();
             reInitializeArkLogger();
             arkServiceContainer.start();
             Pipeline pipeline = arkServiceContainer.getService(Pipeline.class);
@@ -142,10 +142,9 @@ public class ArkContainer {
 
     /**
      * Prepare to read ark conf
-     * @param executableArchive
      * @throws ArkRuntimeException
      */
-    public void prepareArkConfig(ExecutableArchive executableArchive) throws ArkRuntimeException {
+    public void prepareArkConfig() throws ArkRuntimeException {
         try {
             // Forbid to Monitoring and Management Using JMX, because it leads to conflict when setup multi spring boot app.
             ArkConfigs.setSystemProperty(Constants.SPRING_BOOT_ENDPOINTS_JMX_ENABLED,

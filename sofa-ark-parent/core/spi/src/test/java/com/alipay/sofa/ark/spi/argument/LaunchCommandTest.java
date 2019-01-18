@@ -50,7 +50,7 @@ public class LaunchCommandTest {
         }
 
         arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
-            CommandArgument.FAT_JAR_ARGUMENT_KEY, fatJarUrl.toExternalForm()));
+            CommandArgument.FAT_JAR_ARGUMENT_KEY, fatJarUrl.getFile()));
         arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
             CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
         arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,

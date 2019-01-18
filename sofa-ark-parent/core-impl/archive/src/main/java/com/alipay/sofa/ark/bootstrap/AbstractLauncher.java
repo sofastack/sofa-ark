@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
-import com.alipay.sofa.ark.spi.command.Command;
 
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -38,25 +37,24 @@ public abstract class AbstractLauncher {
      * Launch the ark container. This method is the initial entry point when execute an fat jar.
      * @throws Exception if the ark container fails to launch.
      */
-    public void launch(String[] args) throws Exception {
+    public Object launch(String[] args) throws Exception {
         JarFile.registerUrlProtocolHandler();
-
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
-
         List<String> attachArgs = new ArrayList<>();
         attachArgs
             .add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
                 CommandArgument.FAT_JAR_ARGUMENT_KEY, getExecutableArchive().getUrl()
                     .toExternalForm()));
         attachArgs.addAll(Arrays.asList(args));
-        launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
+        return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
+            classLoader);
     }
 
     /**
      * Launch the ark container. This method is the initial entry point when execute in IDE.
      * @throws Exception if the ark container fails to launch.
      */
-    public void launch(String[] args, String classpath, Method method) throws Exception {
+    public Object launch(String[] args, String classpath, Method method) throws Exception {
         JarFile.registerUrlProtocolHandler();
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
         List<String> attachArgs = new ArrayList<>();
@@ -67,13 +65,15 @@ public abstract class AbstractLauncher {
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
             CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
         attachArgs.addAll(Arrays.asList(args));
-        launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
+        return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
+            classLoader);
     }
 
     /**
      * Launch the ark container in {@literal TEST} run mode.
      *
      * @param classpath classpath of ark-biz
+     * @param testClass test class
      * @return Object {@literal com.alipay.sofa.ark.container.ArkContainer}
      * @throws Exception
      */

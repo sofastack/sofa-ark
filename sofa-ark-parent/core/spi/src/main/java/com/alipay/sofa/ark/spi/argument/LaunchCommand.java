@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.argument;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_NAME
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.FAT_JAR_ARGUMENT_KEY;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE;
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE_SPLIT;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.VM_PROFILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PROFILE;
 
 /**
@@ -107,7 +109,7 @@ public class LaunchCommand {
         if (profiles != null) {
             return profiles;
         }
-        String profileVMArgs = System.getProperty(PROFILE);
+        String profileVMArgs = System.getProperty(VM_PROFILE);
         return profileVMArgs == null ? new String[] { DEFAULT_PROFILE } : profileVMArgs
             .split(PROFILE_SPLIT);
     }

@@ -36,7 +36,8 @@ public interface CommandArgument {
 
     String CLASSPATH_SPLIT                = ",";
 
-    String PROFILE                        = "ark.profile";
+    String PROFILE                        = "profile";
+    String VM_PROFILE                     = "ark.profile";
 
     String PROFILE_SPLIT                  = ",";
 
