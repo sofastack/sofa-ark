@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.spi.configurator.ArkConfigListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +62,7 @@ public class ArkConfigs {
         try {
             // load file configs
             for (URL url : confFiles) {
-                loadConfigFile(url.getFile());
+                loadConfigFile(url.openStream());
             }
         } catch (Exception e) {
             throw new ArkRuntimeException("Catch Exception when load ArkConfigs", e);
@@ -71,12 +72,12 @@ public class ArkConfigs {
     /**
      * load conf file
      *
-     * @param fileName conf file name
+     * @param inputStream conf file
      * @throws IOException loading exception
      */
-    private static void loadConfigFile(String fileName) throws IOException {
+    private static void loadConfigFile(InputStream inputStream) throws IOException {
         Properties properties = new Properties();
-        properties.load(new FileInputStream(new File(fileName)));
+        properties.load(inputStream);
         for (Object key : properties.keySet()) {
             CFG.put((String) key, properties.get(key));
         }
