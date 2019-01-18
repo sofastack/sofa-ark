@@ -16,11 +16,14 @@
  */
 package com.alipay.sofa.ark.container.service.pipeline;
 
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.pipeline.HandleArchiveStage;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_INCLUDE;
 
@@ -84,13 +87,76 @@ public class HandleArchiveTest {
     }
 
     @Test
-    public void testNoIncludeExcludePlugin() {
+    public void testNoIncludeExcludeBiz() {
         HandleArchiveStage handleArchiveStage = new HandleArchiveStage();
         PluginModel pluginModel = new PluginModel();
         pluginModel.setPluginName("pluginA");
         Assert.assertFalse(handleArchiveStage.isPluginExcluded(pluginModel));
         pluginModel.setPluginName("pluginB");
         Assert.assertFalse(handleArchiveStage.isPluginExcluded(pluginModel));
+    }
+
+    @Test
+    public void testIncludeExcludeBiz() {
+        try {
+            HandleArchiveStage handleArchiveStage = new HandleArchiveStage();
+            System.setProperty(BIZ_ACTIVE_INCLUDE, "bizA:1.0.0");
+            System.setProperty(BIZ_ACTIVE_EXCLUDE, "bizA:1.0.0,BizB:1.0.0");
+            BizModel bizModel = new BizModel();
+            bizModel.setBizName("bizA").setBizVersion("1.0.0");
+            Assert.assertFalse(handleArchiveStage.isBizExcluded(bizModel));
+            bizModel.setBizName("bizB");
+            Assert.assertTrue(handleArchiveStage.isBizExcluded(bizModel));
+            bizModel.setBizName("bizC");
+            Assert.assertTrue(handleArchiveStage.isBizExcluded(bizModel));
+        } finally {
+            System.clearProperty(BIZ_ACTIVE_INCLUDE);
+            System.clearProperty(BIZ_ACTIVE_EXCLUDE);
+        }
+    }
+
+    @Test
+    public void testIncludeBiz() {
+        try {
+            HandleArchiveStage handleArchiveStage = new HandleArchiveStage();
+            System.setProperty(BIZ_ACTIVE_INCLUDE, "bizA:1.0.0");
+            BizModel bizModel = new BizModel();
+            bizModel.setBizName("bizA").setBizVersion("1.0.0");
+            Assert.assertFalse(handleArchiveStage.isBizExcluded(bizModel));
+            bizModel.setBizName("pluginB");
+            Assert.assertTrue(handleArchiveStage.isBizExcluded(bizModel));
+            bizModel.setBizName("pluginC");
+            Assert.assertTrue(handleArchiveStage.isBizExcluded(bizModel));
+        } finally {
+            System.clearProperty(BIZ_ACTIVE_INCLUDE);
+        }
+    }
+
+    @Test
+    public void testExcludeBiz() {
+        try {
+            HandleArchiveStage handleArchiveStage = new HandleArchiveStage();
+            System.setProperty(BIZ_ACTIVE_EXCLUDE, "bizA:1.0.0,bizB:1.0.0");
+            BizModel bizModel = new BizModel();
+            bizModel.setBizName("bizA").setBizVersion("1.0.0");
+            Assert.assertTrue(handleArchiveStage.isBizExcluded(bizModel));
+            bizModel.setBizName("bizB");
+            Assert.assertTrue(handleArchiveStage.isBizExcluded(bizModel));
+            bizModel.setBizName("bizC");
+            Assert.assertFalse(handleArchiveStage.isBizExcluded(bizModel));
+        } finally {
+            System.clearProperty(BIZ_ACTIVE_EXCLUDE);
+        }
+    }
+
+    @Test
+    public void testNoIncludeExcludePlugin() {
+        HandleArchiveStage handleArchiveStage = new HandleArchiveStage();
+        BizModel bizModel = new BizModel();
+        bizModel.setBizName("bizA").setBizVersion("1.0.0");
+        Assert.assertFalse(handleArchiveStage.isBizExcluded(bizModel));
+        bizModel.setBizName("bizB");
+        Assert.assertFalse(handleArchiveStage.isBizExcluded(bizModel));
     }
 
 }

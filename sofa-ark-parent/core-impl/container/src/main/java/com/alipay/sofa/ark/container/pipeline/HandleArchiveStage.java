@@ -38,7 +38,7 @@ import com.google.inject.Singleton;
 import java.util.Set;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
-import static com.alipay.sofa.ark.spi.constant.Constants.Biz_ACTIVE_EXCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_INCLUDE;
@@ -111,7 +111,7 @@ public class HandleArchiveStage implements PipelineStage {
     public boolean isBizExcluded(Biz biz) {
         String bizIdentity = biz.getIdentity();
         String includeBizConf = ArkConfigs.getStringValue(BIZ_ACTIVE_INCLUDE);
-        String excludeBizConf = ArkConfigs.getStringValue(Biz_ACTIVE_EXCLUDE);
+        String excludeBizConf = ArkConfigs.getStringValue(BIZ_ACTIVE_EXCLUDE);
         Set<String> includeBizs = StringUtils.strToSet(includeBizConf, COMMA_SPLIT);
         Set<String> excludeBizs = StringUtils.strToSet(excludeBizConf, COMMA_SPLIT);
         if (includeBizConf == null && excludeBizConf == null) {

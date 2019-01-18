@@ -49,7 +49,7 @@ public class Constants {
      * biz conf, multi value is split by comma.
      */
     public final static String BIZ_ACTIVE_INCLUDE                    = "ark.biz.active.include";
-    public final static String Biz_ACTIVE_EXCLUDE                    = "ark.biz.active.exclude";
+    public final static String BIZ_ACTIVE_EXCLUDE                    = "ark.biz.active.exclude";
 
     /**
      * Archiver Marker

@@ -16,11 +16,9 @@
  */
 package com.alipay.sofa.ark.container;
 
-import com.alipay.sofa.ark.bootstrap.ArkLauncher;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,9 +28,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.util.List;
-
-import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PROFILE;
 
 /**
  *
