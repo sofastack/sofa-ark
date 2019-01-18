@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.event;
 
+import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
@@ -41,7 +42,8 @@ public class EventAdminServiceImpl implements EventAdminService {
     @Override
     public void sendEvent(ArkEvent event) {
         List<ServiceReference<EventHandler>> eventHandlers = registryService
-            .referenceServices(EventHandler.class);
+            .referenceServices(new DefaultServiceFilter<EventHandler>()
+                .setServiceInterface(EventHandler.class));
         Collections.sort(eventHandlers, new EventComparator());
         for (ServiceReference<EventHandler> eventHandler : eventHandlers) {
             eventHandler.getService().handleEvent(event);

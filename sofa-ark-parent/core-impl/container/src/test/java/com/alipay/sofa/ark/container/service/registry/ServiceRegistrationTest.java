@@ -155,8 +155,8 @@ public class ServiceRegistrationTest extends BaseTest {
         int c = registryService.unPublishServices(new DefaultServiceFilter().setUniqueId("testA"));
         Assert.assertTrue(c == 1);
 
-        c = registryService.unPublishServices(new DefaultServiceFilter()
-            .setProviderType(ServiceProviderType.ARK_CONTAINER));
+        c = registryService.unPublishServices(new DefaultServiceFilter().setProviderType(
+            ServiceProviderType.ARK_CONTAINER).setServiceInterface(ITest.class));
         Assert.assertTrue(c == 1);
 
         Assert.assertEquals(0, registryService.referenceServices(ITest.class).size());
@@ -265,7 +265,7 @@ public class ServiceRegistrationTest extends BaseTest {
         Assert.assertEquals(pluginB.getPluginName(), provider.getPluginName());
 
         List<ServiceReference> references = pluginC.getPluginContext().referenceServices(
-            new DefaultServiceFilter());
+            new DefaultServiceFilter().setServiceInterface(iTest));
 
         provider = (PluginServiceProvider) references.get(0).getServiceMetadata()
             .getServiceProvider();
@@ -293,8 +293,6 @@ public class ServiceRegistrationTest extends BaseTest {
 
         registryService.publishService(ITest.class, new TestObjectC(),
             new ContainerServiceProvider());
-
-        ServiceReference serviceReference = registryService.referenceService(ITest.class);
 
         List<ServiceReference> references = registryService
             .referenceServices(new DefaultServiceFilter().setServiceInterface(ITest.class)
@@ -324,11 +322,12 @@ public class ServiceRegistrationTest extends BaseTest {
             .getServiceProvider();
         Assert.assertEquals(pluginA.getPluginName(), provider.getPluginName());
 
-        references = registryService.referenceServices(new DefaultServiceFilter());
+        references = registryService.referenceServices(new DefaultServiceFilter()
+            .setServiceInterface(ITest.class));
         Assert.assertTrue(3 == references.size());
 
-        references = registryService.referenceServices(new DefaultServiceFilter()
-            .setProviderType(ServiceProviderType.ARK_CONTAINER));
+        references = registryService.referenceServices(new DefaultServiceFilter().setProviderType(
+            ServiceProviderType.ARK_CONTAINER).setServiceInterface(ITest.class));
         Assert.assertTrue(1 == references.size());
 
         Assert.assertEquals("TestObject C", ((TestObjectC) references.get(0).getService()).test());

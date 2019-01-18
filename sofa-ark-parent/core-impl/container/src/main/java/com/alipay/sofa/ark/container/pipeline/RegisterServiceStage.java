@@ -34,6 +34,8 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_COMMAND_UNIQUE_ID;
+
 /**
  * Handle service contained in {@link com.alipay.sofa.ark.spi.service.registry.RegistryService},
  * mainly including registering service provided by ark container and service initialization
@@ -79,7 +81,7 @@ public class RegisterServiceStage implements PipelineStage {
         registryService.publishService(BizDeployer.class, new DefaultBizDeployer(),
             new ContainerServiceProvider());
         registryService.publishService(CommandProvider.class, new PluginCommandProvider(),
-            new ContainerServiceProvider());
+            PLUGIN_COMMAND_UNIQUE_ID, new ContainerServiceProvider());
     }
 
 }

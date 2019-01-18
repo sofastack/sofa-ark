@@ -96,4 +96,9 @@ public class Constants {
     public final static String SPRING_BOOT_ENDPOINTS_JMX_ENABLED     = "endpoints.jmx.enabled";
     public final static String LOG4J_IGNORE_TCL                      = "log4j.ignoreTCL";
 
+    /**
+     * Command Provider
+     */
+    public final static String PLUGIN_COMMAND_UNIQUE_ID              = "plugin-command-provider";
+
 }
