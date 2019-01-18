@@ -25,6 +25,7 @@ import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 
 import java.io.File;
 import java.util.Collections;
@@ -42,7 +43,16 @@ public class ArkClient {
     private static ArkLogger         LOGGER = ArkLoggerFactory.getDefaultLogger();
     private static BizManagerService bizManagerService;
     private static BizFactoryService bizFactoryService;
+    private static InjectionService  injectionService;
     private static String[]          arguments;
+
+    public static InjectionService getInjectionService() {
+        return injectionService;
+    }
+
+    public static void setInjectionService(InjectionService injectionService) {
+        ArkClient.injectionService = injectionService;
+    }
 
     public static BizManagerService getBizManagerService() {
         return bizManagerService;

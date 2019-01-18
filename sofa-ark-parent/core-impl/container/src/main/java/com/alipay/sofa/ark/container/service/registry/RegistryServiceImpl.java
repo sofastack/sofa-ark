@@ -65,6 +65,7 @@ public class RegistryServiceImpl implements RegistryService {
                                                   ServiceProvider serviceProvider) {
         AssertUtils.assertNotNull(ifClass, "Service interface should not be null.");
         AssertUtils.assertNotNull(implObject, "Service implementation should not be null.");
+        AssertUtils.assertNotNull(uniqueId, "Service uniqueId should not be null.");
         AssertUtils.assertNotNull(serviceProvider, "ServiceProvider should not be null.");
 
         ServiceMetadata serviceMetadata = new ServiceMetadataImpl(ifClass, uniqueId,
@@ -92,48 +93,32 @@ public class RegistryServiceImpl implements RegistryService {
     @SuppressWarnings("unchecked")
     @Override
     public <T> ServiceReference<T> referenceService(Class<T> ifClass) {
-        return referenceService(ifClass, null);
+        return referenceService(ifClass, StringUtils.EMPTY_STRING);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> ServiceReference<T> referenceService(Class<T> ifClass, String uniqueId) {
-        DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
-        defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
-
-        List<ServiceReference<T>> references = referenceServices(defaultServiceFilter
-            .setProviderType(ServiceProviderType.ARK_PLUGIN).setServiceInterface(ifClass)
-            .setUniqueId(uniqueId));
-
-        List<ServiceReference<T>> containerReferences = referenceServices(defaultServiceFilter
-            .setProviderType(ServiceProviderType.ARK_CONTAINER).setServiceInterface(ifClass)
-            .setUniqueId(uniqueId));
-
-        references.addAll(containerReferences);
+        List<ServiceReference<T>> references = referenceServices(ifClass, uniqueId);
         return references.isEmpty() ? null : references.get(0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass) {
-        return referenceServices(new DefaultServiceFilter<T>().setServiceInterface(ifClass));
+        return referenceServices(ifClass, StringUtils.EMPTY_STRING);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, String uniqueId) {
+        if (uniqueId == null) {
+            uniqueId = StringUtils.EMPTY_STRING;
+        }
         DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
+        // only conditional on interface and uniqueId
         defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
-
-        List<ServiceReference<T>> references = referenceServices(defaultServiceFilter
-            .setProviderType(ServiceProviderType.ARK_PLUGIN).setServiceInterface(ifClass)
-            .setUniqueId(uniqueId));
-
-        List<ServiceReference<T>> containerReferences = referenceServices(defaultServiceFilter
-            .setProviderType(ServiceProviderType.ARK_CONTAINER).setServiceInterface(ifClass)
-            .setUniqueId(uniqueId));
-
-        references.addAll(containerReferences);
+        List<ServiceReference<T>> references = referenceServices(defaultServiceFilter);
         return references;
     }
 

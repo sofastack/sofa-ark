@@ -33,20 +33,15 @@ public class DefaultServiceFilter<T> implements ServiceFilter<T> {
 
     private String              uniqueId;
 
-    private String              pluginName;
-
     @Override
     public boolean match(ServiceReference serviceReference) {
         AssertUtils.assertNotNull(serviceReference, "ServiceReference should not be null");
         ServiceMetadata serviceMetadata = serviceReference.getServiceMetadata();
         ServiceProvider provider = serviceMetadata.getServiceProvider();
-        String pluginName = (provider instanceof PluginServiceProvider) ? ((PluginServiceProvider) provider)
-            .getPluginName() : null;
 
         boolean isMatch = matchProviderType(provider.getServiceProviderType());
         isMatch &= matchServiceInterface(serviceMetadata.getInterfaceClass());
         isMatch &= matchUniqueId(serviceMetadata.getUniqueId());
-        isMatch &= matchPluginName(pluginName);
         return isMatch;
     }
 
@@ -69,13 +64,6 @@ public class DefaultServiceFilter<T> implements ServiceFilter<T> {
             return true;
         }
         return this.uniqueId.equals(uniqueId);
-    }
-
-    private boolean matchPluginName(String pluginName) {
-        if (this.pluginName == null) {
-            return true;
-        }
-        return this.pluginName.equals(pluginName);
     }
 
     public ServiceProviderType getProviderType() {
@@ -102,15 +90,6 @@ public class DefaultServiceFilter<T> implements ServiceFilter<T> {
 
     public DefaultServiceFilter setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
-        return this;
-    }
-
-    public String getPluginName() {
-        return pluginName;
-    }
-
-    public DefaultServiceFilter setPluginName(String pluginName) {
-        this.pluginName = pluginName;
         return this;
     }
 }
