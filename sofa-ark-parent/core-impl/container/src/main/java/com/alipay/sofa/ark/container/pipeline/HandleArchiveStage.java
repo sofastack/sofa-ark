@@ -93,7 +93,7 @@ public class HandleArchiveStage implements PipelineStage {
         }
     }
 
-    private boolean isPluginExcluded(Plugin plugin) {
+    public boolean isPluginExcluded(Plugin plugin) {
         String pluginName = plugin.getPluginName();
         String includePluginConf = ArkConfigs.getStringValue(PLUGIN_ACTIVE_INCLUDE);
         String excludePluginConf = ArkConfigs.getStringValue(PLUGIN_ACTIVE_EXCLUDE);
@@ -108,7 +108,7 @@ public class HandleArchiveStage implements PipelineStage {
         }
     }
 
-    private boolean isBizExcluded(Biz biz) {
+    public boolean isBizExcluded(Biz biz) {
         String bizIdentity = biz.getIdentity();
         String includeBizConf = ArkConfigs.getStringValue(BIZ_ACTIVE_INCLUDE);
         String excludeBizConf = ArkConfigs.getStringValue(Biz_ACTIVE_EXCLUDE);
