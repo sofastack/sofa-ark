@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author qilong.zql
@@ -62,6 +63,11 @@ public class EventAdminServiceTest extends BaseTest {
         biz.stop();
         Assert.assertNull(map.get(bizClassLoader));
         Assert.assertTrue(mark == 50);
+        EventHandler eventHandler = new LowPriorityMockEventHandler();
+        eventAdminService.register(eventHandler);
+        Assert.assertNotNull(map.get(bizClassLoader));
+        eventAdminService.unRegister(eventHandler);
+        Assert.assertFalse(((Set) map.get(bizClassLoader)).contains(eventHandler));
     }
 
     class HighPriorityMockEventHandler implements EventHandler {
