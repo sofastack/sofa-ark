@@ -16,32 +16,32 @@
  */
 package com.alipay.sofa.ark.springboot.processor;
 
-import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.spi.service.ArkInject;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import com.alipay.sofa.ark.spi.service.event.EventHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.Ordered;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkServiceInjectProcessor implements BeanPostProcessor, Ordered {
+public class ArkEventHandlerProcessor implements BeanPostProcessor {
+    @ArkInject
+    private EventAdminService eventAdminService;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName)
                                                                                throws BeansException {
-        ArkClient.getInjectionService().inject(bean);
         return bean;
     }
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName)
                                                                               throws BeansException {
+        if (bean instanceof EventHandler) {
+            eventAdminService.register((EventHandler) bean);
+        }
         return bean;
-    }
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE;
     }
 }

@@ -27,6 +27,7 @@ import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
@@ -73,6 +74,9 @@ public class RegisterServiceStage implements PipelineStage {
             PriorityOrdered.HIGHEST_PRECEDENCE));
         registryService.publishService(PluginFactoryService.class, ArkServiceContainerHolder
             .getContainer().getService(PluginFactoryService.class), new ContainerServiceProvider(
+            PriorityOrdered.HIGHEST_PRECEDENCE));
+        registryService.publishService(EventAdminService.class, ArkServiceContainerHolder
+            .getContainer().getService(EventAdminService.class), new ContainerServiceProvider(
             PriorityOrdered.HIGHEST_PRECEDENCE));
 
         /**

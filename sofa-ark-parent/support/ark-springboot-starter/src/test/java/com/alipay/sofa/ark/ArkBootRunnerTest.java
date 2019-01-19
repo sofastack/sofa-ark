@@ -17,9 +17,12 @@
 package com.alipay.sofa.ark;
 
 import com.alipay.sofa.ark.container.test.TestClassLoader;
+import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.service.ArkInject;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.springboot.SpringApplication;
+import com.alipay.sofa.ark.springboot.TestValueHolder;
 import com.alipay.sofa.ark.springboot.facade.SampleService;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import org.junit.Assert;
@@ -47,6 +50,9 @@ public class ArkBootRunnerTest {
     @ArkInject
     public PluginManagerService pluginManagerService;
 
+    @ArkInject
+    public EventAdminService    eventAdminService;
+
     @Test
     public void test() {
         Assert.assertNotNull(sampleService);
@@ -66,6 +72,22 @@ public class ArkBootRunnerTest {
         ClassLoader loader = springRunner.getTestClass().getJavaClass().getClassLoader();
         Assert.assertTrue(loader.getClass().getCanonicalName()
             .equals(TestClassLoader.class.getCanonicalName()));
+
+        Assert.assertEquals(0, TestValueHolder.getTestValue());
+        eventAdminService.sendEvent(new ArkEvent() {
+            @Override
+            public String getTopic() {
+                return "test-event-A";
+            }
+        });
+        Assert.assertEquals(10, TestValueHolder.getTestValue());
+        eventAdminService.sendEvent(new ArkEvent() {
+            @Override
+            public String getTopic() {
+                return "test-event-B";
+            }
+        });
+        Assert.assertEquals(20, TestValueHolder.getTestValue());
     }
 
 }
