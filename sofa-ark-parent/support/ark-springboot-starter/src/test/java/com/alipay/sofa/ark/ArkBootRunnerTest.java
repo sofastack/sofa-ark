@@ -17,6 +17,8 @@
 package com.alipay.sofa.ark;
 
 import com.alipay.sofa.ark.container.test.TestClassLoader;
+import com.alipay.sofa.ark.spi.service.ArkInject;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.springboot.SpringApplication;
 import com.alipay.sofa.ark.springboot.facade.SampleService;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
@@ -40,11 +42,15 @@ import java.lang.reflect.Field;
 public class ArkBootRunnerTest {
 
     @Autowired
-    public SampleService sampleService;
+    public SampleService        sampleService;
+
+    @ArkInject
+    public PluginManagerService pluginManagerService;
 
     @Test
     public void test() {
         Assert.assertNotNull(sampleService);
+        Assert.assertNotNull(pluginManagerService);
         Assert.assertTrue("SampleService".equals(sampleService.say()));
 
         ArkBootRunner runner = new ArkBootRunner(ArkBootRunnerTest.class);

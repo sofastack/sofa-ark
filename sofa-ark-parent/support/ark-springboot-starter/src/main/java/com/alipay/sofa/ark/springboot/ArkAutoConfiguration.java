@@ -14,30 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service;
+package com.alipay.sofa.ark.springboot;
 
-import java.lang.annotation.ElementType;
+import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * Any plugin can publish a service, in this service,
- *
  * @author qilong.zql
- * @since 0.4.0
+ * @since 0.6.0
  */
-@java.lang.annotation.Target(ElementType.FIELD)
-@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@java.lang.annotation.Documented
-public @interface ArkInject {
-    /**
-     * ark service interface
-     * @return
-     */
-    Class<?> interfaceType() default void.class;
-
-    /**
-     * ark service uniqueId
-     *
-     * @return return reference unique-id
-     */
-    String uniqueId() default "";
+@Configuration
+public class ArkAutoConfiguration {
+    @Bean
+    public ArkServiceInjectProcessor serviceInjectProcessor() {
+        return new ArkServiceInjectProcessor();
+    }
 }
