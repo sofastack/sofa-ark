@@ -22,22 +22,22 @@ import java.util.List;
  * @author qilong.zql
  * @since 0.6.0
  */
-public interface ExtensionLoaderService {
-    /**
-     * get specified extension implementation which match interfaceType and extensionName
-     * @param interfaceType extensible interface type
-     * @param extensionName extension name
-     * @param <T> extension implementation type
-     * @return
-     */
-    <T> T getExtensionContributor(Class<T> interfaceType, String extensionName);
+public class ArkServiceLoader {
+    private static ExtensionLoaderService extensionLoaderService;
 
-    /**
-     * get all extension implementation which math interfaceType, ordered from high precedence
-     * to low precedence.
-     * @param interfaceType extensible interface type
-     * @param <T> extension implementation type
-     * @return
-     */
-    <T> List<T> getExtensionContributor(Class<T> interfaceType);
+    public static <T> T loadExtension(Class<T> interfaceType, String extensionName) {
+        return extensionLoaderService.getExtensionContributor(interfaceType, extensionName);
+    }
+
+    public static <T> List<T> loadExtension(Class<T> interfaceType) {
+        return extensionLoaderService.getExtensionContributor(interfaceType);
+    }
+
+    public static ExtensionLoaderService getExtensionLoaderService() {
+        return extensionLoaderService;
+    }
+
+    public static void setExtensionLoaderService(ExtensionLoaderService extensionLoaderService) {
+        ArkServiceLoader.extensionLoaderService = extensionLoaderService;
+    }
 }

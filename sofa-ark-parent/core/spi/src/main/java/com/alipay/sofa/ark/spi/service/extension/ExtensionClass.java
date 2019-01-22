@@ -52,7 +52,7 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
     /**
      * if extensible interface type is singleton, return this as extension implementation.
      */
-    private I singleton;
+    private I          singleton;
 
     public Class<I> getInterfaceClass() {
         return interfaceClass;
@@ -100,7 +100,8 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
                 try {
                     singleton = implementClass.newInstance();
                 } catch (Throwable throwable) {
-                    throw new ArkException(String.format("Create %s instance error.",implementClass.getCanonicalName()), throwable);
+                    throw new ArkException(String.format("Create %s instance error.",
+                        implementClass.getCanonicalName()), throwable);
                 }
             }
         }
@@ -114,7 +115,8 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
             try {
                 return implementClass.newInstance();
             } catch (Throwable throwable) {
-                throw new ArkException(String.format("Create %s instance error.",implementClass.getCanonicalName()), throwable);
+                throw new ArkException(String.format("Create %s instance error.",
+                    implementClass.getCanonicalName()), throwable);
             }
 
         }

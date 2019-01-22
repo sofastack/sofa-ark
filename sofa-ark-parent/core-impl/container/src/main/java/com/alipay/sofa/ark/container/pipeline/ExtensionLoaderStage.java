@@ -14,30 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.extension;
+package com.alipay.sofa.ark.container.pipeline;
 
-import java.util.List;
+import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
+import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public interface ExtensionLoaderService {
-    /**
-     * get specified extension implementation which match interfaceType and extensionName
-     * @param interfaceType extensible interface type
-     * @param extensionName extension name
-     * @param <T> extension implementation type
-     * @return
-     */
-    <T> T getExtensionContributor(Class<T> interfaceType, String extensionName);
+@Singleton
+public class ExtensionLoaderStage implements PipelineStage {
 
-    /**
-     * get all extension implementation which math interfaceType, ordered from high precedence
-     * to low precedence.
-     * @param interfaceType extensible interface type
-     * @param <T> extension implementation type
-     * @return
-     */
-    <T> List<T> getExtensionContributor(Class<T> interfaceType);
+    @Inject
+    private ExtensionLoaderService extensionLoaderService;
+
+    @Override
+    public void process(PipelineContext pipelineContext) throws ArkException {
+        ArkServiceLoader.setExtensionLoaderService(extensionLoaderService);
+    }
 }

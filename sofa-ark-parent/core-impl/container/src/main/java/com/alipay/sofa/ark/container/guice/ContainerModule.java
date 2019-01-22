@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.container.service.biz.BizDeployServiceImpl;
 import com.alipay.sofa.ark.container.service.biz.BizFactoryServiceImpl;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
 import com.alipay.sofa.ark.container.service.event.EventAdminServiceImpl;
+import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
 import com.alipay.sofa.ark.container.service.injection.InjectionServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginFactoryServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginManagerServiceImpl;
@@ -33,6 +34,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
@@ -73,6 +75,7 @@ public class ContainerModule extends AbstractArkGuiceModule {
         binder().bind(TelnetServerService.class).to(StandardTelnetServerImpl.class);
         binder().bind(BizFactoryService.class).to(BizFactoryServiceImpl.class);
         binder().bind(PluginFactoryService.class).to(PluginFactoryServiceImpl.class);
+        binder().bind(ExtensionLoaderService.class).to(ExtensionLoaderServiceImpl.class);
         binder().bind(EventAdminService.class).to(EventAdminServiceImpl.class);
     }
 }

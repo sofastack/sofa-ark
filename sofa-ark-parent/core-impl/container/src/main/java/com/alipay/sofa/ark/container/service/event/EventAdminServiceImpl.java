@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.event;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.event.BizEvent;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
@@ -27,13 +28,12 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EVENT_TOPIC_UNINSTALL;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP;
 
 /**
  * @author qilong.zql
@@ -56,7 +56,7 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         for (CopyOnWriteArraySet<EventHandler> values : SUBSCRIBER_MAP.values()) {
             eventHandlers.addAll(values);
         }
-        Collections.sort(eventHandlers, new EventComparator());
+        Collections.sort(eventHandlers, new OrderComparator());
         for (EventHandler eventHandler : eventHandlers) {
             eventHandler.handleEvent(event);
         }
@@ -100,7 +100,7 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         if (!(event instanceof BizEvent)) {
             return;
         }
-        if (BIZ_EVENT_TOPIC_UNINSTALL.equals(event.getTopic())) {
+        if (BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP.equals(event.getTopic())) {
             unRegister(((BizEvent) event).getBiz().getBizClassLoader());
         }
     }
@@ -108,12 +108,5 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
     @Override
     public int getPriority() {
         return PriorityOrdered.LOWEST_PRECEDENCE;
-    }
-
-    class EventComparator implements Comparator<EventHandler> {
-        @Override
-        public int compare(EventHandler o1, EventHandler o2) {
-            return Integer.compare(o1.getPriority(), o2.getPriority());
-        }
     }
 }
