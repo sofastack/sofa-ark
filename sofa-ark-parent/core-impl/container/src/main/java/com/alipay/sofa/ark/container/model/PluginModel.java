@@ -268,4 +268,9 @@ public class PluginModel implements Plugin {
             pluginActivator.stop(pluginContext);
         }
     }
+
+    @Override
+    public String toString() {
+        return pluginName;
+    }
 }

@@ -40,14 +40,14 @@ import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EVENT_TOPIC_UNINSTA
  * @since 0.4.0
  */
 @Singleton
-public class EventAdminServiceImpl implements EventAdminService {
+public class EventAdminServiceImpl implements EventAdminService, EventHandler {
 
     private final static ConcurrentMap<ClassLoader, CopyOnWriteArraySet<EventHandler>> SUBSCRIBER_MAP = new ConcurrentHashMap<>();
     private final static Logger                                                        LOGGER         = ArkLoggerFactory
                                                                                                           .getDefaultLogger();
 
     public EventAdminServiceImpl() {
-        register(new DefaultBizEventHandler());
+        register(this);
     }
 
     @Override
@@ -95,27 +95,25 @@ public class EventAdminServiceImpl implements EventAdminService {
 
     }
 
+    @Override
+    public void handleEvent(ArkEvent event) {
+        if (!(event instanceof BizEvent)) {
+            return;
+        }
+        if (BIZ_EVENT_TOPIC_UNINSTALL.equals(event.getTopic())) {
+            unRegister(((BizEvent) event).getBiz().getBizClassLoader());
+        }
+    }
+
+    @Override
+    public int getPriority() {
+        return PriorityOrdered.LOWEST_PRECEDENCE;
+    }
+
     class EventComparator implements Comparator<EventHandler> {
         @Override
         public int compare(EventHandler o1, EventHandler o2) {
             return Integer.compare(o1.getPriority(), o2.getPriority());
-        }
-    }
-
-    class DefaultBizEventHandler implements EventHandler {
-        @Override
-        public void handleEvent(ArkEvent event) {
-            if (!(event instanceof BizEvent)) {
-                return;
-            }
-            if (BIZ_EVENT_TOPIC_UNINSTALL.equals(event.getTopic())) {
-                unRegister(((BizEvent) event).getBiz().getBizClassLoader());
-            }
-        }
-
-        @Override
-        public int getPriority() {
-            return PriorityOrdered.LOWEST_PRECEDENCE;
         }
     }
 }

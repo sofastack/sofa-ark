@@ -101,4 +101,9 @@ public class Constants {
      */
     public final static String PLUGIN_COMMAND_UNIQUE_ID              = "plugin-command-provider";
 
+    /**
+     * Ark SPI extension
+     */
+    public final static String EXTENSION_FILE_DIR                    = "META-INF/services/sofa-ark/";
+
 }
