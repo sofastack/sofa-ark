@@ -18,16 +18,20 @@ package com.alipay.sofa.ark.container.service.event;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
-import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author qilong.zql
@@ -39,17 +43,31 @@ public class EventAdminServiceTest extends BaseTest {
 
     @Test
     public void test() throws Throwable {
-        RegistryService registryService = ArkServiceContainerHolder.getContainer().getService(
-            RegistryService.class);
-        registryService.publishService(EventHandler.class, new LowPriorityMockEventHandler(),
-            "low", new ContainerServiceProvider());
-        registryService.publishService(EventHandler.class, new HighPriorityMockEventHandler(),
-            "high", new ContainerServiceProvider());
+        Map map = new HashMap();
+        try {
+            Field field = EventAdminServiceImpl.class.getDeclaredField("SUBSCRIBER_MAP");
+            field.setAccessible(true);
+            map = (Map) field.get(null);
+        } catch (Throwable throwable) {
+            Assert.assertNull(throwable);
+        }
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
+        eventAdminService.register(new LowPriorityMockEventHandler());
+        eventAdminService.register(new HighPriorityMockEventHandler());
 
+        ClassLoader bizClassLoader = getClass().getClassLoader();
         Biz biz = new BizModel().setBizState(BizState.DEACTIVATED).setBizName("mock name")
-            .setBizVersion("mock name");
+            .setBizVersion("mock name").setClassLoader(bizClassLoader);
+        Assert.assertNotNull(map.get(bizClassLoader));
         biz.stop();
+        Assert.assertNull(map.get(bizClassLoader));
         Assert.assertTrue(mark == 50);
+        EventHandler eventHandler = new LowPriorityMockEventHandler();
+        eventAdminService.register(eventHandler);
+        Assert.assertNotNull(map.get(bizClassLoader));
+        eventAdminService.unRegister(eventHandler);
+        Assert.assertFalse(((Set) map.get(bizClassLoader)).contains(eventHandler));
     }
 
     class HighPriorityMockEventHandler implements EventHandler {

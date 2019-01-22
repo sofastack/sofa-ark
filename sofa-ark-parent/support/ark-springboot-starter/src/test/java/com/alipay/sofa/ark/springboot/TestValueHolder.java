@@ -16,24 +16,18 @@
  */
 package com.alipay.sofa.ark.springboot;
 
-import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
-import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-@Configuration
-public class ArkAutoConfiguration {
-    @Bean
-    public static ArkServiceInjectProcessor serviceInjectProcessor() {
-        return new ArkServiceInjectProcessor();
+public class TestValueHolder {
+    private static int testValue = 0;
+
+    public static int getTestValue() {
+        return testValue;
     }
 
-    @Bean
-    public static ArkEventHandlerProcessor arkEventHandlerProcessor() {
-        return new ArkEventHandlerProcessor();
+    public static void setTestValue(int testValue) {
+        TestValueHolder.testValue = testValue;
     }
 }
