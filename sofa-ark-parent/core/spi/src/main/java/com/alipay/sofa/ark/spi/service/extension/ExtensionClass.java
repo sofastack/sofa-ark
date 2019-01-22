@@ -46,6 +46,7 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
 
     /**
      * where extension implementation is defined, ark plugin or ark biz.
+     * now it only support ark plugin.
      */
     private T          definedLocation;
 
@@ -96,7 +97,7 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
 
     public I getSingleton() {
         if (singleton == null) {
-            synchronized (singleton) {
+            synchronized (this) {
                 try {
                     singleton = implementClass.newInstance();
                 } catch (Throwable throwable) {

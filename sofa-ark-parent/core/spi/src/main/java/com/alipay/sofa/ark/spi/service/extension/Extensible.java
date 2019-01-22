@@ -16,12 +16,21 @@
  */
 package com.alipay.sofa.ark.spi.service.extension;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * annotation required on interface which is marked as extensible.
  *
  * @author qilong.zql
  * @since 0.6.0
  */
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface Extensible {
 
     /**

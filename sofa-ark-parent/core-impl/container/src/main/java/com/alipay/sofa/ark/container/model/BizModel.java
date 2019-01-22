@@ -180,6 +180,7 @@ public class BizModel implements Biz {
             mainMethodRunner.run();
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
                 .getService(EventAdminService.class);
+            // this can trigger health checker handler
             eventAdminService.sendEvent(new BizEvent(this,
                 Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START));
         } catch (Throwable e) {
@@ -207,6 +208,7 @@ public class BizModel implements Biz {
         try {
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
                 .getService(EventAdminService.class);
+            // this can trigger uninstall handler
             eventAdminService.sendEvent(new BizEvent(this,
                 Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP));
         } finally {

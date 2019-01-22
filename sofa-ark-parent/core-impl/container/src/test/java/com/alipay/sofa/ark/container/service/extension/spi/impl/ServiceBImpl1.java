@@ -14,33 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.extension;
+package com.alipay.sofa.ark.container.service.extension.spi.impl;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.alipay.sofa.ark.container.service.extension.spi.ServiceB;
+import com.alipay.sofa.ark.spi.service.extension.Extension;
 
 /**
- * Annotation required on the implementation of extensible interface.
- *
  * @author qilong.zql
  * @since 0.6.0
  */
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Extension {
-    /**
-     * extension name
-     */
-    String value();
-
-    /**
-     * extension order, Higher values are interpreted as lower priority.
-     * As a consequence, the object with the lowest value has the highest
-     * priority.
-     */
-    int order() default 100;
+@Extension(value = "type1", order = 200)
+public class ServiceBImpl1 implements ServiceB {
+    @Override
+    public String service() {
+        return "ServiceBImpl1";
+    }
 }

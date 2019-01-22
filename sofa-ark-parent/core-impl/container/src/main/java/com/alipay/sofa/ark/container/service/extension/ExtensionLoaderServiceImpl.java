@@ -61,7 +61,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
-            loadExtensionStartup(interfaceType);
+            extensionClassMap = loadExtensionStartup(interfaceType);
         }
         ExtensionClass extensionClass = extensionClassMap.get(extensionName);
         return extensionClass == null ? null : (T) extensionClass.getObject();
@@ -72,7 +72,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
-            loadExtensionStartup(interfaceType);
+            extensionClassMap = loadExtensionStartup(interfaceType);
         }
         List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
         Collections.sort(extensionClassList, new OrderComparator());
@@ -87,7 +87,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
      * initialize to loading extension of specified interfaceType
      * @param interfaceType
      */
-    private void loadExtensionStartup(Class<?> interfaceType) {
+    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(Class<?> interfaceType) {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
@@ -105,6 +105,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                                     extensionClass);
                             }
                         }
+                        EXTENSION_MAP.put(interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
                         LOGGER.error("Loading extension of interfaceType: {} occurs error.",
                             interfaceType);
@@ -113,6 +114,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 }
             }
         }
+        return extensionClassMap;
     }
 
     private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(Class<I> interfaceType)
@@ -165,8 +167,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                     Class<?> implementClass = resourceLoader.loadClass(line.trim());
                     if (!interfaceType.isAssignableFrom(implementClass)) {
                         throw new ArkException(String.format(
-                            "Extension implementation class %s is not type of %s.", implementClass,
-                            interfaceType));
+                            "Extension implementation class %s is not type of %s.",
+                            implementClass.getCanonicalName(), interfaceType.getCanonicalName()));
                     }
                     Extension extension = implementClass.getAnnotation(Extension.class);
                     if (extension == null) {
