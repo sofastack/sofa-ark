@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.spi.service.classloader;
 
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Enumeration;
 
