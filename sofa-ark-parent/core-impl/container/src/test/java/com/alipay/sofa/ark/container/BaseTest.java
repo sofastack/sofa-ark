@@ -72,7 +72,8 @@ public class BaseTest {
         };
         arkServiceContainer.start();
         arkServiceContainer.getService(RegisterServiceStage.class).process(null);
-        ArkServiceLoader.setExtensionLoaderService(arkServiceContainer.getService(ExtensionLoaderService.class));
+        ArkServiceLoader.setExtensionLoaderService(arkServiceContainer
+            .getService(ExtensionLoaderService.class));
     }
 
     @After

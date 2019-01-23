@@ -46,16 +46,16 @@ import java.util.*;
  */
 public class BizClassLoaderTest extends BaseTest {
 
-    private URL                    classPathURL = PluginClassLoaderTest.class.getClassLoader()
-                                                    .getResource("");
+    private URL                  classPathURL = PluginClassLoaderTest.class.getClassLoader()
+                                                  .getResource("");
 
-    private PluginManagerService   pluginManagerService;
+    private PluginManagerService pluginManagerService;
 
-    private PluginDeployService    pluginDeployService;
+    private PluginDeployService  pluginDeployService;
 
-    private ClassLoaderService     classloaderService;
+    private ClassLoaderService   classloaderService;
 
-    private BizManagerService      bizManagerService;
+    private BizManagerService    bizManagerService;
 
     @Before
     public void before() {
