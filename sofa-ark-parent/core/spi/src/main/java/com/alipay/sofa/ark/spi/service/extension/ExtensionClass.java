@@ -119,7 +119,6 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
                 throw new ArkException(String.format("Create %s instance error.",
                     implementClass.getCanonicalName()), throwable);
             }
-
         }
     }
 

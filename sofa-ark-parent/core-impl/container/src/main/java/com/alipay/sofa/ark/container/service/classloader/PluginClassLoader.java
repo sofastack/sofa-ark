@@ -16,9 +16,18 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_CLASS_LOADER_HOOK;
 
 /**
  * Ark Plugin ClassLoader
@@ -28,7 +37,12 @@ import java.net.URL;
  */
 public class PluginClassLoader extends AbstractClasspathClassLoader {
 
-    private String pluginName;
+    private String                  pluginName;
+    private ClassLoaderHook<Plugin> pluginClassLoaderHook;
+    private AtomicBoolean           isHookLoaded         = new AtomicBoolean(false);
+    private PluginManagerService    pluginManagerService = ArkServiceContainerHolder
+                                                             .getContainer()
+                                                             .getService(PluginManagerService.class);
 
     public PluginClassLoader(String pluginName, URL[] urls) {
         super(urls);
@@ -104,4 +118,56 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         return classloaderService.isResourceInImport(pluginName, resourceName);
     }
 
+    private void loadPluginClassLoaderHook() {
+        if (pluginClassLoaderHook == null) {
+            synchronized (this) {
+                if (pluginClassLoaderHook == null && isHookLoaded.compareAndSet(false, true)) {
+                    pluginClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
+                        PLUGIN_CLASS_LOADER_HOOK);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected Class<?> preLoadClass(String className) throws ClassNotFoundException {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindClass(className,
+            classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected Class<?> postLoadClass(String className) throws ClassNotFoundException {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindClass(
+            className, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected URL preFindResource(String resourceName) {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindResource(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected URL postFindResource(String resourceName) {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindResource(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected Enumeration<URL> preFindResources(String resourceName) {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindResources(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected Enumeration<URL> postFindResources(String resourceName) {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindResources(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
 }

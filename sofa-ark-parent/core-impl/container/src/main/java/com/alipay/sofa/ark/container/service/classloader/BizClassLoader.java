@@ -16,9 +16,18 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK;
 
 /**
  * Ark Biz ClassLoader
@@ -28,7 +37,11 @@ import java.net.URL;
  */
 public class BizClassLoader extends AbstractClasspathClassLoader {
 
-    private String bizIdentity;
+    private String               bizIdentity;
+    private BizManagerService    bizManagerService = ArkServiceContainerHolder.getContainer()
+                                                       .getService(BizManagerService.class);
+    private ClassLoaderHook<Biz> bizClassLoaderHook;
+    private AtomicBoolean        isHookLoaded      = new AtomicBoolean(false);
 
     public BizClassLoader(String bizIdentity, URL[] urls) {
         super(urls);
@@ -94,6 +107,59 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     @Override
     boolean shouldFindExportedResource(String resourceName) {
         return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
+    }
+
+    private void loadBizClassLoaderHook() {
+        if (bizClassLoaderHook == null) {
+            synchronized (this) {
+                if (bizClassLoaderHook == null && isHookLoaded.compareAndSet(false, true)) {
+                    bizClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
+                        BIZ_CLASS_LOADER_HOOK);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected Class<?> preLoadClass(String className) throws ClassNotFoundException {
+        loadBizClassLoaderHook();
+        return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindClass(className,
+            classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    }
+
+    @Override
+    protected Class<?> postLoadClass(String className) throws ClassNotFoundException {
+        loadBizClassLoaderHook();
+        return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindClass(className,
+            classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    }
+
+    @Override
+    protected URL preFindResource(String resourceName) {
+        loadBizClassLoaderHook();
+        return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindResource(resourceName,
+            classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    }
+
+    @Override
+    protected URL postFindResource(String resourceName) {
+        loadBizClassLoaderHook();
+        return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindResource(
+            resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    }
+
+    @Override
+    protected Enumeration<URL> preFindResources(String resourceName) {
+        loadBizClassLoaderHook();
+        return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindResources(
+            resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    }
+
+    @Override
+    protected Enumeration<URL> postFindResources(String resourceName) {
+        loadBizClassLoaderHook();
+        return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindResources(
+            resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
     }
 
     /**

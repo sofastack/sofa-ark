@@ -178,6 +178,18 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     }
 
     @Override
+    public ClassLoader getArkBizClassLoader(String bizIdentity) {
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        return biz == null ? null : biz.getBizClassLoader();
+    }
+
+    @Override
+    public ClassLoader getArkPluginClassLoader(String pluginName) {
+        Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+        return plugin == null ? null : plugin.getPluginClassLoader();
+    }
+
+    @Override
     public void init() throws ArkException {
         arkClassLoader = this.getClass().getClassLoader();
         systemClassLoader = ClassLoader.getSystemClassLoader();

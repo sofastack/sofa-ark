@@ -27,6 +27,8 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.common.collect.Sets;
@@ -44,16 +46,16 @@ import java.util.*;
  */
 public class BizClassLoaderTest extends BaseTest {
 
-    private URL                  classPathURL = PluginClassLoaderTest.class.getClassLoader()
-                                                  .getResource("");
+    private URL                    classPathURL = PluginClassLoaderTest.class.getClassLoader()
+                                                    .getResource("");
 
-    private PluginManagerService pluginManagerService;
+    private PluginManagerService   pluginManagerService;
 
-    private PluginDeployService  pluginDeployService;
+    private PluginDeployService    pluginDeployService;
 
-    private ClassLoaderService   classloaderService;
+    private ClassLoaderService     classloaderService;
 
-    private BizManagerService    bizManagerService;
+    private BizManagerService      bizManagerService;
 
     @Before
     public void before() {

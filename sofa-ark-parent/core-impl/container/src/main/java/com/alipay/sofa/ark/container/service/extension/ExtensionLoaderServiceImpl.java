@@ -96,7 +96,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 if (extensionClassMap == null) {
                     try {
                         extensionClassMap = new ConcurrentHashMap<>();
-                        Set<? extends ExtensionClass<?, Plugin>> extensionClassSet = loadExtensionFromArkPlugins(interfaceType);
+                        Set<ExtensionClass> extensionClassSet = new HashSet<ExtensionClass>(
+                            loadExtensionFromArkContainer(interfaceType));
+                        extensionClassSet.addAll(loadExtensionFromArkPlugins(interfaceType));
                         for (ExtensionClass extensionClass : extensionClassSet) {
                             ExtensionClass old = extensionClassMap.get(extensionClass
                                 .getExtension().value());
@@ -115,6 +117,11 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
         }
         return extensionClassMap;
+    }
+
+    private <I> Set<ExtensionClass<I, Object>> loadExtensionFromArkContainer(Class<I> interfaceType)
+                                                                                                    throws Throwable {
+        return loadExtension(interfaceType, new Object(), this.getClass().getClassLoader());
     }
 
     private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(Class<I> interfaceType)

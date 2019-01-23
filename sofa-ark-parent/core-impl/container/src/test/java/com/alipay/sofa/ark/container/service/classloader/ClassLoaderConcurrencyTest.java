@@ -18,8 +18,16 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.common.thread.CommonThreadPool;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.testdata.classloader.ClassLoaderTestClass;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
