@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,6 +51,8 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
+        // 0. pre find class
+        Class<?> clazz = preLoadClass(name);
 
         // 1. sun reflect related class throw exception directly
         if (classloaderService.isSunReflectClass(name)) {
@@ -61,7 +64,9 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         }
 
         // 2. findLoadedClass
-        Class<?> clazz = findLoadedClass(name);
+        if (clazz == null) {
+            clazz = findLoadedClass(name);
+        }
 
         // 3. JDK related class
         if (clazz == null) {
@@ -86,6 +91,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         // 7. Java Agent ClassLoader for agent problem
         if (clazz == null) {
             clazz = resolveJavaAgentClass(name);
+        }
+
+        // 8. post find class
+        if (clazz == null) {
+            clazz = postLoadClass(name);
         }
 
         if (clazz != null) {
@@ -121,17 +131,29 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     }
 
     @Override
-    protected Class<?> preLoadClass(String className) throws ClassNotFoundException {
-        loadBizClassLoaderHook();
-        return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindClass(className,
-            classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    protected Class<?> preLoadClass(String className) throws ArkLoaderException {
+        try {
+            loadBizClassLoaderHook();
+            return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindClass(className,
+                classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+        } catch (Throwable throwable) {
+            throw new ArkLoaderException(String.format(
+                "Pre find class occurs an error via biz ClassLoaderHook: %s.", bizClassLoaderHook),
+                throwable);
+        }
     }
 
     @Override
-    protected Class<?> postLoadClass(String className) throws ClassNotFoundException {
-        loadBizClassLoaderHook();
-        return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindClass(className,
-            classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+    protected Class<?> postLoadClass(String className) throws ArkLoaderException {
+        try {
+            loadBizClassLoaderHook();
+            return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindClass(className,
+                classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
+        } catch (Throwable throwable) {
+            throw new ArkLoaderException(
+                String.format("Post find class occurs an error via biz ClassLoaderHook: %s.",
+                    bizClassLoaderHook), throwable);
+        }
     }
 
     @Override
@@ -149,14 +171,14 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     }
 
     @Override
-    protected Enumeration<URL> preFindResources(String resourceName) {
+    protected Enumeration<URL> preFindResources(String resourceName) throws IOException {
         loadBizClassLoaderHook();
         return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindResources(
             resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
     }
 
     @Override
-    protected Enumeration<URL> postFindResources(String resourceName) {
+    protected Enumeration<URL> postFindResources(String resourceName) throws IOException {
         loadBizClassLoaderHook();
         return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindResources(
             resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));

@@ -63,12 +63,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         try {
             definePackageIfNecessary(name);
-            Class<?> ret = preLoadClass(name);
-            if (ret != null) {
-                return ret;
-            }
-            ret = loadClassInternal(name, resolve);
-            return ret != null ? ret : postLoadClass(name);
+            return loadClassInternal(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -189,11 +184,16 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         try {
             Enumeration<URL> ret = preFindResources(name);
-            if (ret != null) {
+            if (ret != null && ret.hasMoreElements()) {
                 return ret;
             }
             ret = getResourcesInternal(name);
-            return ret != null ? ret : postFindResources(name);
+            if (ret != null && ret.hasMoreElements()) {
+                return ret;
+            }
+            ret = postFindResources(name);
+            return ret != null ? ret : new CompoundEnumeration<URL>(
+                (Enumeration<URL>[]) new Enumeration<?>[] {});
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -414,16 +414,18 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      *
      * @param className
      * @return
+     * @throws ArkLoaderException
      */
-    protected abstract Class<?> preLoadClass(String className) throws ClassNotFoundException;
+    protected abstract Class<?> preLoadClass(String className) throws ArkLoaderException;
 
     /**
      * invoked after {@link #loadClass(String, boolean)}
      *
      * @param className
      * @return
+     * @throws ArkLoaderException
      */
-    protected abstract Class<?> postLoadClass(String className) throws ClassNotFoundException;;
+    protected abstract Class<?> postLoadClass(String className) throws ArkLoaderException;
 
     /**
      * invoked before {@link #getResource(String)}
@@ -447,7 +449,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @param resourceName
      * @return
      */
-    protected abstract Enumeration<URL> preFindResources(String resourceName);
+    protected abstract Enumeration<URL> preFindResources(String resourceName) throws IOException;
 
     /**
      * invoked after {@link #getResources(String)}
@@ -455,5 +457,5 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @param resourceName
      * @return
      */
-    protected abstract Enumeration<URL> postFindResources(String resourceName);
+    protected abstract Enumeration<URL> postFindResources(String resourceName) throws IOException;
 }

@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.spi.service.classloader;
 
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
@@ -86,9 +87,11 @@ public interface ClassLoaderHook<T> {
      * @param name the name of the resource to find
      * @param classLoaderService {@link ClassLoaderService}
      * @param t plugin or biz instance where this hook is invoked
-     * @return the resources found by this hook or null if normal loading process should continue
+     * @return the resources found by this hook or empty if normal loading process should continue
+     * @throws IOException throw an exception when error occurs.
      */
-    Enumeration<URL> preFindResources(String name, ClassLoaderService classLoaderService, T t);
+    Enumeration<URL> preFindResources(String name, ClassLoaderService classLoaderService, T t)
+                                                                                              throws IOException;
 
     /**
      * This method will only be called if no resources were found from the normal loading process.
@@ -96,7 +99,9 @@ public interface ClassLoaderHook<T> {
      * @param name the name of the resource to find
      * @param classLoaderService {@link ClassLoaderService}
      * @param t plugin or biz instance where this hook is invoked
-     * @return the resources found by this hook or null if normal loading process should continue
+     * @return the resources found by this hook or empty if normal loading process should continue
+     * @throws IOException throw an exception when error occurs.
      */
-    Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService, T t);
+    Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService, T t)
+                                                                                               throws IOException;
 }
