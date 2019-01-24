@@ -21,8 +21,6 @@ import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
-import com.alipay.sofa.ark.spi.pipeline.Pipeline;
-import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
 import mockit.MockUp;

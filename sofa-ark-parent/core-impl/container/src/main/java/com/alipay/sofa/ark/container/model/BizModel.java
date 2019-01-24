@@ -180,7 +180,9 @@ public class BizModel implements Biz {
             mainMethodRunner.run();
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
                 .getService(EventAdminService.class);
-            eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_HEALTH_CHECK));
+            // this can trigger health checker handler
+            eventAdminService.sendEvent(new BizEvent(this,
+                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
@@ -206,7 +208,9 @@ public class BizModel implements Biz {
         try {
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
                 .getService(EventAdminService.class);
-            eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
+            // this can trigger uninstall handler
+            eventAdminService.sendEvent(new BizEvent(this,
+                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -223,5 +227,10 @@ public class BizModel implements Biz {
     @Override
     public BizState getBizState() {
         return bizState;
+    }
+
+    @Override
+    public String toString() {
+        return "Ark Biz: " + getIdentity();
     }
 }

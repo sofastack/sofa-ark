@@ -74,7 +74,7 @@ public class EventAdminServiceTest extends BaseTest {
 
         @Override
         public void handleEvent(ArkEvent event) {
-            if (Constants.BIZ_EVENT_TOPIC_UNINSTALL.equals(event.getTopic())) {
+            if (Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP.equals(event.getTopic())) {
                 mark *= mark;
             }
         }
@@ -89,7 +89,7 @@ public class EventAdminServiceTest extends BaseTest {
 
         @Override
         public void handleEvent(ArkEvent event) {
-            if (Constants.BIZ_EVENT_TOPIC_UNINSTALL.equals(event.getTopic())) {
+            if (Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP.equals(event.getTopic())) {
                 mark += mark;
             }
         }
