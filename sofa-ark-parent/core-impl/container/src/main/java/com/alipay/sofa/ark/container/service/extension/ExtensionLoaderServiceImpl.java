@@ -49,7 +49,9 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
  */
 @Singleton
 public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
+
     private static final ConcurrentHashMap<Class, ConcurrentHashMap<String, ExtensionClass>> EXTENSION_MAP = new ConcurrentHashMap<>();
+
     private static final Logger                                                              LOGGER        = ArkLoggerFactory
                                                                                                                .getDefaultLogger();
 
