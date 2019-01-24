@@ -147,7 +147,7 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
                 className, classloaderService, pluginManagerService.getPluginByName(pluginName));
         } catch (Throwable throwable) {
             throw new ArkLoaderException(String.format(
-                "Pre find class occurs an error via plugin ClassLoaderHook: %s.",
+                "Pre find class %s occurs an error via plugin ClassLoaderHook: %s.", className,
                 pluginClassLoaderHook), throwable);
         }
     }
@@ -160,7 +160,7 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
                 className, classloaderService, pluginManagerService.getPluginByName(pluginName));
         } catch (Throwable throwable) {
             throw new ArkLoaderException(String.format(
-                "Post find class occurs an error via plugin ClassLoaderHook: %s.",
+                "Post find class %s occurs an error via plugin ClassLoaderHook: %s.", className,
                 pluginClassLoaderHook), throwable);
         }
     }

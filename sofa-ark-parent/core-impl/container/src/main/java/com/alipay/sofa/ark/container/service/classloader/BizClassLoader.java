@@ -138,8 +138,8 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                 classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
         } catch (Throwable throwable) {
             throw new ArkLoaderException(String.format(
-                "Pre find class occurs an error via biz ClassLoaderHook: %s.", bizClassLoaderHook),
-                throwable);
+                "Pre find class %s occurs an error via biz ClassLoaderHook: %s.", className,
+                bizClassLoaderHook), throwable);
         }
     }
 
@@ -150,9 +150,9 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
             return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindClass(className,
                 classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
         } catch (Throwable throwable) {
-            throw new ArkLoaderException(
-                String.format("Post find class occurs an error via biz ClassLoaderHook: %s.",
-                    bizClassLoaderHook), throwable);
+            throw new ArkLoaderException(String.format(
+                "Post find class %s occurs an error via biz ClassLoaderHook: %s.", className,
+                bizClassLoaderHook), throwable);
         }
     }
 
