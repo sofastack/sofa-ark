@@ -5,4 +5,6 @@
 
     <bean id="sampleService" class="com.alipay.sofa.ark.springboot.impl.SampleServiceImpl"/>
 
+    <bean id="testBizEventHandler" class="com.alipay.sofa.ark.springboot.impl.TestBizEventHandler"/>
+
 </beans>

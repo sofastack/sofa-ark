@@ -39,7 +39,7 @@ public class CommandHandlerTest extends BaseTest {
         registryService.publishService(CommandProvider.class, new MockCommandProvider(),
             new ContainerServiceProvider());
 
-        Assert.assertTrue("mock help".equals(arkCommandHandler.handleCommand("any")));
+        Assert.assertTrue(arkCommandHandler.handleCommand("any").contains("mock help"));
         Assert.assertTrue("mock command provider".equals(arkCommandHandler.handleCommand("mock")));
     }
 

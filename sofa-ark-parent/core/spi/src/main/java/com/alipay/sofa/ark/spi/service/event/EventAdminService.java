@@ -33,4 +33,23 @@ public interface EventAdminService {
      */
     void sendEvent(ArkEvent event);
 
+    /**
+     * Register an event handler
+     *
+     * @param eventHandler
+     */
+    void register(EventHandler eventHandler);
+
+    /**
+     * un-register an event handler
+     * @param eventHandler
+     */
+    void unRegister(EventHandler eventHandler);
+
+    /**
+     * un-register event handler whose classLoader matches the specified param.
+     * @param classLoader
+     */
+    void unRegister(ClassLoader classLoader);
+
 }

@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -95,5 +96,13 @@ public class ArkContainerTest extends BaseTest {
             System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
         }
         Assert.assertTrue(enable);
+    }
+
+    @Test
+    public void testArkServiceLoader() throws ArkRuntimeException {
+        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
+        Assert.assertNotNull(ArkServiceLoader.getExtensionLoaderService());
+        arkContainer.stop();
     }
 }

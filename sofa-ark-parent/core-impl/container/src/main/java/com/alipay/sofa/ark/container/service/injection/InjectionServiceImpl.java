@@ -20,14 +20,12 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ReflectionUtils;
 import com.alipay.sofa.ark.common.util.ReflectionUtils.FieldCallback;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.ArkInject;
-import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
-import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.alipay.sofa.ark.spi.service.registry.RegistryService;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.lang.reflect.Field;
@@ -43,36 +41,42 @@ public class InjectionServiceImpl implements InjectionService {
 
     private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
+    @Inject
+    private RegistryService        registryService;
+
     @Override
     public void inject(final ServiceReference reference) {
+        inject(reference.getService(), reference.toString());
+    }
 
-        Class implClass = reference.getService().getClass();
+    @Override
+    public void inject(final Object object) {
+        inject(object, object.toString());
+    }
 
-        ReflectionUtils.doWithFields(implClass, new FieldCallback() {
+    private void inject(final Object instance, final String type) {
+        ReflectionUtils.doWithFields(instance.getClass(), new FieldCallback() {
             @Override
             public void doWith(Field field) throws ArkRuntimeException {
-                ArkInject arkInjectAnnotation = field.getAnnotation(ArkInject.class);
-                if (arkInjectAnnotation == null) {
+                ArkInject arkInject = field.getAnnotation(ArkInject.class);
+                if (arkInject == null) {
                     return;
                 }
 
-                Class<?> serviceType = field.getType();
-                Object value = getService(serviceType);
+                Class<?> serviceType = arkInject.interfaceType() == void.class ? field.getType()
+                    : arkInject.interfaceType();
+                Object value = getService(serviceType, arkInject.uniqueId());
 
                 if (value == null) {
-                    LOGGER.warn(
-                        String.format("Inject {field=\'%s\'} of {service=\'%s\'} fail!",
-                            field.getName(), reference.toString()), field.getName(),
-                        reference.toString());
+                    LOGGER.warn(String.format("Inject {field= %s} of {service= %s} fail!",
+                        field.getName(), type));
                     return;
                 }
                 ReflectionUtils.makeAccessible(field);
                 try {
-                    field.set(reference.getService(), value);
-                    LOGGER.info(
-                        String.format("Inject {field=\'%s\'} of {service=\'%s\'} success!",
-                            field.getName(), reference.toString()), field.getName(),
-                        reference.toString());
+                    field.set(instance, value);
+                    LOGGER.info(String.format("Inject {field= %s} of {service= %s} success!",
+                        field.getName(), type));
                 } catch (Throwable throwable) {
                     throw new ArkRuntimeException(throwable);
                 }
@@ -80,12 +84,8 @@ public class InjectionServiceImpl implements InjectionService {
         });
     }
 
-    private Object getService(Class serviceType) {
-        if (serviceType.equals(BizManagerService.class)
-            || serviceType.equals(BizFactoryService.class)
-            || serviceType.equals(PluginManagerService.class)) {
-            return ArkServiceContainerHolder.getContainer().getService(serviceType);
-        }
-        return null;
+    private Object getService(Class serviceType, String uniqueId) {
+        ServiceReference serviceReference = registryService.referenceService(serviceType, uniqueId);
+        return serviceReference == null ? null : serviceReference.getService();
     }
 }
