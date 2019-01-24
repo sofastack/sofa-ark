@@ -51,10 +51,9 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
-        // 0. pre find class
-        Class<?> clazz = preLoadClass(name);
+        Class<?> clazz = null;
 
-        // 1. sun reflect related class throw exception directly
+        // 0. sun reflect related class throw exception directly
         if (classloaderService.isSunReflectClass(name)) {
             throw new ArkLoaderException(
                 String
@@ -63,19 +62,24 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                         bizIdentity, name));
         }
 
-        // 2. findLoadedClass
+        // 1. findLoadedClass
         if (clazz == null) {
             clazz = findLoadedClass(name);
         }
 
-        // 3. JDK related class
+        // 2. JDK related class
         if (clazz == null) {
             clazz = resolveJDKClass(name);
         }
 
-        // 4. Ark Spi class
+        // 3. Ark Spi class
         if (clazz == null) {
             clazz = resolveArkClass(name);
+        }
+
+        // 4. pre find class
+        if (clazz == null) {
+            clazz = preLoadClass(name);
         }
 
         // 5. Plugin Export class

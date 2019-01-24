@@ -71,8 +71,6 @@ public class ServiceRegistrationTest extends BaseTest {
 
     private static final String  INTERFACE_CLASS = ITest.class.getName();
 
-    private ArkServiceContainer  arkServiceContainer;
-
     @Before
     public void before() {
         super.before();

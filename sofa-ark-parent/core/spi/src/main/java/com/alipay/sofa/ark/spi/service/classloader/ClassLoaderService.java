@@ -112,14 +112,14 @@ public interface ClassLoaderService extends ArkService {
      * Get Ark Biz ClassLoader
      * @return
      */
-    ClassLoader getArkBizClassLoader(String bizIdentity);
+    ClassLoader getBizClassLoader(String bizIdentity);
 
     /**
      * Get Ark Plugin ClassLoader
      * @param pluginName
      * @return
      */
-    ClassLoader getArkPluginClassLoader(String pluginName);
+    ClassLoader getPluginClassLoader(String pluginName);
 
     /**
      * Whether class is denied by biz
