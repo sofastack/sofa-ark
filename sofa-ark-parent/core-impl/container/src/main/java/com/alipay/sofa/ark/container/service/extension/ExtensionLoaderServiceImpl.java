@@ -107,8 +107,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         }
                         EXTENSION_MAP.put(interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
-                        LOGGER.error("Loading extension of interfaceType: {} occurs error.",
-                            interfaceType);
+                        LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",
+                            interfaceType, throwable);
                         throw new ArkException(throwable);
                     }
                 }
@@ -153,10 +153,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 URL url = enumeration.nextElement();
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(
-                        "Loading extension of extensible: {} fromm plugin: {} and file: {}",
+                        "Loading extension of extensible: {} from location: {} and file: {}",
                         interfaceType, location, url);
                 }
-                // TODO using ark configs
                 reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -183,7 +182,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
             return extensionClassSet;
         } catch (Throwable throwable) {
-            LOGGER.error("Loading extension files from ark plugin occurs an error.", throwable);
+            LOGGER
+                .error("Loading extension files from {} occurs an error {}.", location, throwable);
             throw throwable;
         } finally {
             if (reader != null) {

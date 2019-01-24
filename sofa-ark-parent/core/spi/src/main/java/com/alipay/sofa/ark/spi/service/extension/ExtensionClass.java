@@ -98,12 +98,7 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
     public I getSingleton() {
         if (singleton == null) {
             synchronized (this) {
-                try {
-                    singleton = implementClass.newInstance();
-                } catch (Throwable throwable) {
-                    throw new ArkException(String.format("Create %s instance error.",
-                        implementClass.getCanonicalName()), throwable);
-                }
+                singleton = newInstance();
             }
         }
         return singleton;
@@ -113,13 +108,16 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
         if (extensible.singleton()) {
             return getSingleton();
         } else {
-            try {
-                return implementClass.newInstance();
-            } catch (Throwable throwable) {
-                throw new ArkException(String.format("Create %s instance error.",
-                    implementClass.getCanonicalName()), throwable);
-            }
+            return newInstance();
+        }
+    }
 
+    private I newInstance() {
+        try {
+            return implementClass.newInstance();
+        } catch (Throwable throwable) {
+            throw new ArkException(String.format("Create %s instance error.",
+                implementClass.getCanonicalName()), throwable);
         }
     }
 
