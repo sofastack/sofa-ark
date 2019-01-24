@@ -228,4 +228,9 @@ public class BizModel implements Biz {
     public BizState getBizState() {
         return bizState;
     }
+
+    @Override
+    public String toString() {
+        return "Ark Biz: " + getIdentity();
+    }
 }

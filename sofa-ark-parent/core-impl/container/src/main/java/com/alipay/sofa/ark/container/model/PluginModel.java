@@ -271,6 +271,6 @@ public class PluginModel implements Plugin {
 
     @Override
     public String toString() {
-        return pluginName;
+        return "Ark Plugin: " + pluginName;
     }
 }
