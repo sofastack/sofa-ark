@@ -141,7 +141,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         }
         Handler.setUseFastConnectionExceptions(true);
         try {
-            return getResourceInternal(name);
+            URL ret = preFindResource(name);
+            if (ret != null) {
+                return ret;
+            }
+            ret = getResourceInternal(name);
+            return ret != null ? ret : postFindResource(name);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -178,7 +183,17 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     public Enumeration<URL> getResources(String name) throws IOException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            return getResourcesInternal(name);
+            Enumeration<URL> ret = preFindResources(name);
+            if (ret != null && ret.hasMoreElements()) {
+                return ret;
+            }
+            ret = getResourcesInternal(name);
+            if (ret != null && ret.hasMoreElements()) {
+                return ret;
+            }
+            ret = postFindResources(name);
+            return ret != null ? ret : new CompoundEnumeration<URL>(
+                (Enumeration<URL>[]) new Enumeration<?>[] {});
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -393,4 +408,54 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         return new UseFastConnectionExceptionsEnumeration(classloaderService.getJDKClassLoader()
             .getResources(resourceName));
     }
+
+    /**
+     * invoked before {@link #loadClass(String, boolean)}
+     *
+     * @param className
+     * @return
+     * @throws ArkLoaderException
+     */
+    protected abstract Class<?> preLoadClass(String className) throws ArkLoaderException;
+
+    /**
+     * invoked after {@link #loadClass(String, boolean)}
+     *
+     * @param className
+     * @return
+     * @throws ArkLoaderException
+     */
+    protected abstract Class<?> postLoadClass(String className) throws ArkLoaderException;
+
+    /**
+     * invoked before {@link #getResource(String)}
+     *
+     * @param resourceName
+     * @return
+     */
+    protected abstract URL preFindResource(String resourceName);
+
+    /**
+     * invoked after {@link #getResource(String)}
+     *
+     * @param resourceName
+     * @return
+     */
+    protected abstract URL postFindResource(String resourceName);
+
+    /**
+     * invoked before {@link #getResources(String)}
+     *
+     * @param resourceName
+     * @return
+     */
+    protected abstract Enumeration<URL> preFindResources(String resourceName) throws IOException;
+
+    /**
+     * invoked after {@link #getResources(String)}
+     *
+     * @param resourceName
+     * @return
+     */
+    protected abstract Enumeration<URL> postFindResources(String resourceName) throws IOException;
 }

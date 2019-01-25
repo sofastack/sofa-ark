@@ -14,31 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.pipeline;
+package com.alipay.sofa.ark.container.service.classloader.hook;
 
-import com.alipay.sofa.ark.exception.ArkException;
-import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
-import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
-import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.service.extension.Extension;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-@Singleton
-public class ExtensionLoaderStage implements PipelineStage {
+@Extension(Constants.BIZ_CLASS_LOADER_HOOK)
+public class TestBizClassLoaderHook extends AbstractClassLoaderHook<Biz> {
+    public class ClassA {
+    }
 
-    @Inject
-    private ExtensionLoaderService extensionLoaderService;
-
-    @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
-        ArkServiceLoader.setExtensionLoaderService(extensionLoaderService);
-        ArkServiceLoader.loadExtension(ClassLoaderHook.class);
+    public class ClassB {
     }
 }
