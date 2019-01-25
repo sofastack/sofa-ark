@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader.hook;
 
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 
@@ -23,6 +24,6 @@ import com.alipay.sofa.ark.spi.service.extension.Extension;
  * @author qilong.zql
  * @since 0.6.0
  */
-@Extension("plugin-classloader-hook")
+@Extension(Constants.PLUGIN_CLASS_LOADER_HOOK)
 public class TestPluginClassLoaderHook extends AbstractClassLoaderHook<Plugin> {
 }

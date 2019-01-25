@@ -35,7 +35,7 @@ import java.util.Enumeration;
 import java.util.Map;
 
 /**
- * @author qilong.zql0
+ * @author qilong.zql
  * @since 0.6.0
  */
 public class ClassLoaderHookTest extends BaseTest {
