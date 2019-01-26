@@ -16,9 +16,19 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_CLASS_LOADER_HOOK;
 
 /**
  * Ark Plugin ClassLoader
@@ -28,7 +38,12 @@ import java.net.URL;
  */
 public class PluginClassLoader extends AbstractClasspathClassLoader {
 
-    private String pluginName;
+    private String                  pluginName;
+    private ClassLoaderHook<Plugin> pluginClassLoaderHook;
+    private AtomicBoolean           isHookLoaded         = new AtomicBoolean(false);
+    private PluginManagerService    pluginManagerService = ArkServiceContainerHolder
+                                                             .getContainer()
+                                                             .getService(PluginManagerService.class);
 
     public PluginClassLoader(String pluginName, URL[] urls) {
         super(urls);
@@ -45,8 +60,9 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
 
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
+        Class<?> clazz = null;
 
-        // 1. sun reflect related class throw exception directly
+        // 0. sun reflect related class throw exception directly
         if (classloaderService.isSunReflectClass(name)) {
             throw new ArkLoaderException(
                 String
@@ -55,17 +71,24 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
                         pluginName, name));
         }
 
-        // 2. findLoadedClass
-        Class<?> clazz = findLoadedClass(name);
+        // 1. findLoadedClass
+        if (clazz == null) {
+            clazz = findLoadedClass(name);
+        }
 
-        // 3. JDK related class
+        // 2. JDK related class
         if (clazz == null) {
             clazz = resolveJDKClass(name);
         }
 
-        // 4. Ark Spi class
+        // 3. Ark Spi class
         if (clazz == null) {
             clazz = resolveArkClass(name);
+        }
+
+        // 4. pre find class
+        if (clazz == null) {
+            clazz = preLoadClass(name);
         }
 
         // 5. Import class export by other plugins
@@ -81,6 +104,11 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         // 7. Java Agent ClassLoader for agent problem
         if (clazz == null) {
             clazz = resolveJavaAgentClass(name);
+        }
+
+        // 8. Post find class
+        if (clazz == null) {
+            clazz = postLoadClass(name);
         }
 
         if (clazz != null) {
@@ -104,4 +132,68 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         return classloaderService.isResourceInImport(pluginName, resourceName);
     }
 
+    private void loadPluginClassLoaderHook() {
+        if (pluginClassLoaderHook == null) {
+            synchronized (this) {
+                if (pluginClassLoaderHook == null && isHookLoaded.compareAndSet(false, true)) {
+                    pluginClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
+                        PLUGIN_CLASS_LOADER_HOOK);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected Class<?> preLoadClass(String className) throws ArkLoaderException {
+        try {
+            loadPluginClassLoaderHook();
+            return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindClass(
+                className, classloaderService, pluginManagerService.getPluginByName(pluginName));
+        } catch (Throwable throwable) {
+            throw new ArkLoaderException(String.format(
+                "Pre find class %s occurs an error via plugin ClassLoaderHook: %s.", className,
+                pluginClassLoaderHook), throwable);
+        }
+    }
+
+    @Override
+    protected Class<?> postLoadClass(String className) throws ArkLoaderException {
+        try {
+            loadPluginClassLoaderHook();
+            return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindClass(
+                className, classloaderService, pluginManagerService.getPluginByName(pluginName));
+        } catch (Throwable throwable) {
+            throw new ArkLoaderException(String.format(
+                "Post find class %s occurs an error via plugin ClassLoaderHook: %s.", className,
+                pluginClassLoaderHook), throwable);
+        }
+    }
+
+    @Override
+    protected URL preFindResource(String resourceName) {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindResource(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected URL postFindResource(String resourceName) {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindResource(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected Enumeration<URL> preFindResources(String resourceName) throws IOException {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindResources(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
+
+    @Override
+    protected Enumeration<URL> postFindResources(String resourceName) throws IOException {
+        loadPluginClassLoaderHook();
+        return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindResources(
+            resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
+    }
 }
