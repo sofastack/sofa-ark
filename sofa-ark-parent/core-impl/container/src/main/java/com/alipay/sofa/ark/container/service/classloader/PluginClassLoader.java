@@ -133,7 +133,7 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
     }
 
     private void loadPluginClassLoaderHook() {
-        if (pluginClassLoaderHook == null) {
+        if (pluginClassLoaderHook == null && !isHookLoaded.get()) {
             synchronized (this) {
                 if (pluginClassLoaderHook == null && isHookLoaded.compareAndSet(false, true)) {
                     pluginClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
