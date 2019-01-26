@@ -17,9 +17,6 @@
 package com.alipay.sofa.ark.api;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.spi.configurator.ArkConfigHook;
-import com.alipay.sofa.ark.spi.configurator.ArkConfigListener;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,17 +38,7 @@ public class ArkConfigs {
     /**
      * Global Configuration
      */
-    private final static ConcurrentMap<String, Object>                  CFG          = new ConcurrentHashMap<String, Object>();
-
-    /**
-     * Configuration Listener
-     */
-    private final static ConcurrentMap<String, List<ArkConfigListener>> CFG_LISTENER = new ConcurrentHashMap<String, List<ArkConfigListener>>();
-
-    /**
-     * Configuration Hook
-     */
-    private final static ConcurrentMap<String, List<ArkConfigHook>>     CFG_HOOK     = new ConcurrentHashMap<String, List<ArkConfigHook>>();
+    private final static ConcurrentMap<String, Object> CFG = new ConcurrentHashMap<String, Object>();
 
     /**
      * executed only once
