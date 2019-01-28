@@ -126,10 +126,12 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     private void loadBizClassLoaderHook() {
         if (!skipLoadHook.get()) {
-            if (isHookLoaded.compareAndSet(false, true)) {
-                bizClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
-                    BIZ_CLASS_LOADER_HOOK);
-                isHookLoaded.set(true);
+            synchronized (this) {
+                if (isHookLoaded.compareAndSet(false, true)) {
+                    bizClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
+                        BIZ_CLASS_LOADER_HOOK);
+                    skipLoadHook.set(true);
+                }
             }
         }
     }
