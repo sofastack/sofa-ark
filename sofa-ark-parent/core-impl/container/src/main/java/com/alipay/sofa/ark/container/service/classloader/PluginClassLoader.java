@@ -41,6 +41,7 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
     private String                  pluginName;
     private ClassLoaderHook<Plugin> pluginClassLoaderHook;
     private AtomicBoolean           isHookLoaded         = new AtomicBoolean(false);
+    private AtomicBoolean           skipLoadHook         = new AtomicBoolean(false);
     private PluginManagerService    pluginManagerService = ArkServiceContainerHolder
                                                              .getContainer()
                                                              .getService(PluginManagerService.class);
@@ -133,12 +134,11 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
     }
 
     private void loadPluginClassLoaderHook() {
-        if (pluginClassLoaderHook == null && !isHookLoaded.get()) {
-            synchronized (this) {
-                if (pluginClassLoaderHook == null && isHookLoaded.compareAndSet(false, true)) {
-                    pluginClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
-                        PLUGIN_CLASS_LOADER_HOOK);
-                }
+        if (!skipLoadHook.get()) {
+            if (isHookLoaded.compareAndSet(false, true)) {
+                pluginClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
+                    PLUGIN_CLASS_LOADER_HOOK);
+                isHookLoaded.set(true);
             }
         }
     }
