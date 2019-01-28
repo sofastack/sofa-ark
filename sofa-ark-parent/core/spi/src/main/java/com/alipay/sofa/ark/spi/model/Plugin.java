@@ -88,10 +88,22 @@ public interface Plugin extends PriorityOrdered {
     PluginContext getPluginContext();
 
     /**
-     * get Plugin Export Packages
+     * get Plugin Export Packages Config
      * @return plugin export packages
      */
     Set<String> getExportPackages();
+
+    /**
+     * get plugin export package which is exactly matched
+     * @return
+     */
+    Set<String> getExportPackageNodes();
+
+    /**
+     * get plugin export package which is matched by prefix
+     * @return
+     */
+    Set<String> getExportPackageStems();
 
     /**
      * get plugin Export Classes
@@ -100,10 +112,22 @@ public interface Plugin extends PriorityOrdered {
     Set<String> getExportClasses();
 
     /**
-     * get Plugin Import Packages
+     * get Plugin Import Packages Config
      * @return plugin import packages
      */
     Set<String> getImportPackages();
+
+    /**
+     * get plugin import package which is exactly matched
+     * @return
+     */
+    Set<String> getImportPackageNodes();
+
+    /**
+     * get plugin import package which is matched by prefix
+     * @return
+     */
+    Set<String> getImportPackageStems();
 
     /**
      * get Plugin Import Classes
@@ -122,12 +146,6 @@ public interface Plugin extends PriorityOrdered {
      * @return get plugin export resources
      */
     Set<String> getExportResources();
-
-    /**
-     * get Plugin Export Index, contain both Plugin Export Packages and Plugin Export Classes
-     * @return plugin export index
-     */
-    Set<String> getExportIndex();
 
     /**
      * get Plugin Archive URL

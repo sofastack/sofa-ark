@@ -32,16 +32,4 @@ public class ClassUtilsTest {
         Assert.assertTrue(ClassUtils.getPackageName("C").equals(Constants.DEFAULT_PACKAGE));
     }
 
-    @Test
-    public void testIsAdaptedToPackagePattern() {
-        Assert.assertTrue(ClassUtils.isAdaptedToPackagePattern("a", "a"));
-        Assert.assertTrue(ClassUtils.isAdaptedToPackagePattern("a.b", "a.b"));
-        Assert.assertFalse(ClassUtils.isAdaptedToPackagePattern("a.b.c", "a"));
-        Assert.assertTrue(ClassUtils.isAdaptedToPackagePattern("a", "a.*"));
-        Assert.assertTrue(ClassUtils.isAdaptedToPackagePattern("a.b", "a.*"));
-        Assert.assertTrue(ClassUtils.isAdaptedToPackagePattern("a.b.c", "a.*"));
-        Assert.assertTrue(ClassUtils.isAdaptedToPackagePattern("a.b.c.d", "a.*"));
-
-    }
-
 }

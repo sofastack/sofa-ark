@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.registry;
 
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
@@ -169,7 +170,8 @@ public class ServiceRegistrationTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setExportPackages(ClassUtils.getPackageName(INTERFACE_CLASS))
+            .setExportClasses(StringUtils.EMPTY_STRING)
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorADup.class.getName())
@@ -205,7 +207,8 @@ public class ServiceRegistrationTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(INTERFACE_CLASS)))
+            .setExportPackages(ClassUtils.getPackageName(INTERFACE_CLASS))
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorA.class.getName())
@@ -220,7 +223,8 @@ public class ServiceRegistrationTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(INTERFACE_CLASS)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorB.class.getName())
@@ -235,7 +239,8 @@ public class ServiceRegistrationTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(INTERFACE_CLASS)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginActivator(PluginActivatorC.class.getName())

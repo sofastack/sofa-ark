@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -25,6 +26,7 @@ import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -43,17 +45,23 @@ public class PluginModel implements Plugin {
 
     private String          version;
 
-    private int             priority = DEFAULT_PRECEDENCE;
+    private int             priority           = DEFAULT_PRECEDENCE;
 
     private Set<String>     exportPackages;
+
+    private Set<String>     exportPackageNodes = new HashSet<>();
+
+    private Set<String>     exportPackageStems = new HashSet<>();
 
     private Set<String>     exportClasses;
 
     private Set<String>     importPackages;
 
-    private Set<String>     importClasses;
+    private Set<String>     importPackageNodes = new HashSet<>();
 
-    private Set<String>     exportIndex;
+    private Set<String>     importPackageStems = new HashSet<>();
+
+    private Set<String>     importClasses;
 
     private Set<String>     importResources;
 
@@ -108,6 +116,8 @@ public class PluginModel implements Plugin {
 
     public PluginModel setExportPackages(String exportPackages) {
         this.exportPackages = StringUtils.strToSet(exportPackages, Constants.MANIFEST_VALUE_SPLIT);
+        parsePackageNodeAndStem(this.exportPackages, this.exportPackageStems,
+            this.exportPackageNodes);
         return this;
     }
 
@@ -118,16 +128,13 @@ public class PluginModel implements Plugin {
 
     public PluginModel setImportPackages(String importPackages) {
         this.importPackages = StringUtils.strToSet(importPackages, Constants.MANIFEST_VALUE_SPLIT);
+        parsePackageNodeAndStem(this.importPackages, this.importPackageStems,
+            this.importPackageNodes);
         return this;
     }
 
     public PluginModel setImportClasses(String importClasses) {
         this.importClasses = StringUtils.strToSet(importClasses, Constants.MANIFEST_VALUE_SPLIT);
-        return this;
-    }
-
-    public PluginModel setExportIndex(Set<String> exportIndex) {
-        this.exportIndex = exportIndex;
         return this;
     }
 
@@ -209,6 +216,16 @@ public class PluginModel implements Plugin {
     }
 
     @Override
+    public Set<String> getExportPackageNodes() {
+        return exportPackageNodes;
+    }
+
+    @Override
+    public Set<String> getExportPackageStems() {
+        return exportPackageNodes;
+    }
+
+    @Override
     public Set<String> getExportClasses() {
         return this.exportClasses;
     }
@@ -219,13 +236,18 @@ public class PluginModel implements Plugin {
     }
 
     @Override
-    public Set<String> getImportClasses() {
-        return this.importClasses;
+    public Set<String> getImportPackageNodes() {
+        return this.importPackageNodes;
     }
 
     @Override
-    public Set<String> getExportIndex() {
-        return this.exportIndex;
+    public Set<String> getImportPackageStems() {
+        return this.importPackageStems;
+    }
+
+    @Override
+    public Set<String> getImportClasses() {
+        return this.importClasses;
     }
 
     @Override
@@ -272,5 +294,16 @@ public class PluginModel implements Plugin {
     @Override
     public String toString() {
         return "Ark Plugin: " + pluginName;
+    }
+
+    private void parsePackageNodeAndStem(Set<String> candidates, Set<String> stems,
+                                         Set<String> nodes) {
+        for (String pkgPattern : candidates) {
+            if (pkgPattern.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                stems.add(ClassUtils.getPackageName(pkgPattern));
+            } else {
+                nodes.add(pkgPattern);
+            }
+        }
     }
 }

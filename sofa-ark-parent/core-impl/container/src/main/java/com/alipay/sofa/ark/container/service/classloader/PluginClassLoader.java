@@ -54,10 +54,6 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         return pluginName;
     }
 
-    public PluginClassLoader(URL[] urls) {
-        super(urls);
-    }
-
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
         Class<?> clazz = null;

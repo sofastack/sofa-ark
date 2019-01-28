@@ -54,10 +54,22 @@ public interface BizInfo {
     URL[] getClassPath();
 
     /**
-     * get denied imported packages
+     * get denied imported packages config
      * @return
      */
     Set<String> getDenyImportPackages();
+
+    /**
+     * get biz deny import package which is exactly matched
+     * @return
+     */
+    Set<String> getDenyImportPackageNodes();
+
+    /**
+     * get biz deny import package which is matched by prefix
+     * @return
+     */
+    Set<String> getDenyImportPackageStems();
 
     /**
      * get denied imported classes
