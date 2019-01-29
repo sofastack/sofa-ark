@@ -318,7 +318,7 @@ public class Repackager {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean isZip(File file) {
+    public static boolean isZip(File file) {
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             try {
@@ -343,7 +343,7 @@ public class Repackager {
         return jarFile.getEntry(Constants.ARK_BIZ_MARK_ENTRY) != null;
     }
 
-    private boolean isZip(InputStream inputStream) throws IOException {
+    public static boolean isZip(InputStream inputStream) throws IOException {
         for (int i = 0; i < ZIP_FILE_HEADER.length; i++) {
             if (inputStream.read() != ZIP_FILE_HEADER[i]) {
                 return false;

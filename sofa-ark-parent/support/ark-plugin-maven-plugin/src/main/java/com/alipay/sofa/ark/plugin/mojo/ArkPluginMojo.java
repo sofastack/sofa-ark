@@ -34,6 +34,7 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.JarWriter;
+import com.alipay.sofa.ark.tools.Repackager;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -270,7 +271,9 @@ public class ArkPluginMojo extends AbstractMojo {
                                         Set<Artifact> conflicts) {
         addArtifact(archiver, project.getArtifact(), conflicts.contains(project.getArtifact()));
         for (Artifact artifact : dependencies) {
-            addArtifact(archiver, artifact, conflicts.contains(artifact));
+            if (Repackager.isZip(artifact.getFile())) {
+                addArtifact(archiver, artifact, conflicts.contains(artifact));
+            }
         }
     }
 
