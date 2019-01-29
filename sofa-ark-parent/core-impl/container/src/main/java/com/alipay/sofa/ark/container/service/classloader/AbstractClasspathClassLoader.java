@@ -136,9 +136,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     @Override
     public URL getResource(String name) {
-        if (StringUtils.isEmpty(name)) {
-            return null;
-        }
         Handler.setUseFastConnectionExceptions(true);
         try {
             URL ret = preFindResource(name);

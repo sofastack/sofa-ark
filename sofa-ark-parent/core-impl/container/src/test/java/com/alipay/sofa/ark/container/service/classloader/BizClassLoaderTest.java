@@ -32,9 +32,14 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import sun.misc.URLClassPath;
 
-import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashSet;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -204,6 +209,18 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
+    }
+
+    @Test
+    public void testSlashResource() throws Throwable {
+        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
+        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
+        ucpFiled.setAccessible(true);
+        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
+        BizClassLoader bizClassLoader = new BizClassLoader("bizName:1.0.0", ucp.getURLs());
+        URL url = bizClassLoader.getResource("");
+        Assert.assertNotNull(url);
+        Assert.assertEquals(url, this.getClass().getResource("/"));
     }
 
     @Test
