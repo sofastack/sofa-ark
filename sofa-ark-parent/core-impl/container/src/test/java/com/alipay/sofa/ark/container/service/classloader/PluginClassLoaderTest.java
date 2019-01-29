@@ -313,6 +313,13 @@ public class PluginClassLoaderTest extends BaseTest {
         ucpFiled.setAccessible(true);
         URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
         PluginClassLoader pluginClassLoader = new PluginClassLoader("pluginName", ucp.getURLs());
+        PluginModel mockPlugin = new PluginModel();
+        mockPlugin.setPluginName("pluginName").setClassPath(new URL[] {})
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setImportClasses(StringUtils.EMPTY_STRING).setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setPluginClassLoader(pluginClassLoader);
+        pluginManagerService.registerPlugin(mockPlugin);
         URL url = pluginClassLoader.getResource("");
         Assert.assertNotNull(url);
         Assert.assertEquals(url, this.getClass().getResource("/"));

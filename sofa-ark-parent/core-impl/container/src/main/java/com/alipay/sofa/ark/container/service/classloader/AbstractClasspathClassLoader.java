@@ -315,7 +315,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected URL getExportResource(String resourceName) {
-        if (!StringUtils.isEmpty(resourceName) && shouldFindExportedResource(resourceName)) {
+        if (shouldFindExportedResource(resourceName)) {
             URL url;
             List<ClassLoader> exportResourceClassLoadersInOrder = classloaderService
                 .findExportResourceClassLoadersInOrder(resourceName);
