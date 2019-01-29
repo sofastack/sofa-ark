@@ -20,7 +20,7 @@
         <!--third party library-->
         <dependency>
             <groupId>com.alipay.sofa.common</groupId>
-            <artifactId>sofa-common-tools</artifactId>
+            <artifactId>log-sofa-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -29,8 +29,12 @@
 
         <!--log-->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
         </dependency>
 
         <!--test-->

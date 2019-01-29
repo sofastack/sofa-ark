@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.pipeline;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 /**
  * Pipeline stage interface
@@ -29,8 +29,8 @@ public interface PipelineStage {
     /**
      * Process current pipeline stage
      * @param pipelineContext pipeline context
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void process(PipelineContext pipelineContext) throws ArkException;
+    void process(PipelineContext pipelineContext) throws ArkRuntimeException;
 
 }

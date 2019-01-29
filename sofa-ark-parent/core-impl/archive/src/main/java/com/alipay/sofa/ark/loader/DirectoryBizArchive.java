@@ -45,17 +45,13 @@ public class DirectoryBizArchive implements BizArchive {
 
     private final String       methodName;
 
-    private final String       methodDescription;
-
     private final URL[]        urls;
 
     private final Manifest     manifest                      = new Manifest();
 
-    public DirectoryBizArchive(String className, String methodName, String methodDescription,
-                               URL[] urls) {
+    public DirectoryBizArchive(String className, String methodName, URL[] urls) {
         this.className = (className == null ? MOCK_IDE_ARK_BIZ_MAIN_CLASS : className);
         this.methodName = methodName;
-        this.methodDescription = methodDescription;
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, this.className);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE,
             String.valueOf(MOCK_IDE_BIZ_STARTUP_PRIORITY));
@@ -70,10 +66,6 @@ public class DirectoryBizArchive implements BizArchive {
 
     public String getMethodName() {
         return methodName;
-    }
-
-    public String getMethodDescription() {
-        return methodDescription;
     }
 
     @Override

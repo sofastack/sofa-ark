@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service.biz;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.ArkService;
 
 /**
@@ -30,14 +30,14 @@ public interface BizDeployService extends ArkService {
     /**
      * Deploy all ark biz
      * @param args biz startup arguments
-     * @throws ArkException throw exception when meets error
+     * @throws ArkRuntimeException throw exception when meets error
      */
-    void deploy(String[] args) throws ArkException;
+    void deploy(String[] args) throws ArkRuntimeException;
 
     /**
      * Un-deploy all ark ark biz
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void unDeploy() throws ArkException;
+    void unDeploy() throws ArkRuntimeException;
 
 }

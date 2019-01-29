@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
@@ -44,7 +44,7 @@ public class BizDeployServiceImpl implements BizDeployService {
     private BizDeployer            bizDeployer;
 
     @Override
-    public void deploy(String[] args) throws ArkException {
+    public void deploy(String[] args) throws ArkRuntimeException {
         ServiceReference<BizDeployer> serviceReference = registryService
             .referenceService(BizDeployer.class);
         bizDeployer = serviceReference.getService();
@@ -56,7 +56,7 @@ public class BizDeployServiceImpl implements BizDeployService {
     }
 
     @Override
-    public void unDeploy() throws ArkException {
+    public void unDeploy() throws ArkRuntimeException {
         if (bizDeployer != null) {
             LOGGER.info(String.format("BizDeployer=\'%s\' is stopping.", bizDeployer.getDesc()));
             bizDeployer.unDeploy();
@@ -64,12 +64,12 @@ public class BizDeployServiceImpl implements BizDeployService {
     }
 
     @Override
-    public void init() throws ArkException {
+    public void init() throws ArkRuntimeException {
         // no action
     }
 
     @Override
-    public void dispose() throws ArkException {
+    public void dispose() throws ArkRuntimeException {
         unDeploy();
     }
 

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.archive;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -47,4 +48,11 @@ public interface ExecutableArchive extends Archive {
      */
     List<PluginArchive> getPluginArchives() throws Exception;
 
+    /**
+     * Get ark conf class path
+     *
+     * @return return ark conf class path
+     * @throws Exception throw exception when meets error
+     */
+    List<URL> getConfClasspath() throws Exception;
 }

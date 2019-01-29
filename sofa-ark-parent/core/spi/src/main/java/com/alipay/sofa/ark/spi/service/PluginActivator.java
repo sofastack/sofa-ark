@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 
 /**
@@ -30,14 +30,14 @@ public interface PluginActivator {
     /**
      * Start Plugin
      * @param context plugin context
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
     void start(PluginContext context);
 
     /**
      * Stop Plugin
      * @param context
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
     void stop(PluginContext context);
 

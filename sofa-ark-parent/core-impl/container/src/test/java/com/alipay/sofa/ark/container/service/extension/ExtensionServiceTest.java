@@ -27,7 +27,7 @@ import com.alipay.sofa.ark.container.service.extension.spi.ServiceC;
 import com.alipay.sofa.ark.container.service.extension.spi.ServiceD;
 import com.alipay.sofa.ark.container.service.extension.spi.impl.ServiceBImpl4;
 import com.alipay.sofa.ark.container.service.extension.spi.impl.ServiceBImpl3;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
@@ -67,7 +67,7 @@ public class ExtensionServiceTest extends BaseTest {
         pluginManagerService.registerPlugin(pluginModel);
         try {
             ArkServiceLoader.loadExtension(ServiceA.class);
-        } catch (ArkException ex) {
+        } catch (ArkRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains("not type of"));
         }
     }
@@ -81,7 +81,7 @@ public class ExtensionServiceTest extends BaseTest {
         pluginManagerService.registerPlugin(pluginModel);
         try {
             ArkServiceLoader.loadExtension(ServiceC.class);
-        } catch (ArkException ex) {
+        } catch (ArkRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains(
                 String.format("is not annotated by %s.", Extensible.class)));
         }
@@ -96,7 +96,7 @@ public class ExtensionServiceTest extends BaseTest {
         pluginManagerService.registerPlugin(pluginModel);
         try {
             ArkServiceLoader.loadExtension(ServiceD.class);
-        } catch (ArkException ex) {
+        } catch (ArkRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains(
                 String.format("is not annotated by %s.", Extension.class)));
         }

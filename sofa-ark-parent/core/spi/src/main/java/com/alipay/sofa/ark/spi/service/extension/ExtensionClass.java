@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service.extension;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
 /**
@@ -116,7 +116,7 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
         try {
             return implementClass.newInstance();
         } catch (Throwable throwable) {
-            throw new ArkException(String.format("Create %s instance error.",
+            throw new ArkRuntimeException(String.format("Create %s instance error.",
                 implementClass.getCanonicalName()), throwable);
         }
     }

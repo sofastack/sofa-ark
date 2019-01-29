@@ -16,8 +16,11 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.*;
@@ -31,6 +34,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH;
 import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH_SPLIT;
 
@@ -52,27 +56,21 @@ public class ClasspathLauncher extends ArkLauncher {
 
         private final String         methodName;
 
-        private final String         methodDescription;
-
         private final URL[]          urls;
 
         private final URLClassLoader urlClassLoader;
 
-        public ClassPathArchive(URL[] urls) {
-            this.className = null;
-            this.methodName = null;
-            this.methodDescription = null;
-            this.urls = urls;
-            urlClassLoader = new URLClassLoader(urls, null);
-        }
+        private File                 arkConfBaseDir;
 
-        public ClassPathArchive(String className, String methodName, String methodDescription,
-                                URL[] urls) {
+        public ClassPathArchive(String className, String methodName, URL[] urls) throws IOException {
+            AssertUtils.isFalse(StringUtils.isEmpty(className),
+                "Entry class name must be specified.");
             this.className = className;
             this.methodName = methodName;
-            this.methodDescription = methodDescription;
             this.urls = urls;
-            urlClassLoader = new URLClassLoader(urls, null);
+            List<URL> classpath = getConfClasspath();
+            classpath.addAll(Arrays.asList(this.urls));
+            urlClassLoader = new URLClassLoader(classpath.toArray(new URL[] {}), null);
         }
 
         public List<URL> filterUrls(String resource) throws Exception {
@@ -100,7 +98,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             if (archive == null) {
-                throw new ArkException("No Ark Container Jar File Found.");
+                throw new ArkRuntimeException("No Ark Container Jar File Found.");
             }
 
             return archive;
@@ -114,7 +112,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             if (urlList.size() > 1) {
-                throw new ArkException("Duplicate Container Jar File Found.");
+                throw new ArkRuntimeException("Duplicate Container Jar File Found.");
             }
 
             return new JarContainerArchive(new JarFileArchive(new File(urlList.get(0).getFile())));
@@ -150,6 +148,48 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         @Override
+        public List<URL> getConfClasspath() throws IOException {
+            List<URL> urls = new ArrayList<>();
+            if (arkConfBaseDir == null) {
+                arkConfBaseDir = deduceArkConfBaseDir();
+            }
+            scanConfClasspath(arkConfBaseDir, urls);
+            return urls;
+        }
+
+        private void scanConfClasspath(File arkConfBaseDir, List<URL> classpath) throws IOException {
+            if (arkConfBaseDir == null || arkConfBaseDir.isFile()
+                || arkConfBaseDir.listFiles() == null) {
+                return;
+            }
+            classpath.add(arkConfBaseDir.toURI().toURL());
+            for (File subFile : arkConfBaseDir.listFiles()) {
+                scanConfClasspath(subFile, classpath);
+            }
+        }
+
+        private File deduceArkConfBaseDir() {
+            File arkConfDir = null;
+            try {
+                URLClassLoader tempClassLoader = new URLClassLoader(urls);
+                Class entryClass = tempClassLoader.loadClass(className);
+                String classLocation = ClassUtils.getCodeBase(entryClass);
+                File file = classLocation == null ? null : new File(classLocation);
+                while (file != null) {
+                    arkConfDir = new File(file.getPath() + File.separator + ARK_CONF_BASE_DIR);
+                    if (arkConfDir.exists() && arkConfDir.isDirectory()) {
+                        break;
+                    }
+                    file = file.getParentFile();
+                }
+            } catch (Throwable throwable) {
+                throw new ArkRuntimeException(throwable);
+            }
+            // return 'conf/' directory or null
+            return arkConfDir == null ? null : arkConfDir.getParentFile();
+        }
+
+        @Override
         public URL getUrl() {
             throw new RuntimeException("unreachable invocation.");
         }
@@ -180,8 +220,7 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         protected BizArchive createDirectoryBizModuleArchive() {
-            return new DirectoryBizArchive(className, methodName, methodDescription,
-                filterBizUrls(urls));
+            return new DirectoryBizArchive(className, methodName, filterBizUrls(urls));
         }
 
         protected ContainerArchive createDirectoryContainerArchive() {
@@ -261,7 +300,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 }
                 return urls.toArray(new URL[] {});
             } catch (IOException ex) {
-                throw new ArkException("Parse classpath failed from surefire boot jar.", ex);
+                throw new ArkRuntimeException("Parse classpath failed from surefire boot jar.", ex);
             }
         }
     }

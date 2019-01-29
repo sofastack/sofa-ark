@@ -28,27 +28,26 @@ public interface CommandArgument {
      * command-line arguments received by ark container.
      * pattern: -A[key]=[value]
      */
-    String ARK_CONTAINER_ARGUMENTS_MARK          = "-A";
+    String ARK_CONTAINER_ARGUMENTS_MARK   = "-A";
 
-    String CLASSPATH_ARGUMENT_KEY                = "classpath";
+    String CLASSPATH_ARGUMENT_KEY         = "classpath";
 
-    String FAT_JAR_ARGUMENT_KEY                  = "jar";
+    String FAT_JAR_ARGUMENT_KEY           = "jar";
 
-    String CLASSPATH_SPLIT                       = ",";
+    String CLASSPATH_SPLIT                = ",";
 
-    String PROFILE                               = "profile";
+    String PROFILE                        = "profile";
+    String VM_PROFILE                     = "ark.profile";
 
-    String DEFAULT_PROFILE                       = "default";
+    String PROFILE_SPLIT                  = ",";
 
     /**
      * command-line arguments received by bootstrap ark biz when execute in IDE.
      * pattern: -B[key]=[value]
      */
-    String ARK_BIZ_ARGUMENTS_MARK                = "-B";
+    String ARK_BIZ_ARGUMENTS_MARK         = "-B";
 
-    String ENTRY_CLASS_NAME_ARGUMENT_KEY         = "className";
+    String ENTRY_CLASS_NAME_ARGUMENT_KEY  = "className";
 
-    String ENTRY_METHOD_NAME_ARGUMENT_KEY        = "methodName";
-
-    String ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY = "methodDescription";
+    String ENTRY_METHOD_NAME_ARGUMENT_KEY = "methodName";
 }

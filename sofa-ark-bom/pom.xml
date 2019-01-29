@@ -14,7 +14,8 @@
 
     <properties>
         <log4j.version>1.7.21</log4j.version>
-        <sofa.common.tools.version>1.0.12</sofa.common.tools.version>
+        <log.sofa.starter.version>1.0.17</log.sofa.starter.version>
+        <logback.version>1.1.11</logback.version>
 
         <guice.version>4.0</guice.version>
         <asm.version>5.0.3</asm.version>
@@ -178,15 +179,21 @@
             </dependency>
 
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${log4j.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alipay.sofa.common</groupId>
-                <artifactId>sofa-common-tools</artifactId>
-                <version>${sofa.common.tools.version}</version>
+                <artifactId>log-sofa-boot-starter</artifactId>
+                <version>${log.sofa.starter.version}</version>
             </dependency>
 
             <!-- maven -->

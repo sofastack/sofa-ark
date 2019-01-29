@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 /**
  * Ark Service lifecycle, when a service need init/dispose action, it should implement this interface and register by guice
@@ -28,14 +28,14 @@ public interface ArkService extends PriorityOrdered {
 
     /**
      * Ark Service init
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void init() throws ArkException;
+    void init() throws ArkRuntimeException;
 
     /**
      * Ark Service dispose
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void dispose() throws ArkException;
+    void dispose() throws ArkRuntimeException;
 
 }

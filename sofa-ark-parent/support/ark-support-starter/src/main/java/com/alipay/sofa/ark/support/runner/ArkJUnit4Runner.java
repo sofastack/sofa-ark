@@ -43,7 +43,7 @@ public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
     protected TestClass createTestClass(Class<?> testClass) {
         try {
             if (!DelegateArkContainer.isStarted()) {
-                DelegateArkContainer.launch();
+                DelegateArkContainer.launch(testClass);
             }
             ClassLoader testClassLoader = DelegateArkContainer.getTestClassLoader();
             TestClass testKlazz = super.createTestClass(testClassLoader.loadClass(testClass

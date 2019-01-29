@@ -21,6 +21,35 @@ package com.alipay.sofa.ark.spi.constant;
  * @since 0.1.0
  */
 public class Constants {
+    /**
+     * String Constants
+     */
+    public final static String SPACE_SPLIT                            = "\\s+";
+    public final static String STRING_COLON                           = ":";
+    public final static String TELNET_STRING_END                      = new String(new byte[] {
+            (byte) 13, (byte) 10                                     });
+    public final static String COMMA_SPLIT                            = ",";
+
+    /**
+     * ark conf
+     */
+    public final static String CONF_BASE_DIR                          = "conf/";
+    public final static String ARK_CONF_BASE_DIR                      = "conf/ark";
+    public final static String ARK_CONF_FILE                          = "bootstrap.properties";
+    public final static String ARK_CONF_FILE_FORMAT                   = "bootstrap-%s.properties";
+    public final static String DEFAULT_PROFILE                        = "";
+
+    /**
+     * plugin conf, multi value is split by comma.
+     */
+    public final static String PLUGIN_ACTIVE_INCLUDE                  = "ark.plugin.active.include";
+    public final static String PLUGIN_ACTIVE_EXCLUDE                  = "ark.plugin.active.exclude";
+
+    /**
+     * biz conf, multi value is split by comma.
+     */
+    public final static String BIZ_ACTIVE_INCLUDE                     = "ark.biz.active.include";
+    public final static String BIZ_ACTIVE_EXCLUDE                     = "ark.biz.active.exclude";
 
     /**
      * Archiver Marker
@@ -57,7 +86,7 @@ public class Constants {
 
     public final static String PACKAGE_PREFIX_MARK                    = "*";
     public final static String DEFAULT_PACKAGE                        = ".";
-    public final static String MANIFEST_VALUE_SPLIT                   = ",";
+    public final static String MANIFEST_VALUE_SPLIT                   = COMMA_SPLIT;
 
     public final static String IMPORT_RESOURCES_ATTRIBUTE             = "import-resources";
     public final static String EXPORT_RESOURCES_ATTRIBUTE             = "export-resources";
@@ -75,14 +104,6 @@ public class Constants {
     public final static String TELNET_SERVER_WORKER_THREAD_POOL_NAME  = "telnet-server-worker";
     public final static String TELNET_SESSION_PROMPT                  = "sofa-ark>";
     public final static int    BUFFER_CHUNK                           = 128;
-
-    /**
-     * String Constants
-     */
-    public final static String SPACE_SPLIT                            = "\\s+";
-    public final static String STRING_COLON                           = ":";
-    public final static String TELNET_STRING_END                      = new String(new byte[] {
-            (byte) 13, (byte) 10                                     });
 
     /**
      * Event

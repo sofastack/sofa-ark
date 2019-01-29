@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.container.service.extension;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
@@ -111,7 +111,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                     } catch (Throwable throwable) {
                         LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",
                             interfaceType, throwable);
-                        throw new ArkException(throwable);
+                        throw new ArkRuntimeException(throwable);
                     }
                 }
             }
@@ -142,8 +142,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             Set<ExtensionClass<I, L>> extensionClassSet = new HashSet<>();
             Extensible extensible = interfaceType.getAnnotation(Extensible.class);
             if (extensible == null) {
-                throw new ArkException(String.format("Extensible class %s is not annotated by %s.",
-                    interfaceType, Extensible.class));
+                throw new ArkRuntimeException(String.format(
+                    "Extensible class %s is not annotated by %s.", interfaceType, Extensible.class));
             }
             String fileName = interfaceType.getCanonicalName();
             if (!StringUtils.isEmpty(extensible.file())) {
@@ -167,13 +167,13 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                     extensionClass.setInterfaceClass(interfaceType);
                     Class<?> implementClass = resourceLoader.loadClass(line.trim());
                     if (!interfaceType.isAssignableFrom(implementClass)) {
-                        throw new ArkException(String.format(
+                        throw new ArkRuntimeException(String.format(
                             "Extension implementation class %s is not type of %s.",
                             implementClass.getCanonicalName(), interfaceType.getCanonicalName()));
                     }
                     Extension extension = implementClass.getAnnotation(Extension.class);
                     if (extension == null) {
-                        throw new ArkException(String.format(
+                        throw new ArkRuntimeException(String.format(
                             "Extension implementation class %s is not annotated by %s.",
                             implementClass, Extension.class));
                     }

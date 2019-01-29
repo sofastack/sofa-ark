@@ -18,6 +18,10 @@ package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
 
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+
 /**
  * @author qilong.zql
  * @since 0.3.0
@@ -56,4 +60,23 @@ public class ClassUtils {
         return Constants.DEFAULT_PACKAGE;
     }
 
+    public static String getCodeBase(Class<?> cls) {
+
+        if (cls == null) {
+            return null;
+        }
+        ProtectionDomain domain = cls.getProtectionDomain();
+        if (domain == null) {
+            return null;
+        }
+        CodeSource source = domain.getCodeSource();
+        if (source == null) {
+            return null;
+        }
+        URL location = source.getLocation();
+        if (location == null) {
+            return null;
+        }
+        return location.getFile();
+    }
 }

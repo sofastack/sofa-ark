@@ -20,7 +20,7 @@ import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.biz.DefaultBizDeployer;
 import com.alipay.sofa.ark.container.service.plugin.PluginCommandProvider;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
@@ -51,7 +51,7 @@ public class RegisterServiceStage implements PipelineStage {
     private RegistryService registryService;
 
     @Override
-    public void process(PipelineContext pipelineContext) throws ArkException {
+    public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         registryDefaultService();
     }
 

@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.sample.activator;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.sample.facade.SamplePluginService;
 import com.alipay.sofa.ark.sample.impl.SamplePluginServiceImpl;
 import com.alipay.sofa.ark.spi.model.PluginContext;
@@ -30,12 +30,12 @@ import com.alipay.sofa.ark.spi.service.PluginActivator;
  */
 public class SamplePluginActivator implements PluginActivator {
 
-    public void start(PluginContext context) throws ArkException {
+    public void start(PluginContext context) throws ArkRuntimeException {
         System.out.println("starting in sample ark plugin activator");
         context.publishService(SamplePluginService.class, new SamplePluginServiceImpl());
     }
 
-    public void stop(PluginContext context) throws ArkException {
+    public void stop(PluginContext context) throws ArkRuntimeException {
         System.out.println("stopping in ark plugin activator");
     }
 

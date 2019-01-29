@@ -16,12 +16,23 @@
  */
 package com.alipay.sofa.ark.spi.argument;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alipay.sofa.ark.spi.argument.CommandArgument.*;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_BIZ_ARGUMENTS_MARK;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_SPLIT;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.FAT_JAR_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE_SPLIT;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.VM_PROFILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PROFILE;
 
 /**
  * command argument parsed as a launchCommand
@@ -36,15 +47,14 @@ public class LaunchCommand {
     private URL[]    classpath;
 
     /**
-     * the following three configs are mainly used by bootstrap ark biz at startup of IDE.
+     * the following two configs are mainly used by bootstrap ark biz at startup of IDE.
      */
     private String   entryClassName;
     private String   entryMethodName;
-    private String   entryMethodDescriptor;
 
     private String[] launchArgs;
 
-    private String   profile;
+    private String[] profiles;
 
     public boolean isExecutedByCommandLine() {
         return executableArkBizJar != null;
@@ -95,21 +105,17 @@ public class LaunchCommand {
         return this;
     }
 
-    public String getEntryMethodDescriptor() {
-        return entryMethodDescriptor;
+    public String[] getProfiles() {
+        if (profiles != null) {
+            return profiles;
+        }
+        String profileVMArgs = System.getProperty(VM_PROFILE);
+        return profileVMArgs == null ? new String[] { DEFAULT_PROFILE } : profileVMArgs
+            .split(PROFILE_SPLIT);
     }
 
-    public LaunchCommand setEntryMethodDescriptor(String entryMethodDescriptor) {
-        this.entryMethodDescriptor = entryMethodDescriptor;
-        return this;
-    }
-
-    public String getProfile() {
-        return profile == null ? DEFAULT_PROFILE : profile;
-    }
-
-    public LaunchCommand setProfile(String profile) {
-        this.profile = profile;
+    public LaunchCommand setProfiles(String[] profiles) {
+        this.profiles = profiles;
         return this;
     }
 
@@ -124,8 +130,6 @@ public class LaunchCommand {
             ENTRY_CLASS_NAME_ARGUMENT_KEY);
         String entryMethodNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
             ENTRY_METHOD_NAME_ARGUMENT_KEY);
-        String entryMethodDescriptorPrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
-            ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY);
         String arkConfigProfilePrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK,
             PROFILE);
 
@@ -141,9 +145,6 @@ public class LaunchCommand {
             } else if (arg.startsWith(entryMethodNamePrefix)) {
                 String entryMethodName = arg.substring(entryMethodNamePrefix.length());
                 launchCommand.setEntryMethodName(entryMethodName);
-            } else if (arg.startsWith(entryMethodDescriptorPrefix)) {
-                String entryMethodDescriptor = arg.substring(entryMethodDescriptorPrefix.length());
-                launchCommand.setEntryMethodDescriptor(entryMethodDescriptor);
             } else if (arg.startsWith(arkClasspathPrefix)) {
                 String classpath = arg.substring(arkClasspathPrefix.length());
                 List<URL> urlList = new ArrayList<>();
@@ -156,7 +157,7 @@ public class LaunchCommand {
                 launchCommand.setClasspath(urlList.toArray(new URL[urlList.size()]));
             } else if (arg.startsWith(arkConfigProfilePrefix)) {
                 String profile = arg.substring(arkConfigProfilePrefix.length());
-                launchCommand.setProfile(profile);
+                launchCommand.setProfiles(profile.split(PROFILE_SPLIT));
             } else {
                 // -A and -B argument would not passed into biz main method.
                 arguments.add(arg);

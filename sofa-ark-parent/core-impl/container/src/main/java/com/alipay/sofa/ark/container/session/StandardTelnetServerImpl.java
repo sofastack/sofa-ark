@@ -25,7 +25,7 @@ import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.common.util.PortSelectUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.session.handler.TelnetProtocolHandler;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
 import com.google.inject.Singleton;
@@ -89,7 +89,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                 }
             } catch (NumberFormatException e) {
                 LOGGER.error(String.format("Invalid host/port in %s", telnetValue), e);
-                throw new ArkException(e);
+                throw new ArkRuntimeException(e);
             }
         }
     }
@@ -146,7 +146,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                 .getExecutor().execute(action);
         } catch (IOException e) {
             LOGGER.error("Unable to open telnet.", e);
-            throw new ArkException(e);
+            throw new ArkRuntimeException(e);
         }
     }
 
@@ -173,7 +173,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                 selector.close();
             } catch (Throwable t) {
                 LOGGER.error("An error occurs when shutdown telnet server.", t);
-                throw new ArkException(t);
+                throw new ArkRuntimeException(t);
             }
         }
     }
@@ -188,7 +188,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
     }
 
     @Override
-    public void init() throws ArkException {
+    public void init() throws ArkRuntimeException {
         if (enableTelnetServer) {
             run();
         } else {
@@ -197,7 +197,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
     }
 
     @Override
-    public void dispose() throws ArkException {
+    public void dispose() throws ArkRuntimeException {
         if (enableTelnetServer) {
             shutdown();
         }
