@@ -328,8 +328,8 @@ public class PluginClassLoaderTest extends BaseTest {
         mockPlugin.setPluginName("pluginName").setClassPath(new URL[] {})
             .setImportResources(StringUtils.EMPTY_STRING)
             .setImportClasses(StringUtils.EMPTY_STRING).setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-            .setPluginClassLoader(pluginClassLoader);
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getCanonicalName()))
+            .setExportClasses(StringUtils.EMPTY_STRING).setPluginClassLoader(pluginClassLoader);
         pluginManagerService.registerPlugin(mockPlugin);
         URL url = pluginClassLoader.getResource("");
         Assert.assertNotNull(url);
