@@ -16,10 +16,11 @@
  */
 package com.alipay.sofa.ark.container;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,7 +50,7 @@ public class ArkContainerTest extends BaseTest {
     }
 
     @Test
-    public void testStart() throws ArkException {
+    public void testStart() throws ArkRuntimeException {
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
         ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
         Assert.assertTrue(arkContainer.isStarted());
@@ -66,7 +67,7 @@ public class ArkContainerTest extends BaseTest {
     }
 
     @Test
-    public void testTelnetServerDisable() throws ArkException {
+    public void testTelnetServerDisable() throws ArkRuntimeException {
         System.setProperty(Constants.TELNET_SERVER_ENABLE, "false");
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
         ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
@@ -76,12 +77,13 @@ public class ArkContainerTest extends BaseTest {
             enable = false;
         } finally {
             arkContainer.stop();
+            System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
         }
         Assert.assertFalse(enable);
     }
 
     @Test
-    public void testTelnetServerEnable() throws ArkException {
+    public void testTelnetServerEnable() throws ArkRuntimeException {
         System.setProperty(Constants.TELNET_SERVER_ENABLE, "true");
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
         ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
@@ -91,7 +93,16 @@ public class ArkContainerTest extends BaseTest {
             enable = false;
         } finally {
             arkContainer.stop();
+            System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
         }
         Assert.assertTrue(enable);
+    }
+
+    @Test
+    public void testArkServiceLoader() throws ArkRuntimeException {
+        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
+        Assert.assertNotNull(ArkServiceLoader.getExtensionLoaderService());
+        arkContainer.stop();
     }
 }

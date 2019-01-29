@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.container.service.plugin;
 
 import com.alipay.sofa.ark.common.util.OrderComparator;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.google.inject.Singleton;
@@ -42,7 +42,7 @@ public class PluginManagerServiceImpl implements PluginManagerService {
     @Override
     public void registerPlugin(Plugin plugin) {
         if (plugins.putIfAbsent(plugin.getPluginName(), plugin) != null) {
-            throw new ArkException(String.format("duplicate plugin: %s exists.",
+            throw new ArkRuntimeException(String.format("duplicate plugin: %s exists.",
                 plugin.getPluginName()));
         }
     }

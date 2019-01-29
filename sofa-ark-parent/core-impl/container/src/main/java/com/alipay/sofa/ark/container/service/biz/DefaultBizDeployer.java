@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
@@ -53,7 +53,7 @@ public class DefaultBizDeployer implements BizDeployer {
                 LOGGER.info(String.format("Finish to start biz: %s", biz.getBizName()));
             } catch (Throwable e) {
                 LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
-                throw new ArkException(e);
+                throw new ArkRuntimeException(e);
             }
         }
     }
@@ -67,7 +67,7 @@ public class DefaultBizDeployer implements BizDeployer {
                 LOGGER.info(String.format("Finish to stop biz: %s", biz.getBizName()));
             } catch (Throwable e) {
                 LOGGER.error(String.format("stop biz: %s meet error", biz.getBizName()), e);
-                throw new ArkException(e);
+                throw new ArkRuntimeException(e);
             }
         }
     }

@@ -23,18 +23,20 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author qilong.zql 18/3/9
  */
 public class LaunchCommandTest {
 
-    public static String arkCommand;
-    public static int    count;
+    public static List<String> arkCommand = new ArrayList();
+    public static int          count;
 
-    String               classpath;
-    Method               method;
-    URL                  fatJarUrl;
+    String                     classpath;
+    Method                     method;
+    URL                        fatJarUrl;
 
     @Before
     public void init() {
@@ -47,47 +49,36 @@ public class LaunchCommandTest {
             throw new RuntimeException(ex);
         }
 
-        LaunchCommandTest.arkCommand = String.format(
-            "%s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s",
-            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.FAT_JAR_ARGUMENT_KEY,
-            fatJarUrl.toExternalForm(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
-            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY,
-            method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
-            method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString(),
-            CommandArgument.KEY_VALUE_PAIR_SPLIT, CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.BIZ_RUN_MODE, CommandArgument.TEST_RUN_MODE);
-
+        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.FAT_JAR_ARGUMENT_KEY, fatJarUrl));
+        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
+        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, method.getDeclaringClass().getName()));
+        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
         LaunchCommandTest.count = 0;
     }
 
     @Test
     public void testCommandParser() {
         try {
-            String[] args = new String[] { "p1", "p2" };
-            LaunchCommand launchCommand = LaunchCommand.parse(arkCommand, args);
+            List<String> args = new ArrayList<>();
+            args.addAll(arkCommand);
+            args.add("p1");
+            args.add("p2");
+            LaunchCommand launchCommand = LaunchCommand.parse(args.toArray(new String[] {}));
 
             Assert.assertTrue(launchCommand.getEntryClassName().equals(
                 method.getDeclaringClass().getName()));
-            Assert.assertTrue(launchCommand.getEntryMethodDescriptor().equals(
-                method.toGenericString()));
             Assert.assertTrue(launchCommand.getEntryMethodName().equals(method.getName()));
             Assert.assertTrue(launchCommand.getExecutableArkBizJar().equals(fatJarUrl));
-            Assert.assertTrue(launchCommand.isTestMode());
             Assert.assertTrue(launchCommand.getClasspath().length == classpath
                 .split(CommandArgument.CLASSPATH_SPLIT).length);
             for (URL url : launchCommand.getClasspath()) {
                 Assert.assertTrue(classpath.contains(url.toExternalForm()));
             }
-            Assert.assertTrue(args.length == launchCommand.getLaunchArgs().length);
-            for (int i = 0; i < args.length; ++i) {
-                args[i].equals(launchCommand.getLaunchArgs()[i]);
-            }
-
+            Assert.assertTrue(2 == launchCommand.getLaunchArgs().length);
         } catch (Exception ex) {
             Assert.assertNull(ex);
         }

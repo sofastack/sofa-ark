@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.support.listener;
 
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
@@ -33,13 +33,13 @@ public class ArkTestNGInvokedMethodListener implements IInvokedMethodListener {
     public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
         Class testClass = method.getTestMethod().getRealClass();
         if (isTestOnArk(testClass)) {
-            ClassloaderUtils.pushContextClassloader(DelegateArkContainer.getTestClassLoader());
+            ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer.getTestClassLoader());
         }
     }
 
     @Override
     public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
-        ClassloaderUtils.pushContextClassloader(ClassLoader.getSystemClassLoader());
+        ClassLoaderUtils.pushContextClassLoader(ClassLoader.getSystemClassLoader());
     }
 
     protected boolean isTestOnArk(Class testClass) {

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>0.5.2</version>
+        <version>0.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,14 +26,6 @@
                     <groupId>com.google.inject</groupId>
                     <artifactId>guice</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alipay.sofa.common</groupId>
-                    <artifactId>sofa-common-tools</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -41,12 +33,14 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!--testNg-->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!--test-->
@@ -59,18 +53,6 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alipay.sofa.common</groupId>
-            <artifactId>sofa-common-tools</artifactId>
             <scope>test</scope>
         </dependency>
 

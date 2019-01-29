@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service.plugin;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.ArkService;
 
 /**
@@ -29,15 +29,15 @@ public interface PluginDeployService extends ArkService {
 
     /**
      * Deploy all ark plugins
-     * @throws ArkException
+     * @throws ArkRuntimeException
      * @since 0.1.0
      */
-    void deploy() throws ArkException;
+    void deploy() throws ArkRuntimeException;
 
     /**
      * Un-deploy all ark plugins
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void unDeploy() throws ArkException;
+    void unDeploy() throws ArkRuntimeException;
 
 }

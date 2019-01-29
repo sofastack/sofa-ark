@@ -24,7 +24,7 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 
 /**
- * Classloader to load Ark Container
+ * ClassLoader to load Ark Container
  *
  * @author qilong.zql
  * @since 0.1.0

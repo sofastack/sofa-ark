@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.CONF_BASE_DIR;
+
 /**
  * Executable Ark Biz Fat Jar
  *
@@ -97,7 +99,8 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         List<Archive> archives = getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
-                return SOFA_ARK_CONTAINER.equals(entry.getName());
+                return !entry.getName().equals(SOFA_ARK_CONTAINER)
+                       && entry.getName().startsWith(SOFA_ARK_CONTAINER);
             }
         });
 
@@ -152,5 +155,20 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         }
         return pluginArchives;
 
+    }
+
+    @Override
+    public List<URL> getConfClasspath() throws Exception {
+        List<Archive> archives = getNestedArchives(new EntryFilter() {
+            @Override
+            public boolean matches(Entry entry) {
+                return entry.getName().startsWith(CONF_BASE_DIR) && entry.isDirectory();
+            }
+        });
+        List<URL> urls = new ArrayList<>();
+        for (Archive archive : archives) {
+            urls.add(archive.getUrl());
+        }
+        return urls;
     }
 }

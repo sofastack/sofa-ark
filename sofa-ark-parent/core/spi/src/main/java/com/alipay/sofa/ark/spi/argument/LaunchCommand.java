@@ -16,12 +16,23 @@
  */
 package com.alipay.sofa.ark.spi.argument;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alipay.sofa.ark.spi.argument.CommandArgument.*;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_BIZ_ARGUMENTS_MARK;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_SPLIT;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.FAT_JAR_ARGUMENT_KEY;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.PROFILE_SPLIT;
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.VM_PROFILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PROFILE;
 
 /**
  * command argument parsed as a launchCommand
@@ -35,15 +46,15 @@ public class LaunchCommand {
 
     private URL[]    classpath;
 
+    /**
+     * the following two configs are mainly used by bootstrap ark biz at startup of IDE.
+     */
     private String   entryClassName;
-
     private String   entryMethodName;
-
-    private String   entryMethodDescriptor;
 
     private String[] launchArgs;
 
-    private Boolean  isTestMode;
+    private String[] profiles;
 
     public boolean isExecutedByCommandLine() {
         return executableArkBizJar != null;
@@ -94,26 +105,21 @@ public class LaunchCommand {
         return this;
     }
 
-    public String getEntryMethodDescriptor() {
-        return entryMethodDescriptor;
+    public String[] getProfiles() {
+        if (profiles != null) {
+            return profiles;
+        }
+        String profileVMArgs = System.getProperty(VM_PROFILE);
+        return profileVMArgs == null ? new String[] { DEFAULT_PROFILE } : profileVMArgs
+            .split(PROFILE_SPLIT);
     }
 
-    public LaunchCommand setEntryMethodDescriptor(String entryMethodDescriptor) {
-        this.entryMethodDescriptor = entryMethodDescriptor;
+    public LaunchCommand setProfiles(String[] profiles) {
+        this.profiles = profiles;
         return this;
     }
 
-    public Boolean isTestMode() {
-        return isTestMode == null ? false : isTestMode;
-    }
-
-    public LaunchCommand setTestMode(Boolean testMode) {
-        isTestMode = testMode;
-        return this;
-    }
-
-    public static LaunchCommand parse(String arkCommand, String[] args)
-                                                                       throws MalformedURLException {
+    public static LaunchCommand parse(String[] args) throws MalformedURLException {
         LaunchCommand launchCommand = new LaunchCommand();
 
         String arkJarPrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK,
@@ -124,40 +130,22 @@ public class LaunchCommand {
             ENTRY_CLASS_NAME_ARGUMENT_KEY);
         String entryMethodNamePrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
             ENTRY_METHOD_NAME_ARGUMENT_KEY);
-        String entryMethodDescriptorPrefix = String.format("%s%s=", ARK_BIZ_ARGUMENTS_MARK,
-            ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY);
-        String testRunMode = String.format("%s%s=%s", ARK_BIZ_ARGUMENTS_MARK, BIZ_RUN_MODE,
-            TEST_RUN_MODE);
+        String arkConfigProfilePrefix = String.format("%s%s=", ARK_CONTAINER_ARGUMENTS_MARK,
+            PROFILE);
 
-        String[] arkArgs = arkCommand.split(CommandArgument.KEY_VALUE_PAIR_SPLIT);
-        for (String arg : arkArgs) {
+        List<String> arguments = new ArrayList<>();
+        for (String arg : args) {
             arg = arg.trim();
-
             if (arg.startsWith(arkJarPrefix)) {
                 String fatJarUrl = arg.substring(arkJarPrefix.length());
                 launchCommand.setExecutableArkBizJar(new URL(fatJarUrl));
-            }
-
-            if (arg.startsWith(entryClassNamePrefix)) {
+            } else if (arg.startsWith(entryClassNamePrefix)) {
                 String entryClassName = arg.substring(entryClassNamePrefix.length());
                 launchCommand.setEntryClassName(entryClassName);
-            }
-
-            if (arg.startsWith(entryMethodNamePrefix)) {
+            } else if (arg.startsWith(entryMethodNamePrefix)) {
                 String entryMethodName = arg.substring(entryMethodNamePrefix.length());
                 launchCommand.setEntryMethodName(entryMethodName);
-            }
-
-            if (arg.startsWith(entryMethodDescriptorPrefix)) {
-                String entryMethodDescriptor = arg.substring(entryMethodDescriptorPrefix.length());
-                launchCommand.setEntryMethodDescriptor(entryMethodDescriptor);
-            }
-
-            if (arg.equals(testRunMode)) {
-                launchCommand.setTestMode(true);
-            }
-
-            if (arg.startsWith(arkClasspathPrefix)) {
+            } else if (arg.startsWith(arkClasspathPrefix)) {
                 String classpath = arg.substring(arkClasspathPrefix.length());
                 List<URL> urlList = new ArrayList<>();
                 for (String url : classpath.split(CLASSPATH_SPLIT)) {
@@ -167,13 +155,15 @@ public class LaunchCommand {
                     urlList.add(new URL(url));
                 }
                 launchCommand.setClasspath(urlList.toArray(new URL[urlList.size()]));
+            } else if (arg.startsWith(arkConfigProfilePrefix)) {
+                String profile = arg.substring(arkConfigProfilePrefix.length());
+                launchCommand.setProfiles(profile.split(PROFILE_SPLIT));
+            } else {
+                // -A and -B argument would not passed into biz main method.
+                arguments.add(arg);
             }
-
         }
-
-        launchCommand.setLaunchArgs(args);
-
-        return launchCommand;
+        return launchCommand.setLaunchArgs(arguments.toArray(new String[] {}));
     }
 
     public static String toString(String[] args) {

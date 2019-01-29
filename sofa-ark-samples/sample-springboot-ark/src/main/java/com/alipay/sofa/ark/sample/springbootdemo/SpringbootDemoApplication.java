@@ -40,9 +40,11 @@ public class SpringbootDemoApplication {
         SpringApplication.run(SpringbootDemoApplication.class, args);
         SampleClassExported.hello();
         SampleClassNotExported.hello();
-        // exported resources can be found twice, one from BizClassloader, another from PluginClassloader
+        // exported resources can be found twice, one from BizClassLoader, another from PluginClassLoader
+        // as sample-ark-plugin-common is shaded into sample-ark-plugin, then this resource would be found three times.
         getResources("Sample_Resource_Exported");
-        // not-exported resources can only found once from BizClassloader
+        // not-exported resources can only found once from BizClassLoader
+        // as sample-ark-plugin-common is shaded into sample-ark-plugin, then this resource would be found two times.
         getResources("Sample_Resource_Not_Exported");
 
     }

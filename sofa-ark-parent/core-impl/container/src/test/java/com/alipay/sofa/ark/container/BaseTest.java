@@ -18,8 +18,11 @@ package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.model.PluginModel;
+import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
 import mockit.MockUp;
@@ -39,30 +42,15 @@ import java.util.List;
  * @since 0.1.0
  */
 public class BaseTest {
-    protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer();
-
-    @Before
-    public void before() {
-        arkServiceContainer.start();
-    }
-
-    @After
-    public void after() {
-        arkServiceContainer.stop();
-    }
-
-    @BeforeClass
-    public static void beforeClass() {
-        System.setProperty(Constants.LOG_ENV_SUFFIX, ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE
-                                                     + ":dev");
-    }
+    protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer(new String[] {});
 
     static {
         // fix cobertura bug
         new PluginServiceProvider(new PluginModel());
     }
 
-    static {
+    @Before
+    public void before() {
         new MockUp<ManagementFactory>() {
             @Mock
             public RuntimeMXBean getRuntimeMXBean() {
@@ -81,5 +69,19 @@ public class BaseTest {
                 }.getMockInstance();
             }
         };
+        arkServiceContainer.start();
+        arkServiceContainer.getService(RegisterServiceStage.class).process(null);
+        ArkServiceLoader.setExtensionLoaderService(arkServiceContainer
+            .getService(ExtensionLoaderService.class));
+    }
+
+    @After
+    public void after() {
+        arkServiceContainer.stop();
+    }
+
+    @BeforeClass
+    public static void beforeClass() {
+
     }
 }

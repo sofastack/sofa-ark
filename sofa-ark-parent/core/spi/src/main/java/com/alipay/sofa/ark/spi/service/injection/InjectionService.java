@@ -30,4 +30,10 @@ public interface InjectionService {
      * @param reference
      */
     void inject(ServiceReference reference);
+
+    /**
+     * inject field annotated by {@literal com.alipay.sofa.ark.spi.service.ArkInject}
+     * @param object
+     */
+    void inject(Object object);
 }

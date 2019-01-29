@@ -28,4 +28,16 @@ import java.lang.annotation.ElementType;
 @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @java.lang.annotation.Documented
 public @interface ArkInject {
+    /**
+     * ark service interface
+     * @return
+     */
+    Class<?> interfaceType() default void.class;
+
+    /**
+     * ark service uniqueId
+     *
+     * @return return reference unique-id
+     */
+    String uniqueId() default "";
 }

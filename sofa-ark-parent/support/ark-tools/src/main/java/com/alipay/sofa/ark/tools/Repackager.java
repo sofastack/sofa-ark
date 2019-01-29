@@ -74,6 +74,8 @@ public class Repackager {
 
     private File                                  pluginModuleJar;
 
+    private File                                  baseDir;
+
     private boolean                               packageProvided;
 
     private boolean                               keepArkBizJar;
@@ -196,6 +198,7 @@ public class Repackager {
                         if (arkContainerLibrary != null) {
                             throw new RuntimeException("duplicate SOFAArk Container dependency");
                         }
+                        library.setScope(LibraryScope.CONTAINER);
                         arkContainerLibrary = library;
                     } else if (isArkModule(jarFile)) {
                         library.setScope(LibraryScope.MODULE);
@@ -259,8 +262,10 @@ public class Repackager {
 
         try {
             writer.writeManifest(manifest);
-            writer.writeEntries(jarFileSource, new RenamingEntryTransformer(Layouts.Jar.jar()
-                .getArkContainerLocation()));
+            writeConfDir(new File(baseDir, Constants.CONF_BASE_DIR), writer);
+            writer.writeBootstrapEntry(jarFileSource);
+            writeNestedLibraries(Collections.singletonList(arkContainerLibrary), Layouts.Jar.jar(),
+                writer);
             writeNestedLibraries(arkPluginLibraries, Layouts.Jar.jar(), writer);
             writeNestedLibraries(getModuleLibraries(), Layouts.Jar.jar(), writer);
         } finally {
@@ -277,7 +282,24 @@ public class Repackager {
         if (!keepArkBizJar) {
             pluginModuleJar.getAbsoluteFile().deleteOnExit();
         }
+    }
 
+    private void writeConfDir(File confDir, JarWriter jarWriter) throws IOException {
+        if (!confDir.exists()) {
+            return;
+        }
+
+        for (File subFile : confDir.listFiles()) {
+            if (subFile.isDirectory()) {
+                writeConfDir(subFile, jarWriter);
+            } else {
+                String entryName = subFile.getPath().substring(baseDir.getPath().length());
+                if (entryName.startsWith(File.separator)) {
+                    entryName = entryName.substring(1);
+                }
+                jarWriter.writeEntry(entryName, new FileInputStream(subFile));
+            }
+        }
     }
 
     private void writeNestedLibraries(List<Library> libraries, Layout layout, JarWriter writer)
@@ -355,11 +377,11 @@ public class Repackager {
         manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, this.bizVersion);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE, priority);
         manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
-            StringUtils.listToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
+            StringUtils.setToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,
-            StringUtils.listToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
+            StringUtils.setToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_RESOURCES,
-            StringUtils.listToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
+            StringUtils.setToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
 
         return manifest;
     }
@@ -473,5 +495,9 @@ public class Repackager {
 
     public void setKeepArkBizJar(boolean keepArkBizJar) {
         this.keepArkBizJar = keepArkBizJar;
+    }
+
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
     }
 }

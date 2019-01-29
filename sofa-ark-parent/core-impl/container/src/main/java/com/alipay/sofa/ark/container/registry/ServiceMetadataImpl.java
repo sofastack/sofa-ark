@@ -36,6 +36,7 @@ public class ServiceMetadataImpl implements ServiceMetadata {
     public ServiceMetadataImpl(Class<?> interfaceClass, String uniqueId,
                                ServiceProvider serviceProvider) {
         AssertUtils.assertNotNull(interfaceClass, "Service interface should not be null.");
+        AssertUtils.assertNotNull(uniqueId, "Service uniqueId should not be null");
         AssertUtils.assertNotNull(serviceProvider, "Service provider should not be null.");
         this.uniqueId = uniqueId;
         this.interfaceClass = interfaceClass;

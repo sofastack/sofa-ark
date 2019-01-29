@@ -37,65 +37,54 @@ public abstract class AbstractLauncher {
      * Launch the ark container. This method is the initial entry point when execute an fat jar.
      * @throws Exception if the ark container fails to launch.
      */
-    public void launch(String[] args) throws Exception {
+    public Object launch(String[] args) throws Exception {
         JarFile.registerUrlProtocolHandler();
-
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
-
         List<String> attachArgs = new ArrayList<>();
         attachArgs
             .add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
                 CommandArgument.FAT_JAR_ARGUMENT_KEY, getExecutableArchive().getUrl()
                     .toExternalForm()));
         attachArgs.addAll(Arrays.asList(args));
-
-        launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
+        return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
+            classLoader);
     }
 
     /**
      * Launch the ark container. This method is the initial entry point when execute in IDE.
      * @throws Exception if the ark container fails to launch.
      */
-    public void launch(String[] args, String classpath, Method method) throws Exception {
+    public Object launch(String[] args, String classpath, Method method) throws Exception {
         JarFile.registerUrlProtocolHandler();
-
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
-
         List<String> attachArgs = new ArrayList<>();
-        attachArgs.add(String.format("%s%s=%s %s %s%s=%s %s %s%s=%s %s %s%s=%s",
-            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
-            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY,
-            method.getDeclaringClass().getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY,
-            method.getName(), CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_METHOD_DESCRIPTION_ARGUMENT_KEY, method.toGenericString()));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, method.getDeclaringClass().getName()));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
         attachArgs.addAll(Arrays.asList(args));
-
-        launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(), classLoader);
+        return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
+            classLoader);
     }
 
     /**
-     * Launch the ark container in {@literal TEST} run mode. Only container and plugin
-     * would startup.
+     * Launch the ark container in {@literal TEST} run mode.
      *
      * @param classpath classpath of ark-biz
+     * @param testClass test class
      * @return Object {@literal com.alipay.sofa.ark.container.ArkContainer}
      * @throws Exception
      */
-    public Object launch(String classpath) throws Exception {
+    public Object launch(String classpath, Class testClass) throws Exception {
         JarFile.registerUrlProtocolHandler();
-
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
-
         List<String> attachArgs = new ArrayList<>();
-        attachArgs.add(String.format("%s%s=%s %s %s%s=%s",
-            CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK, CommandArgument.CLASSPATH_ARGUMENT_KEY,
-            classpath, CommandArgument.KEY_VALUE_PAIR_SPLIT,
-            CommandArgument.ARK_BIZ_ARGUMENTS_MARK, CommandArgument.BIZ_RUN_MODE,
-            CommandArgument.TEST_RUN_MODE));
-
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, testClass.getCanonicalName()));
         return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
             classLoader);
     }
@@ -139,7 +128,9 @@ public abstract class AbstractLauncher {
      */
     protected ClassLoader createContainerClassLoader(ContainerArchive containerArchive)
                                                                                        throws Exception {
-        return createContainerClassLoader(containerArchive.getUrls(), null);
+        List<URL> classpath = getExecutableArchive().getConfClasspath();
+        classpath.addAll(Arrays.asList(containerArchive.getUrls()));
+        return createContainerClassLoader(classpath.toArray(new URL[] {}), null);
     }
 
     /**

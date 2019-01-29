@@ -16,13 +16,17 @@
  */
 package com.alipay.sofa.ark.container.service;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.guice.AbstractArkGuiceModule;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.ArkService;
+import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -49,16 +53,22 @@ public class ArkServiceContainer {
     private AtomicBoolean          started        = new AtomicBoolean(false);
     private AtomicBoolean          stopped        = new AtomicBoolean(false);
 
+    private final String[]         arguments;
+
     private static final ArkLogger LOGGER         = ArkLoggerFactory.getDefaultLogger();
+
+    public ArkServiceContainer(String[] arguments) {
+        this.arguments = arguments;
+    }
 
     /**
      * Start Ark Service Container
-     * @throws ArkException
+     * @throws ArkRuntimeException
      * @since 0.1.0
      */
-    public void start() throws ArkException {
+    public void start() throws ArkRuntimeException {
         if (started.compareAndSet(false, true)) {
-            ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
+            ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(getClass()
                 .getClassLoader());
             try {
                 LOGGER.info("Begin to start ArkServiceContainer");
@@ -77,16 +87,20 @@ public class ArkServiceContainer {
                 }
 
                 ArkServiceContainerHolder.setContainer(this);
+                ArkClient.setBizFactoryService(getService(BizFactoryService.class));
+                ArkClient.setBizManagerService(getService(BizManagerService.class));
+                ArkClient.setInjectionService(getService(InjectionService.class));
+                ArkClient.setArguments(arguments);
                 LOGGER.info("Finish to start ArkServiceContainer");
             } finally {
-                ClassloaderUtils.popContextClassloader(oldClassloader);
+                ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
 
         }
 
     }
 
-    private List<AbstractArkGuiceModule> findServiceModules() throws ArkException {
+    private List<AbstractArkGuiceModule> findServiceModules() throws ArkRuntimeException {
         try {
             List<AbstractArkGuiceModule> modules = new ArrayList<>();
             for (AbstractArkGuiceModule module : ServiceLoader.load(AbstractArkGuiceModule.class)) {
@@ -94,7 +108,7 @@ public class ArkServiceContainer {
             }
             return modules;
         } catch (Throwable e) {
-            throw new ArkException(e);
+            throw new ArkRuntimeException(e);
         }
     }
 
@@ -111,14 +125,14 @@ public class ArkServiceContainer {
 
     /**
      * Stop Ark Service Container
-     * @throws ArkException
+     * @throws ArkRuntimeException
      * @since 0.1.0
      */
-    public void stop() throws ArkException {
+    public void stop() throws ArkRuntimeException {
         if (stopped.compareAndSet(false, true)) {
             LOGGER.info("Begin to stop ArkServiceContainer");
 
-            ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(getClass()
+            ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(getClass()
                 .getClassLoader());
             try {
                 Collections.reverse(arkServiceList);
@@ -129,7 +143,7 @@ public class ArkServiceContainer {
                 }
                 LOGGER.info("Finish to stop ArkServiceContainer");
             } finally {
-                ClassloaderUtils.popContextClassloader(oldClassloader);
+                ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
         }
     }

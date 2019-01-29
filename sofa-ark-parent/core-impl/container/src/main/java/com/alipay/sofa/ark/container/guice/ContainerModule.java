@@ -21,11 +21,12 @@ import com.alipay.sofa.ark.container.service.biz.BizDeployServiceImpl;
 import com.alipay.sofa.ark.container.service.biz.BizFactoryServiceImpl;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
 import com.alipay.sofa.ark.container.service.event.EventAdminServiceImpl;
+import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
 import com.alipay.sofa.ark.container.service.injection.InjectionServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginFactoryServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginManagerServiceImpl;
 import com.alipay.sofa.ark.container.pipeline.StandardPipeline;
-import com.alipay.sofa.ark.container.service.classloader.ClassloaderServiceImpl;
+import com.alipay.sofa.ark.container.service.classloader.ClassLoaderServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginDeployServiceImpl;
 import com.alipay.sofa.ark.container.service.registry.RegistryServiceImpl;
 import com.alipay.sofa.ark.container.session.StandardTelnetServerImpl;
@@ -33,12 +34,13 @@ import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.spi.service.ArkService;
-import com.alipay.sofa.ark.spi.service.classloader.ClassloaderService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
@@ -60,12 +62,12 @@ public class ContainerModule extends AbstractArkGuiceModule {
             ArkService.class);
         arkServiceMultibinder.addBinding().to(PluginDeployServiceImpl.class);
         arkServiceMultibinder.addBinding().to(BizDeployServiceImpl.class);
-        arkServiceMultibinder.addBinding().to(ClassloaderServiceImpl.class);
+        arkServiceMultibinder.addBinding().to(ClassLoaderServiceImpl.class);
         arkServiceMultibinder.addBinding().to(StandardTelnetServerImpl.class);
 
         binder().bind(PluginManagerService.class).to(PluginManagerServiceImpl.class);
         binder().bind(BizManagerService.class).to(BizManagerServiceImpl.class);
-        binder().bind(ClassloaderService.class).to(ClassloaderServiceImpl.class);
+        binder().bind(ClassLoaderService.class).to(ClassLoaderServiceImpl.class);
         binder().bind(PluginDeployService.class).to(PluginDeployServiceImpl.class);
         binder().bind(BizDeployService.class).to(BizDeployServiceImpl.class);
         binder().bind(RegistryService.class).to(RegistryServiceImpl.class);
@@ -73,6 +75,7 @@ public class ContainerModule extends AbstractArkGuiceModule {
         binder().bind(TelnetServerService.class).to(StandardTelnetServerImpl.class);
         binder().bind(BizFactoryService.class).to(BizFactoryServiceImpl.class);
         binder().bind(PluginFactoryService.class).to(PluginFactoryServiceImpl.class);
+        binder().bind(ExtensionLoaderService.class).to(ExtensionLoaderServiceImpl.class);
         binder().bind(EventAdminService.class).to(EventAdminServiceImpl.class);
     }
 }

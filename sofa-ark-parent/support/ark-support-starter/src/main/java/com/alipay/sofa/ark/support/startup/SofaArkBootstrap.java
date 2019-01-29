@@ -28,8 +28,10 @@ import java.net.URLClassLoader;
 
 /**
  * relaunch a started main method with bootstrapping ark container
+ * {@literal org.springframework.boot.maven.RunMojo}
  *
  * @author qilong.zql
+ * @author Phillip Webb
  * @since 0.1.0
  */
 public class SofaArkBootstrap {
@@ -58,38 +60,29 @@ public class SofaArkBootstrap {
         }
     }
 
-    public static Object prepareContainerForTest() {
+    public static Object prepareContainerForTest(Class testClass) {
         try {
-            /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
-            System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
-
             URL[] urls = getURLClassPath();
-            return new ClasspathLauncher(new ClassPathArchive(urls)).launch(getClasspath(urls));
+            return new ClasspathLauncher(new ClassPathArchive(testClass.getCanonicalName(), null,
+                urls)).launch(getClasspath(urls), testClass);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     private static void remain(String[] args) throws Exception {// NOPMD
-
         AssertUtils.assertNotNull(entryMethod, "No Entry Method Found.");
-
-        /* default set sofa-ark log configuration to 'dev' mode when startup in IDE */
-        System.setProperty("log.env.suffix", "com.alipay.sofa.ark:dev");
-
         URL[] urls = getURLClassPath();
-        new ClasspathLauncher(new ClassPathArchive(urls)).launch(args, getClasspath(urls),
+        new ClasspathLauncher(new ClassPathArchive(entryMethod.getDeclaringClassName(),
+            entryMethod.getMethodName(), urls)).launch(args, getClasspath(urls),
             entryMethod.getMethod());
-
     }
 
     private static String getClasspath(URL[] urls) {
-
         StringBuilder sb = new StringBuilder();
         for (URL url : urls) {
             sb.append(url.toExternalForm()).append(CommandArgument.CLASSPATH_SPLIT);
         }
-
         return sb.toString();
     }
 
@@ -99,8 +92,8 @@ public class SofaArkBootstrap {
     }
 
     private static boolean isSofaArkStarted() {
-        Class<?> bizClassloader = SofaArkBootstrap.class.getClassLoader().getClass();
-        return BIZ_CLASSLOADER.equals(bizClassloader.getCanonicalName());
+        Class<?> bizClassLoader = SofaArkBootstrap.class.getClassLoader().getClass();
+        return BIZ_CLASSLOADER.equals(bizClassLoader.getCanonicalName());
     }
 
 }

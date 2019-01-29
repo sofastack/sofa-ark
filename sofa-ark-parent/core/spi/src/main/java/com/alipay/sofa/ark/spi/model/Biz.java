@@ -18,70 +18,13 @@ package com.alipay.sofa.ark.spi.model;
 
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
-import java.net.URL;
-import java.util.Set;
-
 /**
  * Ark Biz Model Interface
  *
  * @author ruoshan
  * @since 0.1.0
  */
-public interface Biz extends PriorityOrdered {
-
-    /**
-     * get Biz Name
-     * @return biz name
-     */
-    String getBizName();
-
-    /**
-     * get Biz Version
-     */
-    String getBizVersion();
-
-    /**
-     * get identity id in runtime, an unique-id of ark biz
-     * @return
-     */
-    String getIdentity();
-
-    /**
-     * get Biz Main Entry Class Name
-     * @return main class name
-     */
-    String getMainClass();
-
-    /**
-     * get Biz Class Path
-     * @return biz classpath
-     */
-    URL[] getClassPath();
-
-    /**
-     * get denied imported packages
-     * @return
-     */
-    Set<String> getDenyImportPackages();
-
-    /**
-     * get denied imported classes
-     * @return
-     */
-    Set<String> getDenyImportClasses();
-
-    /**
-     * get denied imported resources
-     * @return
-     */
-    Set<String> getDenyImportResources();
-
-    /**
-     * get Biz Classloader
-     * @return biz classloader
-     */
-    ClassLoader getBizClassLoader();
-
+public interface Biz extends BizInfo, PriorityOrdered {
     /**
      * start Biz
      * @throws Throwable
@@ -93,9 +36,4 @@ public interface Biz extends PriorityOrdered {
      * @throws Throwable
      */
     void stop() throws Throwable;
-
-    /**
-     * get Biz State
-     */
-    BizState getBizState();
 }

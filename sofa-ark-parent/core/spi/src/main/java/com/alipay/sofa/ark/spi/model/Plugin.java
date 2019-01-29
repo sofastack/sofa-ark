@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.model;
 
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
 import java.net.URL;
@@ -76,8 +76,8 @@ public interface Plugin extends PriorityOrdered {
     URL[] getClassPath();
 
     /**
-     * get Plugin Classloader
-     * @return plugin classloader
+     * get Plugin ClassLoader
+     * @return plugin classLoader
      */
     ClassLoader getPluginClassLoader();
 
@@ -137,14 +137,14 @@ public interface Plugin extends PriorityOrdered {
 
     /**
      * start Plugin
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void start() throws ArkException;
+    void start() throws ArkRuntimeException;
 
     /**
      * stop Plugin
-     * @throws ArkException
+     * @throws ArkRuntimeException
      */
-    void stop() throws ArkException;
+    void stop() throws ArkRuntimeException;
 
 }

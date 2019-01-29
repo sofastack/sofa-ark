@@ -37,6 +37,19 @@ public class AssertUtils {
     }
 
     /**
+     * Validate current object must be null
+     *
+     * @param instance object instance
+     * @param msg error message
+     * @throws IllegalArgumentException if object instance is null
+     */
+    public static void assertNull(Object instance, String msg) {
+        if (instance != null) {
+            throw new IllegalArgumentException(msg);
+        }
+    }
+
+    /**
      * <p>Validate that the argument condition is {@code true}; otherwise
      * throwing an exception with the specified message. This method is useful when
      * validating according to an arbitrary boolean expression, such as validating a

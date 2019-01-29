@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.support.common;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 
 import java.lang.reflect.Method;
@@ -45,18 +45,18 @@ public class DelegateArkContainer {
     /**
      * Launch Ark Container when run tests
      */
-    public static void launch() {
+    public static void launch(Class testClass) {
         if (arkContainer == null) {
             synchronized (LOCK) {
                 if (arkContainer == null) {
-                    Object container = SofaArkBootstrap.prepareContainerForTest();
+                    Object container = SofaArkBootstrap.prepareContainerForTest(testClass);
                     wrapping(container);
                     arkContainer = container;
                 }
             }
         }
 
-        ClassloaderUtils.pushContextClassloader(DelegateArkContainer.getTestClassLoader());
+        ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer.getTestClassLoader());
     }
 
     /**

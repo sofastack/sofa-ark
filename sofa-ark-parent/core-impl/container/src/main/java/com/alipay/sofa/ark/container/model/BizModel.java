@@ -18,10 +18,11 @@ package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassloaderUtils;
+import com.alipay.sofa.ark.common.util.BizIdentityUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.BizEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -128,7 +129,7 @@ public class BizModel implements Biz {
 
     @Override
     public String getIdentity() {
-        return BizIdentityGenerator.generateBizIdentity(this);
+        return BizIdentityUtils.generateBizIdentity(this);
     }
 
     @Override
@@ -170,21 +171,23 @@ public class BizModel implements Biz {
     public void start(String[] args) throws Throwable {
         AssertUtils.isTrue(bizState == BizState.RESOLVED, "BizState must be RESOLVED");
         if (mainClass == null) {
-            throw new ArkException(String.format("biz: %s has no main method", getBizName()));
+            throw new ArkRuntimeException(String.format("biz: %s has no main method", getBizName()));
         }
 
-        ClassLoader oldClassloader = ClassloaderUtils.pushContextClassloader(this.classLoader);
+        ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         try {
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
                 .getService(EventAdminService.class);
-            eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_HEALTH_CHECK));
+            // this can trigger health checker handler
+            eventAdminService.sendEvent(new BizEvent(this,
+                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
         } finally {
-            ClassloaderUtils.popContextClassloader(oldClassloader);
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
 
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
@@ -205,7 +208,9 @@ public class BizModel implements Biz {
         try {
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
                 .getService(EventAdminService.class);
-            eventAdminService.sendEvent(new BizEvent(this, Constants.BIZ_EVENT_TOPIC_UNINSTALL));
+            // this can trigger uninstall handler
+            eventAdminService.sendEvent(new BizEvent(this,
+                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -224,20 +229,8 @@ public class BizModel implements Biz {
         return bizState;
     }
 
-    public static class BizIdentityGenerator {
-        public static String generateBizIdentity(Biz biz) {
-            return biz.getBizName() + Constants.STRING_COLON + biz.getBizVersion();
-        }
-
-        public static boolean isValid(String bizIdentity) {
-            if (StringUtils.isEmpty(bizIdentity)) {
-                return false;
-            }
-            String[] str = bizIdentity.split(Constants.STRING_COLON);
-            if (str.length != 2) {
-                return false;
-            }
-            return !StringUtils.isEmpty(str[0]) && !StringUtils.isEmpty(str[1]);
-        }
+    @Override
+    public String toString() {
+        return "Ark Biz: " + getIdentity();
     }
 }

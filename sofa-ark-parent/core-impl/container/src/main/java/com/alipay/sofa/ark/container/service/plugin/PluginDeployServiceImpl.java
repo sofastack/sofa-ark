@@ -18,7 +18,7 @@ package com.alipay.sofa.ark.container.service.plugin;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.exception.ArkException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
@@ -43,11 +43,11 @@ public class PluginDeployServiceImpl implements PluginDeployService {
     PluginManagerService           pluginManagerService;
 
     @Override
-    public void deploy() throws ArkException {
+    public void deploy() throws ArkRuntimeException {
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
             try {
                 deployPlugin(plugin);
-            } catch (ArkException e) {
+            } catch (ArkRuntimeException e) {
                 LOGGER.error(String.format("Deploy plugin: %s meet error", plugin.getPluginName()),
                     e);
                 throw e;
@@ -55,25 +55,25 @@ public class PluginDeployServiceImpl implements PluginDeployService {
         }
     }
 
-    private void deployPlugin(Plugin plugin) throws ArkException {
+    private void deployPlugin(Plugin plugin) throws ArkRuntimeException {
         try {
             LOGGER.info(String.format("Start to deploy plugin: %s", plugin.getPluginName()));
             plugin.start();
             LOGGER.info(String.format("Finish to deploy plugin: %s", plugin.getPluginName()));
-        } catch (ArkException e) {
+        } catch (ArkRuntimeException e) {
             LOGGER.error(String.format("Start plugin: %s meet error", plugin.getPluginName()), e);
             throw e;
         }
     }
 
     @Override
-    public void unDeploy() throws ArkException {
+    public void unDeploy() throws ArkRuntimeException {
         List<Plugin> pluginsInOrder = pluginManagerService.getPluginsInOrder();
         Collections.reverse(pluginsInOrder);
         for (Plugin plugin : pluginsInOrder) {
             try {
                 unDeployPlugin(plugin);
-            } catch (ArkException e) {
+            } catch (ArkRuntimeException e) {
                 LOGGER.error(
                     String.format("UnDeploy plugin: %s meet error", plugin.getPluginName()), e);
                 throw e;
@@ -81,26 +81,26 @@ public class PluginDeployServiceImpl implements PluginDeployService {
         }
     }
 
-    private void unDeployPlugin(Plugin plugin) throws ArkException {
+    private void unDeployPlugin(Plugin plugin) throws ArkRuntimeException {
         try {
             LOGGER.info(String.format("Start to unDeploy plugin: %s", plugin.getPluginName())
                         + plugin.getPluginName());
             plugin.stop();
             LOGGER.info(String.format("Stop to unDeploy plugin: %s", plugin.getPluginName())
                         + plugin.getPluginName());
-        } catch (ArkException e) {
+        } catch (ArkRuntimeException e) {
             LOGGER.error(String.format("Stop plugin: %s meet error", plugin.getPluginName()), e);
             throw e;
         }
     }
 
     @Override
-    public void init() throws ArkException {
+    public void init() throws ArkRuntimeException {
 
     }
 
     @Override
-    public void dispose() throws ArkException {
+    public void dispose() throws ArkRuntimeException {
         unDeploy();
     }
 
