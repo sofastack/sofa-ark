@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,7 +103,15 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     @Override
     public void prepareExportClassAndResourceCache() {
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
-            for (String exportIndex : plugin.getExportIndex()) {
+            for (String exportIndex : plugin.getExportPackageNodes()) {
+                exportClassAndClassLoaderMap
+                    .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+            }
+            for (String exportIndex : plugin.getExportPackageStems()) {
+                exportClassAndClassLoaderMap
+                    .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+            }
+            for (String exportIndex : plugin.getExportClasses()) {
                 exportClassAndClassLoaderMap
                     .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
             }
@@ -125,8 +135,14 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
         }
 
         String pkg = ClassUtils.getPackageName(className);
-        for (String pattern : plugin.getImportPackages()) {
-            if (ClassUtils.isAdaptedToPackagePattern(pkg, pattern)) {
+        for (String pattern : plugin.getImportPackageNodes()) {
+            if (pkg.equals(pattern)) {
+                return true;
+            }
+        }
+
+        for (String pattern : plugin.getImportPackageStems()) {
+            if (pkg.startsWith(pattern)) {
                 return true;
             }
         }
@@ -136,7 +152,12 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     @Override
     public ClassLoader findExportClassLoader(String className) {
-        return exportClassAndClassLoaderMap.get(className);
+        ClassLoader exportClassLoader = null;
+        while (!Constants.DEFAULT_PACKAGE.equals(className) && exportClassLoader == null) {
+            exportClassLoader = exportClassAndClassLoaderMap.get(className);
+            className = ClassUtils.getPackageName(className);
+        }
+        return exportClassLoader;
     }
 
     @Override
@@ -234,15 +255,21 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             return false;
         }
 
-        String pkg = ClassUtils.getPackageName(className);
-        for (String pkgPattern : biz.getDenyImportPackages()) {
-            if (ClassUtils.isAdaptedToPackagePattern(pkg, pkgPattern)) {
+        for (String pattern : biz.getDenyImportClasses()) {
+            if (pattern.equals(className)) {
                 return true;
             }
         }
 
-        for (String clazz : biz.getDenyImportClasses()) {
-            if (clazz.equals(className)) {
+        String pkg = ClassUtils.getPackageName(className);
+        for (String pattern : biz.getDenyImportPackageNodes()) {
+            if (pkg.equals(pattern)) {
+                return true;
+            }
+        }
+
+        for (String pattern : biz.getDenyImportPackageStems()) {
+            if (pkg.startsWith(pattern)) {
                 return true;
             }
         }

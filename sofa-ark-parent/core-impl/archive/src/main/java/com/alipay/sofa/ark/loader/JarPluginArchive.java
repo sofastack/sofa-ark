@@ -36,8 +36,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
 
     public final Archive        archive;
 
-    private final static String SOFA_ARK_PLUGIN_LIB          = "lib/";
-    private final static String SOFA_ARK_PLUGIN_EXPORT_INDEX = "conf/export.index";
+    private final static String SOFA_ARK_PLUGIN_LIB = "lib/";
 
     public JarPluginArchive(Archive archive) {
         this.archive = archive;
@@ -91,22 +90,5 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
                        && !SOFA_ARK_PLUGIN_LIB.equals(entry.getName());
             }
         });
-    }
-
-    public Set<String> getExportIndex() throws IOException {
-        InputStream inputStream = archive
-            .getInputStream(new ZipEntry(SOFA_ARK_PLUGIN_EXPORT_INDEX));
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-        Set<String> exportIndex = new HashSet<>();
-        for (String line = bufferedReader.readLine(); line != null; line = bufferedReader
-            .readLine()) {
-            if (!line.trim().isEmpty()) {
-                exportIndex.add(line.trim());
-            }
-        }
-
-        return exportIndex;
     }
 }

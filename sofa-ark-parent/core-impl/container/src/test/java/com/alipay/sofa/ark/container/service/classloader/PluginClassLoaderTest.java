@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
@@ -74,7 +75,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getName()))
+            .setExportClasses("")
             .setExportResources(StringUtils.EMPTY_STRING)
             .setImportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -87,7 +89,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(ITest.class.getName())
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setExportResources(StringUtils.EMPTY_STRING)
             .setImportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -111,7 +114,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages("com.alipay.sofa.ark")
+            .setExportClasses("")
             .setExportResources(StringUtils.EMPTY_STRING)
             .setImportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -124,7 +128,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setExportResources(StringUtils.EMPTY_STRING)
             .setImportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -148,7 +153,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getCanonicalName()))
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources("pluginA_export_resource1.xml,pluginA_export_resource2.xml")
             .setPluginClassLoader(
@@ -161,7 +167,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[0])
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setImportResources("pluginA_export_resource1.xml")
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -192,7 +199,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getCanonicalName()))
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(resourceName)
             .setPluginClassLoader(
@@ -205,7 +213,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(resourceName)
             .setPluginClassLoader(
@@ -218,7 +227,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(resourceName)
             .setPluginClassLoader(
@@ -230,7 +240,8 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[0])
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(Collections.<String> emptySet())
+            .setExportPackages("")
+            .setExportClasses("")
             .setImportResources(resourceName)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -262,7 +273,7 @@ public class PluginClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] {})
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages(ITest.class.getCanonicalName())
             .setPluginClassLoader(
                 new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
         pluginManagerService.registerPlugin(mockPlugin);
@@ -284,7 +295,7 @@ public class PluginClassLoaderTest extends BaseTest {
             .setImportResources(StringUtils.EMPTY_STRING)
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages(ITest.class.getCanonicalName())
             .setPluginClassLoader(
                 new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
         pluginManagerService.registerPlugin(mockPlugin);
@@ -317,8 +328,8 @@ public class PluginClassLoaderTest extends BaseTest {
         mockPlugin.setPluginName("pluginName").setClassPath(new URL[] {})
             .setImportResources(StringUtils.EMPTY_STRING)
             .setImportClasses(StringUtils.EMPTY_STRING).setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
-            .setPluginClassLoader(pluginClassLoader);
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getCanonicalName()))
+            .setExportClasses(StringUtils.EMPTY_STRING).setPluginClassLoader(pluginClassLoader);
         pluginManagerService.registerPlugin(mockPlugin);
         URL url = pluginClassLoader.getResource("");
         Assert.assertNotNull(url);

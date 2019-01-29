@@ -37,14 +37,6 @@ public interface PluginArchive extends Archive {
     URL[] getUrls() throws IOException;
 
     /**
-     * fetch plugin export index file content
-     *
-     * @return export index
-     * @throws IOException throw exception when meets error
-     */
-    Set<String> getExportIndex() throws IOException;
-
-    /**
      * check whether the entry satisfy the given {@link com.alipay.sofa.ark.spi.archive.Archive.EntryFilter}
      * exists or not
      *

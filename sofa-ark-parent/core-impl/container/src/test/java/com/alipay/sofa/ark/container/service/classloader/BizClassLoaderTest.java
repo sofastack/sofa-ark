@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
@@ -80,7 +81,8 @@ public class BizClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportClasses("")
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getName()))
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -123,7 +125,8 @@ public class BizClassLoaderTest extends BaseTest {
             .setClassPath(new URL[] { classPathURL })
             .setImportClasses(StringUtils.EMPTY_STRING)
             .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportPackages("")
+            .setExportClasses(ITest.class.getName())
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources(StringUtils.EMPTY_STRING)
             .setPluginClassLoader(
@@ -173,7 +176,7 @@ public class BizClassLoaderTest extends BaseTest {
             .setImportPackages(StringUtils.EMPTY_STRING)
             .setImportResources(StringUtils.EMPTY_STRING)
             .setExportResources("pluginA_export_resource1.xml,pluginA_export_resource2.xml")
-            .setExportIndex(new HashSet<>(Collections.singletonList(ITest.class.getName())))
+            .setExportClasses(ITest.class.getName())
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 

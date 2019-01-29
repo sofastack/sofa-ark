@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -31,6 +32,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -53,9 +55,13 @@ public class BizModel implements Biz {
 
     private ClassLoader classLoader;
 
-    private int         priority = DEFAULT_PRECEDENCE;
+    private int         priority               = DEFAULT_PRECEDENCE;
 
     private Set<String> denyImportPackages;
+
+    private Set<String> denyImportPackageNodes = new HashSet<>();
+
+    private Set<String> denyImportPackageStems = new HashSet<>();
 
     private Set<String> denyImportClasses;
 
@@ -102,6 +108,8 @@ public class BizModel implements Biz {
     public BizModel setDenyImportPackages(String denyImportPackages) {
         this.denyImportPackages = StringUtils.strToSet(denyImportPackages,
             Constants.MANIFEST_VALUE_SPLIT);
+        parsePackageNodeAndStem(this.denyImportPackages, this.denyImportPackageStems,
+            this.denyImportPackageNodes);
         return this;
     }
 
@@ -155,6 +163,16 @@ public class BizModel implements Biz {
     @Override
     public Set<String> getDenyImportPackages() {
         return denyImportPackages;
+    }
+
+    @Override
+    public Set<String> getDenyImportPackageNodes() {
+        return denyImportPackageNodes;
+    }
+
+    @Override
+    public Set<String> getDenyImportPackageStems() {
+        return denyImportPackageStems;
     }
 
     @Override
@@ -232,5 +250,16 @@ public class BizModel implements Biz {
     @Override
     public String toString() {
         return "Ark Biz: " + getIdentity();
+    }
+
+    private void parsePackageNodeAndStem(Set<String> candidates, Set<String> stems,
+                                         Set<String> nodes) {
+        for (String pkgPattern : candidates) {
+            if (pkgPattern.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                stems.add(ClassUtils.getPackageName(pkgPattern));
+            } else {
+                nodes.add(pkgPattern);
+            }
+        }
     }
 }

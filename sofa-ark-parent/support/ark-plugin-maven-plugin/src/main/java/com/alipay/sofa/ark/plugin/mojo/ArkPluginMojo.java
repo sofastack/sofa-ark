@@ -17,43 +17,32 @@
 package com.alipay.sofa.ark.plugin.mojo;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.JarWriter;
 import com.alipay.sofa.ark.tools.Repackager;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.ArchiveEntry;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.ResourceIterator;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.zip.AbstractZipArchiver;
@@ -414,7 +403,6 @@ public class ArkPluginMojo extends AbstractMojo {
      */
     protected void addArkPluginConfig(Archiver archiver) throws MojoExecutionException {
         addManifest(archiver);
-        addExportIndex(archiver);
         addArkPluginMark(archiver);
     }
 
@@ -484,169 +472,7 @@ public class ArkPluginMojo extends AbstractMojo {
 
     }
 
-    private void addArkPluginConfig(Archiver archiver, String path, String content)
-                                                                                   throws MojoExecutionException {
-
-        File file = new File(workDirectory.getPath() + File.separator + path);
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-        PrintStream outputStream;
-        try {
-            outputStream = new PrintStream(file, "UTF-8");
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            throw new MojoExecutionException(e.toString());
-        }
-        try {
-            outputStream.println(content);
-        } finally {
-            outputStream.close();
-        }
-        archiver.addFile(file, path);
-    }
-
-    private void addExportIndex(Archiver archiver) throws MojoExecutionException {
-        List<ArchiveEntry> archiveEntries = getLibFileArchiveEntries(archiver);
-        Set<String> exportClasses = new LinkedHashSet<>();
-
-        for (ArchiveEntry archiveEntry : archiveEntries) {
-            if (this.exported.getPackages() != null) {
-                exportClasses.addAll(scanJar(archiveEntry, this.exported.getPackages()));
-            }
-        }
-
-        if (this.exported.getClasses() != null) {
-            exportClasses.addAll(this.exported.getClasses());
-        }
-
-        StringBuilder sb = new StringBuilder(8092);
-        for (String clazz : exportClasses) {
-            sb.append(clazz).append('\n');
-        }
-
-        addArkPluginConfig(archiver, "conf/export.index", sb.toString());
-        this.getLog().info(
-            String.format("Generate conf/export.index, total export classes count: %d",
-                exportClasses.size()));
-    }
-
     private void addArkPluginMark(Archiver archiver) throws MojoExecutionException {
         addArkPluginConfig(archiver, Constants.ARK_PLUGIN_MARK_ENTRY, new LinkedProperties());
-    }
-
-    private List<ArchiveEntry> getLibFileArchiveEntries(Archiver archiver) {
-        ResourceIterator resourceIterator = archiver.getResources();
-        List<ArchiveEntry> result = new ArrayList<>();
-        while (resourceIterator.hasNext()) {
-            ArchiveEntry archiveEntry = resourceIterator.next();
-            if (archiveEntry.getType() == ArchiveEntry.FILE) {
-                String name = archiveEntry.getName();
-                if (name.startsWith("lib/") && name.endsWith(".jar")) {
-                    if (name.indexOf("/") == name.lastIndexOf("/") && name.contains("/")) {
-                        result.add(archiveEntry);
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * scan all class name contained by package
-     *
-     * @param archiveEntry ark plugin dependencies
-     * @param pkgs exported packages
-     * @throws MojoExecutionException
-     */
-    private List<String> scanJar(ArchiveEntry archiveEntry, Set<String> pkgs)
-                                                                             throws MojoExecutionException {
-        List<String> classes = new ArrayList<>();
-        ZipInputStream zip = null;
-        try {
-            zip = new ZipInputStream(archiveEntry.getInputStream());
-            LinkedHashMap<String, ZipEntry> allEntries = new LinkedHashMap<>();
-
-            ZipEntry iteratorEntry;
-            while ((iteratorEntry = zip.getNextEntry()) != null) {
-                allEntries.put(iteratorEntry.getName(), iteratorEntry);
-            }
-
-            for (Map.Entry<String, ZipEntry> entry : allEntries.entrySet()) {
-                String className = convertClassName(entry.getValue());
-                if (className != null) {
-                    if (classMatchPackage(className, pkgs)) {
-                        classes.add(className);
-                        int index = className.lastIndexOf('.');
-                        if (index != -1) {
-                            String packageEntryName = className.substring(0, index).replace('.',
-                                '/')
-                                                      + "/";
-                            ZipEntry packageEntry = allEntries.get(packageEntryName);
-                            if (packageEntry == null || !packageEntry.isDirectory()) {
-                                throw new MojoExecutionException(
-                                    String
-                                        .format(
-                                            "packageEntry: %s do not exist, do not exist. please check the jar file: %s",
-                                            packageEntryName, archiveEntry.getName()));
-                            }
-                        }
-
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new MojoExecutionException("", e);
-        } finally {
-            IOUtils.closeQuietly(zip);
-        }
-        this.getLog().info(
-            String.format("Export jar: %s, export classes count: %d",
-                new File(archiveEntry.getName()).getName(), classes.size()));
-        return classes;
-    }
-
-    /**
-     * get class name from ZipEntry
-     *
-     * @param entry ZipEntry
-     * @return class
-     */
-    private static String convertClassName(ZipEntry entry) {
-        if (entry.isDirectory()) {
-            return null;
-        }
-
-        String entryName = entry.getName();
-        if (!entryName.endsWith(".class")) {
-            return null;
-        }
-
-        if (entryName.charAt(0) == '/') {
-            entryName = entryName.substring(1);
-        }
-        entryName = entryName.replace("/", ".");
-        return entryName.substring(0, entryName.length() - ".class".length());
-    }
-
-    /**
-     * check className is contained by packages
-     *
-     * @param className
-     * @param pkgPattern
-     * @return
-     */
-    private static boolean classMatchPackage(String className, Set<String> pkgPattern) {
-        if (className == null || pkgPattern == null || pkgPattern.isEmpty()) {
-            return false;
-        }
-
-        String pkg = ClassUtils.getPackageName(className);
-
-        for (String pattern : pkgPattern) {
-            if (ClassUtils.isAdaptedToPackagePattern(pkg, pattern)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
