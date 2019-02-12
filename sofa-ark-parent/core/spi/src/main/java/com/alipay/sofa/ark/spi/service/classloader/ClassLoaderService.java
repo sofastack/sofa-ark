@@ -55,6 +55,20 @@ public interface ClassLoaderService extends ArkService {
     boolean isArkApiClass(String className);
 
     /**
+     * Whether class is ark log class.
+     * @param className
+     * @return
+     */
+    boolean isArkLogClass(String className);
+
+    /**
+     * Whether class is ark exception class.
+     * @param className
+     * @return
+     */
+    boolean isArkExceptionClass(String className);
+
+    /**
      * Whether class is in import-class
      * @param pluginName plugin name
      * @param className class name

@@ -114,6 +114,18 @@ public class ArkConfigs {
     }
 
     /**
+     * Get int value.
+     *
+     * @param primaryKey the primary key
+     * @param defaultValue
+     * @return the int value
+     */
+    public static int getIntValue(String primaryKey, int defaultValue) {
+        String val = getStringValue(primaryKey);
+        return val == null ? defaultValue : Integer.valueOf(val);
+    }
+
+    /**
      * Get ArkConfigs key set
      *
      * @return

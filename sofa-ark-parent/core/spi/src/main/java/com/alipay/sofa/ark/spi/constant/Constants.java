@@ -129,4 +129,14 @@ public class Constants {
     public final static String PLUGIN_CLASS_LOADER_HOOK               = "plugin-classloader-hook";
     public final static String BIZ_CLASS_LOADER_HOOK                  = "biz-classloader-hook";
 
+    /**
+     * Config Server
+     */
+    public final static String CONFIG_SERVER_ADDRESS                  = "com.alipay.sofa.ark.config.address";
+    public final static String CONFIG_PROTOCOL_ZOOKEEPER              = "zookeeper";
+    public final static String ZOOKEEPER_CONTEXT_SPLIT                = "/";
+    public final static String ZOOKEEPER_CREATE_MODE                  = "ephemeralNode";
+
+    public final static String CONFIG_CONNECT_TIMEOUT                 = "com.alipay.sofa.ark.config.connect.timeout";
+    public final static int    DEFAULT_CONFIG_CONNECT_TIMEOUT         = 20000;
 }
