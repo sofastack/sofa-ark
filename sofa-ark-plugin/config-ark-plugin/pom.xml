@@ -14,6 +14,7 @@
 
     <properties>
         <curator.version>2.9.1</curator.version>
+        <commons.io.version>2.6</commons.io.version>
     </properties>
 
     <dependencies>
@@ -55,6 +56,11 @@
                     <artifactId>log-sofa-boot-starter</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
         </dependency>
     </dependencies>
 

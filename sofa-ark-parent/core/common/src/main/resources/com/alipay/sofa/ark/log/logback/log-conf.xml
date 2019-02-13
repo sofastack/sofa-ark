@@ -53,8 +53,31 @@
         </encoder>
     </appender>
 
+    <appender name="CONFIG-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${logging.level.com.alipay.sofa.ark}</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <file>${logging.path}/sofa-ark/config-manage.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logging.path}/sofa-ark/config-manage.log.%d{yyyy-MM-dd}</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d %-5p %-32t - %m%n</pattern>
+            <charset>${file.encoding}</charset>
+        </encoder>
+    </appender>
+
     <logger name="com.alipay.sofa.ark" level="${logging.level.com.alipay.sofa.ark}" additivity="false">
         <appender-ref ref="SOFA-APPENDER"/>
+        <appender-ref ref="ERROR-APPENDER"/>
+    </logger>
+
+    <logger name="com.alipay.sofa.ark.config" level="${logging.level.com.alipay.sofa.ark}" additivity="false">
+        <appender-ref ref="CONFIG-APPENDER"/>
         <appender-ref ref="ERROR-APPENDER"/>
     </logger>
 

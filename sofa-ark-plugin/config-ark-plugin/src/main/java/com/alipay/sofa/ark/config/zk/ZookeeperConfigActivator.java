@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.spi.config.ConfigCommand;
 import com.alipay.sofa.ark.config.ConfigListener;
 import com.alipay.sofa.ark.config.RegistryConfig;
 import com.alipay.sofa.ark.config.util.NetUtils;
@@ -28,14 +29,14 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
+import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.AuthInfo;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.NodeCache;
+import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
@@ -54,7 +55,8 @@ import java.util.List;
  */
 public class ZookeeperConfigActivator implements PluginActivator {
 
-    private final static ArkLogger LOGGER         = ArkLoggerFactory.getDefaultLogger();
+    private final static ArkLogger LOGGER            = ArkLoggerFactory
+                                                         .getLogger("com.alipay.sofa.ark.config");
 
     /**
      * Zookeeper zkClient
@@ -64,13 +66,19 @@ public class ZookeeperConfigActivator implements PluginActivator {
     /**
      * Root path of zk registry resource
      */
-    private String                 rootPath       = Constants.ZOOKEEPER_CONTEXT_SPLIT;
+    private String                 rootPath          = Constants.ZOOKEEPER_CONTEXT_SPLIT;
 
-    private String                 resourcePath;
+    private String                 ipResourcePath    = buildIpConfigPath();
 
-    private PathChildrenCache      pathChildrenCache;
+    private String                 bizResourcePath   = buildMasterBizConfigPath();
 
-    private ConfigListener         configListener = new ZookeeperConfigListener();
+    private NodeCache              ipNodeCache;
+
+    private NodeCache              bizNodeCache;
+
+    private ConfigListener         ipConfigListener  = new ZookeeperConfigListener.IpConfigListener();
+
+    private ConfigListener         bizConfigListener = new ZookeeperConfigListener.BizConfigListener();
 
     @Override
     public void start(PluginContext context) {
@@ -95,7 +103,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
         CuratorFrameworkFactory.Builder zkClientBuilder = CuratorFrameworkFactory.builder()
             .connectString(address).sessionTimeoutMs(3 * registryConfig.getConnectTimeout())
             .connectionTimeoutMs(registryConfig.getConnectTimeout()).canBeReadOnly(false)
-            .retryPolicy(retryPolicy).defaultData(null);
+            .retryPolicy(retryPolicy).defaultData("".getBytes());
 
         List<AuthInfo> authInfos = buildAuthInfo(registryConfig);
         if (!authInfos.isEmpty()) {
@@ -123,77 +131,90 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     @Override
     public void stop(PluginContext context) {
-        if (zkClient != null && resourcePath != null) {
+        if (ipNodeCache != null) {
             try {
-                zkClient.delete().forPath(resourcePath);
+                ipNodeCache.close();
             } catch (Exception e) {
                 // ignore
             }
         }
-        if (pathChildrenCache != null) {
+        if (bizNodeCache != null) {
             try {
-                pathChildrenCache.close();
+                bizNodeCache.close();
             } catch (Exception e) {
                 // ignore
             }
+        }
+        if (zkClient != null) {
+            try {
+                zkClient.delete().forPath(ipResourcePath);
+            } catch (Exception e) {
+                // ignore
+            }
+            zkClient.close();
         }
     }
 
     protected void subscribeConfig() {
-        AssertUtils
-            .isFalse(StringUtils.isEmpty(resourcePath), "resource path should not be empty.");
-        if (pathChildrenCache == null) {
-            pathChildrenCache = new PathChildrenCache(zkClient, resourcePath, true);
-            try {
-                pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
-            } catch (Exception e) {
-                throw new ArkRuntimeException("Failed to register resource to zookeeper registry!",
-                    e);
+        ipNodeCache = new NodeCache(zkClient, ipResourcePath);
+        bizNodeCache = new NodeCache(zkClient, bizResourcePath);
+        ipNodeCache.getListenable().addListener(new NodeCacheListener() {
+            @Override
+            public void nodeChanged() throws Exception {
+                List<ConfigCommand> commands = ipConfigListener.configUpdated(new String(
+                    ipNodeCache.getCurrentData().getData()));
+
             }
-            pathChildrenCache.getListenable().addListener(new PathChildrenCacheListener() {
-                @Override
-                public void childEvent(CuratorFramework client, PathChildrenCacheEvent event)
-                                                                                             throws Exception {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Receive zookeeper event: " + "type=[" + event.getType() + "]");
-                    }
-                    switch (event.getType()) {
-                        case CHILD_ADDED:
-                        case CHILD_REMOVED:
-                        case CHILD_UPDATED:
-                            configListener.configChanged(new String(event.getData().getData()));
-                        default:
-                            break;
-                    }
-                }
-            });
+        });
+        bizNodeCache.getListenable().addListener(new NodeCacheListener() {
+            @Override
+            public void nodeChanged() throws Exception {
+                List<ConfigCommand> commands = bizConfigListener.configUpdated(new String(
+                    bizNodeCache.getCurrentData().getData()));
+            }
+        });
+
+        try {
+            bizNodeCache.start(true);
+            ipNodeCache.start(true);
+        } catch (Exception e) {
+            throw new ArkRuntimeException("Failed to subscribe resource path.", e);
         }
     }
 
     protected void registryResource() {
+        registryResource(bizResourcePath, CreateMode.PERSISTENT);
+        registryResource(ipResourcePath, CreateMode.EPHEMERAL);
+    }
+
+    protected void registryResource(String path, CreateMode createMode) {
         try {
-            if (resourcePath == null) {
-                resourcePath = buildConfigPath();
-            }
-            zkClient.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL)
-                .forPath(resourcePath);
+            zkClient.create().creatingParentContainersIfNeeded().withMode(createMode).forPath(path);
         } catch (KeeperException.NodeExistsException nodeExistsException) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("context path has exists in zookeeper, path=" + resourcePath);
+                LOGGER.warn("Context path has exists in zookeeper, path=" + path);
             }
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to register resource to zookeeper registry!", e);
         }
-
     }
 
-    public String buildConfigPath() {
-        return rootPath + "sofa-ark" + Constants.ZOOKEEPER_CONTEXT_SPLIT
-               + NetUtils.getLocalHostAddress();
+    public String buildIpConfigPath() {
+        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+        AssertUtils.isFalse(StringUtils.isEmpty(masterBizName), "Master biz should be specified.");
+        return rootPath + "sofa-ark" + Constants.ZOOKEEPER_CONTEXT_SPLIT + masterBizName
+               + Constants.ZOOKEEPER_CONTEXT_SPLIT + NetUtils.getLocalHostAddress();
+    }
+
+    public String buildMasterBizConfigPath() {
+        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+        AssertUtils.isFalse(StringUtils.isEmpty(masterBizName), "Master biz should be specified.");
+        return rootPath + "sofa-ark" + Constants.ZOOKEEPER_CONTEXT_SPLIT + masterBizName;
     }
 
     /**
-     * 创建认证信息
+     * build auth info
+     *
      * @return
      */
     private List<AuthInfo> buildAuthInfo(RegistryConfig registryConfig) {

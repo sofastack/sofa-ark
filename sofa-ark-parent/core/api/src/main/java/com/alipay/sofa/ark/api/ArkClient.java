@@ -158,9 +158,8 @@ public class ArkClient {
      * Check all {@link com.alipay.sofa.ark.spi.model.BizInfo}
      *
      * @return
-     * @throws Throwable
      */
-    public static ClientResponse checkBiz() throws Throwable {
+    public static ClientResponse checkBiz() {
         return checkBiz(null, null);
     }
 
@@ -169,9 +168,8 @@ public class ArkClient {
      *
      * @param bizName
      * @return
-     * @throws Throwable
      */
-    public static ClientResponse checkBiz(String bizName) throws Throwable {
+    public static ClientResponse checkBiz(String bizName) {
         return checkBiz(bizName, null);
     }
 
@@ -181,9 +179,8 @@ public class ArkClient {
      * @param bizName
      * @param bizVersion
      * @return
-     * @throws Throwable
      */
-    public static ClientResponse checkBiz(String bizName, String bizVersion) throws Throwable {
+    public static ClientResponse checkBiz(String bizName, String bizVersion) {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
 

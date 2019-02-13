@@ -14,23 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.config;
+package com.alipay.sofa.ark.spi.service.biz;
 
-import com.alipay.sofa.ark.spi.config.ConfigCommand;
-
-import java.util.List;
+import java.io.File;
 
 /**
  * @author qilong.zql
- * @author GengZhang
  * @since 0.6.0
  */
-public interface ConfigListener {
-
-    /**
-     * config is updated
-     *
-     * @param newValue
-     */
-    List<ConfigCommand> configUpdated(String newValue);
+public interface BizFileGenerator {
+    File createBizFile(String bizName, String bizVersion);
 }

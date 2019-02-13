@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.config;
+package com.alipay.sofa.ark.springboot.endpoint;
 
-import com.alipay.sofa.ark.spi.config.ConfigCommand;
-
-import java.util.List;
+import com.alipay.sofa.ark.api.ArkClient;
+import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
 
 /**
  * @author qilong.zql
- * @author GengZhang
  * @since 0.6.0
  */
-public interface ConfigListener {
+public class IntrospectBizEndpointForSpring1 extends AbstractEndpoint<Object> {
 
-    /**
-     * config is updated
-     *
-     * @param newValue
-     */
-    List<ConfigCommand> configUpdated(String newValue);
+    public IntrospectBizEndpointForSpring1() {
+        super("bizState");
+    }
+
+    @Override
+    public Object invoke() {
+        return ArkClient.checkBiz();
+    }
 }
