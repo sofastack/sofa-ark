@@ -49,7 +49,7 @@ public class ZookeeperConfigListener {
             ConfigCommand configCommand = ConfigParser.parseConfig(newValue);
             if (!configCommand.isValid() && LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Receive invalid config {}", configCommand);
-            } else if (configCommand.isValid())
+            } else if (configCommand.isValid()) {
                 switch (configCommand.getCommand()) {
                     case "install":
                         try {
@@ -88,6 +88,7 @@ public class ZookeeperConfigListener {
                     default:
                         LOGGER.error("invalid config: {}.", newValue);
                 }
+            }
             return Collections.singletonList(configCommand);
         }
 

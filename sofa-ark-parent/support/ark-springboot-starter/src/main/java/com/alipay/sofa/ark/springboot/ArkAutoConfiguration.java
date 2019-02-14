@@ -39,9 +39,12 @@ public class ArkAutoConfiguration {
         return new ArkEventHandlerProcessor();
     }
 
-    @Bean
+    @Configuration
     @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.AbstractEndpoint")
-    public static IntrospectBizEndpointForSpring1 introspectBizEndpointForSpring1() {
-        return new IntrospectBizEndpointForSpring1();
+    public class IntrospectBizAutoConfiguration {
+        @Bean
+        public IntrospectBizEndpointForSpring1 introspectBizEndpointForSpring1() {
+            return new IntrospectBizEndpointForSpring1();
+        }
     }
 }

@@ -31,17 +31,21 @@ import java.util.Map;
 public class ConfigParser {
 
     public static ConfigCommand parseConfig(String config) {
-        AssertUtils.assertNotNull(config, "Config should not be null.");
-        String[] configStr = config.split(Constants.CONFIG_PUBLISH_SPLIT);
-        Map<String, String> configMap = new HashMap<>();
-        for (String kv : configStr) {
-            AssertUtils.isTrue(kv.contains(Constants.CONFIG_PUBLISH_KV),
-                "Config content is invalid.");
-            String[] kvPair = kv.split(Constants.CONFIG_PUBLISH_KV);
-            configMap.put(kvPair[0], kvPair[1]);
-        }
+        try {
+            AssertUtils.assertNotNull(config, "Config should not be null.");
+            String[] configStr = config.split(Constants.CONFIG_PUBLISH_SPLIT);
+            Map<String, String> configMap = new HashMap<>();
+            for (String kv : configStr) {
+                AssertUtils.isTrue(kv.contains(Constants.CONFIG_PUBLISH_KV),
+                    "Config content is invalid.");
+                String[] kvPair = kv.split(Constants.CONFIG_PUBLISH_KV);
+                configMap.put(kvPair[0], kvPair[1]);
+            }
 
-        return transformConfigCommand(configMap);
+            return transformConfigCommand(configMap);
+        } catch (Throwable throwable) {
+            return new ConfigCommand().setValid(false);
+        }
     }
 
     public static ConfigCommand transformConfigCommand(Map<String, String> configMap) {

@@ -29,7 +29,6 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
-import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.AuthInfo;
 import org.apache.curator.framework.CuratorFramework;
@@ -103,7 +102,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
         CuratorFrameworkFactory.Builder zkClientBuilder = CuratorFrameworkFactory.builder()
             .connectString(address).sessionTimeoutMs(3 * registryConfig.getConnectTimeout())
             .connectionTimeoutMs(registryConfig.getConnectTimeout()).canBeReadOnly(false)
-            .retryPolicy(retryPolicy).defaultData("".getBytes());
+            .retryPolicy(retryPolicy).defaultData(null);
 
         List<AuthInfo> authInfos = buildAuthInfo(registryConfig);
         if (!authInfos.isEmpty()) {
@@ -119,14 +118,17 @@ public class ZookeeperConfigActivator implements PluginActivator {
                     LOGGER.info("reconnect to zookeeper, re-register config resource.");
                 }
                 if (newState == ConnectionState.RECONNECTED) {
-                    registryResource();
+                    registryResource(ipResourcePath, CreateMode.EPHEMERAL);
+                    subscribeIpConfig();
                 }
             }
         });
 
         zkClient.start();
-        registryResource();
-        subscribeConfig();
+        registryResource(bizResourcePath, CreateMode.PERSISTENT);
+        registryResource(ipResourcePath, CreateMode.EPHEMERAL);
+        subscribeIpConfig();
+        subscribeBizConfig();
     }
 
     @Override
@@ -155,36 +157,57 @@ public class ZookeeperConfigActivator implements PluginActivator {
         }
     }
 
-    protected void subscribeConfig() {
+    protected void subscribeIpConfig() {
+        if (ipNodeCache != null) {
+            try {
+                ipNodeCache.close();
+            } catch (Throwable throwable) {
+                LOGGER.error("Failed to close ip node cache after reconnection.");
+            }
+        }
         ipNodeCache = new NodeCache(zkClient, ipResourcePath);
-        bizNodeCache = new NodeCache(zkClient, bizResourcePath);
         ipNodeCache.getListenable().addListener(new NodeCacheListener() {
+            private int version = -1;
+
             @Override
             public void nodeChanged() throws Exception {
-                List<ConfigCommand> commands = ipConfigListener.configUpdated(new String(
-                    ipNodeCache.getCurrentData().getData()));
+                if (ipNodeCache.getCurrentData() != null
+                        && ipNodeCache.getCurrentData().getStat().getVersion() > version) {
+                    version = ipNodeCache.getCurrentData().getStat().getVersion();
+                    List<ConfigCommand> commands = ipConfigListener.configUpdated(new String(
+                            ipNodeCache.getCurrentData().getData()));
 
+                }
             }
         });
-        bizNodeCache.getListenable().addListener(new NodeCacheListener() {
-            @Override
-            public void nodeChanged() throws Exception {
-                List<ConfigCommand> commands = bizConfigListener.configUpdated(new String(
-                    bizNodeCache.getCurrentData().getData()));
-            }
-        });
-
         try {
-            bizNodeCache.start(true);
-            ipNodeCache.start(true);
+            ipNodeCache.start();
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to subscribe resource path.", e);
         }
     }
 
-    protected void registryResource() {
-        registryResource(bizResourcePath, CreateMode.PERSISTENT);
-        registryResource(ipResourcePath, CreateMode.EPHEMERAL);
+    protected void subscribeBizConfig() {
+        bizNodeCache = new NodeCache(zkClient, bizResourcePath);
+        bizNodeCache.getListenable().addListener(new NodeCacheListener() {
+            private int version = -1;
+
+            @Override
+            public void nodeChanged() throws Exception {
+                if (bizNodeCache.getCurrentData() != null
+                    && bizNodeCache.getCurrentData().getStat().getVersion() > version) {
+                    version = bizNodeCache.getCurrentData().getStat().getVersion();
+                    List<ConfigCommand> commands = bizConfigListener.configUpdated(new String(
+                        bizNodeCache.getCurrentData().getData()));
+                }
+            }
+        });
+
+        try {
+            bizNodeCache.start();
+        } catch (Exception e) {
+            throw new ArkRuntimeException("Failed to subscribe resource path.", e);
+        }
     }
 
     protected void registryResource(String path, CreateMode createMode) {
