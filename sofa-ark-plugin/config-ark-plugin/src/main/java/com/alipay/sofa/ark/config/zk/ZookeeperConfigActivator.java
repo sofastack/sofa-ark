@@ -21,8 +21,6 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.spi.config.ConfigCommand;
-import com.alipay.sofa.ark.config.ConfigListener;
 import com.alipay.sofa.ark.config.RegistryConfig;
 import com.alipay.sofa.ark.config.util.NetUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -44,7 +42,9 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -71,13 +71,13 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     private String                 bizResourcePath   = buildMasterBizConfigPath();
 
+    private Deque<String>          ipConfigDeque = new ArrayDeque<>(5);
+
+    private Deque<String>          bizConfigDeque = new ArrayDeque<>(5);
+
     private NodeCache              ipNodeCache;
 
     private NodeCache              bizNodeCache;
-
-    private ConfigListener         ipConfigListener  = new ZookeeperConfigListener.IpConfigListener();
-
-    private ConfigListener         bizConfigListener = new ZookeeperConfigListener.BizConfigListener();
 
     @Override
     public void start(PluginContext context) {
@@ -118,6 +118,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
                     LOGGER.info("reconnect to zookeeper, re-register config resource.");
                 }
                 if (newState == ConnectionState.RECONNECTED) {
+                    unSubscribeIpConfig();
                     registryResource(ipResourcePath, CreateMode.EPHEMERAL);
                     subscribeIpConfig();
                 }
@@ -147,43 +148,37 @@ public class ZookeeperConfigActivator implements PluginActivator {
                 // ignore
             }
         }
-        if (zkClient != null) {
-            try {
-                zkClient.delete().forPath(ipResourcePath);
-            } catch (Exception e) {
-                // ignore
-            }
-            zkClient.close();
-        }
+        zkClient.close();
     }
 
     protected void subscribeIpConfig() {
-        if (ipNodeCache != null) {
-            try {
-                ipNodeCache.close();
-            } catch (Throwable throwable) {
-                LOGGER.error("Failed to close ip node cache after reconnection.");
-            }
-        }
         ipNodeCache = new NodeCache(zkClient, ipResourcePath);
         ipNodeCache.getListenable().addListener(new NodeCacheListener() {
             private int version = -1;
-
             @Override
             public void nodeChanged() throws Exception {
                 if (ipNodeCache.getCurrentData() != null
                         && ipNodeCache.getCurrentData().getStat().getVersion() > version) {
                     version = ipNodeCache.getCurrentData().getStat().getVersion();
-                    List<ConfigCommand> commands = ipConfigListener.configUpdated(new String(
-                            ipNodeCache.getCurrentData().getData()));
-
+                    ipConfigDeque.add(new String(ipNodeCache.getCurrentData().getData()));
                 }
             }
         });
         try {
             ipNodeCache.start();
         } catch (Exception e) {
-            throw new ArkRuntimeException("Failed to subscribe resource path.", e);
+            throw new ArkRuntimeException("Failed to subscribe ip resource path.", e);
+        }
+    }
+
+    protected void unSubscribeIpConfig() {
+        if (ipNodeCache != null) {
+            try {
+                ipNodeCache.close();
+            } catch (Throwable throwable) {
+                LOGGER.error("Failed to un-subscribe ip resource path.");
+            }
+            ipNodeCache = null;
         }
     }
 
@@ -197,8 +192,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
                 if (bizNodeCache.getCurrentData() != null
                     && bizNodeCache.getCurrentData().getStat().getVersion() > version) {
                     version = bizNodeCache.getCurrentData().getStat().getVersion();
-                    List<ConfigCommand> commands = bizConfigListener.configUpdated(new String(
-                        bizNodeCache.getCurrentData().getData()));
+                    bizConfigDeque.add(new String(bizNodeCache.getCurrentData().getData()));
                 }
             }
         });

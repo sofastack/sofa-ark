@@ -110,6 +110,7 @@ public class Constants {
      */
     public final static String BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START = "AFTER-INVOKE-BIZ-START";
     public final static String BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP  = "AFTER-INVOKE-BIZ-STOP";
+    public final static String ARK_EVENT_TOPIC_AFTER_FINISH_STARTUP_STAGE = "AFTER-FINISH-STARTUP-STAGE";
 
     /**
      * Environment Properties

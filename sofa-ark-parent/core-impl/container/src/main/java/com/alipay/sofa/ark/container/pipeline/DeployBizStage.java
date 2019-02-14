@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
+import com.alipay.sofa.ark.spi.service.monitor.StageProcessService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -35,9 +36,13 @@ public class DeployBizStage implements PipelineStage {
     @Inject
     private BizDeployService bizDeployService;
 
+    @Inject
+    private StageProcessService stageProcessService;
+
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
         bizDeployService.deploy(args);
+        stageProcessService.markFinishDeployBiz(true);
     }
 }

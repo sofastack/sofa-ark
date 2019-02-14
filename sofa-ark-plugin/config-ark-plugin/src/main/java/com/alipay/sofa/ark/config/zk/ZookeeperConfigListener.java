@@ -20,7 +20,7 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.spi.config.ConfigCommand;
+import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.config.ConfigListener;
 import com.alipay.sofa.ark.config.ConfigParser;
 import com.alipay.sofa.ark.config.ConfigUtils;
@@ -45,43 +45,43 @@ public class ZookeeperConfigListener {
                                                   .getLogger("com.alipay.sofa.ark.config");
 
         @Override
-        public List<ConfigCommand> configUpdated(String newValue) {
-            ConfigCommand configCommand = ConfigParser.parseConfig(newValue);
-            if (!configCommand.isValid() && LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Receive invalid config {}", configCommand);
-            } else if (configCommand.isValid()) {
-                switch (configCommand.getCommand()) {
+        public List<BizOperation> configUpdated(String newValue) {
+            BizOperation bizOperation = ConfigParser.parseConfig(newValue);
+            if (!bizOperation.isValid() && LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Receive invalid config {}", bizOperation);
+            } else if (bizOperation.isValid()) {
+                switch (bizOperation.getCommand()) {
                     case "install":
                         try {
-                            File bizFile = fetchFile(configCommand.getBizName(),
-                                configCommand.getBizVersion(), configCommand.getBizUrl());
+                            File bizFile = fetchFile(bizOperation.getBizName(),
+                                bizOperation.getBizVersion(), bizOperation.getBizUrl());
                             ArkClient.installBiz(bizFile);
                         } catch (Throwable throwable) {
                             LOGGER.error(
                                 String.format("Failed to uninstall biz: %s:%s",
-                                    configCommand.getBizName(), configCommand.getBizVersion()),
+                                    bizOperation.getBizName(), bizOperation.getBizVersion()),
                                 throwable);
                         }
                         break;
                     case "uninstall":
                         try {
-                            ArkClient.uninstallBiz(configCommand.getBizName(),
-                                configCommand.getBizVersion());
+                            ArkClient.uninstallBiz(bizOperation.getBizName(),
+                                bizOperation.getBizVersion());
                         } catch (Throwable throwable) {
                             LOGGER.error(
                                 String.format("Failed to uninstall biz: %s:%s",
-                                    configCommand.getBizName(), configCommand.getBizVersion()),
+                                    bizOperation.getBizName(), bizOperation.getBizVersion()),
                                 throwable);
                         }
                         break;
                     case "switch":
                         try {
-                            ArkClient.switchBiz(configCommand.getBizName(),
-                                configCommand.getBizVersion());
+                            ArkClient.switchBiz(bizOperation.getBizName(),
+                                bizOperation.getBizVersion());
                         } catch (Throwable throwable) {
                             LOGGER.error(
                                 String.format("Failed to switch biz: %s:%s",
-                                    configCommand.getBizName(), configCommand.getBizVersion()),
+                                    bizOperation.getBizName(), bizOperation.getBizVersion()),
                                 throwable);
                         }
                         break;
@@ -89,7 +89,7 @@ public class ZookeeperConfigListener {
                         LOGGER.error("invalid config: {}.", newValue);
                 }
             }
-            return Collections.singletonList(configCommand);
+            return Collections.singletonList(bizOperation);
         }
 
         protected File fetchFile(String bizName, String bizVersion, String url) throws Throwable {
@@ -113,7 +113,7 @@ public class ZookeeperConfigListener {
 
     public static class BizConfigListener implements ConfigListener {
         @Override
-        public List<ConfigCommand> configUpdated(String newValue) {
+        public List<BizOperation> configUpdated(String newValue) {
             return null;
         }
     }

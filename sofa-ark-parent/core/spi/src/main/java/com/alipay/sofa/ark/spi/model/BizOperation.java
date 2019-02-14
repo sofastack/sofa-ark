@@ -14,33 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.config;
+package com.alipay.sofa.ark.spi.model;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ConfigCommand {
-    String  bizName;
-    String  bizVersion;
-    String  bizUrl;
-    String  command;
-    boolean valid;
+public class BizOperation {
+    private String  bizName;
+    private String  bizVersion;
+    private String  bizUrl;
+    private OperationType operationType;
 
     public boolean isValid() {
-        return valid;
-    }
-
-    public ConfigCommand setValid(boolean valid) {
-        this.valid = valid;
-        return this;
+        return operationType == OperationType.UNKNOWN;
     }
 
     public String getBizName() {
         return bizName;
     }
 
-    public ConfigCommand setBizName(String bizName) {
+    public BizOperation setBizName(String bizName) {
         this.bizName = bizName;
         return this;
     }
@@ -49,7 +43,7 @@ public class ConfigCommand {
         return bizVersion;
     }
 
-    public ConfigCommand setBizVersion(String bizVersion) {
+    public BizOperation setBizVersion(String bizVersion) {
         this.bizVersion = bizVersion;
         return this;
     }
@@ -58,17 +52,34 @@ public class ConfigCommand {
         return bizUrl;
     }
 
-    public ConfigCommand setBizUrl(String bizUrl) {
+    public BizOperation setBizUrl(String bizUrl) {
         this.bizUrl = bizUrl;
         return this;
     }
 
-    public String getCommand() {
-        return command;
+    public OperationType getOperationType() {
+        return operationType;
     }
 
-    public ConfigCommand setCommand(String command) {
-        this.command = command;
+    public BizOperation setOperationType(OperationType operationType) {
+        this.operationType = operationType;
         return this;
+    }
+
+    public static OperationType transformOperationType(String operation) {
+        if (OperationType.INSTALL.name().equalsIgnoreCase(operation)) {
+            return OperationType.INSTALL;
+        } else if (OperationType.UNINSTALL.name().equalsIgnoreCase(operation)) {
+            return OperationType.UNINSTALL;
+        } else if (OperationType.SWITCH.name().equalsIgnoreCase(operation)) {
+            return OperationType.SWITCH;
+        } else if (OperationType.CHECK.name().equalsIgnoreCase(operation)) {
+            return OperationType.CHECK;
+        }
+        return OperationType.UNKNOWN;
+    }
+
+    public enum OperationType {
+        INSTALL, UNINSTALL, SWITCH, CHECK, UNKNOWN
     }
 }
