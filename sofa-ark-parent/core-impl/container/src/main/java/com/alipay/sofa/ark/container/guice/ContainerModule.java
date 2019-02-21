@@ -23,7 +23,6 @@ import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
 import com.alipay.sofa.ark.container.service.event.EventAdminServiceImpl;
 import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
 import com.alipay.sofa.ark.container.service.injection.InjectionServiceImpl;
-import com.alipay.sofa.ark.container.service.internal.StageProcessServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginFactoryServiceImpl;
 import com.alipay.sofa.ark.container.service.plugin.PluginManagerServiceImpl;
 import com.alipay.sofa.ark.container.pipeline.StandardPipeline;
@@ -37,7 +36,6 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
-import com.alipay.sofa.ark.spi.service.monitor.StageProcessService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
@@ -79,6 +77,5 @@ public class ContainerModule extends AbstractArkGuiceModule {
         binder().bind(PluginFactoryService.class).to(PluginFactoryServiceImpl.class);
         binder().bind(ExtensionLoaderService.class).to(ExtensionLoaderServiceImpl.class);
         binder().bind(EventAdminService.class).to(EventAdminServiceImpl.class);
-        binder().bind(StageProcessService.class).to(StageProcessServiceImpl.class);
     }
 }

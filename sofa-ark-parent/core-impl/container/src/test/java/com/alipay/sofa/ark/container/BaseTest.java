@@ -16,14 +16,12 @@
  */
 package com.alipay.sofa.ark.container;
 
-import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
-import com.alipay.sofa.common.log.Constants;
 import mockit.Mock;
 import mockit.MockUp;
 import org.junit.After;

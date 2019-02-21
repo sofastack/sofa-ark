@@ -36,6 +36,7 @@
         <junit.version>4.12</junit.version>
         <testng.version>6.14.3</testng.version>
         <jmockit.version>1.35</jmockit.version>
+        <mockito.version>2.21.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
@@ -266,6 +267,13 @@
                 <groupId>org.jmockit</groupId>
                 <artifactId>jmockit</artifactId>
                 <version>${jmockit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
 

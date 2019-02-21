@@ -16,15 +16,18 @@
  */
 package com.alipay.sofa.ark.spi.model;
 
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
 public class BizOperation {
-    private String  bizName;
-    private String  bizVersion;
-    private String  bizUrl;
-    private OperationType operationType;
+    private String              bizName;
+    private String              bizVersion;
+    private Map<String, String> parameters;
+    private OperationType       operationType;
 
     public boolean isValid() {
         return operationType == OperationType.UNKNOWN;
@@ -48,15 +51,6 @@ public class BizOperation {
         return this;
     }
 
-    public String getBizUrl() {
-        return bizUrl;
-    }
-
-    public BizOperation setBizUrl(String bizUrl) {
-        this.bizUrl = bizUrl;
-        return this;
-    }
-
     public OperationType getOperationType() {
         return operationType;
     }
@@ -66,17 +60,38 @@ public class BizOperation {
         return this;
     }
 
-    public static OperationType transformOperationType(String operation) {
-        if (OperationType.INSTALL.name().equalsIgnoreCase(operation)) {
-            return OperationType.INSTALL;
-        } else if (OperationType.UNINSTALL.name().equalsIgnoreCase(operation)) {
-            return OperationType.UNINSTALL;
-        } else if (OperationType.SWITCH.name().equalsIgnoreCase(operation)) {
-            return OperationType.SWITCH;
-        } else if (OperationType.CHECK.name().equalsIgnoreCase(operation)) {
-            return OperationType.CHECK;
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public BizOperation setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
         }
-        return OperationType.UNKNOWN;
+        if (obj == null || !(obj instanceof BizOperation)) {
+            return false;
+        }
+        BizOperation that = (BizOperation) obj;
+        if (!Objects.equals(this.getBizName(), that.getBizName())) {
+            return false;
+        }
+        if (!Objects.equals(this.getBizVersion(), that.getBizVersion())) {
+            return false;
+        }
+        if (!Objects.equals(this.getOperationType(), that.getOperationType())) {
+            return false;
+        }
+        return true;
+    }
+
+    public static BizOperation createBizOperation() {
+        return new BizOperation();
     }
 
     public enum OperationType {

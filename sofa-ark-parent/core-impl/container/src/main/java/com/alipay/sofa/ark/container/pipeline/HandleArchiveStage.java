@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
@@ -82,7 +83,8 @@ public class HandleArchiveStage implements PipelineStage {
 
             for (BizArchive bizArchive : executableArchive.getBizArchives()) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
-                if (!isBizExcluded(biz)) {
+                if (!isConfigAddressUsed() && !isBizExcluded(biz)
+                    && !biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     bizManagerService.registerBiz(bizFactoryService.createBiz(bizArchive));
                 } else {
                     LOGGER.warn(String.format("The biz of %s is excluded.", biz.getIdentity()));
@@ -123,4 +125,7 @@ public class HandleArchiveStage implements PipelineStage {
         }
     }
 
+    public boolean isConfigAddressUsed() {
+        return StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ADDRESS));
+    }
 }

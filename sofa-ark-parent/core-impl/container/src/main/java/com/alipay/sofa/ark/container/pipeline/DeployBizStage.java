@@ -17,10 +17,12 @@
 package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployService;
-import com.alipay.sofa.ark.spi.service.monitor.StageProcessService;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,15 +36,20 @@ import com.google.inject.Singleton;
 public class DeployBizStage implements PipelineStage {
 
     @Inject
-    private BizDeployService bizDeployService;
+    private BizDeployService  bizDeployService;
 
     @Inject
-    private StageProcessService stageProcessService;
+    private EventAdminService eventAdminService;
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
         bizDeployService.deploy(args);
-        stageProcessService.markFinishDeployBiz(true);
+        eventAdminService.sendEvent(new ArkEvent() {
+            @Override
+            public String getTopic() {
+                return Constants.ARK_EVENT_TOPIC_AFTER_FINISH_DEPLOY_STAGE;
+            }
+        });
     }
 }

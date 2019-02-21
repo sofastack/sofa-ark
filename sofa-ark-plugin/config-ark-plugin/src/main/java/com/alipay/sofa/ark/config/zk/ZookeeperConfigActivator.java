@@ -21,12 +21,18 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.config.ConfigProcessor;
+import com.alipay.sofa.ark.config.ConfigUtils;
+import com.alipay.sofa.ark.config.OperationProcessor;
 import com.alipay.sofa.ark.config.RegistryConfig;
 import com.alipay.sofa.ark.config.util.NetUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import com.alipay.sofa.ark.spi.service.event.EventHandler;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.AuthInfo;
 import org.apache.curator.framework.CuratorFramework;
@@ -54,8 +60,8 @@ import java.util.List;
  */
 public class ZookeeperConfigActivator implements PluginActivator {
 
-    private final static ArkLogger LOGGER            = ArkLoggerFactory
-                                                         .getLogger("com.alipay.sofa.ark.config");
+    private final static ArkLogger LOGGER          = ArkLoggerFactory
+                                                       .getLogger("com.alipay.sofa.ark.config");
 
     /**
      * Zookeeper zkClient
@@ -65,22 +71,22 @@ public class ZookeeperConfigActivator implements PluginActivator {
     /**
      * Root path of zk registry resource
      */
-    private String                 rootPath          = Constants.ZOOKEEPER_CONTEXT_SPLIT;
+    private String                 rootPath        = Constants.ZOOKEEPER_CONTEXT_SPLIT;
 
-    private String                 ipResourcePath    = buildIpConfigPath();
+    private String                 ipResourcePath  = buildIpConfigPath();
 
-    private String                 bizResourcePath   = buildMasterBizConfigPath();
+    private String                 bizResourcePath = buildMasterBizConfigPath();
 
-    private Deque<String>          ipConfigDeque = new ArrayDeque<>(5);
+    private Deque<String>          ipConfigDeque   = new ArrayDeque<>(5);
 
-    private Deque<String>          bizConfigDeque = new ArrayDeque<>(5);
+    private Deque<String>          bizConfigDeque  = new ArrayDeque<>(5);
 
     private NodeCache              ipNodeCache;
 
     private NodeCache              bizNodeCache;
 
     @Override
-    public void start(PluginContext context) {
+    public void start(final PluginContext context) {
         String config = ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ADDRESS);
         AssertUtils.isFalse(StringUtils.isEmpty(config), "Zookeeper config should not be empty.");
         RegistryConfig registryConfig = ZookeeperConfigurator.buildConfig(config);
@@ -130,6 +136,39 @@ public class ZookeeperConfigActivator implements PluginActivator {
         registryResource(ipResourcePath, CreateMode.EPHEMERAL);
         subscribeIpConfig();
         subscribeBizConfig();
+        final String bizInitConfig = new String(bizNodeCache.getCurrentData().getData());
+        EventAdminService eventAdminService = context.referenceService(EventAdminService.class)
+            .getService();
+        eventAdminService.register(new EventHandler() {
+            @Override
+            public void handleEvent(ArkEvent event) {
+                if (Constants.ARK_EVENT_TOPIC_AFTER_FINISH_STARTUP_STAGE.equals(event.getTopic())) {
+                    OperationProcessor.process(ConfigUtils.transformToBizOperation(bizInitConfig,
+                        context));
+                }
+            }
+
+            @Override
+            public int getPriority() {
+                return 0;
+            }
+        });
+        eventAdminService.register(new EventHandler() {
+            @Override
+            public void handleEvent(ArkEvent event) {
+                if (Constants.ARK_EVENT_TOPIC_AFTER_FINISH_STARTUP_STAGE.equals(event.getTopic())) {
+                    ConfigProcessor.createConfigProcessor(context, ipConfigDeque,
+                        "ip-zookeeper-config").start();
+                    ConfigProcessor.createConfigProcessor(context, bizConfigDeque,
+                        "app-zookeeper-config").start();
+                }
+            }
+
+            @Override
+            public int getPriority() {
+                return 0;
+            }
+        });
     }
 
     @Override
@@ -155,17 +194,18 @@ public class ZookeeperConfigActivator implements PluginActivator {
         ipNodeCache = new NodeCache(zkClient, ipResourcePath);
         ipNodeCache.getListenable().addListener(new NodeCacheListener() {
             private int version = -1;
+
             @Override
             public void nodeChanged() throws Exception {
                 if (ipNodeCache.getCurrentData() != null
-                        && ipNodeCache.getCurrentData().getStat().getVersion() > version) {
+                    && ipNodeCache.getCurrentData().getStat().getVersion() > version) {
                     version = ipNodeCache.getCurrentData().getStat().getVersion();
                     ipConfigDeque.add(new String(ipNodeCache.getCurrentData().getData()));
                 }
             }
         });
         try {
-            ipNodeCache.start();
+            ipNodeCache.start(true);
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to subscribe ip resource path.", e);
         }
@@ -198,7 +238,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
         });
 
         try {
-            bizNodeCache.start();
+            bizNodeCache.start(true);
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to subscribe resource path.", e);
         }

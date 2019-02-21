@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
-import com.alipay.sofa.ark.spi.service.monitor.StageProcessService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -40,14 +39,10 @@ public class DeployPluginStage implements PipelineStage {
     @Inject
     private PluginDeployService pluginDeployService;
 
-    @Inject
-    private StageProcessService stageProcessService;
-
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
-        stageProcessService.markFinishDeployPlugin(true);
     }
 
 }
