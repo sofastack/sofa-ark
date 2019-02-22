@@ -35,7 +35,6 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,6 +60,8 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     /* export class and classloader relationship cache */
     private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassLoaderMap    = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportNodeAndClassLoaderMap     = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportStemAndClassLoaderMap     = new ConcurrentHashMap<>();
 
     /* export cache and classloader relationship cache */
     private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassLoaderMap = new ConcurrentHashMap<>();
@@ -116,12 +117,10 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     public void prepareExportClassAndResourceCache() {
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
             for (String exportIndex : plugin.getExportPackageNodes()) {
-                exportClassAndClassLoaderMap
-                    .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+                exportNodeAndClassLoaderMap.putIfAbsent(exportIndex, plugin.getPluginClassLoader());
             }
             for (String exportIndex : plugin.getExportPackageStems()) {
-                exportClassAndClassLoaderMap
-                    .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+                exportStemAndClassLoaderMap.putIfAbsent(exportIndex, plugin.getPluginClassLoader());
             }
             for (String exportIndex : plugin.getExportClasses()) {
                 exportClassAndClassLoaderMap
@@ -164,10 +163,14 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     @Override
     public ClassLoader findExportClassLoader(String className) {
-        ClassLoader exportClassLoader = null;
-        while (!Constants.DEFAULT_PACKAGE.equals(className) && exportClassLoader == null) {
-            exportClassLoader = exportClassAndClassLoaderMap.get(className);
-            className = ClassUtils.getPackageName(className);
+        ClassLoader exportClassLoader = exportClassAndClassLoaderMap.get(className);
+        String packageName = ClassUtils.getPackageName(className);
+        if (exportClassLoader == null) {
+            exportClassLoader = exportNodeAndClassLoaderMap.get(packageName);
+        }
+        while (!Constants.DEFAULT_PACKAGE.equals(packageName) && exportClassLoader == null) {
+            exportClassLoader = exportStemAndClassLoaderMap.get(packageName);
+            packageName = ClassUtils.getPackageName(packageName);
         }
         return exportClassLoader;
     }
