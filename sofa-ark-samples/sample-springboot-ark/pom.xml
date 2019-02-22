@@ -27,12 +27,6 @@
             <artifactId>sofa-ark-springboot-starter</artifactId>
         </dependency>
 
-        <!--class exported by sample ark plugin-->
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>sample-ark-plugin-common</artifactId>
-        </dependency>
-
         <!--ark plugin-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
