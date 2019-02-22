@@ -66,6 +66,7 @@ public class ZookeeperConfigurator {
     public static Map<String, String> parseParam(String config) {
         Map<String, String> map = new HashMap<String, String>();
         String host = parseAddress(config);
+        AssertUtils.isFalse(StringUtils.isEmpty(host), "host must not be empty.");
         String paramString = config.substring(config.indexOf(host) + host.length());
         if (StringUtils.isEmpty(paramString)) {
             return map;

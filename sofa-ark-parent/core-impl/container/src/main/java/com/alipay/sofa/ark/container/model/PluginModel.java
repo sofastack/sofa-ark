@@ -222,7 +222,7 @@ public class PluginModel implements Plugin {
 
     @Override
     public Set<String> getExportPackageStems() {
-        return exportPackageNodes;
+        return exportPackageStems;
     }
 
     @Override
