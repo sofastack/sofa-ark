@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
@@ -148,6 +149,28 @@ public class ClassLoaderServiceTest extends BaseTest {
         Assert.assertFalse(classloaderService.isClassInImport("mockPlugin", "a.b.c"));
         Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e"));
         Assert.assertTrue(classloaderService.isClassInImport("mockPlugin", "a.b.c.e.f"));
+    }
 
+    @Test
+    public void testFindExportClass() {
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("mockPlugin", new URL[] {});
+        Plugin plugin = new PluginModel().setPluginName("mockPlugin")
+            .setExportPackages("a.b.*,a.f,a.b.f").setExportClasses("a.e.f.G")
+            .setPluginClassLoader(pluginClassLoader).setExportResources("");
+        pluginManagerService.registerPlugin(plugin);
+        classloaderService.prepareExportClassAndResourceCache();
+        Assert.assertNull(classloaderService.findExportClassLoader("a.b"));
+        Assert.assertTrue(pluginClassLoader.equals(classloaderService
+            .findExportClassLoader("a.b.e.f")));
+        Assert.assertTrue(pluginClassLoader.equals(classloaderService
+            .findExportClassLoader("a.f.g")));
+        Assert.assertTrue(pluginClassLoader.equals(classloaderService
+            .findExportClassLoader("a.e.f.G")));
+        Assert.assertTrue(pluginClassLoader.equals(classloaderService
+            .findExportClassLoader("a.b.f.m")));
+        Assert.assertTrue(pluginClassLoader.equals(classloaderService
+            .findExportClassLoader("a.b.f.m.g")));
+        Assert.assertNull(classloaderService.findExportClassLoader("a.f.h.m"));
+        Assert.assertNull(classloaderService.findExportClassLoader("a"));
     }
 }
