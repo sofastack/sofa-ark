@@ -22,7 +22,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.config.ConfigProcessor;
-import com.alipay.sofa.ark.config.ConfigUtils;
+import com.alipay.sofa.ark.config.util.ConfigUtils;
 import com.alipay.sofa.ark.config.OperationProcessor;
 import com.alipay.sofa.ark.config.RegistryConfig;
 import com.alipay.sofa.ark.config.util.NetUtils;

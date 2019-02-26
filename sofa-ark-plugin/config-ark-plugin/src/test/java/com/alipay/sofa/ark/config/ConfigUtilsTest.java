@@ -16,6 +16,10 @@
  */
 package com.alipay.sofa.ark.config;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.config.util.ConfigUtils;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
@@ -26,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -40,6 +45,16 @@ import static org.mockito.Mockito.when;
  * @since 0.6.0
  */
 public class ConfigUtilsTest {
+
+    @Test
+    public void testBizFilePath() {
+        File file = ConfigUtils.createBizSaveFile("name", "version");
+        Assert.assertTrue(StringUtils.isEmpty(ArkConfigs
+            .getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR)));
+        Assert.assertTrue(file.getAbsolutePath().contains(
+            "sofa-ark" + File.separator + "name-version-"));
+    }
+
     @Test
     public void testTransformFormatError() {
         Assert.assertFalse(ConfigUtils.isValidConfig("aaa"));

@@ -19,6 +19,8 @@ package com.alipay.sofa.ark.config;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.config.util.ConfigUtils;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
@@ -53,12 +55,12 @@ public class OperationProcessor {
                         clientResponses.add(checkOperation(bizOperation));
                         break;
                     default:
-                        throw new RuntimeException(String.format("Don't support operation: %s.",
+                        throw new ArkRuntimeException(String.format("Don't support operation: %s.",
                             bizOperation.getOperationType()));
                 }
             }
         } catch (Throwable throwable) {
-            throw new RuntimeException("Failed to execute biz operation ", throwable);
+            throw new ArkRuntimeException("Failed to execute biz operations.", throwable);
         }
         return clientResponses;
     }
@@ -92,14 +94,14 @@ public class OperationProcessor {
         return ArkClient.uninstallBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 
-    public static ClientResponse switchOperation(BizOperation bizOperation) throws Throwable {
+    public static ClientResponse switchOperation(BizOperation bizOperation) {
         AssertUtils.isTrue(
             BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
             "Operation type must be switch");
         return ArkClient.switchBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 
-    public static ClientResponse checkOperation(BizOperation bizOperation) throws Throwable {
+    public static ClientResponse checkOperation(BizOperation bizOperation) {
         AssertUtils.isTrue(
             BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
             "Operation type must be switch");

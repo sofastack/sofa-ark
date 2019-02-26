@@ -69,7 +69,7 @@ public class ZookeeperConfigurator {
             if (!StringUtils.isEmpty(param)) {
                 String[] kvSplit = param.split(Constants.EQUAL_SPLIT);
                 AssertUtils.isTrue(kvSplit.length == 2,
-                        String.format("Config parameter %s is invalid format.", kvSplit));
+                    String.format("Config parameter %s is invalid format.", kvSplit));
                 map.put(kvSplit[0], kvSplit[1]);
             }
         }

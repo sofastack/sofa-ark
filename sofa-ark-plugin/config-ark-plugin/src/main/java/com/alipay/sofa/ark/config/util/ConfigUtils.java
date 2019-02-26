@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.config;
+package com.alipay.sofa.ark.config.util;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.FileUtils;
@@ -40,24 +40,28 @@ import java.util.Map;
  * @since 0.6.0
  */
 public class ConfigUtils {
-    private final static File bizInstallDir;
+    private final static File bizInstallDirectory;
     static {
-        File workDir = FileUtils.createTempDir("sofa-ark");
+        bizInstallDirectory = getBizInstallDirectory();
+    }
+
+    private static File getBizInstallDirectory() {
+        File workingDir = FileUtils.createTempDir("sofa-ark");
         String configDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR);
         if (!StringUtils.isEmpty(configDir)) {
             if (!configDir.endsWith(File.separator)) {
                 configDir += File.separator;
             }
-            workDir = new File(configDir);
-            if (!workDir.exists()) {
-                workDir.mkdir();
+            workingDir = new File(configDir);
+            if (!workingDir.exists()) {
+                workingDir.mkdir();
             }
         }
-        bizInstallDir = workDir;
+        return workingDir;
     }
 
     public static File createBizSaveFile(String bizName, String bizVersion) {
-        return new File(bizInstallDir,
+        return new File(bizInstallDirectory,
             bizName + "-" + bizVersion + "-"
                     + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
     }
@@ -87,7 +91,9 @@ public class ConfigUtils {
                 throw new IllegalStateException(String.format(
                     "Exist illegal biz: %s, please wait.", biz));
             }
-            if (currentBizState.get(biz.getBizName()) == null) {
+            if (biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
+                continue;
+            } else if (currentBizState.get(biz.getBizName()) == null) {
                 currentBizState.put(biz.getBizName(), new HashMap<String, BizState>());
             }
             currentBizState.get(biz.getBizName()).put(biz.getBizVersion(), biz.getBizState());

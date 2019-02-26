@@ -16,7 +16,10 @@
  */
 package com.alipay.sofa.ark.config;
 
+import com.alipay.sofa.ark.common.log.ArkLogger;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.thread.CommonThreadPool;
+import com.alipay.sofa.ark.config.util.ConfigUtils;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.PluginContext;
@@ -29,9 +32,11 @@ import java.util.Deque;
  * @since 0.6.0
  */
 public class ConfigProcessor {
-    private Deque<String>    configDeque;
-    private CommonThreadPool commonThreadPool;
-    private PluginContext    pluginContext;
+    private final static ArkLogger LOGGER = ArkLoggerFactory
+                                              .getLogger("com.alipay.sofa.ark.config");
+    private Deque<String>          configDeque;
+    private CommonThreadPool       commonThreadPool;
+    private PluginContext          pluginContext;
 
     public static ConfigProcessor createConfigProcessor(PluginContext pluginContext,
                                                         Deque<String> deque, String processorName) {
@@ -74,8 +79,15 @@ public class ConfigProcessor {
                     sleep(200);
                     continue;
                 }
-                OperationProcessor.process(ConfigUtils.transformToBizOperation(config,
-                    pluginContext));
+                try {
+                    LOGGER.info("ConfigTask: {} start to process config: {}.",
+                        commonThreadPool.getThreadPoolName(), config);
+                    OperationProcessor.process(ConfigUtils.transformToBizOperation(config,
+                        pluginContext));
+                } catch (Throwable throwable) {
+                    LOGGER.error(String.format("ConfigTask: %s failed to process config: %s.",
+                        commonThreadPool.getThreadPoolName(), config), throwable);
+                }
             }
         }
 
