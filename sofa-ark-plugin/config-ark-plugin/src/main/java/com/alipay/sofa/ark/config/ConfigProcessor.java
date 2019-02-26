@@ -17,7 +17,10 @@
 package com.alipay.sofa.ark.config;
 
 import com.alipay.sofa.ark.common.thread.CommonThreadPool;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.PluginContext;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 
 import java.util.Deque;
 
@@ -46,21 +49,41 @@ public class ConfigProcessor {
         commonThreadPool.getExecutor().execute(new ConfigTask());
     }
 
+    public boolean isReadyProcessConfig() {
+        BizManagerService bizManagerService = pluginContext.referenceService(
+            BizManagerService.class).getService();
+        for (Biz biz : bizManagerService.getBizInOrder()) {
+            if (biz.getBizState() != BizState.ACTIVATED
+                && biz.getBizState() != BizState.DEACTIVATED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     class ConfigTask implements Runnable {
         @Override
         public void run() {
             while (true) {
+                if (!isReadyProcessConfig()) {
+                    sleep(200);
+                    continue;
+                }
                 String config = configDeque.poll();
                 if (config == null) {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
+                    sleep(200);
                     continue;
                 }
                 OperationProcessor.process(ConfigUtils.transformToBizOperation(config,
                     pluginContext));
+            }
+        }
+
+        private void sleep(long millis) {
+            try {
+                Thread.sleep(millis);
+            } catch (InterruptedException e) {
+                // ignore
             }
         }
     }

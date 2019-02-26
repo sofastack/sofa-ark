@@ -43,17 +43,13 @@ public class ZookeeperConfigurator {
      * @param config config value
      */
     public static String parseAddress(String config) {
-        String address = null;
-        if (!StringUtils.isEmpty(config) && config.startsWith(Constants.CONFIG_PROTOCOL_ZOOKEEPER)) {
-            final String zkProtocol = Constants.CONFIG_PROTOCOL_ZOOKEEPER + "://";
-            String value = config.substring(zkProtocol.length());
-            if (!value.contains("?")) {
-                address = value;
-            } else {
-                int index = value.lastIndexOf('?');
-                address = value.substring(0, index);
-            }
-        }
+        AssertUtils.isFalse(StringUtils.isEmpty(config), "Zookeeper config should not be empty.");
+        AssertUtils.isTrue(config.startsWith(Constants.CONFIG_PROTOCOL_ZOOKEEPER_HEADER),
+            "Zookeeper config should start with 'zookeeper://'.");
+        String value = config.substring(Constants.CONFIG_PROTOCOL_ZOOKEEPER_HEADER.length());
+        int idx = value.indexOf(Constants.QUESTION_MARK_SPLIT);
+        String address = (idx == -1) ? value : value.substring(0, idx);
+        AssertUtils.isFalse(StringUtils.isEmpty(address), "Zookeeper address should not be empty");
         return address;
     }
 
@@ -64,42 +60,19 @@ public class ZookeeperConfigurator {
      * @return
      */
     public static Map<String, String> parseParam(String config) {
-        Map<String, String> map = new HashMap<String, String>();
-        String host = parseAddress(config);
-        AssertUtils.isFalse(StringUtils.isEmpty(host), "host must not be empty.");
-        String paramString = config.substring(config.indexOf(host) + host.length());
-        if (StringUtils.isEmpty(paramString)) {
-            return map;
-        }
-        if (paramString.contains("&")) {
-            String[] paramSplit = paramString.split("&");
-            for (String param : paramSplit) {
-                Map<String, String> tempMap = parseKeyValue(param);
-                map.putAll(tempMap);
+        AssertUtils.assertNotNull(config, "Params should not be null.");
+        Map<String, String> map = new HashMap<>();
+        int idx = config.indexOf(Constants.QUESTION_MARK_SPLIT);
+        String paramString = (idx == -1) ? Constants.EMPTY_STR : config.substring(idx + 1);
+        String[] paramSplit = paramString.split(Constants.AMPERSAND_SPLIT);
+        for (String param : paramSplit) {
+            if (!StringUtils.isEmpty(param)) {
+                String[] kvSplit = param.split(Constants.EQUAL_SPLIT);
+                AssertUtils.isTrue(kvSplit.length == 2,
+                        String.format("Config parameter %s is invalid format.", kvSplit));
+                map.put(kvSplit[0], kvSplit[1]);
             }
-        } else {
-            Map<String, String> tempMap = parseKeyValue(paramString);
-            map.putAll(tempMap);
         }
-
-        return map;
-    }
-
-    /**
-     * parse parameter
-     *
-     * @param kv
-     * @return
-     */
-    public static Map<String, String> parseKeyValue(String kv) {
-        AssertUtils.isFalse(StringUtils.isEmpty(kv), "Config parameter should not empty.");
-        Map<String, String> map = new HashMap<String, String>();
-        String[] kvSplit = kv.split("=");
-        AssertUtils.isTrue(kvSplit.length == 2,
-            String.format("Config parameter %s is invalid format.", kv));
-        String key = kvSplit[0];
-        String value = kvSplit[1];
-        map.put(key, value);
         return map;
     }
 }

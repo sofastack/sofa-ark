@@ -48,6 +48,11 @@ public class ConfigUtilsTest {
         Assert.assertTrue(ConfigUtils.isValidConfig("name:version:activated?url=http://xx"));
         Assert.assertTrue(ConfigUtils
             .isValidConfig("name:version:activated?url=http://xx&param2=value2"));
+        String config = "k1=v1&k2=v2";
+        Map<String, String> params = ConfigUtils.parseParameter(config);
+        Assert.assertEquals(2, params.size());
+        Assert.assertEquals("v1", params.get("k1"));
+        Assert.assertEquals("v2", params.get("k2"));
     }
 
     @Test

@@ -88,13 +88,8 @@ public class ZookeeperConfigActivator implements PluginActivator {
     @Override
     public void start(final PluginContext context) {
         String config = ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ADDRESS);
-        AssertUtils.isFalse(StringUtils.isEmpty(config), "Zookeeper config should not be empty.");
         RegistryConfig registryConfig = ZookeeperConfigurator.buildConfig(config);
-
-        // host:port/context
         String address = registryConfig.getAddress();
-        AssertUtils.isFalse(StringUtils.isEmpty(address), "Zookeeper address should not be empty.");
-
         int idx = address.indexOf(Constants.ZOOKEEPER_CONTEXT_SPLIT);
         if (idx != -1) {
             rootPath = address.substring(idx);
@@ -120,9 +115,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
         zkClient.getConnectionStateListenable().addListener(new ConnectionStateListener() {
             @Override
             public void stateChanged(CuratorFramework client, ConnectionState newState) {
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("reconnect to zookeeper, re-register config resource.");
-                }
+                LOGGER.info("Reconnect to zookeeper, re-register config resource.");
                 if (newState == ConnectionState.RECONNECTED) {
                     unSubscribeIpConfig();
                     registryResource(ipResourcePath, CreateMode.EPHEMERAL);
@@ -136,13 +129,36 @@ public class ZookeeperConfigActivator implements PluginActivator {
         registryResource(ipResourcePath, CreateMode.EPHEMERAL);
         subscribeIpConfig();
         subscribeBizConfig();
+        registerEventHandler(context);
+    }
+
+    @Override
+    public void stop(PluginContext context) {
+        if (ipNodeCache != null) {
+            try {
+                ipNodeCache.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        if (bizNodeCache != null) {
+            try {
+                bizNodeCache.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        zkClient.close();
+    }
+
+    protected void registerEventHandler(final PluginContext context) {
         final String bizInitConfig = new String(bizNodeCache.getCurrentData().getData());
         EventAdminService eventAdminService = context.referenceService(EventAdminService.class)
             .getService();
         eventAdminService.register(new EventHandler() {
             @Override
             public void handleEvent(ArkEvent event) {
-                if (Constants.ARK_EVENT_TOPIC_AFTER_FINISH_STARTUP_STAGE.equals(event.getTopic())) {
+                if (Constants.ARK_EVENT_TOPIC_AFTER_FINISH_DEPLOY_STAGE.equals(event.getTopic())) {
                     OperationProcessor.process(ConfigUtils.transformToBizOperation(bizInitConfig,
                         context));
                 }
@@ -171,25 +187,6 @@ public class ZookeeperConfigActivator implements PluginActivator {
         });
     }
 
-    @Override
-    public void stop(PluginContext context) {
-        if (ipNodeCache != null) {
-            try {
-                ipNodeCache.close();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        if (bizNodeCache != null) {
-            try {
-                bizNodeCache.close();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        zkClient.close();
-    }
-
     protected void subscribeIpConfig() {
         ipNodeCache = new NodeCache(zkClient, ipResourcePath);
         ipNodeCache.getListenable().addListener(new NodeCacheListener() {
@@ -200,11 +197,14 @@ public class ZookeeperConfigActivator implements PluginActivator {
                 if (ipNodeCache.getCurrentData() != null
                     && ipNodeCache.getCurrentData().getStat().getVersion() > version) {
                     version = ipNodeCache.getCurrentData().getStat().getVersion();
-                    ipConfigDeque.add(new String(ipNodeCache.getCurrentData().getData()));
+                    String configData = new String(ipNodeCache.getCurrentData().getData());
+                    ipConfigDeque.add(configData);
+                    LOGGER.info("Receive ip config data: {}, version is {}.", configData, version);
                 }
             }
         });
         try {
+            LOGGER.info("Subscribe ip config: {}.", ipResourcePath);
             ipNodeCache.start(true);
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to subscribe ip resource path.", e);
@@ -214,6 +214,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
     protected void unSubscribeIpConfig() {
         if (ipNodeCache != null) {
             try {
+                LOGGER.info("Un-subscribe ip config: {}.", ipResourcePath);
                 ipNodeCache.close();
             } catch (Throwable throwable) {
                 LOGGER.error("Failed to un-subscribe ip resource path.");
@@ -232,7 +233,9 @@ public class ZookeeperConfigActivator implements PluginActivator {
                 if (bizNodeCache.getCurrentData() != null
                     && bizNodeCache.getCurrentData().getStat().getVersion() > version) {
                     version = bizNodeCache.getCurrentData().getStat().getVersion();
-                    bizConfigDeque.add(new String(bizNodeCache.getCurrentData().getData()));
+                    String configData = new String(bizNodeCache.getCurrentData().getData());
+                    bizConfigDeque.add(configData);
+                    LOGGER.info("Receive app config data: {}, version is {}.", configData, version);
                 }
             }
         });
@@ -246,6 +249,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     protected void registryResource(String path, CreateMode createMode) {
         try {
+            LOGGER.info("Registry context path: {} with mode: {}.", path, createMode);
             zkClient.create().creatingParentContainersIfNeeded().withMode(createMode).forPath(path);
         } catch (KeeperException.NodeExistsException nodeExistsException) {
             if (LOGGER.isWarnEnabled()) {
@@ -279,12 +283,12 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
         String scheme = registryConfig.getParameter("scheme");
 
-        //addAuth=user1:password1,user2:passwor  d2
+        //addAuth=user1:password1,user2:password2
         String addAuth = registryConfig.getParameter("addAuth");
 
         if (!StringUtils.isEmpty(addAuth)) {
-            String[] addAuths = addAuth.split(",");
-            for (String singleAuthInfo : addAuths) {
+            String[] authList = addAuth.split(",");
+            for (String singleAuthInfo : authList) {
                 info.add(new AuthInfo(scheme, singleAuthInfo.getBytes()));
             }
         }

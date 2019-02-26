@@ -16,12 +16,15 @@
  */
 package com.alipay.sofa.ark.spi.service.biz;
 
+import com.alipay.sofa.ark.spi.service.extension.Extensible;
+
 import java.io.File;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
+@Extensible
 public interface BizFileGenerator {
     File createBizFile(String bizName, String bizVersion);
 }

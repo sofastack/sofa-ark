@@ -16,21 +16,26 @@
  */
 package com.alipay.sofa.ark.springboot.endpoint;
 
-import com.alipay.sofa.ark.api.ArkClient;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
+import org.springframework.boot.actuate.endpoint.mvc.AbstractEndpointMvcAdapter;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
+ * @author qilong.zql 19/2/23-下午3:27
  */
-public class IntrospectBizEndpointForSpring1 extends AbstractEndpoint<Object> {
-
-    public IntrospectBizEndpointForSpring1() {
-        super("bizState", false, true);
+public class IntrospectBizEndpointMvcAdapterForSpring1
+                                                      extends
+                                                      AbstractEndpointMvcAdapter<IntrospectBizEndpointForSpring1> {
+    public IntrospectBizEndpointMvcAdapterForSpring1(IntrospectBizEndpointForSpring1 delegate) {
+        super(delegate);
+        setPath("bizState");
     }
 
     @Override
-    public Object invoke() {
-        return ArkClient.checkBiz();
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    protected Object invoke() {
+        return super.invoke();
     }
 }

@@ -146,6 +146,7 @@ public class Constants {
      */
     public final static String CONFIG_SERVER_ADDRESS                      = "com.alipay.sofa.ark.config.address";
     public final static String CONFIG_PROTOCOL_ZOOKEEPER                  = "zookeeper";
+    public final static String CONFIG_PROTOCOL_ZOOKEEPER_HEADER           = "zookeeper://";
     public final static String ZOOKEEPER_CONTEXT_SPLIT                    = "/";
     public final static String CONFIG_INSTALL_BIZ_DIR                     = "com.alipay.sofa.ark.biz.dir";
     public final static String CONFIG_BIZ_URL                             = "bizUrl";

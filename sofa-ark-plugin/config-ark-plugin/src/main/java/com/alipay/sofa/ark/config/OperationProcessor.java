@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.config;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
-import com.alipay.sofa.ark.api.ResponseCode;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.BizOperation;
@@ -28,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,18 +35,23 @@ import java.util.List;
  * @since 0.6.0
  */
 public class OperationProcessor {
-    public static ClientResponse process(List<BizOperation> bizOperations) {
+    public static List<ClientResponse> process(List<BizOperation> bizOperations) {
+        List<ClientResponse> clientResponses = new ArrayList<>();
         try {
             for (BizOperation bizOperation : bizOperations) {
                 switch (bizOperation.getOperationType()) {
                     case INSTALL:
-                        return installOperation(bizOperation);
+                        clientResponses.add(installOperation(bizOperation));
+                        break;
                     case UNINSTALL:
-                        return uninstallOperation(bizOperation);
+                        clientResponses.add(uninstallOperation(bizOperation));
+                        break;
                     case SWITCH:
-                        return switchOperation(bizOperation);
+                        clientResponses.add(switchOperation(bizOperation));
+                        break;
                     case CHECK:
-                        return checkOperation(bizOperation);
+                        clientResponses.add(checkOperation(bizOperation));
+                        break;
                     default:
                         throw new RuntimeException(String.format("Don't support operation: %s.",
                             bizOperation.getOperationType()));
@@ -55,7 +60,7 @@ public class OperationProcessor {
         } catch (Throwable throwable) {
             throw new RuntimeException("Failed to execute biz operation ", throwable);
         }
-        return new ClientResponse().setCode(ResponseCode.SUCCESS).setMessage("empty operation");
+        return clientResponses;
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {

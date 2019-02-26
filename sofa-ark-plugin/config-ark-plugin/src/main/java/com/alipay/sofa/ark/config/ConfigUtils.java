@@ -74,7 +74,7 @@ public class ConfigUtils {
         if (StringUtils.isEmpty(config)) {
             return Collections.emptyList();
         }
-        if (isValidConfig(config)) {
+        if (!isValidConfig(config)) {
             throw new IllegalStateException(String.format("Invalid config: %s", config));
         }
         BizManagerService bizManagerService = pluginContext.referenceService(
@@ -83,7 +83,7 @@ public class ConfigUtils {
 
         for (Biz biz : bizManagerService.getBizInOrder()) {
             if (!BizState.ACTIVATED.equals(biz.getBizState())
-                || !BizState.DEACTIVATED.equals(biz.getBizState())) {
+                && !BizState.DEACTIVATED.equals(biz.getBizState())) {
                 throw new IllegalStateException(String.format(
                     "Exist illegal biz: %s, please wait.", biz));
             }
@@ -244,7 +244,7 @@ public class ConfigUtils {
         if (!StringUtils.isEmpty(config)) {
             String[] keyValue = config.split(Constants.AMPERSAND_SPLIT);
             for (String kv : keyValue) {
-                String[] paramSplit = kv.split("&");
+                String[] paramSplit = kv.split(Constants.EQUAL_SPLIT);
                 parameters.put(paramSplit[0], paramSplit[1]);
             }
         }
@@ -252,11 +252,13 @@ public class ConfigUtils {
     }
 
     public static boolean isValidParameter(String config) {
-        String[] keyValue = config.split(Constants.AMPERSAND_SPLIT);
-        for (String kv : keyValue) {
-            String[] paramSplit = kv.split(Constants.EQUAL_SPLIT);
-            if (paramSplit.length != 2) {
-                return false;
+        if (!StringUtils.isEmpty(config)) {
+            String[] keyValue = config.split(Constants.AMPERSAND_SPLIT);
+            for (String kv : keyValue) {
+                String[] paramSplit = kv.split(Constants.EQUAL_SPLIT);
+                if (paramSplit.length != 2) {
+                    return false;
+                }
             }
         }
         return true;

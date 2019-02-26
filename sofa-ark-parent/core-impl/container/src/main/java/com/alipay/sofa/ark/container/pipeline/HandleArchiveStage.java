@@ -83,8 +83,8 @@ public class HandleArchiveStage implements PipelineStage {
 
             for (BizArchive bizArchive : executableArchive.getBizArchives()) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
-                if (!isConfigAddressUsed() && !isBizExcluded(biz)
-                    && !biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
+                if ((!isConfigAddressUsed() && !isBizExcluded(biz))
+                    || biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     bizManagerService.registerBiz(bizFactoryService.createBiz(bizArchive));
                 } else {
                     LOGGER.warn(String.format("The biz of %s is excluded.", biz.getIdentity()));

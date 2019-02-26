@@ -17,9 +17,11 @@
 package com.alipay.sofa.ark.springboot;
 
 import com.alipay.sofa.ark.springboot.endpoint.IntrospectBizEndpointForSpring1;
+import com.alipay.sofa.ark.springboot.endpoint.IntrospectBizEndpointMvcAdapterForSpring1;
 import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
 import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -45,6 +47,12 @@ public class ArkAutoConfiguration {
         @Bean
         public IntrospectBizEndpointForSpring1 introspectBizEndpointForSpring1() {
             return new IntrospectBizEndpointForSpring1();
+        }
+
+        @Bean
+        @ConditionalOnWebApplication
+        public IntrospectBizEndpointMvcAdapterForSpring1 introspectBizEndpointMvcAdapterForSpring1(IntrospectBizEndpointForSpring1 introspectBizEndpointForSpring1) {
+            return new IntrospectBizEndpointMvcAdapterForSpring1(introspectBizEndpointForSpring1);
         }
     }
 }
