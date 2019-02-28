@@ -75,12 +75,6 @@ public class ConfigUtils {
     public static List<BizOperation> transformToBizOperation(String config,
                                                              PluginContext pluginContext)
                                                                                          throws IllegalStateException {
-        if (StringUtils.isEmpty(config)) {
-            return Collections.emptyList();
-        }
-        if (!isValidConfig(config)) {
-            throw new IllegalStateException(String.format("Invalid config: %s", config));
-        }
         BizManagerService bizManagerService = pluginContext.referenceService(
             BizManagerService.class).getService();
         Map<String, Map<String, BizState>> currentBizState = new HashMap<>();
@@ -306,6 +300,9 @@ public class ConfigUtils {
         ArrayList<String> activatedStateConfig = new ArrayList<>();
         ArrayList<String> deactivatedStateConfig = new ArrayList<>();
         for (String configOperation : config.split(Constants.STRING_SEMICOLON)) {
+            if (StringUtils.isEmpty(configOperation)) {
+                continue;
+            }
             int idx = configOperation.indexOf(Constants.QUESTION_MARK_SPLIT);
             String[] configInfo = (idx == -1) ? configOperation.split(Constants.STRING_COLON)
                 : configOperation.substring(0, idx).split(Constants.STRING_COLON);

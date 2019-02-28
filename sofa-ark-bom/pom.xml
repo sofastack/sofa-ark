@@ -141,6 +141,24 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-common-springboot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-compatible-springboot1</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-compatible-springboot2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!--third party libraries-->
             <dependency>
                 <groupId>com.google.inject</groupId>

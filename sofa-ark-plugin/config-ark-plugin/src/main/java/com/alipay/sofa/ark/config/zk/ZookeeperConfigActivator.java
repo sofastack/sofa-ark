@@ -159,6 +159,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
             @Override
             public void handleEvent(ArkEvent event) {
                 if (Constants.ARK_EVENT_TOPIC_AFTER_FINISH_DEPLOY_STAGE.equals(event.getTopic())) {
+                    LOGGER.info("Start to process init app config: {}", bizInitConfig);
                     OperationProcessor.process(ConfigUtils.transformToBizOperation(bizInitConfig,
                         context));
                 }

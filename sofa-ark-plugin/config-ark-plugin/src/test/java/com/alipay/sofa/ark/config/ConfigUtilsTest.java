@@ -87,6 +87,22 @@ public class ConfigUtilsTest {
     }
 
     @Test
+    public void testTransformUninstallConfigOperation() {
+        List<BizOperation> bizOperations = ConfigUtils
+            .doTransformToBizOperation("", mockBizState());
+        Assert.assertEquals(3, bizOperations.size());
+        Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
+            .setBizName("nameA").setBizVersion("vA")
+            .setOperationType(BizOperation.OperationType.UNINSTALL)));
+        Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
+            .setBizName("nameA").setBizVersion("vB")
+            .setOperationType(BizOperation.OperationType.UNINSTALL)));
+        Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
+            .setBizName("nameB").setBizVersion("vA")
+            .setOperationType(BizOperation.OperationType.UNINSTALL)));
+    }
+
+    @Test
     public void testTransformConfigOperationWithMultiActivateState() {
         Map<String, Map<String, BizState>> currentBizState = new HashMap<>();
         Exception ex = null;

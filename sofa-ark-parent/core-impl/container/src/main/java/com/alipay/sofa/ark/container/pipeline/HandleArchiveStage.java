@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
@@ -90,8 +91,11 @@ public class HandleArchiveStage implements PipelineStage {
 
             for (BizArchive bizArchive : executableArchive.getBizArchives()) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
-
-                if (useDynamicConfig()) {
+                if (bizArchive instanceof DirectoryBizArchive) {
+                    if (!((DirectoryBizArchive) bizArchive).isTestMode()) {
+                        bizManagerService.registerBiz(biz);
+                    }
+                } else if (useDynamicConfig()) {
                     if (biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                         bizManagerService.registerBiz(biz);
                     }

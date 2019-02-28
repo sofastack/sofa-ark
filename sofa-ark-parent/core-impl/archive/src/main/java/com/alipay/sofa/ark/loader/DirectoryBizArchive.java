@@ -60,6 +60,10 @@ public class DirectoryBizArchive implements BizArchive {
         this.urls = urls;
     }
 
+    public boolean isTestMode() {
+        return MOCK_IDE_ARK_BIZ_MAIN_CLASS.equals(className);
+    }
+
     public String getClassName() {
         return className;
     }

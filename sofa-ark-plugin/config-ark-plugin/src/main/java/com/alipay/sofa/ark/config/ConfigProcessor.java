@@ -80,12 +80,12 @@ public class ConfigProcessor {
                     continue;
                 }
                 try {
-                    LOGGER.info("ConfigTask: {} start to process config: {}.",
+                    LOGGER.info("ConfigTask: {} start to process config: {}",
                         commonThreadPool.getThreadPoolName(), config);
                     OperationProcessor.process(ConfigUtils.transformToBizOperation(config,
                         pluginContext));
                 } catch (Throwable throwable) {
-                    LOGGER.error(String.format("ConfigTask: %s failed to process config: %s.",
+                    LOGGER.error(String.format("ConfigTask: %s failed to process config: %s",
                         commonThreadPool.getThreadPoolName(), config), throwable);
                 }
             }

@@ -18,6 +18,8 @@ package com.alipay.sofa.ark.config;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
+import com.alipay.sofa.ark.common.log.ArkLogger;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.config.util.ConfigUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -37,10 +39,16 @@ import java.util.List;
  * @since 0.6.0
  */
 public class OperationProcessor {
+
+    private final static ArkLogger LOGGER = ArkLoggerFactory
+                                              .getLogger("com.alipay.sofa.ark.config");
+
     public static List<ClientResponse> process(List<BizOperation> bizOperations) {
         List<ClientResponse> clientResponses = new ArrayList<>();
         try {
             for (BizOperation bizOperation : bizOperations) {
+                LOGGER.info("Execute biz operation: {} {}:{}", bizOperation.getOperationType()
+                    .name(), bizOperation.getBizName(), bizOperation.getBizVersion());
                 switch (bizOperation.getOperationType()) {
                     case INSTALL:
                         clientResponses.add(installOperation(bizOperation));
