@@ -40,7 +40,7 @@
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
-        <maven.plugin.plugin>3.1</maven.plugin.plugin>
+        <maven.plugin.plugin>3.4</maven.plugin.plugin>
         <surefire.version>2.20</surefire.version>
     </properties>
 
