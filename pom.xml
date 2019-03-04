@@ -11,6 +11,7 @@
         <module>sofa-ark-bom</module>
         <module>sofa-ark-parent</module>
         <module>sofa-ark-plugin/config-ark-plugin</module>
+        <module>sofa-ark-plugin/web-ark-plugin</module>
     </modules>
 
     <properties>

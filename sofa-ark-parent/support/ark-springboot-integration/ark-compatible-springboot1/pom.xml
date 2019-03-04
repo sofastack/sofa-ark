@@ -35,6 +35,7 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-common-springboot</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- test -->

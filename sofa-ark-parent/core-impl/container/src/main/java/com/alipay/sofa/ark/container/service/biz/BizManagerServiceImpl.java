@@ -100,6 +100,19 @@ public class BizManagerServiceImpl implements BizManagerService {
     }
 
     @Override
+    public Biz getBizByClassLoader(ClassLoader classLoader) {
+        for (String bizName : bizRegistration.keySet()) {
+            for (String bizVersion : bizRegistration.get(bizName).keySet()) {
+                Biz biz = bizRegistration.get(bizName).get(bizVersion);
+                if (biz.getBizClassLoader().equals(classLoader)) {
+                    return biz;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Set<String> getAllBizNames() {
         return bizRegistration.keySet();
     }

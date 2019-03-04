@@ -16,12 +16,10 @@
  */
 package com.alipay.sofa.ark.springboot;
 
-import com.alipay.sofa.ark.springboot.condition.ConditionalOnSpringBootVersion;
+import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
 import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import com.alipay.sofa.ark.springboot.processor.ArkTomcatFactoryProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,9 +28,8 @@ import org.springframework.context.annotation.Configuration;
  * @since 0.6.0
  */
 @Configuration
+@ConditionalOnArkEnabled
 public class ArkAutoConfiguration {
-
-    private static final String SERVLET_WEB_APPLICATION_CLASS = "org.springframework.web.context.support.GenericWebApplicationContext";
 
     @Bean
     public static ArkServiceInjectProcessor serviceInjectProcessor() {
@@ -44,4 +41,8 @@ public class ArkAutoConfiguration {
         return new ArkEventHandlerProcessor();
     }
 
+    @Bean
+    public static ArkTomcatFactoryProcessor arkTomcatFactoryProcessor() {
+        return new ArkTomcatFactoryProcessor();
+    }
 }

@@ -9,12 +9,23 @@
 
     <artifactId>sofa-ark-spi</artifactId>
 
+    <properties>
+        <embed.tomcat.version>9.0.12</embed.tomcat.version>
+    </properties>
+
     <dependencies>
 
         <!--SOFAArk modules-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-exception</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${embed.tomcat.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--test-->

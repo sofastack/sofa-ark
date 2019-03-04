@@ -20,9 +20,7 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Service to manage biz
@@ -82,6 +80,13 @@ public interface BizManagerService {
      * @return
      */
     Biz getBizByIdentity(String bizIdentity);
+
+    /**
+     * Get Biz by biz ClassLoader
+     * @param classLoader
+     * @return
+     */
+    Biz getBizByClassLoader(ClassLoader classLoader);
 
     /**
      * get All biz names
