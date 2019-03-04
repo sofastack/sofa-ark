@@ -21,16 +21,18 @@ import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import com.alipay.sofa.ark.springboot.SpringApplication;
+import com.alipay.sofa.ark.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.springboot.TestValueHolder;
 import com.alipay.sofa.ark.springboot.facade.SampleService;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
+import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
 
@@ -41,17 +43,20 @@ import java.lang.reflect.Field;
  * @since 0.1.0
  */
 @RunWith(ArkBootRunner.class)
-@SpringBootTest(classes = SpringApplication.class)
+@SpringBootTest(classes = BaseSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ArkBootRunnerTest {
 
     @Autowired
-    public SampleService        sampleService;
+    public SampleService                 sampleService;
 
     @ArkInject
-    public PluginManagerService pluginManagerService;
+    public PluginManagerService          pluginManagerService;
 
     @ArkInject
-    public EventAdminService    eventAdminService;
+    public EventAdminService             eventAdminService;
+
+    @Autowired
+    public TomcatServletWebServerFactory tomcatServletWebServerFactory;
 
     @Test
     public void test() {
@@ -88,6 +93,9 @@ public class ArkBootRunnerTest {
             }
         });
         Assert.assertEquals(20, TestValueHolder.getTestValue());
+
+        Assert
+            .assertTrue(tomcatServletWebServerFactory instanceof ArkTomcatServletWebServerFactory);
     }
 
 }

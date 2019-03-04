@@ -26,6 +26,7 @@ import com.alipay.sofa.ark.web.embed.tomcat.EmbedTomcatServiceImpl;
  * @since 0.6.0
  */
 public class WebPluginActivator implements PluginActivator {
+
     @Override
     public void start(PluginContext context) {
         context.publishService(EmbedTomcatService.class, new EmbedTomcatServiceImpl());

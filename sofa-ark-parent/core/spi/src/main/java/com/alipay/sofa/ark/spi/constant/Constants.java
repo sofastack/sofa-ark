@@ -34,6 +34,7 @@ public class Constants {
     public final static String AMPERSAND_SPLIT                            = "&";
     public final static String EQUAL_SPLIT                                = "=";
     public final static String QUESTION_MARK_SPLIT                        = "?";
+    public final static String ROOT_WEB_CONTEXT_PATH                      = "/";
 
     /**
      * ark conf
@@ -74,6 +75,7 @@ public class Constants {
     public final static String PLUGIN_NAME_ATTRIBUTE                      = "pluginName";
     public final static String PLUGIN_VERSION_ATTRIBUTE                   = "version";
     public final static String ACTIVATOR_ATTRIBUTE                        = "activator";
+    public final static String WEB_CONTEXT_PATH                           = "web-context-path";
     public final static String IMPORT_CLASSES_ATTRIBUTE                   = "import-classes";
     public final static String IMPORT_PACKAGES_ATTRIBUTE                  = "import-packages";
     public final static String EXPORT_CLASSES_ATTRIBUTE                   = "export-classes";

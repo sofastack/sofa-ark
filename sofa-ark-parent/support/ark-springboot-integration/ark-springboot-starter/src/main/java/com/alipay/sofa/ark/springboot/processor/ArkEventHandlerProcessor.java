@@ -21,12 +21,13 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.Ordered;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkEventHandlerProcessor implements BeanPostProcessor {
+public class ArkEventHandlerProcessor implements BeanPostProcessor, Ordered {
     @ArkInject
     private EventAdminService eventAdminService;
 
@@ -43,5 +44,10 @@ public class ArkEventHandlerProcessor implements BeanPostProcessor {
             eventAdminService.register((EventHandler) bean);
         }
         return bean;
+    }
+
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE;
     }
 }

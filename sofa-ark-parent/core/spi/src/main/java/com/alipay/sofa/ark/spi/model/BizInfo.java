@@ -93,4 +93,9 @@ public interface BizInfo {
      * get Biz State
      */
     BizState getBizState();
+
+    /**
+     * get web context path
+     */
+    String getWebContextPath();
 }

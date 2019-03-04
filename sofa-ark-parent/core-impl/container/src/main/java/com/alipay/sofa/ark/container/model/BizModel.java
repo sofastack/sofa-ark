@@ -51,6 +51,8 @@ public class BizModel implements Biz {
 
     private String      mainClass;
 
+    private String      webContextPath;
+
     private URL[]       urls;
 
     private ClassLoader classLoader;
@@ -102,6 +104,11 @@ public class BizModel implements Biz {
 
     public BizModel setPriority(String priority) {
         this.priority = (priority == null ? DEFAULT_PRECEDENCE : Integer.valueOf(priority));
+        return this;
+    }
+
+    public BizModel setWebContextPath(String webContextPath) {
+        this.webContextPath = webContextPath;
         return this;
     }
 
@@ -245,6 +252,11 @@ public class BizModel implements Biz {
     @Override
     public BizState getBizState() {
         return bizState;
+    }
+
+    @Override
+    public String getWebContextPath() {
+        return webContextPath;
     }
 
     @Override

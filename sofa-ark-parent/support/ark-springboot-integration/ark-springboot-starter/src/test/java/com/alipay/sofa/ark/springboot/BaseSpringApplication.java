@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
@@ -25,8 +26,9 @@ import org.springframework.context.annotation.ImportResource;
  */
 @ImportResource({ "classpath*:META-INF/sofa-ark-test/*.xml" })
 @SpringBootApplication
-public class SpringApplication {
+public class BaseSpringApplication {
     public static void main(String[] args) {
-
+        SpringApplication springApplication = new SpringApplication(BaseSpringApplication.class);
+        springApplication.run(args);
     }
 }

@@ -204,6 +204,12 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private boolean               keepArkBizJar;
 
+    /**
+     * web context path when biz is web app. it must start with "/", default value is "/"
+     */
+    @Parameter(defaultValue = "/", required = true)
+    private String                webContextPath;
+
     @Override
     public void execute() throws MojoExecutionException {
         if ("war".equals(this.project.getPackaging())) {
@@ -307,6 +313,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setPackageProvided(packageProvided);
         repackager.setKeepArkBizJar(keepArkBizJar);
         repackager.setBaseDir(baseDir);
+        repackager.setWebContextPath(webContextPath);
         return repackager;
     }
 

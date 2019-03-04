@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.springboot.web;
 
-import com.alipay.sofa.ark.api.ArkConfigs;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -53,6 +51,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
 /**
  * @author Phillip Webb
@@ -97,12 +97,13 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     public String getContextPath() {
         String contextPath = super.getContextPath();
         Biz biz = bizManagerService.getBizByClassLoader(this.getClass().getClassLoader());
-        if (StringUtils.isEmpty(contextPath)
-            && !biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))
-            && !biz.getBizName().equals("Startup In IDE")) {
-            return biz.getBizName();
+        if (!StringUtils.isEmpty(contextPath)) {
+            return contextPath;
+        } else if (biz != null) {
+            return biz.getWebContextPath();
+        } else {
+            return ROOT_WEB_CONTEXT_PATH;
         }
-        return contextPath;
     }
 
     private Tomcat initEmbedTomcat() {

@@ -19,13 +19,13 @@ package com.alipay.sofa.ark.springboot.processor;
 import com.alipay.sofa.ark.api.ArkClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkServiceInjectProcessor implements BeanPostProcessor, Ordered {
+public class ArkServiceInjectProcessor implements BeanPostProcessor, PriorityOrdered {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName)

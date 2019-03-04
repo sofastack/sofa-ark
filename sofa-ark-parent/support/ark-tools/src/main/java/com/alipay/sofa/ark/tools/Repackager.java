@@ -80,6 +80,8 @@ public class Repackager {
 
     private boolean                               keepArkBizJar;
 
+    private String                                webContextPath;
+
     private String                                arkVersion                         = null;
 
     private Library                               arkContainerLibrary                = null;
@@ -376,6 +378,7 @@ public class Repackager {
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, this.bizName);
         manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, this.bizVersion);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE, priority);
+        manifest.getMainAttributes().putValue(WEB_CONTEXT_PATH, webContextPath);
         manifest.getMainAttributes().putValue(DENY_IMPORT_PACKAGES,
             StringUtils.setToStr(denyImportPackages, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_CLASSES,
@@ -499,5 +502,9 @@ public class Repackager {
 
     public void setBaseDir(File baseDir) {
         this.baseDir = baseDir;
+    }
+
+    public void setWebContextPath(String webContextPath) {
+        this.webContextPath = webContextPath;
     }
 }

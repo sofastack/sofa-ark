@@ -6,6 +6,7 @@
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
         <version>0.6.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,13 +58,11 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-compatible-springboot1</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-compatible-springboot2</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!--test-->
@@ -94,6 +93,12 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>web-ark-plugin</artifactId>
             <scope>test</scope>
         </dependency>
 

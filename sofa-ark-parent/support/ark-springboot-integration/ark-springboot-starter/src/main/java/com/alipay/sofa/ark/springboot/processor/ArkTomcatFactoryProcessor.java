@@ -38,6 +38,6 @@ public class ArkTomcatFactoryProcessor implements BeanPostProcessor, PriorityOrd
 
     @Override
     public int getOrder() {
-        return LOWEST_PRECEDENCE;
+        return LOWEST_PRECEDENCE - 10;
     }
 }

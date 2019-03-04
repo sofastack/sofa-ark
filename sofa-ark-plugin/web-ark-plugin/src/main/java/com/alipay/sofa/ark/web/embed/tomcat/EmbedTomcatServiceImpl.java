@@ -20,11 +20,14 @@ import com.alipay.sofa.ark.spi.web.EmbedTomcatService;
 import org.apache.catalina.startup.Tomcat;
 
 /**
+ * This implementation would be published as ark service.
+ *
  * @author qilong.zql
  * @since 0.6.0
  */
 public class EmbedTomcatServiceImpl implements EmbedTomcatService {
     private Tomcat tomcat;
+    private Object lock = new Object();
 
     @Override
     public Tomcat getEmbedTomcat() {
@@ -33,6 +36,12 @@ public class EmbedTomcatServiceImpl implements EmbedTomcatService {
 
     @Override
     public void setEmbedTomcat(Tomcat tomcat) {
-        this.tomcat = tomcat;
+        if (this.tomcat == null) {
+            synchronized (lock) {
+                if (this.tomcat == null) {
+                    this.tomcat = tomcat;
+                }
+            }
+        }
     }
 }
