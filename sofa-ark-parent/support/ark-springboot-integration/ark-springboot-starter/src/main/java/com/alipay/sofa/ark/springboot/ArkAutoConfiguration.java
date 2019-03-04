@@ -16,12 +16,8 @@
  */
 package com.alipay.sofa.ark.springboot;
 
-import com.alipay.sofa.ark.springboot.condition.ConditionalOnSpringBootVersion;
 import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
 import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

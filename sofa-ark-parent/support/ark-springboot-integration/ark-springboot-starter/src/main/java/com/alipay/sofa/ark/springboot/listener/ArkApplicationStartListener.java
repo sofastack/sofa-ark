@@ -16,11 +16,9 @@
  */
 package com.alipay.sofa.ark.springboot.listener;
 
-import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.SpringApplicationEvent;
-import com.alipay.sofa.common.log.Constants;
 import org.springframework.context.ApplicationListener;
 
 /**
