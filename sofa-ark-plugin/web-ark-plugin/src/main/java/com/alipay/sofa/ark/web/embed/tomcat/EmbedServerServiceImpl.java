@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.web.embed.tomcat;
 
-import com.alipay.sofa.ark.spi.web.EmbedTomcatService;
+import com.alipay.sofa.ark.spi.web.EmbedServerService;
 import org.apache.catalina.startup.Tomcat;
 
 /**
@@ -25,17 +25,17 @@ import org.apache.catalina.startup.Tomcat;
  * @author qilong.zql
  * @since 0.6.0
  */
-public class EmbedTomcatServiceImpl implements EmbedTomcatService {
+public class EmbedServerServiceImpl implements EmbedServerService<Tomcat> {
     private Tomcat tomcat;
     private Object lock = new Object();
 
     @Override
-    public Tomcat getEmbedTomcat() {
+    public Tomcat getEmbedServer() {
         return tomcat;
     }
 
     @Override
-    public void setEmbedTomcat(Tomcat tomcat) {
+    public void setEmbedServer(Tomcat tomcat) {
         if (this.tomcat == null) {
             synchronized (lock) {
                 if (this.tomcat == null) {

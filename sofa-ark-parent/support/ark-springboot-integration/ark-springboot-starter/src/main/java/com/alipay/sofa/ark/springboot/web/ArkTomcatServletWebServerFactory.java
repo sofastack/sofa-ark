@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.springboot.web;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.web.EmbedTomcatService;
+import com.alipay.sofa.ark.spi.web.EmbedServerService;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
@@ -67,28 +67,28 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
  */
 public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory {
 
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    private static final Charset       DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     @ArkInject
-    private EmbedTomcatService   embedTomcatService;
+    private EmbedServerService<Tomcat> embedServerService;
 
     @ArkInject
-    private BizManagerService    bizManagerService;
+    private BizManagerService          bizManagerService;
 
-    private File                 baseDirectory;
+    private File                       baseDirectory;
 
-    private String               protocol        = DEFAULT_PROTOCOL;
+    private String                     protocol        = DEFAULT_PROTOCOL;
 
-    private int                  backgroundProcessorDelay;
+    private int                        backgroundProcessorDelay;
 
     @Override
     public WebServer getWebServer(ServletContextInitializer... initializers) {
-        if (embedTomcatService == null) {
+        if (embedServerService == null) {
             return super.getWebServer(initializers);
-        } else if (embedTomcatService.getEmbedTomcat() == null) {
-            embedTomcatService.setEmbedTomcat(initEmbedTomcat());
+        } else if (embedServerService.getEmbedServer() == null) {
+            embedServerService.setEmbedServer(initEmbedTomcat());
         }
-        Tomcat embedTomcat = embedTomcatService.getEmbedTomcat();
+        Tomcat embedTomcat = embedServerService.getEmbedServer();
         prepareContext(embedTomcat.getHost(), initializers);
         return getTomcatWebServer(embedTomcat);
     }

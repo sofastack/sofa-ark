@@ -19,8 +19,8 @@ package com.alipay.sofa.ark.test.springboot;
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
-import com.alipay.sofa.ark.spi.web.EmbedTomcatService;
-import com.alipay.sofa.ark.web.embed.tomcat.EmbedTomcatServiceImpl;
+import com.alipay.sofa.ark.spi.web.EmbedServerService;
+import com.alipay.sofa.ark.web.embed.tomcat.EmbedServerServiceImpl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class RegisterMockEmbedTomcatService implements BeanPostProcessor, Initia
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        registryService.publishService(EmbedTomcatService.class, new EmbedTomcatServiceImpl(),
+        registryService.publishService(EmbedServerService.class, new EmbedServerServiceImpl(),
             new ContainerServiceProvider());
     }
 }

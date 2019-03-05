@@ -24,16 +24,16 @@ import org.apache.catalina.startup.Tomcat;
  * @author qilong.zql
  * @since 0.6.0
  */
-public interface EmbedTomcatService {
+public interface EmbedServerService<T> {
     /**
      * get embed tomcat
      * @return
      */
-    Tomcat getEmbedTomcat();
+    T getEmbedServer();
 
     /**
      * set embed tomcat
-     * @param tomcat
+     * @param container
      */
-    void setEmbedTomcat(Tomcat tomcat);
+    void setEmbedServer(T container);
 }
