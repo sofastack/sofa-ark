@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.web;
 
-import org.apache.catalina.startup.Tomcat;
-
 /**
  * Fetch embed tomcat container in ark
  *

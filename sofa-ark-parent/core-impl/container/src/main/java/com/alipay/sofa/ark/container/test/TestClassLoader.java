@@ -36,9 +36,7 @@ public class TestClassLoader extends BizClassLoader {
             // TestNG
             "org.testng", "com.beust.jcommander", "bsh",
             // Ark
-            "com.alipay.sofa.ark.support.common",
-            // tomcat
-            "org.apache", "javax"           };
+            "com.alipay.sofa.ark.support.common" };
 
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
         super(bizIdentity, urls);
