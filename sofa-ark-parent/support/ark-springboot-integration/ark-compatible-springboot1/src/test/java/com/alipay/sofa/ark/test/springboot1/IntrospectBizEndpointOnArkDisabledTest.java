@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.ark.test.springboot1;
 
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -33,7 +33,7 @@ import java.net.URL;
  */
 public class IntrospectBizEndpointOnArkDisabledTest {
 
-    @Before
+    @After
     public void removeTomcatInit() {
         try {
             Field urlFactory = URL.class.getDeclaredField("factory");

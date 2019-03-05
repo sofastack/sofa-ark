@@ -17,8 +17,8 @@
 package com.alipay.sofa.ark.test.springboot2;
 
 import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
@@ -38,7 +38,7 @@ import java.util.Map;
 @RunWith(ArkJUnit4Runner.class)
 public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
 
-    @Before
+    @After
     public void removeTomcatInit() {
         try {
             Field urlFactory = URL.class.getDeclaredField("factory");
