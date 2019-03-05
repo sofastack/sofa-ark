@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.web;
 
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -39,7 +40,6 @@ import org.apache.tomcat.util.scan.StandardJarScanFilter;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -134,7 +134,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
      */
     @Override
     public void setProtocol(String protocol) {
-        Assert.hasLength(protocol, "Protocol must not be empty");
+        AssertUtils.isFalse(StringUtils.isEmpty(protocol), "Protocol must not be empty");
         this.protocol = protocol;
     }
 
