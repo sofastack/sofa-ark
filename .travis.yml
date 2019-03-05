@@ -3,7 +3,6 @@ sudo: false
 
 jdk:
 - oraclejdk8
-- openjdk7
 
 install:
 - mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -V
