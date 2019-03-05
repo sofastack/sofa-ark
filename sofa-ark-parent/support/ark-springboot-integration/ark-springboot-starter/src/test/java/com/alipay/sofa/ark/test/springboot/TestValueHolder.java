@@ -14,16 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.facade;
+package com.alipay.sofa.ark.test.springboot;
 
 /**
  * @author qilong.zql
- * @since 0.1.0
+ * @since 0.6.0
  */
-public interface SampleService {
-    /**
-     * a simple test facade
-     * @return
-     */
-    String say();
+public class TestValueHolder {
+    private static int testValue = 0;
+
+    public static int getTestValue() {
+        return testValue;
+    }
+
+    public static void setTestValue(int testValue) {
+        TestValueHolder.testValue = testValue;
+    }
 }

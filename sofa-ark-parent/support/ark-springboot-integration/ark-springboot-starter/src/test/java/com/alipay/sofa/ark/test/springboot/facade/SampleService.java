@@ -14,28 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
-
-import com.alipay.sofa.ark.spi.event.ArkEvent;
-import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import com.alipay.sofa.ark.springboot.TestValueHolder;
+package com.alipay.sofa.ark.test.springboot.facade;
 
 /**
  * @author qilong.zql
- * @since 0.6.0
+ * @since 0.1.0
  */
-public class TestBizEventHandler implements EventHandler {
-    @Override
-    public void handleEvent(ArkEvent event) {
-        if (event.getTopic().equals("test-event-A")) {
-            TestValueHolder.setTestValue(10);
-        } else if (event.getTopic().equals("test-event-B")) {
-            TestValueHolder.setTestValue(20);
-        }
-    }
-
-    @Override
-    public int getPriority() {
-        return LOWEST_PRECEDENCE + 20;
-    }
+public interface SampleService {
+    /**
+     * a simple test facade
+     * @return
+     */
+    String say();
 }

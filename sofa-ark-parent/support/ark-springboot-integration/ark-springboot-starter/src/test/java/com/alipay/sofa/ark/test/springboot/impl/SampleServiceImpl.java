@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
+package com.alipay.sofa.ark.test.springboot.impl;
 
-import com.alipay.sofa.ark.springboot.facade.SampleService;
+import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 
 /**
  * @author qilong.zql

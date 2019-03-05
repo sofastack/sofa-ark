@@ -14,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark;
+package com.alipay.sofa.ark.test.springboot;
 
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import com.alipay.sofa.ark.springboot.BaseSpringApplication;
-import com.alipay.sofa.ark.springboot.TestValueHolder;
-import com.alipay.sofa.ark.springboot.facade.SampleService;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
+import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
