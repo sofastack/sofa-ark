@@ -36,8 +36,8 @@ import java.util.LinkedHashSet;
  */
 public class ArkPluginMojoTest {
     @Test
-    public void testArkPluginMojo(@Mocked final Artifact artifact) throws Exception {
-
+    public void testArkPluginMojo(@Mocked final Artifact artifact,
+                                  @Mocked final MavenProject project) throws Exception {
         new Expectations() {
             {
                 artifact.getGroupId();
@@ -46,10 +46,17 @@ public class ArkPluginMojoTest {
                 artifact.getArtifactId();
                 result = "invalid";
                 minTimes = 0;
+                project.getArtifact();
+                result = artifact;
+                minTimes = 0;
+                artifact.getFile();
+                result = new File(Test.class.getProtectionDomain().getCodeSource().getLocation()
+                    .getPath());
             }
         };
 
         ArkPluginMojo arkPluginMojo = new ArkPluginMojo();
+        arkPluginMojo.setProject(project);
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
             .singleton("com.alipay.sofa:test-demo:1.0.0")));
         final URL url = this.getClass().getClassLoader().getResource("test-demo.jar");
@@ -61,6 +68,7 @@ public class ArkPluginMojoTest {
         URLClassLoader urlClassLoader = new URLClassLoader(new URL[] { new URL(shadedUrl) }, null);
         Assert
             .assertNotNull(urlClassLoader.loadClass("com.alipay.sofa.support.test.SampleService"));
+        Assert.assertNotNull(urlClassLoader.loadClass("org.junit.Test"));
     }
 
     @Test
