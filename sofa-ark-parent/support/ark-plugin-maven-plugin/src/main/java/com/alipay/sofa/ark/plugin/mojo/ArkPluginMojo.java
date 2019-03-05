@@ -206,6 +206,7 @@ public class ArkPluginMojo extends AbstractMojo {
     public void shadeJarIntoArkPlugin(File pluginFile, File tmpPluginFile, Set<Artifact> artifacts)
                                                                                                    throws IOException {
         Set<Artifact> shadeJars = new HashSet<>();
+        shadeJars.add(project.getArtifact());
         for (Artifact artifact : artifacts) {
             if (isShadeJar(artifact)) {
                 shadeJars.add(artifact);
