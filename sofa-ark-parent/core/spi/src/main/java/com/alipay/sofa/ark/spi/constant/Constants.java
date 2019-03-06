@@ -111,6 +111,7 @@ public class Constants {
     public final static String TELNET_SERVER_WORKER_THREAD_POOL_NAME      = "telnet-server-worker";
     public final static String TELNET_SESSION_PROMPT                      = "sofa-ark>";
     public final static int    BUFFER_CHUNK                               = 128;
+    public final static String TELNET_COMMAND_THREAD_POOL_NAME            = "telnet-command";
 
     /**
      * Event
@@ -130,6 +131,7 @@ public class Constants {
      * Command Provider
      */
     public final static String PLUGIN_COMMAND_UNIQUE_ID                   = "plugin-command-provider";
+    public final static String BIZ_COMMAND_UNIQUE_ID                      = "biz-command-provider";
 
     /**
      * Ark SPI extension

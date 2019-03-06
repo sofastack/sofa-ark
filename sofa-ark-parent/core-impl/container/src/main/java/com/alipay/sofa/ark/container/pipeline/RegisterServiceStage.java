@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.biz.BizCommandProvider;
 import com.alipay.sofa.ark.container.service.biz.DefaultBizDeployer;
 import com.alipay.sofa.ark.container.service.plugin.PluginCommandProvider;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -35,6 +36,7 @@ import com.alipay.sofa.ark.spi.service.session.CommandProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_COMMAND_UNIQUE_ID;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_COMMAND_UNIQUE_ID;
 
 /**
@@ -89,6 +91,8 @@ public class RegisterServiceStage implements PipelineStage {
             new ContainerServiceProvider());
         registryService.publishService(CommandProvider.class, new PluginCommandProvider(),
             PLUGIN_COMMAND_UNIQUE_ID, new ContainerServiceProvider());
+        registryService.publishService(CommandProvider.class, new BizCommandProvider(),
+            BIZ_COMMAND_UNIQUE_ID, new ContainerServiceProvider());
     }
 
 }

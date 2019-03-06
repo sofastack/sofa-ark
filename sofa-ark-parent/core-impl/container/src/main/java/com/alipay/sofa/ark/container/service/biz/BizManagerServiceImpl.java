@@ -118,6 +118,15 @@ public class BizManagerServiceImpl implements BizManagerService {
     }
 
     @Override
+    public Set<String> getAllBizIdentities() {
+        Set<String> bizIdentities = new HashSet<>();
+        for (Biz biz : getBizInOrder()) {
+            bizIdentities.add(biz.getIdentity());
+        }
+        return bizIdentities;
+    }
+
+    @Override
     public List<Biz> getBizInOrder() {
         List<Biz> bizList = new ArrayList<>();
         for (String bizName : bizRegistration.keySet()) {

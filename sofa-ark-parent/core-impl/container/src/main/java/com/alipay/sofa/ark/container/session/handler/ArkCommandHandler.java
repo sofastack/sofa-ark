@@ -16,8 +16,11 @@
  */
 package com.alipay.sofa.ark.container.session.handler;
 
+import com.alipay.sofa.ark.common.thread.CommonThreadPool;
+import com.alipay.sofa.ark.common.thread.ThreadPoolManager;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
@@ -34,6 +37,17 @@ public class ArkCommandHandler {
 
     private RegistryService registryService;
 
+    static {
+        init();
+    }
+
+    private static void init() {
+        CommonThreadPool commandPool = new CommonThreadPool().setAllowCoreThreadTimeOut(true)
+            .setThreadPoolName(Constants.TELNET_COMMAND_THREAD_POOL_NAME).setDaemon(true);
+        ThreadPoolManager
+            .registerThreadPool(Constants.TELNET_COMMAND_THREAD_POOL_NAME, commandPool);
+    }
+
     public ArkCommandHandler() {
         registryService = ArkServiceContainerHolder.getContainer()
             .getService(RegistryService.class);
@@ -44,7 +58,7 @@ public class ArkCommandHandler {
             return StringUtils.EMPTY_STRING;
         }
         List<ServiceReference<CommandProvider>> commandProviders = registryService
-            .referenceServices(CommandProvider.class);
+            .referenceServices(CommandProvider.class, null);
         for (ServiceReference<CommandProvider> commandService : commandProviders) {
             CommandProvider commandProvider = commandService.getService();
             if (commandProvider.validate(cmdLine)) {

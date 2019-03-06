@@ -16,9 +16,10 @@
  */
 package com.alipay.sofa.ark.config;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.config.util.ConfigUtils;
+import com.alipay.sofa.ark.config.util.OperationTransformer;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizOperation;
@@ -44,11 +45,11 @@ import static org.mockito.Mockito.when;
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ConfigUtilsTest {
+public class OperationTransformerTest {
 
     @Test
     public void testBizFilePath() {
-        File file = ConfigUtils.createBizSaveFile("name", "version");
+        File file = ArkClient.createBizSaveFile("name", "version");
         Assert.assertTrue(StringUtils.isEmpty(ArkConfigs
             .getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR)));
         Assert.assertTrue(file.getAbsolutePath().contains(
@@ -57,14 +58,15 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformFormatError() {
-        Assert.assertFalse(ConfigUtils.isValidConfig("aaa"));
-        Assert.assertFalse(ConfigUtils.isValidConfig("name:version:resolved"));
-        Assert.assertFalse(ConfigUtils.isValidConfig("name:version:activated?url"));
-        Assert.assertTrue(ConfigUtils.isValidConfig("name:version:activated?url=http://xx"));
-        Assert.assertTrue(ConfigUtils
+        Assert.assertFalse(OperationTransformer.isValidConfig("aaa"));
+        Assert.assertFalse(OperationTransformer.isValidConfig("name:version:resolved"));
+        Assert.assertFalse(OperationTransformer.isValidConfig("name:version:activated?url"));
+        Assert.assertTrue(OperationTransformer
+            .isValidConfig("name:version:activated?url=http://xx"));
+        Assert.assertTrue(OperationTransformer
             .isValidConfig("name:version:activated?url=http://xx&param2=value2"));
         String config = "k1=v1&k2=v2";
-        Map<String, String> params = ConfigUtils.parseParameter(config);
+        Map<String, String> params = OperationTransformer.parseParameter(config);
         Assert.assertEquals(2, params.size());
         Assert.assertEquals("v1", params.get("k1"));
         Assert.assertEquals("v2", params.get("k2"));
@@ -76,8 +78,8 @@ public class ConfigUtilsTest {
         Exception ex = null;
         List<BizOperation> operations = null;
         try {
-            operations = ConfigUtils.doTransformToBizOperation("n1:v1:activated;n1:v1:deactivated",
-                currentBizState);
+            operations = OperationTransformer.doTransformToBizOperation(
+                "n1:v1:activated;n1:v1:deactivated", currentBizState);
         } catch (IllegalStateException e) {
             ex = e;
         }
@@ -88,8 +90,8 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformUninstallConfigOperation() {
-        List<BizOperation> bizOperations = ConfigUtils
-            .doTransformToBizOperation("", mockBizState());
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation("",
+            mockBizState());
         Assert.assertEquals(3, bizOperations.size());
         Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
             .setBizName("nameA").setBizVersion("vA")
@@ -108,8 +110,8 @@ public class ConfigUtilsTest {
         Exception ex = null;
         List<BizOperation> operations = null;
         try {
-            operations = ConfigUtils.doTransformToBizOperation("n1:v1:activated;n1:v2:activated",
-                currentBizState);
+            operations = OperationTransformer.doTransformToBizOperation(
+                "n1:v1:activated;n1:v2:activated", currentBizState);
         } catch (IllegalStateException e) {
             ex = e;
         }
@@ -124,7 +126,7 @@ public class ConfigUtilsTest {
         Exception ex = null;
         List<BizOperation> operations = null;
         try {
-            operations = ConfigUtils.doTransformToBizOperation(
+            operations = OperationTransformer.doTransformToBizOperation(
                 "n1:v1:deactivated;n1:v2:deactivated", currentBizState);
         } catch (IllegalStateException e) {
             ex = e;
@@ -135,7 +137,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformUnInstallOperation() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:activated", mockBizState());
         Assert.assertEquals(2, bizOperations.size());
         Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
@@ -148,7 +150,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformInstallOperation() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:activated;nameA:vB:deactivated;nameB:vA:activated;nameB:vB:deactivated",
             mockBizState());
         Assert.assertEquals(1, bizOperations.size());
@@ -159,7 +161,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformInstallAndUninstallOperation() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:activated;nameB:vA:activated;nameB:vB:deactivated", mockBizState());
         Assert.assertEquals(2, bizOperations.size());
         Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
@@ -172,7 +174,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformSwitchOperation() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:deactivated;nameA:vB:activated;nameB:vA:activated", mockBizState());
         Assert.assertEquals(1, bizOperations.size());
         Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
@@ -182,7 +184,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformInstallAndSwitch() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:activated;nameA:vB:deactivated;nameB:vA:deactivated;nameB:vB:activated",
             mockBizState());
         Assert.assertEquals(2, bizOperations.size());
@@ -196,7 +198,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformUninstallAndSwitch() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vB:activated;nameB:vA:activated", mockBizState());
         Assert.assertEquals(2, bizOperations.size());
         Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
@@ -209,7 +211,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformUninstallAndInstall() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:activated;nameA:vB:deactivated;nameB:vB:activated", mockBizState());
         Assert.assertEquals(3, bizOperations.size());
         Assert.assertTrue(bizOperations.contains(BizOperation.createBizOperation()
@@ -252,7 +254,7 @@ public class ConfigUtilsTest {
             when(serviceReference.getService()).thenReturn(bizManagerService);
             when(pluginContext.referenceService(any(Class.class))).thenReturn(serviceReference);
             when(bizManagerService.getBizInOrder()).thenReturn(bizList);
-            ConfigUtils.transformToBizOperation(
+            OperationTransformer.transformToBizOperation(
                 "nameA:vA:activated;nameA:vB:deactivated;nameB:vB:activated", pluginContext);
         } catch (Exception e) {
             ex = e;
@@ -263,7 +265,7 @@ public class ConfigUtilsTest {
 
     @Test
     public void testTransformUnChangedState() {
-        List<BizOperation> bizOperations = ConfigUtils.doTransformToBizOperation(
+        List<BizOperation> bizOperations = OperationTransformer.doTransformToBizOperation(
             "nameA:vA:activated;nameA:vB:deactivated;nameB:vA:activated", mockBizState());
         Assert.assertEquals(0, bizOperations.size());
     }

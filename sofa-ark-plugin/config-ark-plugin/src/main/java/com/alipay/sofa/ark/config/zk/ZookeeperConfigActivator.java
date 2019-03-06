@@ -22,7 +22,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.config.ConfigProcessor;
-import com.alipay.sofa.ark.config.util.ConfigUtils;
+import com.alipay.sofa.ark.config.util.OperationTransformer;
 import com.alipay.sofa.ark.config.OperationProcessor;
 import com.alipay.sofa.ark.config.RegistryConfig;
 import com.alipay.sofa.ark.config.util.NetUtils;
@@ -160,8 +160,8 @@ public class ZookeeperConfigActivator implements PluginActivator {
             public void handleEvent(ArkEvent event) {
                 if (Constants.ARK_EVENT_TOPIC_AFTER_FINISH_DEPLOY_STAGE.equals(event.getTopic())) {
                     LOGGER.info("Start to process init app config: {}", bizInitConfig);
-                    OperationProcessor.process(ConfigUtils.transformToBizOperation(bizInitConfig,
-                        context));
+                    OperationProcessor.process(OperationTransformer.transformToBizOperation(
+                        bizInitConfig, context));
                 }
             }
 

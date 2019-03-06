@@ -39,7 +39,7 @@ public class PluginCommandProviderTest {
     @Test
     public void testPluginCommandFormat() {
         PluginCommandProvider pluginCommandProvider = new PluginCommandProvider();
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin "));
+        Assert.assertFalse(pluginCommandProvider.validate(" plugin "));
         Assert.assertTrue(pluginCommandProvider.validate(" plugin -h "));
         Assert.assertTrue(pluginCommandProvider.validate(" plugin -m pluginA "));
         Assert.assertTrue(pluginCommandProvider.validate(" plugin -s pluginB pluginA "));
@@ -114,8 +114,7 @@ public class PluginCommandProviderTest {
 
         Assert.assertTrue(pluginCommandProvider.getHelp().equals(
             pluginCommandProvider.handleCommand("plugin -h")));
-        Assert.assertTrue("pluginA\npluginB\n\n".equals(pluginCommandProvider
-            .handleCommand("plugin ")));
+        Assert.assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plugin ")));
 
         String details = pluginCommandProvider.handleCommand("plugin -m -d -s pluginA");
         Assert.assertTrue(details.contains("Activator"));

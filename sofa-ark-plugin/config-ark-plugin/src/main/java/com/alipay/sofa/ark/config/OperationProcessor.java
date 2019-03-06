@@ -20,17 +20,8 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.config.util.ConfigUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.BizOperation;
-import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
-import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,16 +42,16 @@ public class OperationProcessor {
                     .name(), bizOperation.getBizName(), bizOperation.getBizVersion());
                 switch (bizOperation.getOperationType()) {
                     case INSTALL:
-                        clientResponses.add(installOperation(bizOperation));
+                        clientResponses.add(ArkClient.installOperation(bizOperation));
                         break;
                     case UNINSTALL:
-                        clientResponses.add(uninstallOperation(bizOperation));
+                        clientResponses.add(ArkClient.uninstallOperation(bizOperation));
                         break;
                     case SWITCH:
-                        clientResponses.add(switchOperation(bizOperation));
+                        clientResponses.add(ArkClient.switchOperation(bizOperation));
                         break;
                     case CHECK:
-                        clientResponses.add(checkOperation(bizOperation));
+                        clientResponses.add(ArkClient.checkOperation(bizOperation));
                         break;
                     default:
                         throw new ArkRuntimeException(String.format("Don't support operation: %s.",
@@ -72,48 +63,4 @@ public class OperationProcessor {
         }
         return clientResponses;
     }
-
-    public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
-        AssertUtils.isTrue(
-            BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
-            "Operation type must be install");
-        File bizFile = null;
-        if (bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL) != null) {
-            URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
-            bizFile = ConfigUtils.createBizSaveFile(bizOperation.getBizName(),
-                bizOperation.getBizVersion());
-            FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
-        }
-        for (BizFileGenerator bizFileGenerator : ArkServiceLoader
-            .loadExtension(BizFileGenerator.class)) {
-            bizFile = bizFileGenerator.createBizFile(bizOperation.getBizName(),
-                bizOperation.getBizVersion());
-            if (bizFile != null && bizFile.exists()) {
-                break;
-            }
-        }
-        return ArkClient.installBiz(bizFile);
-    }
-
-    public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
-        AssertUtils.isTrue(
-            BizOperation.OperationType.UNINSTALL.equals(bizOperation.getOperationType()),
-            "Operation type must be uninstall");
-        return ArkClient.uninstallBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
-    }
-
-    public static ClientResponse switchOperation(BizOperation bizOperation) {
-        AssertUtils.isTrue(
-            BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
-            "Operation type must be switch");
-        return ArkClient.switchBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
-    }
-
-    public static ClientResponse checkOperation(BizOperation bizOperation) {
-        AssertUtils.isTrue(
-            BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
-            "Operation type must be switch");
-        return ArkClient.checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
-    }
-
 }
