@@ -32,8 +32,8 @@ import java.util.Deque;
  * @since 0.6.0
  */
 public class ConfigProcessor {
-    private final static ArkLogger LOGGER = ArkLoggerFactory
-                                              .getLogger("com.alipay.sofa.ark.config");
+    private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(ConfigProcessor.class);
+
     private Deque<String>          configDeque;
     private CommonThreadPool       commonThreadPool;
     private PluginContext          pluginContext;

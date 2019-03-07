@@ -98,6 +98,9 @@ public class HandleArchiveStage implements PipelineStage {
                 } else if (useDynamicConfig()) {
                     if (biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                         bizManagerService.registerBiz(biz);
+                    } else {
+                        LOGGER.warn("The biz of {} is ignored when using dynamic config.",
+                            biz.getIdentity());
                     }
                 } else {
                     if (!isBizExcluded(biz)) {

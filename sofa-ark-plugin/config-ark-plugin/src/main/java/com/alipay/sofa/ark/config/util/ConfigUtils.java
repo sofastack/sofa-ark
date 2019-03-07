@@ -29,7 +29,6 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -111,7 +110,7 @@ public class ConfigUtils {
             String bizVersion = configInfo[1];
             String stateStr = configInfo[2];
             String parameterStr = (idx == -1) ? Constants.EMPTY_STR : operation.substring(idx + 1);
-            BizState bizState = BizState.transformBizState(stateStr);
+            BizState bizState = BizState.of(stateStr);
             Map<String, String> parameters = parseParameter(parameterStr);
 
             if (expectedBizState.get(bizName) != null
@@ -306,7 +305,7 @@ public class ConfigUtils {
             int idx = configOperation.indexOf(Constants.QUESTION_MARK_SPLIT);
             String[] configInfo = (idx == -1) ? configOperation.split(Constants.STRING_COLON)
                 : configOperation.substring(0, idx).split(Constants.STRING_COLON);
-            BizState bizState = BizState.transformBizState(configInfo[2]);
+            BizState bizState = BizState.of(configInfo[2]);
             if (BizState.ACTIVATED.equals(bizState)) {
                 activatedStateConfig.add(configOperation);
             } else {

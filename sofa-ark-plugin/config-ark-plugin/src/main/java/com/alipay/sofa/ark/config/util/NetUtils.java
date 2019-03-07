@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.config.util;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.net.InetAddress;
@@ -25,9 +26,14 @@ import java.net.InetAddress;
  * @since 0.6.0
  */
 public class NetUtils {
+    private static String localhost;
+
     public static String getLocalHostAddress() {
         try {
-            return InetAddress.getLocalHost().getHostAddress();
+            if (StringUtils.isEmpty(localhost)) {
+                localhost = InetAddress.getLocalHost().getHostAddress();
+            }
+            return localhost;
         } catch (Throwable throwable) {
             throw new ArkRuntimeException(throwable);
         }
