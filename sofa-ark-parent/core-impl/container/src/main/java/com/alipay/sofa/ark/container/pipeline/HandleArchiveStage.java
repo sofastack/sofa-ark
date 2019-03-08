@@ -123,7 +123,7 @@ public class HandleArchiveStage implements PipelineStage {
                     "Master biz should be configured when deploy multi biz.");
             } else {
                 List<Biz> bizList = bizManagerService.getBizInOrder();
-                if (!bizList.isEmpty()) {
+                if (!bizList.isEmpty() && StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     ArkConfigs.putStringValue(Constants.MASTER_BIZ, bizList.get(0).getBizName());
                 }
             }

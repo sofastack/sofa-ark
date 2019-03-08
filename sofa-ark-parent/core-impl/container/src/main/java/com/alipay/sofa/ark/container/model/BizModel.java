@@ -108,7 +108,7 @@ public class BizModel implements Biz {
     }
 
     public BizModel setWebContextPath(String webContextPath) {
-        this.webContextPath = webContextPath;
+        this.webContextPath = (webContextPath == null ? Constants.ROOT_WEB_CONTEXT_PATH : webContextPath);
         return this;
     }
 
