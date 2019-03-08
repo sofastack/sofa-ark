@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.config;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.thread.CommonThreadPool;
-import com.alipay.sofa.ark.config.util.ConfigUtils;
+import com.alipay.sofa.ark.config.util.OperationTransformer;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.PluginContext;
@@ -82,7 +82,7 @@ public class ConfigProcessor {
                 try {
                     LOGGER.info("ConfigTask: {} start to process config: {}",
                         commonThreadPool.getThreadPoolName(), config);
-                    OperationProcessor.process(ConfigUtils.transformToBizOperation(config,
+                    OperationProcessor.process(OperationTransformer.transformToBizOperation(config,
                         pluginContext));
                 } catch (Throwable throwable) {
                     LOGGER.error(String.format("ConfigTask: %s failed to process config: %s",

@@ -83,4 +83,15 @@ public class FileUtils {
         }
         throw new ArkRuntimeException("Failed to create temp file");
     }
+
+    /**
+     * {@link org.apache.commons.io.FileUtils#copyInputStreamToFile(InputStream, File)}
+     * @param source
+     * @param destination
+     * @throws IOException
+     */
+    public static void copyInputStreamToFile(final InputStream source, final File destination)
+                                                                                              throws IOException {
+        org.apache.commons.io.FileUtils.copyInputStreamToFile(source, destination);
+    }
 }

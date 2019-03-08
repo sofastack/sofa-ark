@@ -14,7 +14,6 @@
 
     <properties>
         <curator.version>2.9.1</curator.version>
-        <commons.io.version>2.6</commons.io.version>
     </properties>
 
     <dependencies>
@@ -33,13 +32,16 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-spi</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-api</artifactId>
-            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa.common</groupId>
+            <artifactId>log-sofa-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -50,16 +52,7 @@
                     <groupId>com.google.inject</groupId>
                     <artifactId>guice</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.alipay.sofa.common</groupId>
-                    <artifactId>log-sofa-boot-starter</artifactId>
-                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons.io.version}</version>
         </dependency>
 
         <dependency>

@@ -56,9 +56,10 @@ public class PluginCommandProvider implements CommandProvider {
                                                + "  USAGE: plugin [option...] [pluginName...]\n"
                                                + "  SAMPLE: plugin -m plugin-A plugin-B\n"
                                                + "  -h  Shows the help message.\n"
-                                               + "  -m  Shows the meta info of specified pluginName\n"
-                                               + "  -s  Shows the service info of specified pluginName\n"
-                                               + "  -d  Shows the detail info of specified pluginName\n";
+                                               + "  -a  Shows all plugin name.\n"
+                                               + "  -m  Shows the meta info of specified pluginName.\n"
+                                               + "  -s  Shows the service info of specified pluginName.\n"
+                                               + "  -d  Shows the detail info of specified pluginName.\n";
 
     class PluginCommand {
         private boolean        isValidate;
@@ -97,6 +98,7 @@ public class PluginCommandProvider implements CommandProvider {
             for (Character option : options) {
                 switch (option) {
                     case 'h':
+                    case 'a':
                     case 'm':
                     case 's':
                     case 'd':
@@ -107,8 +109,8 @@ public class PluginCommandProvider implements CommandProvider {
                 }
             }
 
-            // '-h' option can not be combined with other option, such as '-m'
-            if (options.contains('h') && options.size() > 1) {
+            // '-h' or '-a' option can not be combined with other option, such as '-m'
+            if ((options.contains('h') || options.contains('a')) && options.size() > 1) {
                 isValidate = false;
                 return;
             }
@@ -118,20 +120,21 @@ public class PluginCommandProvider implements CommandProvider {
                 parameters.add(syntax[pluginNameIndex++]);
             }
 
-            // '-h' option need not pluginName parameter
-            if (options.contains('h') && parameters.size() > 0) {
+            // '-h' or '-a' option need not pluginName parameter
+            if ((options.contains('h') || options.contains('a')) && parameters.size() > 0) {
                 isValidate = false;
                 return;
             }
 
             // no parameter is needed when no options
-            if (options.isEmpty() && parameters.size() > 0) {
+            if (options.isEmpty()) {
                 isValidate = false;
                 return;
             }
 
-            // if option is not 'h', parameter should not be empty
-            if (!options.contains('h') && !options.isEmpty() && parameters.isEmpty()) {
+            // if option is not 'h' or 'a', parameter should not be empty
+            if (!(options.contains('h') || options.contains('a')) && !options.isEmpty()
+                && parameters.isEmpty()) {
                 isValidate = false;
                 return;
             }
@@ -151,7 +154,7 @@ public class PluginCommandProvider implements CommandProvider {
             // print plugin command help message
             if (options.contains('h')) {
                 sb.append(getHelp());
-            } else if (parameters.isEmpty()) {
+            } else if (options.contains('a')) {
                 return pluginList();
             } else {
                 Set<String> candidates = pluginManagerService.getAllPluginNames();
@@ -181,7 +184,7 @@ public class PluginCommandProvider implements CommandProvider {
                     sb.append(pluginName).append("\n");
                 }
             }
-            sb.append("\n");
+            sb.append("plugin count = ").append(pluginNames.size()).append("\n");
             return sb.toString();
         }
 

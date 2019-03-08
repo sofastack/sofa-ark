@@ -24,7 +24,7 @@ package com.alipay.sofa.ark.spi.registry;
  */
 public enum ServiceProviderType {
 
-    ARK_PLUGIN("Ark plugin"), ARK_CONTAINER("Ark Container");
+    ARK_PLUGIN("Ark plugin"), ARK_CONTAINER("Ark Container"), ARK_MASTER_BIZ("Ark Master Biz");
 
     private String desc;
 

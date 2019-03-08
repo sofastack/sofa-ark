@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.config.util;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
-import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -26,10 +25,7 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,32 +34,7 @@ import java.util.Map;
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ConfigUtils {
-    private final static File bizInstallDirectory;
-    static {
-        bizInstallDirectory = getBizInstallDirectory();
-    }
-
-    private static File getBizInstallDirectory() {
-        File workingDir = FileUtils.createTempDir("sofa-ark");
-        String configDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR);
-        if (!StringUtils.isEmpty(configDir)) {
-            if (!configDir.endsWith(File.separator)) {
-                configDir += File.separator;
-            }
-            workingDir = new File(configDir);
-            if (!workingDir.exists()) {
-                workingDir.mkdir();
-            }
-        }
-        return workingDir;
-    }
-
-    public static File createBizSaveFile(String bizName, String bizVersion) {
-        return new File(bizInstallDirectory,
-            bizName + "-" + bizVersion + "-"
-                    + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
-    }
+public class OperationTransformer {
 
     /**
      * transform config into biz operation

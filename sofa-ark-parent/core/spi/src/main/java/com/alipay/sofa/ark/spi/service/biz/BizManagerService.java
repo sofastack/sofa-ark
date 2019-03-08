@@ -95,6 +95,8 @@ public interface BizManagerService {
      */
     Set<String> getAllBizNames();
 
+    Set<String> getAllBizIdentities();
+
     /**
      * Get all biz in priority PriorityOrdered
      * @return

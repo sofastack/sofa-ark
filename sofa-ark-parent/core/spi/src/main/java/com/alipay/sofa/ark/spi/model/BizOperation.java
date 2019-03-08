@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.model;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,8 +27,8 @@ import java.util.Objects;
 public class BizOperation {
     private String              bizName;
     private String              bizVersion;
-    private Map<String, String> parameters;
     private OperationType       operationType;
+    private Map<String, String> parameters = new HashMap<>();
 
     public boolean isValid() {
         return operationType == OperationType.UNKNOWN;
@@ -66,6 +67,11 @@ public class BizOperation {
 
     public BizOperation setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+        return this;
+    }
+
+    public BizOperation putParameter(String key, String value) {
+        this.parameters.put(key, value);
         return this;
     }
 
