@@ -70,7 +70,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     private static final Charset          DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     @ArkInject
-    private EmbeddedServerService<Tomcat> embedServerService;
+    private EmbeddedServerService<Tomcat> embeddedServerService;
 
     @ArkInject
     private BizManagerService             bizManagerService;
@@ -83,12 +83,12 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
 
     @Override
     public WebServer getWebServer(ServletContextInitializer... initializers) {
-        if (embedServerService == null) {
+        if (embeddedServerService == null) {
             return super.getWebServer(initializers);
-        } else if (embedServerService.getEmbedServer() == null) {
-            embedServerService.setEmbedServer(initEmbedTomcat());
+        } else if (embeddedServerService.getEmbedServer() == null) {
+            embeddedServerService.setEmbedServer(initEmbedTomcat());
         }
-        Tomcat embedTomcat = embedServerService.getEmbedServer();
+        Tomcat embedTomcat = embeddedServerService.getEmbedServer();
         prepareContext(embedTomcat.getHost(), initializers);
         return getTomcatWebServer(embedTomcat);
     }
