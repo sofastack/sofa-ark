@@ -101,11 +101,11 @@ public class BizManagerServiceImpl implements BizManagerService {
 
     @Override
     public Biz getBizByClassLoader(ClassLoader classLoader) {
-        for (String bizName : bizRegistration.keySet()) {
-            for (String bizVersion : bizRegistration.get(bizName).keySet()) {
-                Biz biz = bizRegistration.get(bizName).get(bizVersion);
-                if (biz.getBizClassLoader().equals(classLoader)) {
-                    return biz;
+        for (Map.Entry<String, ConcurrentHashMap<String, Biz>> bizMapEntry : bizRegistration
+            .entrySet()) {
+            for (Map.Entry<String, Biz> bizEntry : bizMapEntry.getValue().entrySet()) {
+                if (bizEntry.getValue().getBizClassLoader().equals(classLoader)) {
+                    return bizEntry.getValue();
                 }
             }
         }

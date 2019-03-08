@@ -14,34 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.web.embed.tomcat;
-
-import com.alipay.sofa.ark.spi.web.EmbedServerService;
-import org.apache.catalina.startup.Tomcat;
+package com.alipay.sofa.ark.spi.web;
 
 /**
- * This implementation would be published as ark service.
+ * Fetch embed tomcat container in ark
  *
  * @author qilong.zql
  * @since 0.6.0
  */
-public class EmbedServerServiceImpl implements EmbedServerService<Tomcat> {
-    private Tomcat tomcat;
-    private Object lock = new Object();
+public interface EmbeddedServerService<T> {
+    /**
+     * get embed tomcat
+     * @return
+     */
+    T getEmbedServer();
 
-    @Override
-    public Tomcat getEmbedServer() {
-        return tomcat;
-    }
-
-    @Override
-    public void setEmbedServer(Tomcat tomcat) {
-        if (this.tomcat == null) {
-            synchronized (lock) {
-                if (this.tomcat == null) {
-                    this.tomcat = tomcat;
-                }
-            }
-        }
-    }
+    /**
+     * set embed tomcat
+     * @param container
+     */
+    void setEmbedServer(T container);
 }
