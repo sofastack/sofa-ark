@@ -14,28 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.config.util;
-
-import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.exception.ArkRuntimeException;
-
-import java.net.InetAddress;
+package com.alipay.sofa.ark.springboot.facade;
 
 /**
  * @author qilong.zql
- * @since 0.6.0
+ * @since 0.1.0
  */
-public class NetUtils {
-    private static String localhost;
-
-    public static String getLocalHostAddress() {
-        try {
-            if (StringUtils.isEmpty(localhost)) {
-                localhost = InetAddress.getLocalHost().getHostAddress();
-            }
-            return localhost;
-        } catch (Throwable throwable) {
-            throw new ArkRuntimeException(throwable);
-        }
-    }
+public interface SampleService {
+    /**
+     * a simple test facade
+     * @return
+     */
+    String say();
 }

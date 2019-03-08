@@ -43,7 +43,7 @@
                         </goals>
 
                         <configuration>
-                            <activator>com.alipay.sofa.ark.web.embed.WebPluginActivator</activator>
+                            ArkBootRunnerTest     <activator>com.alipay.sofa.ark.web.embed.WebPluginActivator</activator>
                             <exported>
                                 <packages>
                                     <package>javax.*</package>
