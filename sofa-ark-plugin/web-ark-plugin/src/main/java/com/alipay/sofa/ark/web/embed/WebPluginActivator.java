@@ -18,8 +18,8 @@ package com.alipay.sofa.ark.web.embed;
 
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
-import com.alipay.sofa.ark.spi.web.EmbedServerService;
-import com.alipay.sofa.ark.web.embed.tomcat.EmbedServerServiceImpl;
+import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
 
 /**
  * @author qilong.zql
@@ -29,7 +29,7 @@ public class WebPluginActivator implements PluginActivator {
 
     @Override
     public void start(PluginContext context) {
-        context.publishService(EmbedServerService.class, new EmbedServerServiceImpl());
+        context.publishService(EmbeddedServerService.class, new EmbeddedServerServiceImpl());
     }
 
     @Override

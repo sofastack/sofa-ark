@@ -257,13 +257,20 @@ public class ClasspathLauncher extends ArkLauncher {
         }
 
         /**
-         * this method is used to eliminate agent classpath
+         * this method is used to eliminate agent classpath and biz classpath
          *
          * @param urls
          * @return
          */
         protected URL[] filterBizUrls(URL[] urls) {
             URL[] agentClassPath = ClassLoaderUtils.getAgentClassPath();
+            List<URL> urlList;
+            try {
+                urlList = filterUrls(Constants.ARK_BIZ_MARK_ENTRY);
+            } catch (Throwable throwable) {
+                // ignore
+                urlList = Collections.emptyList();
+            }
             Set<URL> bizURls = new HashSet<>();
             boolean isAgent;
             for (URL url : urls) {
@@ -274,7 +281,7 @@ public class ClasspathLauncher extends ArkLauncher {
                         break;
                     }
                 }
-                if (!isAgent) {
+                if (!isAgent && !urlList.contains(url)) {
                     bizURls.add(url);
                 }
             }

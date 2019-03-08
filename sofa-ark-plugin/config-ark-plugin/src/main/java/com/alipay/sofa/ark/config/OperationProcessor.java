@@ -31,8 +31,7 @@ import java.util.List;
  */
 public class OperationProcessor {
 
-    private final static ArkLogger LOGGER = ArkLoggerFactory
-                                              .getLogger("com.alipay.sofa.ark.config");
+    private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(OperationProcessor.class);
 
     public static List<ClientResponse> process(List<BizOperation> bizOperations) {
         List<ClientResponse> clientResponses = new ArrayList<>();
