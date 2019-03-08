@@ -10,7 +10,6 @@
     <artifactId>sofa-ark-spi</artifactId>
 
     <dependencies>
-
         <!--SOFAArk modules-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>

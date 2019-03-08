@@ -159,6 +159,17 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>config-ark-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>web-ark-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!--third party libraries-->
             <dependency>
                 <groupId>com.google.inject</groupId>

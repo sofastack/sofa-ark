@@ -135,4 +135,13 @@ public class ArkConfigs {
         keySet.addAll(new HashMap(System.getProperties()).keySet());
         return keySet;
     }
+
+    /**
+     * put string config
+     * @param key
+     * @param value
+     */
+    public static void putStringValue(String key, String value) {
+        CFG.put(key, value);
+    }
 }

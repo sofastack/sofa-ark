@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.processor;
+package com.alipay.sofa.ark.web.embed.tomcat;
 
-import com.alipay.sofa.ark.api.ArkClient;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.PriorityOrdered;
+import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import org.apache.catalina.startup.Tomcat;
 
 /**
+ * This implementation would be published as ark service.
+ *
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkServiceInjectProcessor implements BeanPostProcessor, PriorityOrdered {
+public class EmbeddedServerServiceImpl implements EmbeddedServerService<Tomcat> {
+    private Tomcat tomcat;
+    private Object lock = new Object();
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
-                                                                               throws BeansException {
-        ArkClient.getInjectionService().inject(bean);
-        return bean;
+    public Tomcat getEmbedServer() {
+        return tomcat;
     }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-                                                                              throws BeansException {
-        return bean;
-    }
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE;
+    public void setEmbedServer(Tomcat tomcat) {
+        if (this.tomcat == null) {
+            synchronized (lock) {
+                if (this.tomcat == null) {
+                    this.tomcat = tomcat;
+                }
+            }
+        }
     }
 }

@@ -78,6 +78,9 @@ public class RegisterServiceStage implements PipelineStage {
         registryService.publishService(EventAdminService.class, ArkServiceContainerHolder
             .getContainer().getService(EventAdminService.class), new ContainerServiceProvider(
             PriorityOrdered.HIGHEST_PRECEDENCE));
+        registryService.publishService(RegistryService.class, ArkServiceContainerHolder
+            .getContainer().getService(RegistryService.class), new ContainerServiceProvider(
+            PriorityOrdered.HIGHEST_PRECEDENCE));
 
         /**
          * some container service which may depends on other basic container service.

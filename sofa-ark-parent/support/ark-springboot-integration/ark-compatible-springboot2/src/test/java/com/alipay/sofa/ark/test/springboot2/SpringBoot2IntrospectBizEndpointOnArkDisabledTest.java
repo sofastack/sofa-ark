@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.test.springboot2;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.SpringApplication;
@@ -23,11 +24,26 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.Field;
+import java.net.URL;
+
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
 public class SpringBoot2IntrospectBizEndpointOnArkDisabledTest {
+
+    @After
+    public void removeTomcatInit() {
+        try {
+            Field urlFactory = URL.class.getDeclaredField("factory");
+            urlFactory.setAccessible(true);
+            urlFactory.set(null, null);
+        } catch (Throwable t) {
+            // ignore
+        }
+    }
+
     @Test
     public void testIntrospectBizEndpoint() {
         SpringApplication springApplication = new SpringApplication(EmptyConfiguration.class);

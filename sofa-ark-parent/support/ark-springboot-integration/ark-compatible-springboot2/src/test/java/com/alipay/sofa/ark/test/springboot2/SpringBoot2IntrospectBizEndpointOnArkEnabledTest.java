@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.test.springboot2;
 
 import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +37,18 @@ import java.util.Map;
  */
 @RunWith(ArkJUnit4Runner.class)
 public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
+
+    @After
+    public void removeTomcatInit() {
+        try {
+            Field urlFactory = URL.class.getDeclaredField("factory");
+            urlFactory.setAccessible(true);
+            urlFactory.set(null, null);
+        } catch (Throwable t) {
+            // ignore
+        }
+    }
+
     @Test
     public void testIntrospectBizEndpoint() {
         SpringApplication springApplication = new SpringApplication(EmptyConfiguration.class);

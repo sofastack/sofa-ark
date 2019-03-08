@@ -38,6 +38,7 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
@@ -89,15 +90,18 @@ public class HandleArchiveStage implements PipelineStage {
                     "Master biz should be configured when using dynamic config.");
             }
 
+            int bizCount = 0;
             for (BizArchive bizArchive : executableArchive.getBizArchives()) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
                 if (bizArchive instanceof DirectoryBizArchive) {
                     if (!((DirectoryBizArchive) bizArchive).isTestMode()) {
                         bizManagerService.registerBiz(biz);
+                        bizCount += 1;
                     }
                 } else if (useDynamicConfig()) {
                     if (biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                         bizManagerService.registerBiz(biz);
+                        bizCount += 1;
                     } else {
                         LOGGER.warn("The biz of {} is ignored when using dynamic config.",
                             biz.getIdentity());
@@ -105,11 +109,26 @@ public class HandleArchiveStage implements PipelineStage {
                 } else {
                     if (!isBizExcluded(biz)) {
                         bizManagerService.registerBiz(biz);
+                        bizCount += 1;
                     } else {
                         LOGGER.warn(String.format("The biz of %s is excluded.", biz.getIdentity()));
                     }
                 }
             }
+
+            // master biz should be specified when deploy multi biz, otherwise the only biz would be token as master biz
+            if (bizCount > 1) {
+                AssertUtils.isFalse(
+                    StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ)),
+                    "Master biz should be configured when deploy multi biz.");
+            } else {
+                List<Biz> bizList = bizManagerService.getBizInOrder();
+                if (!bizList.isEmpty()
+                    && StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
+                    ArkConfigs.putStringValue(Constants.MASTER_BIZ, bizList.get(0).getBizName());
+                }
+            }
+
         } catch (Throwable ex) {
             throw new ArkRuntimeException(ex.getMessage(), ex);
         }

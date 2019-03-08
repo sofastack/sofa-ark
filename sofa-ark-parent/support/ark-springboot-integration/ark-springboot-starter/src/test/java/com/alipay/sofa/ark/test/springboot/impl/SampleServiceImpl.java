@@ -14,19 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot;
+package com.alipay.sofa.ark.test.springboot.impl;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
+import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 
 /**
  * @author qilong.zql
- * @since 0.1.0
+ * @since 0.3.0
  */
-@ImportResource({ "classpath*:META-INF/sofa-ark-test/*.xml" })
-@SpringBootApplication
-public class SpringApplication {
-    public static void main(String[] args) {
-
+public class SampleServiceImpl implements SampleService {
+    @Override
+    public String say() {
+        return "SampleService";
     }
 }

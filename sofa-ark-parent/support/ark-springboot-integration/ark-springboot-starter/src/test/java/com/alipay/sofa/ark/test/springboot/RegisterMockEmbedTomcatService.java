@@ -14,34 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.processor;
+package com.alipay.sofa.ark.test.springboot;
 
-import com.alipay.sofa.ark.api.ArkClient;
-import org.springframework.beans.BeansException;
+import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
+import com.alipay.sofa.ark.spi.service.ArkInject;
+import com.alipay.sofa.ark.spi.service.registry.RegistryService;
+import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.PriorityOrdered;
+import org.springframework.stereotype.Component;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkServiceInjectProcessor implements BeanPostProcessor, PriorityOrdered {
+@Component
+public class RegisterMockEmbedTomcatService implements BeanPostProcessor, InitializingBean {
+    @ArkInject
+    private RegistryService registryService;
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
-                                                                               throws BeansException {
-        ArkClient.getInjectionService().inject(bean);
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-                                                                              throws BeansException {
-        return bean;
-    }
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE;
+    public void afterPropertiesSet() throws Exception {
+        registryService.publishService(EmbeddedServerService.class,
+            new EmbeddedServerServiceImpl(), new ContainerServiceProvider());
     }
 }

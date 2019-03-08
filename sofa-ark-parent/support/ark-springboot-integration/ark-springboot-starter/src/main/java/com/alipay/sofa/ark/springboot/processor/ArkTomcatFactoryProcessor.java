@@ -14,28 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.impl;
+package com.alipay.sofa.ark.springboot.processor;
 
-import com.alipay.sofa.ark.spi.event.ArkEvent;
-import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import com.alipay.sofa.ark.springboot.TestValueHolder;
+import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.core.PriorityOrdered;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class TestBizEventHandler implements EventHandler {
+public class ArkTomcatFactoryProcessor implements BeanPostProcessor, PriorityOrdered {
     @Override
-    public void handleEvent(ArkEvent event) {
-        if (event.getTopic().equals("test-event-A")) {
-            TestValueHolder.setTestValue(10);
-        } else if (event.getTopic().equals("test-event-B")) {
-            TestValueHolder.setTestValue(20);
+    public Object postProcessBeforeInitialization(Object bean, String beanName)
+                                                                               throws BeansException {
+        if (bean instanceof TomcatServletWebServerFactory) {
+            return new ArkTomcatServletWebServerFactory();
         }
+        return bean;
     }
 
     @Override
-    public int getPriority() {
-        return LOWEST_PRECEDENCE + 20;
+    public int getOrder() {
+        return LOWEST_PRECEDENCE - 10;
     }
 }

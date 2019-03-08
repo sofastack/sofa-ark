@@ -14,20 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot;
+package com.alipay.sofa.ark.spi.web;
 
 /**
+ * Fetch embed tomcat container in ark
+ *
  * @author qilong.zql
  * @since 0.6.0
  */
-public class TestValueHolder {
-    private static int testValue = 0;
+public interface EmbeddedServerService<T> {
+    /**
+     * get embed tomcat
+     * @return
+     */
+    T getEmbedServer();
 
-    public static int getTestValue() {
-        return testValue;
-    }
-
-    public static void setTestValue(int testValue) {
-        TestValueHolder.testValue = testValue;
-    }
+    /**
+     * set embed tomcat
+     * @param container
+     */
+    void setEmbedServer(T container);
 }

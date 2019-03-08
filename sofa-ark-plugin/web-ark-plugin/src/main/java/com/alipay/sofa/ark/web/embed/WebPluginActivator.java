@@ -14,34 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.processor;
+package com.alipay.sofa.ark.web.embed;
 
-import com.alipay.sofa.ark.api.ArkClient;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.PriorityOrdered;
+import com.alipay.sofa.ark.spi.model.PluginContext;
+import com.alipay.sofa.ark.spi.service.PluginActivator;
+import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
 
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkServiceInjectProcessor implements BeanPostProcessor, PriorityOrdered {
+public class WebPluginActivator implements PluginActivator {
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
-                                                                               throws BeansException {
-        ArkClient.getInjectionService().inject(bean);
-        return bean;
+    public void start(PluginContext context) {
+        context.publishService(EmbeddedServerService.class, new EmbeddedServerServiceImpl());
     }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-                                                                              throws BeansException {
-        return bean;
-    }
+    public void stop(PluginContext context) {
 
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE;
     }
 }
