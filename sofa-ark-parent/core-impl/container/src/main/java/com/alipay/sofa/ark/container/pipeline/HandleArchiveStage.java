@@ -19,11 +19,14 @@ package com.alipay.sofa.ark.container.pipeline;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
@@ -80,12 +83,31 @@ public class HandleArchiveStage implements PipelineStage {
                 }
             }
 
+            if (useDynamicConfig()) {
+                AssertUtils.isFalse(
+                    StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ)),
+                    "Master biz should be configured when using dynamic config.");
+            }
+
             for (BizArchive bizArchive : executableArchive.getBizArchives()) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
-                if (!isBizExcluded(biz)) {
-                    bizManagerService.registerBiz(bizFactoryService.createBiz(bizArchive));
+                if (bizArchive instanceof DirectoryBizArchive) {
+                    if (!((DirectoryBizArchive) bizArchive).isTestMode()) {
+                        bizManagerService.registerBiz(biz);
+                    }
+                } else if (useDynamicConfig()) {
+                    if (biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
+                        bizManagerService.registerBiz(biz);
+                    } else {
+                        LOGGER.warn("The biz of {} is ignored when using dynamic config.",
+                            biz.getIdentity());
+                    }
                 } else {
-                    LOGGER.warn(String.format("The biz of %s is excluded.", biz.getIdentity()));
+                    if (!isBizExcluded(biz)) {
+                        bizManagerService.registerBiz(biz);
+                    } else {
+                        LOGGER.warn(String.format("The biz of %s is excluded.", biz.getIdentity()));
+                    }
                 }
             }
         } catch (Throwable ex) {
@@ -123,4 +145,7 @@ public class HandleArchiveStage implements PipelineStage {
         }
     }
 
+    public boolean useDynamicConfig() {
+        return !StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ADDRESS));
+    }
 }

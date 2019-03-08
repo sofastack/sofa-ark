@@ -36,10 +36,11 @@
         <junit.version>4.12</junit.version>
         <testng.version>6.14.3</testng.version>
         <jmockit.version>1.35</jmockit.version>
+        <mockito.version>2.21.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
-        <maven.plugin.plugin>3.1</maven.plugin.plugin>
+        <maven.plugin.plugin>3.4</maven.plugin.plugin>
         <surefire.version>2.20</surefire.version>
     </properties>
 
@@ -137,6 +138,24 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-ark-tools</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-common-springboot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-compatible-springboot1</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-compatible-springboot2</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -266,6 +285,13 @@
                 <groupId>org.jmockit</groupId>
                 <artifactId>jmockit</artifactId>
                 <version>${jmockit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
 

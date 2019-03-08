@@ -42,4 +42,17 @@ public enum BizState {
         return getBizState();
     }
 
+    public static BizState of(String state) {
+        if (UNRESOLVED.name().equalsIgnoreCase(state)) {
+            return UNRESOLVED;
+        } else if (RESOLVED.name().equalsIgnoreCase(state)) {
+            return RESOLVED;
+        } else if (ACTIVATED.name().equalsIgnoreCase(state)) {
+            return ACTIVATED;
+        } else if (DEACTIVATED.name().equalsIgnoreCase(state)) {
+            return DEACTIVATED;
+        } else {
+            return BROKEN;
+        }
+    }
 }
