@@ -202,6 +202,7 @@ public class BizModel implements Biz {
 
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         try {
+            resetProperties();
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
@@ -274,5 +275,9 @@ public class BizModel implements Biz {
                 nodes.add(pkgPattern);
             }
         }
+    }
+
+    private void resetProperties() {
+        System.getProperties().remove("logging.path");
     }
 }
