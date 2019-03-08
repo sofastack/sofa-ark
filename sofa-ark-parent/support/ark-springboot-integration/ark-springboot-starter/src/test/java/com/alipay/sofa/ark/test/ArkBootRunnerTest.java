@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.test.springboot;
+package com.alipay.sofa.ark.test;
 
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
@@ -22,7 +22,8 @@ import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
-import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
+import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
+import com.alipay.sofa.ark.test.springboot.TestValueHolder;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +31,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
 
@@ -41,20 +41,17 @@ import java.lang.reflect.Field;
  * @since 0.1.0
  */
 @RunWith(ArkBootRunner.class)
-@SpringBootTest(classes = BaseSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BaseSpringApplication.class)
 public class ArkBootRunnerTest {
 
     @Autowired
-    public SampleService                 sampleService;
+    public SampleService        sampleService;
 
     @ArkInject
-    public PluginManagerService          pluginManagerService;
+    public PluginManagerService pluginManagerService;
 
     @ArkInject
-    public EventAdminService             eventAdminService;
-
-    @Autowired
-    public TomcatServletWebServerFactory tomcatServletWebServerFactory;
+    public EventAdminService    eventAdminService;
 
     @Test
     public void test() {
@@ -91,9 +88,6 @@ public class ArkBootRunnerTest {
             }
         });
         Assert.assertEquals(20, TestValueHolder.getTestValue());
-
-        Assert
-            .assertTrue(tomcatServletWebServerFactory instanceof ArkTomcatServletWebServerFactory);
     }
 
 }

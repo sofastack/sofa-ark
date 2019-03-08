@@ -102,6 +102,9 @@ public class HandleArchiveStage implements PipelineStage {
                     if (biz.getBizName().equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                         bizManagerService.registerBiz(biz);
                         bizCount += 1;
+                    } else {
+                        LOGGER.warn("The biz of {} is ignored when using dynamic config.",
+                            biz.getIdentity());
                     }
                 } else {
                     if (!isBizExcluded(biz)) {
@@ -120,7 +123,8 @@ public class HandleArchiveStage implements PipelineStage {
                     "Master biz should be configured when deploy multi biz.");
             } else {
                 List<Biz> bizList = bizManagerService.getBizInOrder();
-                if (!bizList.isEmpty()) {
+                if (!bizList.isEmpty()
+                    && StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     ArkConfigs.putStringValue(Constants.MASTER_BIZ, bizList.get(0).getBizName());
                 }
             }

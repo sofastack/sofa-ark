@@ -61,7 +61,7 @@ import java.util.List;
 public class ZookeeperConfigActivator implements PluginActivator {
 
     private final static ArkLogger LOGGER          = ArkLoggerFactory
-                                                       .getLogger("com.alipay.sofa.ark.config");
+                                                       .getLogger(ZookeeperConfigActivator.class);
 
     /**
      * Zookeeper zkClient
