@@ -38,6 +38,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.util.ClassUtils;
@@ -90,7 +91,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         }
         Tomcat embedTomcat = embeddedServerService.getEmbedServer();
         prepareContext(embedTomcat.getHost(), initializers);
-        return getTomcatWebServer(embedTomcat);
+        return getWebServer(embedTomcat);
     }
 
     @Override
@@ -310,6 +311,16 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         private boolean isInsideNestedJar(String dir) {
             return dir.indexOf("!/") < dir.lastIndexOf("!/");
         }
+    }
 
+    /**
+     * Factory method called to create the {@link TomcatWebServer}. Subclasses can
+     * override this method to return a different {@link TomcatWebServer} or apply
+     * additional processing to the Tomcat server.
+     * @param tomcat the Tomcat server.
+     * @return a new {@link TomcatWebServer} instance
+     */
+    protected WebServer getWebServer(Tomcat tomcat) {
+        return new ArkTomcatWebServer(tomcat, getPort() >= 0);
     }
 }
