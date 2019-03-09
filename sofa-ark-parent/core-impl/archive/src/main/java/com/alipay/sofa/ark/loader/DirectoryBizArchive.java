@@ -39,6 +39,7 @@ public class DirectoryBizArchive implements BizArchive {
     public static final String MOCK_IDE_ARK_BIZ_NAME         = "Startup In IDE";
     public static final String MOCK_IDE_ARK_BIZ_VERSION      = "Mock version";
     public static final String MOCK_IDE_ARK_BIZ_MAIN_CLASS   = "Mock Main Class";
+    public static final String MOCK_IDE_WEB_CONTEXT_PATH     = ROOT_WEB_CONTEXT_PATH;
     public static final int    MOCK_IDE_BIZ_STARTUP_PRIORITY = 0;
 
     private final String       className;
@@ -57,7 +58,12 @@ public class DirectoryBizArchive implements BizArchive {
             String.valueOf(MOCK_IDE_BIZ_STARTUP_PRIORITY));
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, MOCK_IDE_ARK_BIZ_NAME);
         manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, MOCK_IDE_ARK_BIZ_VERSION);
+        manifest.getMainAttributes().putValue(WEB_CONTEXT_PATH, MOCK_IDE_WEB_CONTEXT_PATH);
         this.urls = urls;
+    }
+
+    public boolean isTestMode() {
+        return MOCK_IDE_ARK_BIZ_MAIN_CLASS.equals(className);
     }
 
     public String getClassName() {

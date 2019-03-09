@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
@@ -54,7 +55,9 @@ public class StandardPipeline implements Pipeline {
             .addPipelineStage(
                 ArkServiceContainerHolder.getContainer().getService(DeployPluginStage.class))
             .addPipelineStage(
-                ArkServiceContainerHolder.getContainer().getService(DeployBizStage.class));
+                ArkServiceContainerHolder.getContainer().getService(DeployBizStage.class))
+            .addPipelineStage(
+                ArkServiceContainerHolder.getContainer().getService(FinishStartupStage.class));
     }
 
     @Override

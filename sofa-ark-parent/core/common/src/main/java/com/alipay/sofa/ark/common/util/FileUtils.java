@@ -16,9 +16,13 @@
  */
 package com.alipay.sofa.ark.common.util;
 
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -63,5 +67,31 @@ public class FileUtils {
             hex.append(String.format("%02x", b));
         }
         return hex.toString();
+    }
+
+    /**
+     * Atomically creates a new directory somewhere beneath the system's
+     * temporary directory (as defined by the {@code java.io.tmpdir} system
+     */
+    public static File createTempDir(String subPath) {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempDir = new File(baseDir, subPath);
+        if (tempDir.exists()) {
+            return tempDir;
+        } else if (tempDir.mkdir()) {
+            return tempDir;
+        }
+        throw new ArkRuntimeException("Failed to create temp file");
+    }
+
+    /**
+     * {@link org.apache.commons.io.FileUtils#copyInputStreamToFile(InputStream, File)}
+     * @param source
+     * @param destination
+     * @throws IOException
+     */
+    public static void copyInputStreamToFile(final InputStream source, final File destination)
+                                                                                              throws IOException {
+        org.apache.commons.io.FileUtils.copyInputStreamToFile(source, destination);
     }
 }

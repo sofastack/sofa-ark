@@ -82,11 +82,20 @@ public interface BizManagerService {
     Biz getBizByIdentity(String bizIdentity);
 
     /**
+     * Get Biz by biz ClassLoader
+     * @param classLoader
+     * @return
+     */
+    Biz getBizByClassLoader(ClassLoader classLoader);
+
+    /**
      * get All biz names
      *
      * @return
      */
     Set<String> getAllBizNames();
+
+    Set<String> getAllBizIdentities();
 
     /**
      * Get all biz in priority PriorityOrdered

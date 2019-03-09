@@ -20,15 +20,24 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
+import com.alipay.sofa.ark.common.util.FileUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
+import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 
 import java.io.File;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,6 +54,31 @@ public class ArkClient {
     private static BizFactoryService bizFactoryService;
     private static InjectionService  injectionService;
     private static String[]          arguments;
+    private final static File        bizInstallDirectory;
+    static {
+        bizInstallDirectory = getBizInstallDirectory();
+    }
+
+    private static File getBizInstallDirectory() {
+        File workingDir = FileUtils.createTempDir("sofa-ark");
+        String configDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR);
+        if (!StringUtils.isEmpty(configDir)) {
+            if (!configDir.endsWith(File.separator)) {
+                configDir += File.separator;
+            }
+            workingDir = new File(configDir);
+            if (!workingDir.exists()) {
+                workingDir.mkdir();
+            }
+        }
+        return workingDir;
+    }
+
+    public static File createBizSaveFile(String bizName, String bizVersion) {
+        return new File(bizInstallDirectory,
+            bizName + "-" + bizVersion + "-"
+                    + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
+    }
 
     public static InjectionService getInjectionService() {
         return injectionService;
@@ -134,6 +168,12 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
 
+        // ignore when uninstall master biz
+        if (bizName.equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
+            return new ClientResponse().setCode(ResponseCode.FAILED).setMessage(
+                "Master biz must not be uninstalled.");
+        }
+
         Biz biz = bizManagerService.unRegisterBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
             .setMessage(
@@ -158,9 +198,8 @@ public class ArkClient {
      * Check all {@link com.alipay.sofa.ark.spi.model.BizInfo}
      *
      * @return
-     * @throws Throwable
      */
-    public static ClientResponse checkBiz() throws Throwable {
+    public static ClientResponse checkBiz() {
         return checkBiz(null, null);
     }
 
@@ -169,9 +208,8 @@ public class ArkClient {
      *
      * @param bizName
      * @return
-     * @throws Throwable
      */
-    public static ClientResponse checkBiz(String bizName) throws Throwable {
+    public static ClientResponse checkBiz(String bizName) {
         return checkBiz(bizName, null);
     }
 
@@ -181,9 +219,8 @@ public class ArkClient {
      * @param bizName
      * @param bizVersion
      * @return
-     * @throws Throwable
      */
-    public static ClientResponse checkBiz(String bizName, String bizVersion) throws Throwable {
+    public static ClientResponse checkBiz(String bizName, String bizVersion) {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
 
@@ -244,5 +281,51 @@ public class ArkClient {
         }
         LOGGER.info(response.getMessage());
         return response;
+    }
+
+    public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
+        AssertUtils.isTrue(
+            BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
+            "Operation type must be install");
+        File bizFile = null;
+        if (bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL) != null) {
+            URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
+            bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
+                bizOperation.getBizVersion());
+            FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
+        }
+        if (!StringUtils.isEmpty(bizOperation.getBizName())
+            && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
+            for (BizFileGenerator bizFileGenerator : ArkServiceLoader
+                .loadExtension(BizFileGenerator.class)) {
+                bizFile = bizFileGenerator.createBizFile(bizOperation.getBizName(),
+                    bizOperation.getBizVersion());
+                if (bizFile != null && bizFile.exists()) {
+                    break;
+                }
+            }
+        }
+        return installBiz(bizFile);
+    }
+
+    public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
+        AssertUtils.isTrue(
+            BizOperation.OperationType.UNINSTALL.equals(bizOperation.getOperationType()),
+            "Operation type must be uninstall");
+        return uninstallBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
+    }
+
+    public static ClientResponse switchOperation(BizOperation bizOperation) {
+        AssertUtils.isTrue(
+            BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
+            "Operation type must be switch");
+        return switchBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
+    }
+
+    public static ClientResponse checkOperation(BizOperation bizOperation) {
+        AssertUtils.isTrue(
+            BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
+            "Operation type must be switch");
+        return checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 }

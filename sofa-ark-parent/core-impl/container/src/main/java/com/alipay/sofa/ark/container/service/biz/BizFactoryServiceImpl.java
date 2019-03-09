@@ -66,6 +66,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
             .setMainClass(manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE))
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
             .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
             .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
             .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))

@@ -114,6 +114,18 @@ public class ArkConfigs {
     }
 
     /**
+     * Get int value.
+     *
+     * @param primaryKey the primary key
+     * @param defaultValue
+     * @return the int value
+     */
+    public static int getIntValue(String primaryKey, int defaultValue) {
+        String val = getStringValue(primaryKey);
+        return val == null ? defaultValue : Integer.valueOf(val);
+    }
+
+    /**
      * Get ArkConfigs key set
      *
      * @return
@@ -122,5 +134,14 @@ public class ArkConfigs {
         Set<String> keySet = new HashSet<>(CFG.keySet());
         keySet.addAll(new HashMap(System.getProperties()).keySet());
         return keySet;
+    }
+
+    /**
+     * put string config
+     * @param key
+     * @param value
+     */
+    public static void putStringValue(String key, String value) {
+        CFG.put(key, value);
     }
 }

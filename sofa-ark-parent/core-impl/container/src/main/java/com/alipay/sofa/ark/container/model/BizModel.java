@@ -51,6 +51,8 @@ public class BizModel implements Biz {
 
     private String      mainClass;
 
+    private String      webContextPath;
+
     private URL[]       urls;
 
     private ClassLoader classLoader;
@@ -102,6 +104,12 @@ public class BizModel implements Biz {
 
     public BizModel setPriority(String priority) {
         this.priority = (priority == null ? DEFAULT_PRECEDENCE : Integer.valueOf(priority));
+        return this;
+    }
+
+    public BizModel setWebContextPath(String webContextPath) {
+        this.webContextPath = (webContextPath == null ? Constants.ROOT_WEB_CONTEXT_PATH
+            : webContextPath);
         return this;
     }
 
@@ -194,6 +202,7 @@ public class BizModel implements Biz {
 
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         try {
+            resetProperties();
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
             EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
@@ -248,6 +257,11 @@ public class BizModel implements Biz {
     }
 
     @Override
+    public String getWebContextPath() {
+        return webContextPath;
+    }
+
+    @Override
     public String toString() {
         return "Ark Biz: " + getIdentity();
     }
@@ -261,5 +275,9 @@ public class BizModel implements Biz {
                 nodes.add(pkgPattern);
             }
         }
+    }
+
+    private void resetProperties() {
+        System.getProperties().remove("logging.path");
     }
 }

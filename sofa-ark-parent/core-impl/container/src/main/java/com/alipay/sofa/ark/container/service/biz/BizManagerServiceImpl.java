@@ -100,8 +100,31 @@ public class BizManagerServiceImpl implements BizManagerService {
     }
 
     @Override
+    public Biz getBizByClassLoader(ClassLoader classLoader) {
+        for (Map.Entry<String, ConcurrentHashMap<String, Biz>> bizMapEntry : bizRegistration
+            .entrySet()) {
+            for (Map.Entry<String, Biz> bizEntry : bizMapEntry.getValue().entrySet()) {
+                Biz biz = bizEntry.getValue();
+                if (biz.getBizClassLoader().equals(classLoader)) {
+                    return biz;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Set<String> getAllBizNames() {
         return bizRegistration.keySet();
+    }
+
+    @Override
+    public Set<String> getAllBizIdentities() {
+        Set<String> bizIdentities = new HashSet<>();
+        for (Biz biz : getBizInOrder()) {
+            bizIdentities.add(biz.getIdentity());
+        }
+        return bizIdentities;
     }
 
     @Override

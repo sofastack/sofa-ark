@@ -112,9 +112,6 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<ServiceReference<T>> referenceServices(Class<T> ifClass, String uniqueId) {
-        if (uniqueId == null) {
-            uniqueId = StringUtils.EMPTY_STRING;
-        }
         DefaultServiceFilter<T> defaultServiceFilter = new DefaultServiceFilter<>();
         // only conditional on interface and uniqueId
         defaultServiceFilter.setServiceInterface(ifClass).setUniqueId(uniqueId);
