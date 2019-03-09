@@ -225,7 +225,9 @@ public class ArkTomcatWebServer implements WebServer {
     }
 
     private void stopContext() throws LifecycleException {
-        findContext().stop();
+        Context context = findContext();
+        getTomcat().getHost().removeChild(context);
+        context.stop();
     }
 
     private void addPreviouslyRemovedConnectors() {
