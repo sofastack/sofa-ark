@@ -25,7 +25,7 @@ Add a dependency in main `pom.xml` as follows:
      <groupId>com.alipay.sofa</groupId>
      <artifactId>sample-ark-plugin</artifactId>
      <classifier>ark-plugin</classifier>
-     <version>0.6.0-SNAPSHOT</version>
+     <version>0.6.0</version>
  </dependency>
 ```
 
@@ -97,7 +97,7 @@ value of `outputDirectory`.
 
 ## run in command line
 we support command such as `java -jar executable-ark.jar` to startup application, similar to what this sample
-project does, execute command line: `java -jar target/sofa-ark-sample-springboot-ark-0.6.0-SNAPSHOT-executable-ark.jar`
+project does, execute command line: `java -jar target/sofa-ark-sample-springboot-ark-0.6.0-executable-ark.jar`
 to startup this demo. 
 
 ## run in IDE
@@ -110,7 +110,7 @@ you should add dependency as follows:
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-springboot-starter</artifactId>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 + Common Java Project
@@ -120,7 +120,7 @@ you should add dependency as follows:
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-support-starter</artifactId>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
