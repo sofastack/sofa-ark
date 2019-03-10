@@ -151,6 +151,11 @@ public class ArkContainer {
                 String.valueOf(false));
             // ignore thread class loader when loading classes and resource in log4j
             ArkConfigs.setSystemProperty(Constants.LOG4J_IGNORE_TCL, String.valueOf(true));
+
+            // compatible sofa-hessian4, refer to https://github.com/alipay/sofa-hessian/issues/38
+            ArkConfigs.setSystemProperty(Constants.RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY,
+                "false");
+
             // read ark conf file
             List<URL> urls = getProfileConfFiles(pipelineContext.getLaunchCommand().getProfiles());
             ArkConfigs.init(urls);
