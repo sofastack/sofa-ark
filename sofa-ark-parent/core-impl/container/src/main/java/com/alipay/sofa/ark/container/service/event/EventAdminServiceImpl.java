@@ -20,9 +20,12 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.event.BizEvent;
+import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
+import com.alipay.sofa.ark.spi.service.registry.RegistryService;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
 
@@ -46,6 +49,9 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
     private final static Logger                                                        LOGGER         = ArkLoggerFactory
                                                                                                           .getDefaultLogger();
 
+    @Inject
+    private RegistryService                                                            registryService;
+
     public EventAdminServiceImpl() {
         register(this);
     }
@@ -55,6 +61,10 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         List<EventHandler> eventHandlers = new ArrayList<>();
         for (CopyOnWriteArraySet<EventHandler> values : SUBSCRIBER_MAP.values()) {
             eventHandlers.addAll(values);
+        }
+        for (ServiceReference<EventHandler> eventHandler : registryService.referenceServices(
+            EventHandler.class, null)) {
+            eventHandlers.add(eventHandler.getService());
         }
         Collections.sort(eventHandlers, new OrderComparator());
         for (EventHandler eventHandler : eventHandlers) {
