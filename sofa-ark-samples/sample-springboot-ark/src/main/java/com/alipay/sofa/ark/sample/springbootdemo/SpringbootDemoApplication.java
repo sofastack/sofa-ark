@@ -16,15 +16,9 @@
  */
 package com.alipay.sofa.ark.sample.springbootdemo;
 
-import com.alipay.sofa.ark.sample.common.SampleClassExported;
-import com.alipay.sofa.ark.sample.SampleClassNotExported;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
 
 /**
  * A sample spring boot web project repackage as ark fat jar.
@@ -38,27 +32,5 @@ public class SpringbootDemoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringbootDemoApplication.class, args);
-        SampleClassExported.hello();
-        SampleClassNotExported.hello();
-        // exported resources can be found twice, one from BizClassLoader, another from PluginClassLoader
-        // as sample-ark-plugin-common is shaded into sample-ark-plugin, then this resource would be found three times.
-        getResources("Sample_Resource_Exported");
-        // not-exported resources can only found once from BizClassLoader
-        // as sample-ark-plugin-common is shaded into sample-ark-plugin, then this resource would be found two times.
-        getResources("Sample_Resource_Not_Exported");
-
-    }
-
-    public static void getResources(String resourceName) {
-        try {
-            Enumeration<URL> urls = SpringbootDemoApplication.class.getClassLoader().getResources(
-                resourceName);
-
-            while (urls.hasMoreElements()) {
-                System.out.println(resourceName + " found: " + urls.nextElement());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
