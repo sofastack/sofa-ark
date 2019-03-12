@@ -62,7 +62,15 @@
 **关于 arkClassifier 配置项需要特别注意下，默认值为空；如果不指定 classifier ，上传到仓库的 Jar 包其实是一个可运行的 Ark 包；如果需要和普通的打包加以区分，需要配置该项值。**
 
 ### 打包、安装、发布
-和普通的工程操作类似，使用 `mvn package` , `mvn install` , `mvn deploy` 即可完成插件包的安装和发布；
+和普通的工程操作类似，使用 `mvn package` , `mvn install` , `mvn deploy` 即可完成插件包的安装和发布；以 `mvn package` 命令为例，可以看到有三个文件生成：
++ sofa-ark-sample-springboot-ark-0.6.0.jar
+> 因为设置了 arkClassifier, 因此这个文件不是 Ark 包，而是普通的模块 Jar 包
+
++ sofa-ark-sample-springboot-ark-0.6.0-ark-biz.jar
+> 因为没有设置 bizClassifier, 因此使用默认的 ark-biz 当成 bizClassifier，这个包就是 Biz 包。值得一提的是，因为我们没有配置 attach = true, 所以只是生成了 Biz 包，但是并不会安装到本地仓库或者发布到远程仓库。
+
++ sofa-ark-sample-springboot-ark-0.6.0-executable-ark.jar
+> 因为设置了 arkClassifier=executable-ark，可以看到该包就是插件 sofa-ark-maven-plugin 生成的可执行 Ark 包，可以通过 java -jar 启动。
 
 ### 运行
 为了方便在 Spring Boot/SOFABoot 工程中方便的集成 SOFAArk, 只需要在应用中引入如下依赖即可：
