@@ -25,6 +25,11 @@
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
+            <artifactId>web-ark-plugin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-springboot-starter</artifactId>
         </dependency>
 
