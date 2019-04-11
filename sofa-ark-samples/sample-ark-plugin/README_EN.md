@@ -27,7 +27,7 @@ from other `ark-plugin` which exports corresponding resource.
 ## Tools 
 The `Maven plugin` of `sofa-ark-plugin-maven-plugin` is provided to build a
 standard `ark-plugin`, and just needs some simple configurations. Details please
-refer to [doc](https://alipay.github.io/sofastack.github.io/docs/build-ark-plugin.html)
+refer to [doc](https://www.sofastack.tech/sofa-boot/docs/sofa-ark-ark-plugin?lang=en)
 
 ## Step by Step
 ### Create a Maven Project
