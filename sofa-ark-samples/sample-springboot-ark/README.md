@@ -1,9 +1,6 @@
 ## 简介
 该样例工程演示了如何借助 `Maven` 插件将一个 Spring Boot Web 工程打包成标准格式规范的可执行 Ark 包；
 
-## 准备
-因该样例工程依赖 [sample-ark-plugin](../sample-ark-plugin/README.md) , 因此需要提前在本地安装该 `Ark Plugin` 
-
 ## 工具
 官方提供了 `Maven` 插件 - `sofa-ark-maven-plugin` ，只需要简单的配置项，即可将 Spring Boot Web 工程打包成标准格式规范的可执行 Ark 包，插件坐标为：
 
@@ -11,7 +8,7 @@
 <plugin>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-maven-plugin</artifactId>
-    <version>0.6.0</version>
+    <version>${sofa.ark.version}</version>
 </plugin>
 ```
 
@@ -24,18 +21,6 @@
 ### 创建 SpringBoot Web 工程
 在官网 [https://start.spring.io/](https://start.spring.io/) 下载一个标准的 Spring Boot Web 工程
 
-### 引入 sample-ark-plugin
-在工程主 `pom.xml` 中如下配置，添加另一个样例工程打包生成的 `Ark Plugin` 依赖，[参考文档](https://alipay.github.io/sofastack.github.io/docs/ark-plugin-demo.html) 
-
-```xml
-<dependency>
-     <groupId>com.alipay.sofa</groupId>
-     <artifactId>sample-ark-plugin</artifactId>
-     <classifier>ark-plugin</classifier>
-     <version>0.6.0</version>
- </dependency>
-```
-
 ### 配置打包插件
 在工程主 `pom.xml` 中如下配置 `Maven` 插件 `sofa-ark-maven-plugin` :
 
@@ -45,6 +30,7 @@
         <plugin>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-maven-plugin</artifactId>
+            <version>${sofa.ark.version}</version>
             <executions>
                 <execution>
                     <id>default-cli</id>
@@ -76,32 +62,38 @@
 **关于 arkClassifier 配置项需要特别注意下，默认值为空；如果不指定 classifier ，上传到仓库的 Jar 包其实是一个可运行的 Ark 包；如果需要和普通的打包加以区分，需要配置该项值。**
 
 ### 打包、安装、发布
-和普通的工程操作类似，使用 `mvn package` , `mvn install` , `mvn deploy` 即可完成插件包的安装和发布；
+和普通的工程操作类似，使用 `mvn package` , `mvn install` , `mvn deploy` 即可完成插件包的安装和发布；以 `mvn package` 命令为例，可以看到有三个文件生成：
++ sofa-ark-sample-springboot-ark-0.6.0.jar
+> 因为设置了 arkClassifier, 因此这个文件不是 Ark 包，而是普通的模块 Jar 包
+
++ sofa-ark-sample-springboot-ark-0.6.0-ark-biz.jar
+> 因为没有设置 bizClassifier, 因此使用默认的 ark-biz 当成 bizClassifier，这个包就是 Biz 包。值得一提的是，因为我们没有配置 attach = true, 所以只是生成了 Biz 包，但是并不会安装到本地仓库或者发布到远程仓库。
+
++ sofa-ark-sample-springboot-ark-0.6.0-executable-ark.jar
+> 因为设置了 arkClassifier=executable-ark，可以看到该包就是插件 sofa-ark-maven-plugin 生成的可执行 Ark 包，可以通过 java -jar 启动。
 
 ### 运行
-我们提供了两种方式在 Ark 容器上启动工程应用，通过命令行启动或者在 IDE 启动；在 IDE 启动时，需要额外添加依赖；使用命令行启动非常简便，直接使用 `java -jar` 即可启动应用；下面我们说下如何在 IDE 启动 Ark 应用；
-
-* Spring Boot 工程：Spring Boot 工程需要添加如下依赖即可：
+为了方便在 Spring Boot/SOFABoot 工程中方便的集成 SOFAArk, 只需要在应用中引入如下依赖即可：
 
 ```xml
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-springboot-starter</artifactId>
-    <version>0.6.0</version>
+    <version>${sofa.ark.version}</version>
 </dependency>
 ```
 
-* 普通 Java 工程： 相较于 SpringBoot 工程，普通的 Java  工程需要添加另一个依赖：
+值得一提的是，对于普通的 Java 应用，不仅需要添加如下依赖：
 
 ```xml
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-support-starter</artifactId>
-    <version>0.6.0</version>
+    <version>${sofa.ark.version}</version>
 </dependency>
 ```
 
-除此之外，还需要在工程 `main` 方法最开始处，执行容器启动，如下：
+还需要在工程 `main` 方法最开始处，执行容器启动，如下：
 
 ```java
 public class Application{

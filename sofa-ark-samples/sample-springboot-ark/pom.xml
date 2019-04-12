@@ -6,6 +6,7 @@
         <artifactId>sofa-ark-samples</artifactId>
         <groupId>com.alipay.sofa</groupId>
         <version>0.6.0</version>
+        <relativePath>../</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -24,13 +25,12 @@
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-springboot-starter</artifactId>
+            <artifactId>web-ark-plugin</artifactId>
         </dependency>
 
-        <!--ark plugin-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sample-ark-plugin</artifactId>
+            <artifactId>sofa-ark-springboot-starter</artifactId>
         </dependency>
 
         <!--test-->
