@@ -46,7 +46,7 @@ public abstract class AbstractArchive implements Archive {
     public URL[] getUrls(EntryFilter entryFilter) throws IOException {
         List<Archive> archives = getNestedArchives(entryFilter);
 
-        List<URL> urls = new ArrayList<>(archives.size());
+        List<URL> urls = new ArrayList<>(archives.size() + 1);
         urls.add(getUrl());
 
         for (Archive archive : archives) {
