@@ -31,16 +31,15 @@ public class TestClassLoader extends BizClassLoader {
     private final ClassLoader delegateClassLoader;
 
     String[]                  packageForTest = {
-                                             // Junit
+            // Junit
             "org.junit", "junit", "org.hamcrest",
             // TestNG
             "org.testng", "com.beust.jcommander", "bsh",
             // Ark
             "com.alipay.sofa.ark.support.common",
             // tomcat
-            "org.apache.catalina", "org.apache.coyote", "org.apache.juli",
-            "org.apache.naming", "org.apache.tomcat", "org.apache.el",
-            "javax"           };
+            "org.apache.catalina", "org.apache.coyote", "org.apache.juli", "org.apache.naming",
+            "org.apache.tomcat", "org.apache.el", "javax" };
 
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
         super(bizIdentity, urls);

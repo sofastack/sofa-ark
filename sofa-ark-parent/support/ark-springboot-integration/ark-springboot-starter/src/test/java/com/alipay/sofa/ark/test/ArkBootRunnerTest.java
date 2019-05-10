@@ -98,7 +98,8 @@ public class ArkBootRunnerTest {
     public void testLogClassCastBug() {
         Throwable throwable = null;
         try {
-            ILoggerFactory iLoggerFactory = (ILoggerFactory) this.getClass().getClassLoader().loadClass("org.apache.logging.slf4j.Log4jLoggerFactory").newInstance();
+            ILoggerFactory iLoggerFactory = (ILoggerFactory) this.getClass().getClassLoader()
+                .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory").newInstance();
         } catch (Throwable t) {
             throwable = t;
         }
