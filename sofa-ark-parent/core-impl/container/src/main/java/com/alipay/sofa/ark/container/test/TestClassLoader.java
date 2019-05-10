@@ -38,7 +38,9 @@ public class TestClassLoader extends BizClassLoader {
             // Ark
             "com.alipay.sofa.ark.support.common",
             // tomcat
-            "org.apache", "javax"           };
+            "org.apache.catalina", "org.apache.coyote", "org.apache.juli",
+            "org.apache.naming", "org.apache.tomcat", "org.apache.el",
+            "javax"           };
 
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
         super(bizIdentity, urls);
