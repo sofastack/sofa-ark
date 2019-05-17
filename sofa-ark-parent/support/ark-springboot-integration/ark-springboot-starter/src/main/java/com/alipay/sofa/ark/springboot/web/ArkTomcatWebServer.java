@@ -64,7 +64,7 @@ public class ArkTomcatWebServer implements WebServer {
 
     private volatile boolean                started;
 
-    private Thread awaitThread;
+    private Thread                          awaitThread;
 
     /**
      * Create a new {@link ArkTomcatWebServer} instance.

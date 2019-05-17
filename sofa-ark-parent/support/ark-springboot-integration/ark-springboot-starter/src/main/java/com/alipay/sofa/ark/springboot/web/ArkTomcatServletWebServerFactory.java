@@ -69,7 +69,8 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory implements DisposableBean {
+public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory implements
+                                                                                   DisposableBean {
 
     private static final Charset          DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -79,7 +80,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     @ArkInject
     private BizManagerService             bizManagerService;
 
-    private Set<ArkTomcatWebServer>       webServers = new HashSet<>(5);
+    private Set<ArkTomcatWebServer>       webServers      = new HashSet<>(5);
 
     private File                          baseDirectory;
 
