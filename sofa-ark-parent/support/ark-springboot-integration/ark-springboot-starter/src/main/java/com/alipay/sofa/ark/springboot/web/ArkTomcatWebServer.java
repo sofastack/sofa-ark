@@ -64,6 +64,8 @@ public class ArkTomcatWebServer implements WebServer {
 
     private volatile boolean                started;
 
+    private Thread awaitThread;
+
     /**
      * Create a new {@link ArkTomcatWebServer} instance.
      * @param tomcat the underlying Tomcat server
@@ -164,7 +166,7 @@ public class ArkTomcatWebServer implements WebServer {
     }
 
     private void startDaemonAwaitThread() {
-        Thread awaitThread = new Thread("container-" + (containerCounter.get())) {
+        awaitThread = new Thread("container-" + (containerCounter.get())) {
 
             @Override
             public void run() {
@@ -216,9 +218,10 @@ public class ArkTomcatWebServer implements WebServer {
         }
     }
 
-    private void stopSilently() {
+    public void stopSilently() {
         try {
             stopContext();
+            awaitThread.stop();
         } catch (LifecycleException ex) {
             // Ignore
         }
