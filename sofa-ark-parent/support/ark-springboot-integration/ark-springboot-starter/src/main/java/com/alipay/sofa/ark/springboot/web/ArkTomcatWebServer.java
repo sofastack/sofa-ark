@@ -221,7 +221,6 @@ public class ArkTomcatWebServer implements WebServer {
     public void stopSilently() {
         try {
             stopContext();
-            awaitThread.stop();
         } catch (LifecycleException ex) {
             // Ignore
         }
@@ -270,6 +269,7 @@ public class ArkTomcatWebServer implements WebServer {
                 try {
                     stopContext();
                     this.tomcat.destroy();
+                    awaitThread.stop();
                 } catch (LifecycleException ex) {
                     // swallow and continue
                 }

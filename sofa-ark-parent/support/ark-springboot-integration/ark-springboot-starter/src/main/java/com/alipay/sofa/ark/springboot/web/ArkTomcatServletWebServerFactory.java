@@ -37,7 +37,6 @@ import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.server.WebServer;
@@ -50,11 +49,9 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
@@ -69,8 +66,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory implements
-                                                                                   DisposableBean {
+public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory {
 
     private static final Charset          DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -79,8 +75,6 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
 
     @ArkInject
     private BizManagerService             bizManagerService;
-
-    private Set<ArkTomcatWebServer>       webServers      = new HashSet<>(5);
 
     private File                          baseDirectory;
 
@@ -266,14 +260,6 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         }
     }
 
-    @Override
-    public void destroy() throws Exception {
-        for (ArkTomcatWebServer webServer : webServers) {
-            webServer.stopSilently();
-        }
-        webServers.clear();
-    }
-
     private final class StaticResourceConfigurer implements LifecycleListener {
 
         private final Context context;
@@ -335,8 +321,6 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
      * @return a new {@link TomcatWebServer} instance
      */
     protected WebServer getWebServer(Tomcat tomcat) {
-        ArkTomcatWebServer server = new ArkTomcatWebServer(tomcat, getPort() >= 0);
-        webServers.add(server);
-        return server;
+        return new ArkTomcatWebServer(tomcat, getPort() >= 0);
     }
 }
