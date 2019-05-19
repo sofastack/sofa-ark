@@ -321,6 +321,6 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
      * @return a new {@link TomcatWebServer} instance
      */
     protected WebServer getWebServer(Tomcat tomcat) {
-        return new ArkTomcatWebServer(tomcat, getPort() >= 0);
+        return new ArkTomcatWebServer(tomcat, getPort() >= 0, tomcat);
     }
 }
