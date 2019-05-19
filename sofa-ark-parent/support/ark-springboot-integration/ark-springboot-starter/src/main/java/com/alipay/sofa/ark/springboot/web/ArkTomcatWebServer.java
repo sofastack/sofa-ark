@@ -242,8 +242,8 @@ public class ArkTomcatWebServer implements WebServer {
     private void stopTomcatIfNecessary() throws LifecycleException {
         if (tomcat != arkEmbedTomcat) {
             tomcat.destroy();
-            awaitThread.stop();
         }
+        awaitThread.stop();
     }
 
     private void addPreviouslyRemovedConnectors() {
