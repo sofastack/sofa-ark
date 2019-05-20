@@ -76,4 +76,24 @@ public class ArkCommandHandler {
         }
         return sb.toString();
     }
+
+    public String promptMessage() {
+        return Constants.TELNET_SESSION_PROMPT;
+    }
+
+    public String responseMessage(String cmd) {
+        String commandResult = handleCommand(cmd);
+        commandResult = commandResult.replace("\n", Constants.TELNET_STRING_END);
+        if (StringUtils.isEmpty(commandResult)) {
+            commandResult = Constants.TELNET_STRING_END;
+        } else if (!commandResult.endsWith(Constants.TELNET_STRING_END)) {
+            commandResult = commandResult + Constants.TELNET_STRING_END
+                            + Constants.TELNET_STRING_END;
+        } else if (!commandResult.endsWith(Constants.TELNET_STRING_END
+            .concat(Constants.TELNET_STRING_END))) {
+            commandResult = commandResult + Constants.TELNET_STRING_END;
+        }
+        commandResult = commandResult + promptMessage();
+        return commandResult;
+    }
 }
