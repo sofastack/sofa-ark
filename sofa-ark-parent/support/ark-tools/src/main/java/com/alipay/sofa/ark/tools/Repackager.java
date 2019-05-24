@@ -193,9 +193,8 @@ public class Repackager {
                 if (!isZip(library.getFile())) {
                     return;
                 }
-                JarFile jarFile = new JarFile(library.getFile());
-                try {
 
+                try (JarFile jarFile = new JarFile(library.getFile())) {
                     if (isArkContainer(jarFile)) {
                         if (arkContainerLibrary != null) {
                             throw new RuntimeException("duplicate SOFAArk Container dependency");
@@ -211,11 +210,7 @@ public class Repackager {
                     } else {
                         standardLibraries.add(library);
                     }
-
-                } finally {
-                    jarFile.close();
                 }
-
             }
         });
 
@@ -428,13 +423,10 @@ public class Repackager {
     }
 
     private boolean alreadyRepackaged() throws IOException {
-        JarFile jarFile = new JarFile(this.source);
-        try {
+        try (JarFile jarFile = new JarFile(this.source)) {
             Manifest manifest = jarFile.getManifest();
             return (manifest != null && manifest.getMainAttributes()
                 .getValue(ARK_VERSION_ATTRIBUTE) != null);
-        } finally {
-            jarFile.close();
         }
     }
 

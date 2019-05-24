@@ -214,13 +214,15 @@ public class ArkPluginMojo extends AbstractMojo {
         }
 
         JarWriter writer = new JarWriter(pluginFile);
+        JarFile tmpJarFile = new JarFile(tmpPluginFile);
         try {
-            writer.writeEntries(new JarFile(tmpPluginFile));
+            writer.writeEntries(tmpJarFile);
             for (Artifact jar : shadeJars) {
                 writer.writeEntries(new JarFile(jar.getFile()));
             }
         } finally {
             writer.close();
+            tmpJarFile.close();
         }
     }
 
