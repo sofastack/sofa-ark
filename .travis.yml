@@ -1,11 +1,10 @@
 language: java
-sudo: false
 
 jdk:
-- openjdk8
+- oraclejdk8
 
 install:
-- mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -V
+- mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -U -e
 
 script:
 - sh ./check_format.sh
