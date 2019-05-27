@@ -5,6 +5,10 @@ sudo: false
 jdk:
 - openjdk8
 
+cache:
+  directories:
+  - $HOME/.m2
+
 install:
 - mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -U -e
 
