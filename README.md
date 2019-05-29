@@ -6,17 +6,21 @@
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 ![maven](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.alipay.sofa/sofa-ark-all.svg)
 
-SOFAArk 是一款基于 Java 实现的轻量级类隔离容器，由蚂蚁金服公司开源贡献；主要为应用程序提供类隔离和依赖包隔离的能力；基于 [Fat Jar](https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html#executable-jar-jar-file-structure) 技术，应用可以被打包成一个自包含可运行的 Fat Jar，应用既可以是简单的单模块 Java 应用也可以是 Spring Boot 应用；访问网址 https://alipay.github.io/sofastack.github.io/ 进入快速开始并获取更多详细信息；
+SOFAArk 是一款基于 Java 实现的轻量级类隔离容器，由蚂蚁金服公司开源贡献；主要提供类隔离和应用（模块）动态部署能力；基于 [Fat Jar](https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html#executable-jar-jar-file-structure) 技术，可以将多个应用（模块）打包成一个自包含可运行的 Fat Jar，应用既可以是简单的单模块 Java 应用也可以是 Spring Boot/SOFABoot 应用；[访问网址](https://www.sofastack.tech/sofa-boot/docs/sofa-ark-readme?lang=zh-cn)进入快速开始并获取更多详细信息；
 
 ## 背景
 日常使用 Java 开发，常常会遇到包依赖冲突的问题，尤其当工程应用变得臃肿庞大，包冲突的问题也会变得更加棘手，导致各种各样的报错，例如`LinkageError`, `NoSuchMethodError`等；实际开发中，可以采用多种方法来解决包冲突问题，比较常见的是类似 SpringBoot 的做法，统一管理应用所有依赖包的版本，保证这些三方包不存在依赖冲突；这种做法只能有效避免包冲突的问题，不能根本上解决包冲突的问题；如果某个应用的确需要在运行时使用两个相互冲突的包，例如 `protobuf2` 和 `protobuf3`，那么类似 SpringBoot 的做法依然解决不了问题；
 
 为了彻底解决包冲突的问题，我们需要借助类隔离机制，使用不同的 ClassLoader 加载不同版本的三方依赖，进而隔离包冲突问题；OSGI 作为业内最出名的类隔离框架，自然是可以被用于解决上述包冲突问题，但是 OSGI 框架太过臃肿，功能繁杂；为了解决包冲突问题，引入 OSGI 框架，有牛刀杀鸡之嫌，反而使工程变得更加复杂，不利于开发；
 
-SOFAArk 专注于解决类隔离问题，采用轻量级的类隔离方案来解决日常经常遇到的包冲突问题，在蚂蚁金服内部服务于整个 [SOFABoot](https://github.com/alipay/sofa-boot) 技术体系，弥补 SpringBoot 没有的类隔离能力。实际上，SOFAArk 是一个通用的轻量级类隔离框架，并不限于 SpringBoot 应用，也可以和其他的 Java 开发框架集成；
+SOFAArk 则采用较为轻量级的类隔离方案来解决日常经常遇到的包冲突问题，在蚂蚁金服内部服务于整个 [SOFABoot](https://github.com/alipay/sofa-boot) 技术体系，弥补 SpringBoot 没有的类隔离能力。实际上，SOFAArk 是一个通用的轻量级类隔离框架，并不限于 SpringBoot 应用，也可以和其他的 Java 开发框架集成；
+
+基于 SOFAArk 提供的类隔离能力，SOFAArk 支持将多个应用合并打成一个可执行的 Fat Jar 包，也支持运行时通过 API 或者 Zookeeper 动态推送配置达到动态部署应用(模块)的能力。在多团队协作开发时，各个功能模块由不同的团队负责开发，通常情况下，这些功能模块独立开发，但是运行时部署在一起。借助 SOFAArk 提供的合并部署能力，各团队开发时拥有相当大自由度，只需要定义各模块之间的交互接口即可，尤其对于中台应用开发，提高团队合作效率。除了合并部署，SOFAArk 对接了 Zookeeper 接受动态配置，控制应用(模块)的安装和卸载。
+
+
 
 ## 原理
-SOFAArk 框架包含有三个概念，`Ark Container`, `Ark Plugin` 和 `Ark Biz`; 运行时逻辑结构图如下：
+SOFAArk 框架包含有三个概念，`Ark Container`, `Ark Plugin` 和 `Ark Biz`; 运行时逻辑结构图如下： 
 
 ![framework](resource/SOFA-Ark-Framework.png)
 
