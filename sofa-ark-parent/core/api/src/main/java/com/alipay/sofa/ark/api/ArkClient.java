@@ -119,6 +119,10 @@ public class ArkClient {
      * @throws Throwable
      */
     public static ClientResponse installBiz(File bizFile) throws Throwable {
+        return installBiz(bizFile, arguments);
+    }
+
+    public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
@@ -132,7 +136,7 @@ public class ArkClient {
         }
 
         try {
-            biz.start(arguments);
+            biz.start(args);
             response.setCode(ResponseCode.SUCCESS)
                 .setMessage(String.format("Install Biz: %s success.", biz.getIdentity()))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
