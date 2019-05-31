@@ -288,6 +288,11 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
+        return installOperation(bizOperation, arguments);
+    }
+
+    public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
+                                                                                           throws Throwable {
         AssertUtils.isTrue(
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
             "Operation type must be install");
@@ -309,7 +314,7 @@ public class ArkClient {
                 }
             }
         }
-        return installBiz(bizFile);
+        return installBiz(bizFile, args);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
