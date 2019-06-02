@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.ark.spi.argument;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,7 +138,7 @@ public class LaunchCommand {
             arg = arg.trim();
             if (arg.startsWith(arkJarPrefix)) {
                 String fatJarUrl = arg.substring(arkJarPrefix.length());
-                launchCommand.setExecutableArkBizJar(new URL(URLDecoder.decode(fatJarUrl)));
+                launchCommand.setExecutableArkBizJar(new URL(fatJarUrl));
             } else if (arg.startsWith(entryClassNamePrefix)) {
                 String entryClassName = arg.substring(entryClassNamePrefix.length());
                 launchCommand.setEntryClassName(entryClassName);
@@ -152,7 +152,7 @@ public class LaunchCommand {
                     if (url.isEmpty()) {
                         continue;
                     }
-                    urlList.add(new URL(URLDecoder.decode(url)));
+                    urlList.add(new URL(url));
                 }
                 launchCommand.setClasspath(urlList.toArray(new URL[urlList.size()]));
             } else if (arg.startsWith(arkConfigProfilePrefix)) {
