@@ -1,18 +1,23 @@
 language: java
+
 sudo: false
 
 jdk:
-- oraclejdk8
+- openjdk8
+
+cache:
+  directories:
+  - $HOME/.m2
 
 install:
-- mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -V
+- mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -U -q
 
 script:
 - sh ./check_format.sh
-- cd sofa-ark-samples && mvn clean install
-- cd sample-ark-plugin && mvn clean install
-- cd ../sample-springboot-ark && mvn test
+- cd sofa-ark-samples && mvn clean install -q
+- cd sample-ark-plugin && mvn clean install -q
+- cd ../sample-springboot-ark && mvn test -q
 - cd ../..
 
 after_success:
-- mvn clean test cobertura:cobertura coveralls:report
+- mvn clean test cobertura:cobertura coveralls:report -q
