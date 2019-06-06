@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.runner;
 
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import com.alipay.sofa.ark.support.runner.JUnitExecutionListener;
 import org.junit.runner.Description;
@@ -60,8 +61,14 @@ public class ArkBootRunner extends Runner implements Filterable, Sortable {
 
     @Override
     public void run(RunNotifier notifier) {
-        notifier.addListener(JUnitExecutionListener.getRunListener());
-        runner.run(notifier);
+        ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer
+            .getTestClassLoader());
+        try {
+            notifier.addListener(JUnitExecutionListener.getRunListener());
+            runner.run(notifier);
+        } finally {
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
+        }
     }
 
     @Override
