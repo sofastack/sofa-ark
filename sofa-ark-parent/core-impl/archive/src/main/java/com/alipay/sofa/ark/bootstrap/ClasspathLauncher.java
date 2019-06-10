@@ -306,10 +306,8 @@ public class ClasspathLauncher extends ArkLauncher {
          * @return
          */
         protected URL[] parseClassPathFromSurefireBoot(URL surefireBootJar) {
-            try {
-                AssertUtils
-                    .assertNotNull(surefireBootJar, "SurefireBooter jar should not be null.");
-                JarFile jarFile = new JarFile(surefireBootJar.getFile());
+            AssertUtils.assertNotNull(surefireBootJar, "SurefireBooter jar should not be null.");
+            try (JarFile jarFile = new JarFile(surefireBootJar.getFile())) {
                 String[] classPath = jarFile.getManifest().getMainAttributes()
                     .getValue(SUREFIRE_BOOT_CLASSPATH).split(SUREFIRE_BOOT_CLASSPATH_SPLIT);
                 List<URL> urls = new ArrayList<>();
