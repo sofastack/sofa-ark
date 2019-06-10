@@ -97,6 +97,9 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     @Override
     public String getContextPath() {
         String contextPath = super.getContextPath();
+        if (bizManagerService == null) {
+            return contextPath;
+        }
         Biz biz = bizManagerService.getBizByClassLoader(this.getClass().getClassLoader());
         if (!StringUtils.isEmpty(contextPath)) {
             return contextPath;
