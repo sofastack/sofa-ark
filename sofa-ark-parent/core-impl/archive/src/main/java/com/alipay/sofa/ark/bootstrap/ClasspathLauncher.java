@@ -280,7 +280,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 // ignore
                 urlList = Collections.emptyList();
             }
-            Set<URL> bizURls = new HashSet<>();
+            List<URL> bizURls = new ArrayList<>();
             boolean isAgent;
             for (URL url : urls) {
                 isAgent = false;
