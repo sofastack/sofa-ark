@@ -19,9 +19,20 @@ package com.alipay.sofa.ark.springboot;
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
 import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
-import com.alipay.sofa.ark.springboot.processor.ArkTomcatFactoryProcessor;
+import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.coyote.UpgradeProtocol;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.servlet.Servlet;
 
 /**
  * @author qilong.zql
@@ -29,6 +40,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ConditionalOnArkEnabled
+@AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
 public class ArkAutoConfiguration {
 
     @Bean
@@ -41,8 +53,16 @@ public class ArkAutoConfiguration {
         return new ArkEventHandlerProcessor();
     }
 
-    @Bean
-    public static ArkTomcatFactoryProcessor arkTomcatFactoryProcessor() {
-        return new ArkTomcatFactoryProcessor();
+    @Configuration
+    @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = { "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader" })
+    @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
+    public static class EmbeddedArkTomcat {
+
+        @Bean
+        @ConditionalOnMissingBean(ArkTomcatServletWebServerFactory.class)
+        public TomcatServletWebServerFactory tomcatServletWebServerFactory() {
+            return new ArkTomcatServletWebServerFactory();
+        }
+
     }
 }

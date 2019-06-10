@@ -20,4 +20,4 @@ script:
 - cd ../..
 
 after_success:
-- mvn clean test cobertura:cobertura coveralls:report -q
+- mvn clean test cobertura:cobertura coveralls:report
