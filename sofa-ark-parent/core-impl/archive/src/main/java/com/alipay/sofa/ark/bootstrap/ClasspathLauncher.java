@@ -225,13 +225,22 @@ public class ClasspathLauncher extends ArkLauncher {
 
         protected ContainerArchive createDirectoryContainerArchive() {
             URL[] candidates;
-            if (urls.length == 1) {
-                candidates = parseClassPathFromSurefireBoot(urls[0]);
+            if (urls.length == 1 || urls.length == 2) {
+                candidates = parseClassPathFromSurefireBoot(getSurefireBooterJar(urls));
             } else {
                 candidates = urls;
             }
             URL[] filterUrls = filterURLs(candidates);
             return filterUrls == null ? null : new DirectoryContainerArchive(filterUrls);
+        }
+
+        private URL getSurefireBooterJar(URL[] urls) {
+            for (URL url : urls) {
+                if (url.getFile().contains(Constants.SUREFIRE_BOOT_JAR)) {
+                    return url;
+                }
+            }
+            return null;
         }
 
         /**
@@ -271,7 +280,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 // ignore
                 urlList = Collections.emptyList();
             }
-            Set<URL> bizURls = new HashSet<>();
+            List<URL> bizURls = new ArrayList<>();
             boolean isAgent;
             for (URL url : urls) {
                 isAgent = false;
@@ -297,8 +306,8 @@ public class ClasspathLauncher extends ArkLauncher {
          * @return
          */
         protected URL[] parseClassPathFromSurefireBoot(URL surefireBootJar) {
-            try {
-                JarFile jarFile = new JarFile(surefireBootJar.getFile());
+            AssertUtils.assertNotNull(surefireBootJar, "SurefireBooter jar should not be null.");
+            try (JarFile jarFile = new JarFile(surefireBootJar.getFile())) {
                 String[] classPath = jarFile.getManifest().getMainAttributes()
                     .getValue(SUREFIRE_BOOT_CLASSPATH).split(SUREFIRE_BOOT_CLASSPATH_SPLIT);
                 List<URL> urls = new ArrayList<>();

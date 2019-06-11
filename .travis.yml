@@ -5,12 +5,8 @@ sudo: false
 jdk:
 - openjdk8
 
-cache:
-  directories:
-  - $HOME/.m2
-
 install:
-- mvn clean install -DskipTests=false -Dmaven.javadoc.skip=false -B -U -q
+- mvn clean install -DskipTests -B -U
 
 script:
 - sh ./check_format.sh
@@ -20,4 +16,5 @@ script:
 - cd ../..
 
 after_success:
-- mvn clean test cobertura:cobertura coveralls:report -q
+- mvn clean test
+- bash <(curl -s https://codecov.io/bash)

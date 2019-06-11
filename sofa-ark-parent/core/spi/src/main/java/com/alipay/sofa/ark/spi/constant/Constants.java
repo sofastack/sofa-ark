@@ -100,6 +100,7 @@ public class Constants {
 
     public final static String SUREFIRE_BOOT_CLASSPATH                    = "Class-Path";
     public final static String SUREFIRE_BOOT_CLASSPATH_SPLIT              = " ";
+    public final static String SUREFIRE_BOOT_JAR                          = "surefirebooter";
 
     /**
      * Telnet Server

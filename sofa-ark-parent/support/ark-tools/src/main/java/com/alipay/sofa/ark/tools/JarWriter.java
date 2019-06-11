@@ -164,18 +164,13 @@ public class JarWriter implements LoaderClassesWriter {
     }
 
     private long getNestedLibraryTime(File file) {
-        try {
-            JarFile jarFile = new JarFile(file);
-            try {
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    if (!entry.isDirectory()) {
-                        return entry.getTime();
-                    }
+        try (JarFile jarFile = new JarFile(file)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (!entry.isDirectory()) {
+                    return entry.getTime();
                 }
-            } finally {
-                jarFile.close();
             }
         } catch (Exception ex) {
             // Ignore and just use the source file timestamp

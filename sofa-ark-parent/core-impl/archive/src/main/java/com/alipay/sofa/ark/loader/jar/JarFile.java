@@ -154,16 +154,15 @@ public class JarFile extends java.util.jar.JarFile {
         Manifest manifest = (this.manifest == null ? null : this.manifest.get());
         if (manifest == null) {
             if (this.type == JarFileType.NESTED_DIRECTORY) {
-                manifest = new JarFile(this.getRootJarFile()).getManifest();
-            } else {
-                InputStream inputStream = getInputStream(MANIFEST_NAME, ResourceAccess.ONCE);
-                if (inputStream == null) {
-                    return null;
+                try (JarFile jarFile = new JarFile(this.getRootJarFile())) {
+                    manifest = jarFile.getManifest();
                 }
-                try {
+            } else {
+                try (InputStream inputStream = getInputStream(MANIFEST_NAME, ResourceAccess.ONCE)) {
+                    if (inputStream == null) {
+                        return null;
+                    }
                     manifest = new Manifest(inputStream);
-                } finally {
-                    inputStream.close();
                 }
             }
             this.manifest = new SoftReference<>(manifest);
