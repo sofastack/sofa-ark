@@ -6,3 +6,4 @@ pom.xml.bak
 .settings
 .classpath
 *.log
+logs/

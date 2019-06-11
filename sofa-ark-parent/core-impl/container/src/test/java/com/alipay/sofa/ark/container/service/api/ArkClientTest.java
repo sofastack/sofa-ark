@@ -20,14 +20,20 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.api.ResponseCode;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import com.alipay.sofa.ark.spi.service.event.EventHandler;
+import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author qilong.zql
@@ -39,6 +45,8 @@ public class ArkClientTest extends BaseTest {
     private URL bizUrl1;
     // bizName=biz-demo, bizVersion=2.0.0
     private URL bizUrl2;
+    // bizName=biz-demo, bizVersion=3.0.0
+    private URL bizUrl3;
 
     @Before
     public void before() {
@@ -47,6 +55,8 @@ public class ArkClientTest extends BaseTest {
         bizUrl1 = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
         // bizName=biz-demo, bizVersion=2.0.0
         bizUrl2 = this.getClass().getClassLoader().getResource("sample-ark-2.0.0-ark-biz.jar");
+        // bizName=biz-demo, bizVersion=3.0.0
+        bizUrl3 = this.getClass().getClassLoader().getResource("sample-ark-3.0.0-ark-biz.jar");
     }
 
     @Test
@@ -70,6 +80,31 @@ public class ArkClientTest extends BaseTest {
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
+    }
+
+    @Test
+    public void testBizArguments() throws Throwable {
+        EventAdminService eventAdminService = arkServiceContainer
+            .getService(EventAdminService.class);
+        List<String> topicList = new ArrayList<>();
+        EventHandler eventHandler = new EventHandler() {
+            @Override
+            public void handleEvent(ArkEvent event) {
+                topicList.add(event.getTopic());
+            }
+
+            @Override
+            public int getPriority() {
+                return 0;
+            }
+        };
+        eventAdminService.register(eventHandler);
+        ArkClient.installBiz(new File(bizUrl3.getFile()));
+        ArkClient.uninstallBiz("biz-demo", "3.0.0");
+        ArkClient.installBiz(new File(bizUrl3.getFile()), new String[] { "demo" });
+        ArkClient.uninstallBiz("biz-demo", "3.0.0");
+        Assert.assertEquals("No arguments", topicList.get(0));
+        Assert.assertEquals("demo", topicList.get(3));
     }
 
     @Test
