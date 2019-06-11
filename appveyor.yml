@@ -28,7 +28,6 @@ test_script:
   - cd sample-ark-plugin
   - mvn clean install
   - cd ../sample-springboot-ark
-  - mvn test
   - cd ../..
 
 # preserve dependencies between builds
