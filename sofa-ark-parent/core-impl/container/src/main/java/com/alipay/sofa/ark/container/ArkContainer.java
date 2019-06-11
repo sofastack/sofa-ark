@@ -40,6 +40,7 @@ import com.alipay.sofa.common.utils.ReportUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class ArkContainer {
             LaunchCommand launchCommand = LaunchCommand.parse(args);
             if (launchCommand.isExecutedByCommandLine()) {
                 ExecutableArkBizJar executableArchive = new ExecutableArkBizJar(new JarFileArchive(
-                    new File(launchCommand.getExecutableArkBizJar().getFile())),
+                    new File(URLDecoder.decode(launchCommand.getExecutableArkBizJar().getFile()))),
                     launchCommand.getExecutableArkBizJar());
                 return new ArkContainer(executableArchive, launchCommand).start();
             } else {
