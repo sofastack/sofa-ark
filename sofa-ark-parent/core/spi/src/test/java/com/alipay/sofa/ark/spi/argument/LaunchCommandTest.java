@@ -20,9 +20,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class LaunchCommandTest {
         try {
             classpath = getClasspath(((URLClassLoader) this.getClass().getClassLoader()).getURLs());
             method = MainClass.class.getMethod("main", String[].class);
-            fatJarUrl = this.getClass().getClassLoader().getResource("test.jar");
+            fatJarUrl = this.getClass().getClassLoader().getResource("test 2.jar");
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -82,6 +84,14 @@ public class LaunchCommandTest {
         } catch (Exception ex) {
             Assert.assertNull(ex);
         }
+    }
+
+    @Test
+    public void testEncodedURL() {
+        File file = new File(fatJarUrl.getFile());
+        Assert.assertFalse(file.exists());
+        file = new File(URLDecoder.decode(fatJarUrl.getFile()));
+        Assert.assertTrue(file.exists());
     }
 
     public static class MainClass {
