@@ -1,7 +1,7 @@
 # SOFAArk Project
 
-[![Build Status](https://travis-ci.org/alipay/sofa-ark.svg?branch=master)](https://travis-ci.org/alipay/sofa-ark)
-[![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-ark/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-ark)
+[![Build Status](https://travis-ci.org/sofastack/sofa-ark.svg?branch=master)](https://travis-ci.org/sofastack/sofa-ark)
+[![Coverage Status](https://codecov.io/gh/sofastack/sofa-ark/branch/master/graph/badge.svg)](https://codecov.io/gh/sofastack/sofa-ark/branch/master/graph/badge.svg)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-orange.svg)](https://gitter.im/sofa-ark/Lobby)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 ![maven](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.alipay.sofa/sofa-ark-all.svg)
@@ -50,7 +50,7 @@ In this situation, we just repackage the dependencies of A and C(version=0.1) as
 ## Community
 
 * [Gitter channel](https://gitter.im/sofa-ark/Lobby) - Online chat room with SOFAArk developers.
-* [Issues](https://github.com/alipay/sofa-ark/issues)
+* [Issues](https://github.com/sofastack/sofa-ark/issues)
 
 ## Contribution
 

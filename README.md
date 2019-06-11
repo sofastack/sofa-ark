@@ -1,7 +1,7 @@
 # SOFAArk Project
 
-[![Build Status](https://travis-ci.org/alipay/sofa-ark.svg?branch=master)](https://travis-ci.org/alipay/sofa-ark)
-[![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-ark/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-ark)
+[![Build Status](https://travis-ci.org/sofastack/sofa-ark.svg?branch=master)](https://travis-ci.org/sofastack/sofa-ark)
+[![Coverage Status](https://codecov.io/gh/sofastack/sofa-ark/branch/master/graph/badge.svg)](https://codecov.io/gh/sofastack/sofa-ark/branch/master/graph/badge.svg)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-orange.svg)](https://gitter.im/sofa-ark/Lobby)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 ![maven](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.alipay.sofa/sofa-ark-all.svg)
@@ -13,7 +13,7 @@ SOFAArk 是一款基于 Java 实现的轻量级类隔离容器，由蚂蚁金服
 
 为了彻底解决包冲突的问题，我们需要借助类隔离机制，使用不同的 ClassLoader 加载不同版本的三方依赖，进而隔离包冲突问题；OSGI 作为业内最出名的类隔离框架，自然是可以被用于解决上述包冲突问题，但是 OSGI 框架太过臃肿，功能繁杂；为了解决包冲突问题，引入 OSGI 框架，有牛刀杀鸡之嫌，反而使工程变得更加复杂，不利于开发；
 
-SOFAArk 则采用较为轻量级的类隔离方案来解决日常经常遇到的包冲突问题，在蚂蚁金服内部服务于整个 [SOFABoot](https://github.com/alipay/sofa-boot) 技术体系，弥补 SpringBoot 没有的类隔离能力。实际上，SOFAArk 是一个通用的轻量级类隔离框架，并不限于 SpringBoot 应用，也可以和其他的 Java 开发框架集成；
+SOFAArk 则采用较为轻量级的类隔离方案来解决日常经常遇到的包冲突问题，在蚂蚁金服内部服务于整个 [SOFABoot](https://github.com/sofastack/sofa-boot) 技术体系，弥补 SpringBoot 没有的类隔离能力。实际上，SOFAArk 是一个通用的轻量级类隔离框架，并不限于 SpringBoot 应用，也可以和其他的 Java 开发框架集成；
 
 基于 SOFAArk 提供的类隔离能力，SOFAArk 支持将多个应用合并打成一个可执行的 Fat Jar 包，也支持运行时通过 API 或者 Zookeeper 动态推送配置达到动态部署应用(模块)的能力。在多团队协作开发时，各个功能模块由不同的团队负责开发，通常情况下，这些功能模块独立开发，但是运行时部署在一起。借助 SOFAArk 提供的合并部署能力，各团队开发时拥有相当大自由度，只需要定义各模块之间的交互接口即可，尤其对于中台应用开发，提高团队合作效率。除了合并部署，SOFAArk 对接了 Zookeeper 接受动态配置，控制应用(模块)的安装和卸载。
 
@@ -63,7 +63,7 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
  
 ## 社区
 * [Gitter channel](https://gitter.im/sofa-ark/Lobby) 
-* [Issues](https://github.com/alipay/sofa-ark/issues)
+* [Issues](https://github.com/sofastack/sofa-ark/issues)
 
 ## 贡献
 * [代码贡献](./CONTRIBUTING.md) : SOFAArk 开发参与说明书
