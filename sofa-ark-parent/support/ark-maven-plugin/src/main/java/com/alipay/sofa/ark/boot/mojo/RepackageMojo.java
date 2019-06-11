@@ -121,7 +121,7 @@ public class RepackageMojo extends AbstractMojo {
      *
      * @since 0.1.0
      */
-    @Parameter
+    @Parameter(defaultValue = "ark-executable", readonly = true)
     private String                arkClassifier;
 
     /**
@@ -318,17 +318,16 @@ public class RepackageMojo extends AbstractMojo {
     }
 
     private void updateArtifact(File repackaged, File modulePackaged) {
-        this.project.getArtifact().setFile(repackaged);
         if (this.attach) {
-            attachArtifact(modulePackaged);
+            attachArtifact(repackaged, arkClassifier);
+            attachArtifact(modulePackaged, bizClassifier);
         }
     }
 
-    private void attachArtifact(File modulePackaged) {
-        getLog().info(
-            "Attaching archive:" + modulePackaged + ", with classifier: " + this.bizClassifier);
-        this.projectHelper.attachArtifact(this.project, this.project.getPackaging(),
-            this.bizClassifier, modulePackaged);
+    private void attachArtifact(File jarFile, String classifier) {
+        getLog().info("Attaching archive:" + jarFile + ", with classifier: " + classifier);
+        this.projectHelper.attachArtifact(this.project, this.project.getPackaging(), classifier,
+            jarFile);
     }
 
     private class LoggingMainClassTimeoutWarningListener implements
