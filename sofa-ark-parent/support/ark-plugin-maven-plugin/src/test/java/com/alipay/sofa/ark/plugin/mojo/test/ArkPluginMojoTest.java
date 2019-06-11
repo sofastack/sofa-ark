@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.plugin.mojo.test;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.plugin.mojo.ArkPluginMojo;
 import mockit.Expectations;
 import org.apache.maven.artifact.Artifact;
@@ -25,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
@@ -60,11 +62,20 @@ public class ArkPluginMojoTest {
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
             .singleton("com.alipay.sofa:test-demo:1.0.0")));
         final URL url = this.getClass().getClassLoader().getResource("test-demo.jar");
+
         String path = url.getPath() + ".shaded";
         String shadedUrl = url.toExternalForm() + ".shaded";
+        String copyPath = url.getPath() + ".copy";
+        File copyFileForTest = new File(copyPath);
 
-        arkPluginMojo.shadeJarIntoArkPlugin(new File(path), new File(url.getPath()),
+        FileInputStream demoJar = new FileInputStream(new File(url.getPath()));
+        FileUtils.copyInputStreamToFile(demoJar, new File(copyPath));
+        demoJar.close();
+
+        arkPluginMojo.shadeJarIntoArkPlugin(new File(path), copyFileForTest,
             Collections.singleton(artifact));
+
+        Assert.assertTrue(copyFileForTest.delete());
         URLClassLoader urlClassLoader = new URLClassLoader(new URL[] { new URL(shadedUrl) }, null);
         Assert
             .assertNotNull(urlClassLoader.loadClass("com.alipay.sofa.support.test.SampleService"));
