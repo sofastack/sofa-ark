@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
@@ -257,7 +258,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 try {
                     return importClassLoader.loadClass(name);
                 } catch (ClassNotFoundException e) {
-                    // ignore
+                    // log warn message
+                    ArkLoggerFactory.getDefaultLogger()
+                        .warn("Fail to load export class " + name, e);
                 }
             }
         }

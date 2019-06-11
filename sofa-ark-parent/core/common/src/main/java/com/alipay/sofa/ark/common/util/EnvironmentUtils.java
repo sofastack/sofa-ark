@@ -53,6 +53,10 @@ public class EnvironmentUtils {
     }
 
     public static void clearProperty(String key) {
+        properties.remove(key);
+    }
+
+    public static void clearSystemProperty(String key) {
         System.clearProperty(key);
     }
 
