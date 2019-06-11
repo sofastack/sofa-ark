@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.slf4j.ILoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -88,6 +89,21 @@ public class ArkBootRunnerTest {
             }
         });
         Assert.assertEquals(20, TestValueHolder.getTestValue());
+    }
+
+    /**
+     * issue#234
+     */
+    @Test
+    public void testLogClassCastBug() {
+        Throwable throwable = null;
+        try {
+            ILoggerFactory iLoggerFactory = (ILoggerFactory) this.getClass().getClassLoader()
+                .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory").newInstance();
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        Assert.assertNull(throwable);
     }
 
 }
