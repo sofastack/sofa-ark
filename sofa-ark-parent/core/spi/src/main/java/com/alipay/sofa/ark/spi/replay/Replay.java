@@ -17,7 +17,8 @@
 package com.alipay.sofa.ark.spi.replay;
 
 /**
- * @author qilong.zql 17/11/10-上午11:52
+ * @author qilong.zql 17/11/10-11:52
+ * @author guolei.sgl 19/7/21 16:48
  */
 public interface Replay {
     Object invoke();

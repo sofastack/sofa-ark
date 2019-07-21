@@ -19,7 +19,8 @@ package com.alipay.sofa.ark.spi.replay;
 import java.util.Stack;
 
 /**
- * @author qilong.zql 17/11/10-下午12:15
+ * @author qilong.zql 17/11/10-12:15
+ * @author guolei.sgl 19/7/21 16:48
  */
 public class ReplayContext {
 
@@ -48,7 +49,7 @@ public class ReplayContext {
     }
 
     public static void setPlaceHolder() {
-        // 当前处于版本号调用链路时才需要存放 PLACEHOLDER
+        // PLACEHOLDER needs to be placed when the link is currently invoked at the version number
         if (moduleVersions.get().size() != 0) {
             moduleVersions.get().push(PLACEHOLDER);
         }
