@@ -17,10 +17,15 @@
 package com.alipay.sofa.ark.container.test;
 
 import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.EnvironmentUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author qilong.zql
@@ -30,15 +35,20 @@ public class TestClassLoader extends BizClassLoader {
 
     private final ClassLoader delegateClassLoader;
 
-    String[]                  packageForTest = {
-                                             // Junit
+    private static String[]   packageForTest = {
+            // Junit
             "org.junit", "junit", "org.hamcrest",
             // TestNG
             "org.testng", "com.beust.jcommander", "bsh",
             // Ark
             "com.alipay.sofa.ark.support.common",
             // tomcat
-            "org.apache", "javax"           };
+            "org.apache.catalina", "org.apache.coyote", "org.apache.juli", "org.apache.naming",
+            "org.apache.tomcat", "org.apache.el", "javax" };
+
+    private List<String>      delegateClassToAppClassLoader;
+
+    private List<String>      delegateClassToTestClassLoader;
 
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
         super(bizIdentity, urls);
@@ -47,7 +57,7 @@ public class TestClassLoader extends BizClassLoader {
 
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
-        if (isTestClass(ClassUtils.getPackageName(name))) {
+        if (isDelegateToAppClassLoader(ClassUtils.getPackageName(name))) {
             try {
                 return delegateClassLoader.loadClass(name);
             } catch (ClassNotFoundException e) {
@@ -59,7 +69,30 @@ public class TestClassLoader extends BizClassLoader {
         }
     }
 
-    private boolean isTestClass(String name) {
+    private boolean isDelegateToAppClassLoader(String name) {
+        if (delegateClassToAppClassLoader == null) {
+            String classes = EnvironmentUtils.getProperty(
+                Constants.FORCE_DELEGATE_TO_APP_CLASSLOADER, Constants.EMPTY_STR);
+            delegateClassToAppClassLoader = Arrays.asList(classes.split(Constants.COMMA_SPLIT));
+        }
+        if (delegateClassToTestClassLoader == null) {
+            String classes = EnvironmentUtils.getProperty(
+                Constants.FORCE_DELEGATE_TO_TEST_CLASSLOADER, Constants.EMPTY_STR);
+            delegateClassToTestClassLoader = Arrays.asList(classes.split(Constants.COMMA_SPLIT));
+        }
+
+        for (String pkg : delegateClassToAppClassLoader) {
+            if (!StringUtils.isEmpty(pkg) && name.startsWith(pkg)) {
+                return true;
+            }
+        }
+
+        for (String pkg : delegateClassToTestClassLoader) {
+            if (!StringUtils.isEmpty(pkg) && name.startsWith(pkg)) {
+                return false;
+            }
+        }
+
         for (String pkg : packageForTest) {
             if (name.startsWith(pkg)) {
                 return true;

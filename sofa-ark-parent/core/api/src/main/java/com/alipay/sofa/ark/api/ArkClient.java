@@ -119,6 +119,10 @@ public class ArkClient {
      * @throws Throwable
      */
     public static ClientResponse installBiz(File bizFile) throws Throwable {
+        return installBiz(bizFile, arguments);
+    }
+
+    public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
@@ -132,7 +136,7 @@ public class ArkClient {
         }
 
         try {
-            biz.start(arguments);
+            biz.start(args);
             response.setCode(ResponseCode.SUCCESS)
                 .setMessage(String.format("Install Biz: %s success.", biz.getIdentity()))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
@@ -284,6 +288,11 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
+        return installOperation(bizOperation, arguments);
+    }
+
+    public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
+                                                                                           throws Throwable {
         AssertUtils.isTrue(
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
             "Operation type must be install");
@@ -305,7 +314,7 @@ public class ArkClient {
                 }
             }
         }
-        return installBiz(bizFile);
+        return installBiz(bizFile, args);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {

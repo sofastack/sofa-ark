@@ -67,7 +67,6 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
                 if (testClass.getAnnotation(TestNGOnArk.class) != null) {
                     if (!DelegateArkContainer.isStarted()) {
                         DelegateArkContainer.launch(testClass);
-                        ClassLoaderUtils.pushContextClassLoader(ClassLoader.getSystemClassLoader());
                     }
 
                     try {

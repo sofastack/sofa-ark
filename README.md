@@ -51,7 +51,7 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
 ##### 动态合并部署
 动态合并部署区别于静态合并部署最大的一点是，运行时通过 API 或者配置中心（Zookeeper）来控制应用的部署和卸载。动态合并部署的设计理念图如下：
 
-![life-arch](resources/life-arch.png)
+![life-arch](resource/life-arch.png)
 
 无论是静态还是动态合并部署都会有宿主应用（master app）的概念, 如果 Ark 包只打包了一个 Biz，则该 Biz 默认成为宿主应用；如果 Ark 包打包了多个 Biz 包，需要配置指定宿主应用。宿主应用不允许被卸载，一般而言，宿主应用会作为流量入口的中台系统，具体的服务实现会放在不同的动态 Biz 中，供宿主应用调用。宿主应用可以使用 SOFAArk 提供的客户端 API 实现动态应用的部署和卸载。除了 API, SOFAArk 提供了 Config Plugin，用于对接配置中心（目前支持 Zookeeper），运行时接受动态配置；Config Plugin 会解析下发的配置，控制动态应用的部署和卸载。
 

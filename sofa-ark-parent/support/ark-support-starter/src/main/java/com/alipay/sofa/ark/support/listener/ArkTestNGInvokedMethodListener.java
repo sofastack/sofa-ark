@@ -31,7 +31,7 @@ import java.lang.annotation.Annotation;
 public class ArkTestNGInvokedMethodListener implements IInvokedMethodListener {
     @Override
     public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
-        Class testClass = method.getTestMethod().getRealClass();
+        Class testClass = method.getTestMethod().getTestClass().getRealClass();
         if (isTestOnArk(testClass)) {
             ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer.getTestClassLoader());
         }

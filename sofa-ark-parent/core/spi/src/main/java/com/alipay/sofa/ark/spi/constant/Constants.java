@@ -159,4 +159,10 @@ public class Constants {
 
     public final static String CONFIG_CONNECT_TIMEOUT                     = "com.alipay.sofa.ark.config.connect.timeout";
     public final static int    DEFAULT_CONFIG_CONNECT_TIMEOUT             = 20000;
+
+    /**
+     * Test ClassLoader
+     */
+    public final static String FORCE_DELEGATE_TO_TEST_CLASSLOADER         = "com.alipay.sofa.ark.delegate.to.testClassLoader";
+    public final static String FORCE_DELEGATE_TO_APP_CLASSLOADER          = "com.alipay.sofa.ark.delegate.to.appClassLoader";
 }
