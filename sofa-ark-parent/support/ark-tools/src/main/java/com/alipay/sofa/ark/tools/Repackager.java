@@ -79,6 +79,8 @@ public class Repackager {
 
     private boolean                               packageProvided;
 
+    private boolean                               skipArkExecutable;
+
     private boolean                               keepArkBizJar;
 
     private String                                webContextPath;
@@ -251,6 +253,9 @@ public class Repackager {
     }
 
     private void repackageApp() throws IOException {
+        if (skipArkExecutable) {
+            return;
+        }
         File destination = executableFatJar.getAbsoluteFile();
         destination.delete();
 
@@ -488,6 +493,10 @@ public class Repackager {
 
     public void setPackageProvided(boolean packageProvided) {
         this.packageProvided = packageProvided;
+    }
+
+    public void setSkipArkExecutable(boolean skipArkExecutable) {
+        this.skipArkExecutable = skipArkExecutable;
     }
 
     public void setKeepArkBizJar(boolean keepArkBizJar) {
