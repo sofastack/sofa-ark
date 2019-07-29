@@ -57,6 +57,12 @@ public class ZipInflaterInputStream extends InflaterInputStream {
     }
 
     @Override
+    public void close() throws IOException {
+        super.close();
+        this.inf.end();
+    }
+
+    @Override
     protected void fill() throws IOException {
         try {
             super.fill();
