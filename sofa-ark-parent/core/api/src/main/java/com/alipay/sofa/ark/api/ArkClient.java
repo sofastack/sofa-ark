@@ -27,6 +27,8 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.replay.Replay;
+import com.alipay.sofa.ark.spi.replay.ReplayContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -337,4 +339,20 @@ public class ArkClient {
             "Operation type must be switch");
         return checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
+
+    /**
+     * dynamic invoke by specified version
+     * @param version
+     * @param replay
+     * @return
+     */
+    public static Object invocationReplay(String version, Replay replay) {
+        try {
+            ReplayContext.set(version);
+            return replay.invoke();
+        } finally {
+            ReplayContext.unset();
+        }
+    }
+
 }

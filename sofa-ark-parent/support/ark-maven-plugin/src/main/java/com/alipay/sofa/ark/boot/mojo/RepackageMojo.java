@@ -199,6 +199,12 @@ public class RepackageMojo extends AbstractMojo {
     private boolean               packageProvided;
 
     /**
+     * whether to skip package ark-executable jar
+     */
+    @Parameter(defaultValue = "false")
+    private boolean               skipArkExecutable;
+
+    /**
      * whether to keep ark biz jar after package finish, default value is true
      */
     @Parameter(defaultValue = "true")
@@ -311,6 +317,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setDenyImportPackages(denyImportPackages);
         repackager.setDenyImportResources(denyImportResources);
         repackager.setPackageProvided(packageProvided);
+        repackager.setSkipArkExecutable(skipArkExecutable);
         repackager.setKeepArkBizJar(keepArkBizJar);
         repackager.setBaseDir(baseDir);
         repackager.setWebContextPath(webContextPath);
