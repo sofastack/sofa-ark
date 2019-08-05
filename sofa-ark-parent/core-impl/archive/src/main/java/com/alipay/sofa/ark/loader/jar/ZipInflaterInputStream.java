@@ -78,7 +78,8 @@ public class ZipInflaterInputStream extends InflaterInputStream {
     }
 
     private static int getInflaterBufferSize(long size) {
-        size += 2; // inflater likes some space
+        // inflater likes some space
+        size += 2;
         size = (size > 65536 ? 8192 : size);
         size = (size <= 0 ? 4096 : size);
         return (int) size;
