@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
@@ -38,7 +39,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -263,6 +263,56 @@ public class PluginClassLoaderTest extends BaseTest {
         Assert.assertEquals(pluginB.getPluginClassLoader(), classLoaders.get(0));
         Assert.assertEquals(pluginA.getPluginClassLoader(), classLoaders.get(1));
         Assert.assertEquals(pluginC.getPluginClassLoader(), classLoaders.get(2));
+    }
+
+    @Test
+    public void testExportResourceStems() {
+        PluginModel pluginA = new PluginModel();
+        pluginA
+            .setPluginName("pluginA")
+            .setPriority("100")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportPackages(StringUtils.EMPTY_STRING)
+            .setExportClasses(StringUtils.EMPTY_STRING)
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("export/folderA/*,export/folderB/*")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+
+        PluginModel pluginB = new PluginModel();
+        pluginB
+            .setPluginName("pluginB")
+            .setPriority("1")
+            .setClassPath(new URL[0])
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportPackages(StringUtils.EMPTY_STRING)
+            .setExportClasses(StringUtils.EMPTY_STRING)
+            .setImportResources("export/folderA/*,export/folderB/test3.xml")
+            .setExportResources(StringUtils.EMPTY_STRING)
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+
+        pluginManagerService.registerPlugin(pluginA);
+        pluginManagerService.registerPlugin(pluginB);
+        classloaderService.prepareExportClassAndResourceCache();
+        pluginDeployService.deploy();
+
+        String testResource1 = "export/folderA/test1.xml";
+        String testResource2 = "export/folderA/test2.xml";
+        String testResource3 = "export/folderB/test3.xml";
+        String testResource4 = "export/folderB/test4.xml";
+
+        Assert.assertEquals(pluginA.getPluginClassLoader().getResource(testResource1), pluginB
+            .getPluginClassLoader().getResource(testResource1));
+        Assert.assertEquals(pluginA.getPluginClassLoader().getResource(testResource2), pluginB
+            .getPluginClassLoader().getResource(testResource2));
+        Assert.assertEquals(pluginA.getPluginClassLoader().getResource(testResource3), pluginB
+            .getPluginClassLoader().getResource(testResource3));
+        // export/folderB/test4.xml not import
+        Assert.assertNull(pluginB.getPluginClassLoader().getResource(testResource4));
     }
 
     @Test

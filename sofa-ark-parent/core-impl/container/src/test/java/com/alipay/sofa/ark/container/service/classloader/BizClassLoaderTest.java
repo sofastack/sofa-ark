@@ -215,6 +215,47 @@ public class BizClassLoaderTest extends BaseTest {
     }
 
     @Test
+    public void testDenyImportResourceStems() {
+        PluginModel pluginA = new PluginModel();
+        pluginA
+            .setPluginName("pluginA")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("export/folderA/*,export/folderB/*")
+            .setExportClasses(ITest.class.getName())
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+
+        pluginManagerService.registerPlugin(pluginA);
+        pluginDeployService.deploy();
+        classloaderService.prepareExportClassAndResourceCache();
+
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[0])
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        bizModel.setDenyImportResources("export/folderA/*,export/folderB/test3.xml");
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+
+        bizManagerService.registerBiz(bizModel);
+
+        String testResource1 = "export/folderA/test1.xml";
+        String testResource2 = "export/folderA/test2.xml";
+        String testResource3 = "export/folderB/test3.xml";
+        String testResource4 = "export/folderB/test4.xml";
+
+        Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource1));
+        Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource2));
+        Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource3));
+        // testResource4 not in deny-import
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource(testResource4));
+        Assert.assertEquals(pluginA.getPluginClassLoader().getResource(testResource4), bizModel
+            .getBizClassLoader().getResource(testResource4));
+    }
+
+    @Test
     public void testSlashResource() throws Throwable {
         URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
         Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");

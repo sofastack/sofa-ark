@@ -20,7 +20,7 @@ import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -57,17 +57,19 @@ public class BizModel implements Biz {
 
     private ClassLoader classLoader;
 
-    private int         priority               = DEFAULT_PRECEDENCE;
+    private int         priority                = DEFAULT_PRECEDENCE;
 
     private Set<String> denyImportPackages;
 
-    private Set<String> denyImportPackageNodes = new HashSet<>();
+    private Set<String> denyImportPackageNodes  = new HashSet<>();
 
-    private Set<String> denyImportPackageStems = new HashSet<>();
+    private Set<String> denyImportPackageStems  = new HashSet<>();
 
     private Set<String> denyImportClasses;
 
-    private Set<String> denyImportResources;
+    private Set<String> denyImportResources     = new HashSet<>();
+
+    private Set<String> denyImportResourceStems = new HashSet<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -116,7 +118,7 @@ public class BizModel implements Biz {
     public BizModel setDenyImportPackages(String denyImportPackages) {
         this.denyImportPackages = StringUtils.strToSet(denyImportPackages,
             Constants.MANIFEST_VALUE_SPLIT);
-        parsePackageNodeAndStem(this.denyImportPackages, this.denyImportPackageStems,
+        ParseUtils.parsePackageNodeAndStem(this.denyImportPackages, this.denyImportPackageStems,
             this.denyImportPackageNodes);
         return this;
     }
@@ -128,8 +130,9 @@ public class BizModel implements Biz {
     }
 
     public BizModel setDenyImportResources(String denyImportResources) {
-        this.denyImportResources = StringUtils.strToSet(denyImportResources,
-            Constants.MANIFEST_VALUE_SPLIT);
+        ParseUtils.parseResourceAndStem(
+            StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT),
+            this.denyImportResourceStems, this.denyImportResources);
         return this;
     }
 
@@ -191,6 +194,10 @@ public class BizModel implements Biz {
     @Override
     public Set<String> getDenyImportResources() {
         return denyImportResources;
+    }
+
+    public Set<String> getDenyImportResourceStems() {
+        return denyImportResourceStems;
     }
 
     @Override
@@ -264,17 +271,6 @@ public class BizModel implements Biz {
     @Override
     public String toString() {
         return "Ark Biz: " + getIdentity();
-    }
-
-    private void parsePackageNodeAndStem(Set<String> candidates, Set<String> stems,
-                                         Set<String> nodes) {
-        for (String pkgPattern : candidates) {
-            if (pkgPattern.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                stems.add(ClassUtils.getPackageName(pkgPattern));
-            } else {
-                nodes.add(pkgPattern);
-            }
-        }
     }
 
     private void resetProperties() {
