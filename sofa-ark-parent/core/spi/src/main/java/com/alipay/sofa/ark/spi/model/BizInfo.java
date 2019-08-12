@@ -84,8 +84,8 @@ public interface BizInfo {
     Set<String> getDenyImportResources();
 
     /**
-     * get denied
-     * @return
+     * get denied imported resource stems
+     * @return denied imported resource stems
      */
     Set<String> getDenyImportResourceStems();
 
