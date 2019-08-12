@@ -196,6 +196,7 @@ public class BizModel implements Biz {
         return denyImportResources;
     }
 
+    @Override
     public Set<String> getDenyImportResourceStems() {
         return denyImportResourceStems;
     }
