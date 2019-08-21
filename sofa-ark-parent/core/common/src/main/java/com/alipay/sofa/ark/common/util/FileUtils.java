@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
@@ -93,5 +92,17 @@ public class FileUtils {
     public static void copyInputStreamToFile(final InputStream source, final File destination)
                                                                                               throws IOException {
         org.apache.commons.io.FileUtils.copyInputStreamToFile(source, destination);
+    }
+
+    /**
+     *
+     * @param path
+     * @return
+     */
+    public static String getCompatiblePath(String path) {
+        if (System.getProperty("os.name").toLowerCase().indexOf("window") > -1) {
+            return path.replace("\\", "/");
+        }
+        return path;
     }
 }
