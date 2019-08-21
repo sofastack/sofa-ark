@@ -64,6 +64,10 @@ public class ArkTomcatWebServer implements WebServer {
 
     private volatile boolean                started;
 
+    private Thread                          awaitThread;
+
+    private Tomcat                          arkEmbedTomcat;
+
     /**
      * Create a new {@link ArkTomcatWebServer} instance.
      * @param tomcat the underlying Tomcat server
@@ -82,6 +86,11 @@ public class ArkTomcatWebServer implements WebServer {
         this.tomcat = tomcat;
         this.autoStart = autoStart;
         initialize();
+    }
+
+    public ArkTomcatWebServer(Tomcat tomcat, boolean autoStart, Tomcat arkEmbedTomcat) {
+        this(tomcat, autoStart);
+        this.arkEmbedTomcat = arkEmbedTomcat;
     }
 
     private void initialize() throws WebServerException {
@@ -164,7 +173,7 @@ public class ArkTomcatWebServer implements WebServer {
     }
 
     private void startDaemonAwaitThread() {
-        Thread awaitThread = new Thread("container-" + (containerCounter.get())) {
+        awaitThread = new Thread("container-" + (containerCounter.get())) {
 
             @Override
             public void run() {
@@ -216,18 +225,25 @@ public class ArkTomcatWebServer implements WebServer {
         }
     }
 
-    private void stopSilently() {
+    public void stopSilently() {
+        stopContext();
         try {
-            stopContext();
+            stopTomcatIfNecessary();
         } catch (LifecycleException ex) {
             // Ignore
         }
     }
 
-    private void stopContext() throws LifecycleException {
+    private void stopContext() {
         Context context = findContext();
         getTomcat().getHost().removeChild(context);
-        context.stop();
+    }
+
+    private void stopTomcatIfNecessary() throws LifecycleException {
+        if (tomcat != arkEmbedTomcat) {
+            tomcat.destroy();
+        }
+        awaitThread.stop();
     }
 
     private void addPreviouslyRemovedConnectors() {
@@ -266,8 +282,8 @@ public class ArkTomcatWebServer implements WebServer {
                 this.started = false;
                 try {
                     stopContext();
-                    this.tomcat.destroy();
-                } catch (LifecycleException ex) {
+                    stopTomcatIfNecessary();
+                } catch (Throwable ex) {
                     // swallow and continue
                 }
             } catch (Exception ex) {
