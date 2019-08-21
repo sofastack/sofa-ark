@@ -42,6 +42,7 @@
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
         <maven.plugin.plugin>3.4</maven.plugin.plugin>
         <surefire.version>2.20</surefire.version>
+        <netty.version>4.1.25.Final</netty.version>
     </properties>
 
     <dependencyManagement>
@@ -199,6 +200,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
             </dependency>
 
             <!-- log -->
