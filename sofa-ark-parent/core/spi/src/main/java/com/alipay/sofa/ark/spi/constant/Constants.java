@@ -94,6 +94,7 @@ public class Constants {
     public final static String PACKAGE_PREFIX_MARK                        = "*";
     public final static String DEFAULT_PACKAGE                            = ".";
     public final static String MANIFEST_VALUE_SPLIT                       = COMMA_SPLIT;
+    public final static String RESOURCE_STEM_MARK                         = "*";
 
     public final static String IMPORT_RESOURCES_ATTRIBUTE                 = "import-resources";
     public final static String EXPORT_RESOURCES_ATTRIBUTE                 = "export-resources";
