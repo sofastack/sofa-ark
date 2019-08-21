@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.tools;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
@@ -299,7 +300,8 @@ public class Repackager {
                 if (entryName.startsWith(File.separator)) {
                     entryName = entryName.substring(1);
                 }
-                jarWriter.writeEntry(entryName, new FileInputStream(subFile));
+                jarWriter.writeEntry(FileUtils.getCompatiblePath(entryName), new FileInputStream(
+                    subFile));
             }
         }
     }

@@ -16,10 +16,13 @@
  */
 package com.alipay.sofa.ark.web.embed;
 
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
 import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.startup.Tomcat;
 
 /**
  * @author qilong.zql
@@ -27,13 +30,25 @@ import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
  */
 public class WebPluginActivator implements PluginActivator {
 
+    private EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
+
     @Override
     public void start(PluginContext context) {
-        context.publishService(EmbeddedServerService.class, new EmbeddedServerServiceImpl());
+        context.publishService(EmbeddedServerService.class, embeddedServerService);
     }
 
     @Override
     public void stop(PluginContext context) {
-
+        Tomcat webServer = null;
+        if (embeddedServerService.getEmbedServer() instanceof Tomcat) {
+            webServer = (Tomcat) embeddedServerService.getEmbedServer();
+        }
+        if (webServer != null) {
+            try {
+                webServer.destroy();
+            } catch (Exception ex) {
+                ArkLoggerFactory.getDefaultLogger().error("Unable to stop embedded Tomcat", ex);
+            }
+        }
     }
 }
