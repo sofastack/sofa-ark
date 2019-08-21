@@ -142,10 +142,22 @@ public interface Plugin extends PriorityOrdered {
     Set<String> getImportResources();
 
     /**
+     * get Plugin Import Resources matched by prefix
+     * @return plugin Import Resources matched by prefix
+     */
+    Set<String> getImportResourceStems();
+
+    /**
      * get Plugin Export Resources
      * @return get plugin export resources
      */
     Set<String> getExportResources();
+
+    /**
+     * get plugin export resources matched by prefix
+     * @return plugin export resources matched by prefix
+     */
+    Set<String> getExportResourceStems();
 
     /**
      * get Plugin Archive URL

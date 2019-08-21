@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -45,27 +45,31 @@ public class PluginModel implements Plugin {
 
     private String          version;
 
-    private int             priority           = DEFAULT_PRECEDENCE;
+    private int             priority            = DEFAULT_PRECEDENCE;
 
     private Set<String>     exportPackages;
 
-    private Set<String>     exportPackageNodes = new HashSet<>();
+    private Set<String>     exportPackageNodes  = new HashSet<>();
 
-    private Set<String>     exportPackageStems = new HashSet<>();
+    private Set<String>     exportPackageStems  = new HashSet<>();
 
     private Set<String>     exportClasses;
 
     private Set<String>     importPackages;
 
-    private Set<String>     importPackageNodes = new HashSet<>();
+    private Set<String>     importPackageNodes  = new HashSet<>();
 
-    private Set<String>     importPackageStems = new HashSet<>();
+    private Set<String>     importPackageStems  = new HashSet<>();
 
     private Set<String>     importClasses;
 
-    private Set<String>     importResources;
+    private Set<String>     importResources     = new HashSet<>();
 
-    private Set<String>     exportResources;
+    private Set<String>     importResourceStems = new HashSet<>();
+
+    private Set<String>     exportResources     = new HashSet<>();
+
+    private Set<String>     exportResourceStems = new HashSet<>();
 
     private String          activator;
 
@@ -116,7 +120,7 @@ public class PluginModel implements Plugin {
 
     public PluginModel setExportPackages(String exportPackages) {
         this.exportPackages = StringUtils.strToSet(exportPackages, Constants.MANIFEST_VALUE_SPLIT);
-        parsePackageNodeAndStem(this.exportPackages, this.exportPackageStems,
+        ParseUtils.parsePackageNodeAndStem(this.exportPackages, this.exportPackageStems,
             this.exportPackageNodes);
         return this;
     }
@@ -128,7 +132,7 @@ public class PluginModel implements Plugin {
 
     public PluginModel setImportPackages(String importPackages) {
         this.importPackages = StringUtils.strToSet(importPackages, Constants.MANIFEST_VALUE_SPLIT);
-        parsePackageNodeAndStem(this.importPackages, this.importPackageStems,
+        ParseUtils.parsePackageNodeAndStem(this.importPackages, this.importPackageStems,
             this.importPackageNodes);
         return this;
     }
@@ -139,14 +143,16 @@ public class PluginModel implements Plugin {
     }
 
     public PluginModel setImportResources(String importResources) {
-        this.importResources = StringUtils
-            .strToSet(importResources, Constants.MANIFEST_VALUE_SPLIT);
+        ParseUtils.parseResourceAndStem(
+            StringUtils.strToSet(importResources, Constants.MANIFEST_VALUE_SPLIT),
+            this.importResourceStems, this.importResources);
         return this;
     }
 
     public PluginModel setExportResources(String exportResources) {
-        this.exportResources = StringUtils
-            .strToSet(exportResources, Constants.MANIFEST_VALUE_SPLIT);
+        ParseUtils.parseResourceAndStem(
+            StringUtils.strToSet(exportResources, Constants.MANIFEST_VALUE_SPLIT),
+            this.exportResourceStems, this.exportResources);
         return this;
     }
 
@@ -256,8 +262,18 @@ public class PluginModel implements Plugin {
     }
 
     @Override
+    public Set<String> getImportResourceStems() {
+        return importResourceStems;
+    }
+
+    @Override
     public Set<String> getExportResources() {
         return exportResources;
+    }
+
+    @Override
+    public Set<String> getExportResourceStems() {
+        return exportResourceStems;
     }
 
     @Override
@@ -296,14 +312,4 @@ public class PluginModel implements Plugin {
         return "Ark Plugin: " + pluginName;
     }
 
-    private void parsePackageNodeAndStem(Set<String> candidates, Set<String> stems,
-                                         Set<String> nodes) {
-        for (String pkgPattern : candidates) {
-            if (pkgPattern.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                stems.add(ClassUtils.getPackageName(pkgPattern));
-            } else {
-                nodes.add(pkgPattern);
-            }
-        }
-    }
 }
