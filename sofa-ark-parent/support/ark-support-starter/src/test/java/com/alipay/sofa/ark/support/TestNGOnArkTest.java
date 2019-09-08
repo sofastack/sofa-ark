@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.support;
 
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.support.listener.TestNGOnArk;
-import org.junit.After;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,8 +39,4 @@ public class TestNGOnArkTest {
             .equals(TestClassLoader.class.getCanonicalName()));
     }
 
-    @After
-    public void after() {
-        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
-    }
 }
