@@ -258,9 +258,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 try {
                     return importClassLoader.loadClass(name);
                 } catch (ClassNotFoundException e) {
-                    // log warn message
-                    ArkLoggerFactory.getDefaultLogger()
-                        .warn("Fail to load export class " + name, e);
+                    // just log when debug level
+                    if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()){
+                        // log warn message
+                        ArkLoggerFactory.getDefaultLogger()
+                                .debug("Fail to load export class " + name, e);
+                    }
                 }
             }
         }
