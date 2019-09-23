@@ -20,7 +20,9 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionClass;
@@ -57,6 +59,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
 
     @Inject
     private PluginManagerService                                                             pluginManagerService;
+
+    @Inject
+    private BizManagerService                                                                bizManagerService;
 
     @Override
     public <T> T getExtensionContributor(Class<T> interfaceType, String extensionName) {
@@ -98,8 +103,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 if (extensionClassMap == null) {
                     try {
                         extensionClassMap = new ConcurrentHashMap<>();
-                        Set<? extends ExtensionClass<?, Plugin>> extensionClassSet = loadExtensionFromArkPlugins(interfaceType);
-                        for (ExtensionClass extensionClass : extensionClassSet) {
+                        // load plugin
+                        Set<? extends ExtensionClass<?, Plugin>> extensionPluginClassSet = loadExtensionFromArkPlugins(interfaceType);
+                        for (ExtensionClass extensionClass : extensionPluginClassSet) {
                             ExtensionClass old = extensionClassMap.get(extensionClass
                                 .getExtension().value());
                             if (old == null || old.getPriority() > extensionClass.getPriority()) {
@@ -107,6 +113,17 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                                     extensionClass);
                             }
                         }
+                        // load biz
+                        Set<? extends ExtensionClass<?, Biz>> extensionBizClassSet = loadExtensionFromArkBizs(interfaceType);
+                        for (ExtensionClass extensionClass : extensionBizClassSet) {
+                            ExtensionClass old = extensionClassMap.get(extensionClass
+                                .getExtension().value());
+                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
+                                extensionClassMap.put(extensionClass.getExtension().value(),
+                                    extensionClass);
+                            }
+                        }
+
                         EXTENSION_MAP.put(interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
                         LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",
@@ -132,6 +149,20 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                                                                              Plugin plugin)
                                                                                            throws Throwable {
         return loadExtension(interfaceType, plugin, plugin.getPluginClassLoader());
+    }
+
+    private <I> Set<ExtensionClass<I, Biz>> loadExtensionFromArkBizs(Class<I> interfaceType)
+                                                                                            throws Throwable {
+        Set<ExtensionClass<I, Biz>> extensionClassSet = new HashSet<>();
+        for (Biz biz : bizManagerService.getBizInOrder()) {
+            extensionClassSet.addAll(loadExtensionFromArkBiz(interfaceType, biz));
+        }
+        return extensionClassSet;
+    }
+
+    private <I, L> Set<ExtensionClass<I, Biz>> loadExtensionFromArkBiz(Class<I> interfaceType,
+                                                                       Biz biz) throws Throwable {
+        return loadExtension(interfaceType, biz, biz.getBizClassLoader());
     }
 
     private <I, L> Set<ExtensionClass<I, L>> loadExtension(Class<I> interfaceType, L location,
