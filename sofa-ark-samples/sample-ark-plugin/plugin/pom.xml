@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-sample-ark-plugin</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.0.0</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -66,7 +66,7 @@
 
                             <!--the specify dependency would not be contained in lib directory, but shaded in ark plugin-->
                             <shades>
-                                <shade>com.alipay.sofa:sample-ark-plugin-common:1.0.0</shade>
+                                <shade>com.alipay.sofa:sample-ark-plugin-common:1.1.0-SNAPSHOT</shade>
                             </shades>
 
                         </configuration>

@@ -38,7 +38,7 @@ public class DirectoryContainerArchive implements ContainerArchive {
     private final static String[] AKR_CONTAINER_JAR = { "aopalliance-1.0", "commons-io-2.5",
             "guava-16.0.1", "guice-4.0", "guice-multibindings-4.0", "javax.inject-1",
             "logback-core-1.1.11", "logback-classic-1.1.11", "slf4j-api-1.7.21",
-            "log-sofa-boot-starter", "sofa-common-tools",
+            "log-sofa-boot-starter", "sofa-common-tools", "netty-all-4.1.25.Final",
             "sofa-ark-parent/core-impl/container/target/classes",
             "sofa-ark-parent/core-impl/archive/target/classes",
             "sofa-ark-parent/core/spi/target/classes",

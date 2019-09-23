@@ -19,15 +19,11 @@ package com.alipay.sofa.ark.container;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.net.URL;
 
 /**
@@ -64,38 +60,6 @@ public class ArkContainerTest extends BaseTest {
         arkContainer.start();
         arkContainer.stop();
         Assert.assertFalse(arkContainer.isRunning());
-    }
-
-    @Test
-    public void testTelnetServerDisable() throws ArkRuntimeException {
-        System.setProperty(Constants.TELNET_SERVER_ENABLE, "false");
-        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
-        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
-        boolean enable = true;
-        try (Socket socket = new Socket(InetAddress.getLocalHost(), Constants.DEFAULT_TELNET_PORT)) {
-        } catch (IOException ex) {
-            enable = false;
-        } finally {
-            arkContainer.stop();
-            System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
-        }
-        Assert.assertFalse(enable);
-    }
-
-    @Test
-    public void testTelnetServerEnable() throws ArkRuntimeException {
-        System.setProperty(Constants.TELNET_SERVER_ENABLE, "true");
-        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
-        ArkContainer arkContainer = (ArkContainer) ArkContainer.main(args);
-        boolean enable = true;
-        try (Socket socket = new Socket(InetAddress.getLocalHost(), Constants.DEFAULT_TELNET_PORT)) {
-        } catch (IOException ex) {
-            enable = false;
-        } finally {
-            arkContainer.stop();
-            System.getProperties().remove(Constants.TELNET_SERVER_ENABLE);
-        }
-        Assert.assertTrue(enable);
     }
 
     @Test
