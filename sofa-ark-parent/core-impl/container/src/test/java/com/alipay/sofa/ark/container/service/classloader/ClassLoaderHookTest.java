@@ -19,11 +19,18 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.container.ArkContainer;
 import com.alipay.sofa.ark.container.ArkContainerTest;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,6 +40,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.Map;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK;
 
 /**
  * @author qilong.zql
@@ -76,18 +85,32 @@ public class ClassLoaderHookTest extends BaseTest {
     public void testBizClassLoaderSPI() throws Throwable {
         BizClassLoader bizClassLoader = new BizClassLoader("test:1.0", ((URLClassLoader) this
             .getClass().getClassLoader()).getURLs());
-        Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.equals(bizClassLoader
-            .loadClass("A.A")));
-        Assert
-            .assertTrue(TestBizClassLoaderHook.ClassB.class.equals(bizClassLoader.loadClass("B")));
-        Assert.assertTrue(bizClassLoader.getResource("R1").getFile()
+        ClassLoaderHook mock = ArkServiceLoader.loadExtension("mock", ClassLoaderHook.class,
+            BIZ_CLASS_LOADER_HOOK);
+        Assert.assertTrue(mock instanceof TestBizClassLoaderHook);
+
+        ClassLoaderService service = ArkServiceContainerHolder.getContainer().getService(
+            ClassLoaderService.class);
+        PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
+            .getService(PluginManagerService.class);
+
+        Plugin location = pluginManagerService.getPluginsInOrder().get(0);
+        Class aClass = mock.preFindClass("A.A", service, location);
+        Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.equals(aClass));
+
+        Class bClass = mock.postFindClass("B", service, location);
+        Assert.assertTrue(TestBizClassLoaderHook.ClassB.class.equals(bClass));
+
+        Assert.assertTrue(mock.preFindResource("R1", service, location).getFile()
             .endsWith("pluginA_export_resource1.xml"));
+
         Assert.assertTrue(bizClassLoader.getResource("sample-biz.jar").getFile()
             .endsWith("sample-biz.jar"));
-        Assert.assertTrue(bizClassLoader.getResource("any").getFile()
+
+        Assert.assertTrue(mock.postFindResource("any", service, location).getFile()
             .endsWith("pluginA_export_resource2.xml"));
 
-        Enumeration<URL> urls = bizClassLoader.getResources("R2");
+        Enumeration<URL> urls = mock.preFindResources("R2", service, location);
         Assert.assertTrue(urls.hasMoreElements());
         URL url = urls.nextElement();
         Assert.assertFalse(urls.hasMoreElements());
@@ -99,7 +122,7 @@ public class ClassLoaderHookTest extends BaseTest {
         Assert.assertFalse(urls.hasMoreElements());
         Assert.assertTrue(url.getFile().contains("test.jar"));
 
-        urls = bizClassLoader.getResources("any");
+        urls = mock.postFindResources("any", service, location);
         Assert.assertTrue(urls.hasMoreElements());
         url = urls.nextElement();
         Assert.assertFalse(urls.hasMoreElements());

@@ -90,6 +90,50 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return ret;
     }
 
+    @Override
+    public <T> T getExtensionContributor(String isolateSpace, Class<T> interfaceType,
+                                         String extensionName) {
+        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
+            .get(interfaceType);
+        if (extensionClassMap == null) {
+            extensionClassMap = loadExtensionStartup(interfaceType);
+        }
+        ExtensionClass extensionClass = extensionClassMap.get(extensionName);
+        return extensionClass == null ? null : filterByIsolateSpace(isolateSpace, extensionClass);
+    }
+
+    @Override
+    public <T> List<T> getExtensionContributor(String isolateSpace, Class<T> interfaceType) {
+        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
+            .get(interfaceType);
+        if (extensionClassMap == null) {
+            extensionClassMap = loadExtensionStartup(interfaceType);
+        }
+        List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
+        Collections.sort(extensionClassList, new OrderComparator());
+        List<T> ret = new ArrayList<>();
+        for (ExtensionClass extensionClass : extensionClassList) {
+            if (extensionClass != null
+                && filterByIsolateSpace(isolateSpace, extensionClass) != null) {
+                ret.add((T) extensionClass.getObject());
+            }
+        }
+        return ret;
+    }
+
+    private <T> T filterByIsolateSpace(String isolateSpace, ExtensionClass extensionClass) {
+        String tempIsolateSpace = null;
+        if (extensionClass.getDefinedLocation() instanceof Biz) {
+            tempIsolateSpace = ((Biz) extensionClass.getDefinedLocation()).getIdentity();
+        } else if (extensionClass.getDefinedLocation() instanceof Plugin) {
+            tempIsolateSpace = ((Plugin) extensionClass.getDefinedLocation()).getPluginName();
+        }
+        if (tempIsolateSpace != null && tempIsolateSpace.equalsIgnoreCase(isolateSpace)) {
+            return (T) extensionClass.getObject();
+        }
+        return null;
+    }
+
     /**
      * initialize to loading extension of specified interfaceType
      * @param interfaceType

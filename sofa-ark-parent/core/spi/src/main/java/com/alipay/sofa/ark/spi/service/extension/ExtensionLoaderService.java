@@ -40,4 +40,25 @@ public interface ExtensionLoaderService {
      * @return
      */
     <T> List<T> getExtensionContributor(Class<T> interfaceType);
+
+    /**
+     * get specified extension implementation which match interfaceType and extensionName
+     * @param isolateSpace
+     * @param interfaceType extensible interface type
+     * @param extensionName extension name
+     * @param <T> extension implementation type
+     * @return
+     */
+    <T> T getExtensionContributor(String isolateSpace, Class<T> interfaceType, String extensionName);
+
+    /**
+     * get all extension implementation which math interfaceType, ordered from high precedence
+     * to low precedence.
+     * @param isolateSpace
+     * @param interfaceType extensible interface type
+     * @param <T> extension implementation type
+     * @return
+     */
+    <T> List<T> getExtensionContributor(String isolateSpace, Class<T> interfaceType);
+
 }

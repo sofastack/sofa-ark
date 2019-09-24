@@ -33,6 +33,31 @@ public class ArkServiceLoader {
         return extensionLoaderService.getExtensionContributor(interfaceType);
     }
 
+    /**
+     *
+     * @param isolateSpace    isolate by biz or plugin
+     * @param interfaceType
+     * @param extensionName
+     * @param <T>
+     * @return
+     */
+    public static <T> T loadExtension(String isolateSpace, Class<T> interfaceType,
+                                      String extensionName) {
+        return extensionLoaderService.getExtensionContributor(isolateSpace, interfaceType,
+            extensionName);
+    }
+
+    /**
+     * isolate by biz or plugin
+     * @param isolateSpace
+     * @param interfaceType
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> loadExtension(String isolateSpace, Class<T> interfaceType) {
+        return extensionLoaderService.getExtensionContributor(isolateSpace, interfaceType);
+    }
+
     public static ExtensionLoaderService getExtensionLoaderService() {
         return extensionLoaderService;
     }
