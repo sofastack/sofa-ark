@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
@@ -195,5 +196,17 @@ public class BizManagerServiceImpl implements BizManagerService {
             "Format of Biz Identity is error.");
         String[] str = bizIdentity.split(Constants.STRING_COLON);
         return getBizState(str[0], str[1]);
+    }
+
+    @Override
+    public Biz getMasterBiz() {
+        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+        AssertUtils.isFalse(StringUtils.isEmpty(masterBizName),
+            "Master biz name must not be empty.");
+        // get masterBiz
+        List<Biz> candidates = this.getBiz(masterBizName);
+        AssertUtils.isFalse(candidates.size() > 1 || candidates.size() == 0,
+            "Master biz count illegally.");
+        return candidates.get(0);
     }
 }

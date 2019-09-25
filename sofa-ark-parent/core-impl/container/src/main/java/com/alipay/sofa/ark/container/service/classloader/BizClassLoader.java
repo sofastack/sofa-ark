@@ -128,8 +128,15 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         if (!skipLoadHook.get()) {
             synchronized (this) {
                 if (isHookLoaded.compareAndSet(false, true)) {
+                    // get current biz hook spi
                     bizClassLoaderHook = ArkServiceLoader.loadExtension(bizIdentity,
                         ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK);
+                    // get master biz hook spi
+                    if (bizClassLoaderHook == null && !isMasterBiz()) {
+                        String masterBizIdentity = bizManagerService.getMasterBiz().getIdentity();
+                        bizClassLoaderHook = ArkServiceLoader.loadExtension(masterBizIdentity,
+                            ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK);
+                    }
                     skipLoadHook.set(true);
                 }
             }
@@ -197,5 +204,13 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
      */
     public String getBizIdentity() {
         return bizIdentity;
+    }
+
+    /**
+     * validate is master biz or not
+     * @return
+     */
+    public boolean isMasterBiz() {
+        return bizIdentity.equals(bizManagerService.getMasterBiz().getIdentity());
     }
 }

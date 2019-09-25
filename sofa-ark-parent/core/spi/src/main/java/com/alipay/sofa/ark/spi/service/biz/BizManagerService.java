@@ -146,4 +146,10 @@ public interface BizManagerService {
      */
     BizState getBizState(String bizIdentity);
 
+    /**
+     * Get Master Biz
+     * @return
+     */
+    Biz getMasterBiz();
+
 }
