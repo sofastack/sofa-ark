@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -65,29 +66,14 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
 
     @Override
     public <T> T getExtensionContributor(Class<T> interfaceType, String extensionName) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
-        if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
-        }
-        ExtensionClass extensionClass = extensionClassMap.get(extensionName);
-        return extensionClass == null ? null : (T) extensionClass.getObject();
+        // delay to load spi & compatible pre version
+        return null;
     }
 
     @Override
     public <T> List<T> getExtensionContributor(Class<T> interfaceType) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
-        if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
-        }
-        List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
-        Collections.sort(extensionClassList, new OrderComparator());
-        List<T> ret = new ArrayList<>();
-        for (ExtensionClass extensionClass : extensionClassList) {
-            ret.add((T) extensionClass.getObject());
-        }
-        return ret;
+        // delay to load spi & delay to load spi & compatible pre version
+        return null;
     }
 
     @Override
@@ -96,10 +82,11 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
+            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
         }
-        ExtensionClass extensionClass = extensionClassMap.get(extensionName);
-        return extensionClass == null ? null : filterByIsolateSpace(isolateSpace, extensionClass);
+        ExtensionClass extensionClass = extensionClassMap.get(isolateSpace + Constants.STRING_COLON
+                                                              + extensionName);
+        return extensionClass == null ? null : (T) extensionClass.getObject();
     }
 
     @Override
@@ -107,38 +94,25 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
+            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
         }
         List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
         Collections.sort(extensionClassList, new OrderComparator());
         List<T> ret = new ArrayList<>();
         for (ExtensionClass extensionClass : extensionClassList) {
-            if (extensionClass != null
-                && filterByIsolateSpace(isolateSpace, extensionClass) != null) {
+            if (extensionClass != null && extensionClass.getDefinedLocation() != null) {
                 ret.add((T) extensionClass.getObject());
             }
         }
         return ret;
     }
 
-    private <T> T filterByIsolateSpace(String isolateSpace, ExtensionClass extensionClass) {
-        String tempIsolateSpace = null;
-        if (extensionClass.getDefinedLocation() instanceof Biz) {
-            tempIsolateSpace = ((Biz) extensionClass.getDefinedLocation()).getIdentity();
-        } else if (extensionClass.getDefinedLocation() instanceof Plugin) {
-            tempIsolateSpace = ((Plugin) extensionClass.getDefinedLocation()).getPluginName();
-        }
-        if (tempIsolateSpace != null && tempIsolateSpace.equalsIgnoreCase(isolateSpace)) {
-            return (T) extensionClass.getObject();
-        }
-        return null;
-    }
-
     /**
      * initialize to loading extension of specified interfaceType
      * @param interfaceType
      */
-    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(Class<?> interfaceType) {
+    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(String isolateSpace,
+                                                                           Class<?> interfaceType) {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
@@ -150,24 +124,17 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         // load plugin
                         Set<? extends ExtensionClass<?, Plugin>> extensionPluginClassSet = loadExtensionFromArkPlugins(interfaceType);
                         for (ExtensionClass extensionClass : extensionPluginClassSet) {
-                            ExtensionClass old = extensionClassMap.get(extensionClass
-                                .getExtension().value());
-                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
-                                extensionClassMap.put(extensionClass.getExtension().value(),
-                                    extensionClass);
-                            }
+                            extensionClassMap.put(isolateSpace + Constants.STRING_COLON
+                                                  + extensionClass.getExtension().value(),
+                                extensionClass);
                         }
                         // load biz
                         Set<? extends ExtensionClass<?, Biz>> extensionBizClassSet = loadExtensionFromArkBizs(interfaceType);
                         for (ExtensionClass extensionClass : extensionBizClassSet) {
-                            ExtensionClass old = extensionClassMap.get(extensionClass
-                                .getExtension().value());
-                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
-                                extensionClassMap.put(extensionClass.getExtension().value(),
-                                    extensionClass);
-                            }
+                            extensionClassMap.put(isolateSpace + Constants.STRING_COLON
+                                                  + extensionClass.getExtension().value(),
+                                extensionClass);
                         }
-
                         EXTENSION_MAP.put(interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
                         LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",

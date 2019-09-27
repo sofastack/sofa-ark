@@ -30,6 +30,7 @@ public interface ExtensionLoaderService {
      * @param <T> extension implementation type
      * @return
      */
+    @Deprecated
     <T> T getExtensionContributor(Class<T> interfaceType, String extensionName);
 
     /**
@@ -39,6 +40,7 @@ public interface ExtensionLoaderService {
      * @param <T> extension implementation type
      * @return
      */
+    @Deprecated
     <T> List<T> getExtensionContributor(Class<T> interfaceType);
 
     /**

@@ -19,15 +19,11 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.container.ArkContainer;
 import com.alipay.sofa.ark.container.ArkContainerTest;
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
-import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
@@ -83,8 +79,6 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testBizClassLoaderSPI() throws Throwable {
-        BizClassLoader bizClassLoader = new BizClassLoader("test:1.0", ((URLClassLoader) this
-            .getClass().getClassLoader()).getURLs());
         ClassLoaderHook mock = ArkServiceLoader.loadExtension("mock", ClassLoaderHook.class,
             BIZ_CLASS_LOADER_HOOK);
         Assert.assertTrue(mock instanceof TestBizClassLoaderHook);
@@ -104,9 +98,6 @@ public class ClassLoaderHookTest extends BaseTest {
         Assert.assertTrue(mock.preFindResource("R1", service, location).getFile()
             .endsWith("pluginA_export_resource1.xml"));
 
-        Assert.assertTrue(bizClassLoader.getResource("sample-biz.jar").getFile()
-            .endsWith("sample-biz.jar"));
-
         Assert.assertTrue(mock.postFindResource("any", service, location).getFile()
             .endsWith("pluginA_export_resource2.xml"));
 
@@ -115,12 +106,6 @@ public class ClassLoaderHookTest extends BaseTest {
         URL url = urls.nextElement();
         Assert.assertFalse(urls.hasMoreElements());
         Assert.assertTrue(url.getFile().contains("sample-biz.jar"));
-
-        urls = bizClassLoader.getResources("test.jar");
-        Assert.assertTrue(urls.hasMoreElements());
-        url = urls.nextElement();
-        Assert.assertFalse(urls.hasMoreElements());
-        Assert.assertTrue(url.getFile().contains("test.jar"));
 
         urls = mock.postFindResources("any", service, location);
         Assert.assertTrue(urls.hasMoreElements());
