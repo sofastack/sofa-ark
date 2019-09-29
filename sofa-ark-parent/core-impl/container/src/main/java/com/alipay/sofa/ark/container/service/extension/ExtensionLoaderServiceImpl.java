@@ -65,18 +65,6 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
     private BizManagerService                                                                bizManagerService;
 
     @Override
-    public <T> T getExtensionContributor(Class<T> interfaceType, String extensionName) {
-        // delay to load spi & compatible pre version
-        return null;
-    }
-
-    @Override
-    public <T> List<T> getExtensionContributor(Class<T> interfaceType) {
-        // delay to load spi & delay to load spi & compatible pre version
-        return null;
-    }
-
-    @Override
     public <T> T getExtensionContributor(String isolateSpace, Class<T> interfaceType,
                                          String extensionName) {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP

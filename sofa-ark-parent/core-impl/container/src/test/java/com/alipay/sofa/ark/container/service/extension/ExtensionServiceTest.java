@@ -66,7 +66,7 @@ public class ExtensionServiceTest extends BaseTest {
             this.getClass().getClassLoader()).setPluginName("mock-plugin");
         pluginManagerService.registerPlugin(pluginModel);
         try {
-            ArkServiceLoader.loadExtension(ServiceA.class);
+            ArkServiceLoader.loadExtension(pluginModel.getPluginName(), ServiceA.class);
         } catch (ArkRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains("not type of"));
         }
@@ -80,7 +80,7 @@ public class ExtensionServiceTest extends BaseTest {
             this.getClass().getClassLoader()).setPluginName("mock-plugin");
         pluginManagerService.registerPlugin(pluginModel);
         try {
-            ArkServiceLoader.loadExtension(ServiceC.class);
+            ArkServiceLoader.loadExtension(pluginModel.getPluginName(), ServiceC.class);
         } catch (ArkRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains(
                 String.format("is not annotated by %s.", Extensible.class)));
@@ -95,7 +95,7 @@ public class ExtensionServiceTest extends BaseTest {
             this.getClass().getClassLoader()).setPluginName("mock-plugin");
         pluginManagerService.registerPlugin(pluginModel);
         try {
-            ArkServiceLoader.loadExtension(ServiceD.class);
+            ArkServiceLoader.loadExtension(pluginModel.getPluginName(), ServiceD.class);
         } catch (ArkRuntimeException ex) {
             Assert.assertTrue(ex.getMessage().contains(
                 String.format("is not annotated by %s.", Extension.class)));
@@ -109,17 +109,22 @@ public class ExtensionServiceTest extends BaseTest {
         PluginModel pluginModel = new PluginModel().setPluginClassLoader(
             this.getClass().getClassLoader()).setPluginName("mock-plugin");
         pluginManagerService.registerPlugin(pluginModel);
-        ServiceB impl1 = ArkServiceLoader.loadExtension(ServiceB.class, "type1");
+        ServiceB impl1 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
+            ServiceB.class, "type1");
         Assert.assertTrue(impl1 instanceof ServiceBImpl3);
-        ServiceB impl2 = ArkServiceLoader.loadExtension(ServiceB.class, "type2");
+        ServiceB impl2 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
+            ServiceB.class, "type2");
         Assert.assertTrue(impl2 instanceof ServiceBImpl4);
-        ServiceB impl3 = ArkServiceLoader.loadExtension(ServiceB.class, "type1");
+        ServiceB impl3 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
+            ServiceB.class, "type1");
         Assert.assertTrue(impl3 instanceof ServiceBImpl3);
-        ServiceB impl4 = ArkServiceLoader.loadExtension(ServiceB.class, "type2");
+        ServiceB impl4 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
+            ServiceB.class, "type2");
         Assert.assertTrue(impl4 instanceof ServiceBImpl4);
         Assert.assertFalse(impl1 == impl3);
         Assert.assertFalse(impl2 == impl4);
-        List<ServiceB> serviceBS = ArkServiceLoader.loadExtension(ServiceB.class);
+        List<ServiceB> serviceBS = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
+            ServiceB.class);
         Assert.assertEquals(2, serviceBS.size());
         Assert.assertTrue(serviceBS.get(0) instanceof ServiceBImpl4);
         Assert.assertTrue(serviceBS.get(1) instanceof ServiceBImpl3);

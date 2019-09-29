@@ -23,25 +23,6 @@ import java.util.List;
  * @since 0.6.0
  */
 public interface ExtensionLoaderService {
-    /**
-     * get specified extension implementation which match interfaceType and extensionName
-     * @param interfaceType extensible interface type
-     * @param extensionName extension name
-     * @param <T> extension implementation type
-     * @return
-     */
-    @Deprecated
-    <T> T getExtensionContributor(Class<T> interfaceType, String extensionName);
-
-    /**
-     * get all extension implementation which math interfaceType, ordered from high precedence
-     * to low precedence.
-     * @param interfaceType extensible interface type
-     * @param <T> extension implementation type
-     * @return
-     */
-    @Deprecated
-    <T> List<T> getExtensionContributor(Class<T> interfaceType);
 
     /**
      * get specified extension implementation which match interfaceType and extensionName

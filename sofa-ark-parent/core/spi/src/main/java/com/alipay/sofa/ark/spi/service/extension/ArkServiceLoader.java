@@ -25,14 +25,6 @@ import java.util.List;
 public class ArkServiceLoader {
     private static ExtensionLoaderService extensionLoaderService;
 
-    public static <T> T loadExtension(Class<T> interfaceType, String extensionName) {
-        return extensionLoaderService.getExtensionContributor(interfaceType, extensionName);
-    }
-
-    public static <T> List<T> loadExtension(Class<T> interfaceType) {
-        return extensionLoaderService.getExtensionContributor(interfaceType);
-    }
-
     /**
      *
      * @param isolateSpace    isolate by biz or plugin

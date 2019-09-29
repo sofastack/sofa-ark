@@ -307,8 +307,9 @@ public class ArkClient {
         }
         if (!StringUtils.isEmpty(bizOperation.getBizName())
             && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
-            for (BizFileGenerator bizFileGenerator : ArkServiceLoader
-                .loadExtension(BizFileGenerator.class)) {
+            for (BizFileGenerator bizFileGenerator : ArkServiceLoader.loadExtension(
+                BizIdentityUtils.generateBizIdentity(bizOperation.getBizName(),
+                    bizOperation.getBizVersion()), BizFileGenerator.class)) {
                 bizFile = bizFileGenerator.createBizFile(bizOperation.getBizName(),
                     bizOperation.getBizVersion());
                 if (bizFile != null && bizFile.exists()) {

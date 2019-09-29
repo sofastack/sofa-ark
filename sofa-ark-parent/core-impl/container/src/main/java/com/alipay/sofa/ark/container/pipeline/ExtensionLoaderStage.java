@@ -17,14 +17,19 @@
 package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * @author qilong.zql
@@ -36,9 +41,25 @@ public class ExtensionLoaderStage implements PipelineStage {
     @Inject
     private ExtensionLoaderService extensionLoaderService;
 
+    @Inject
+    private BizManagerService      bizManagerService;
+
+    @Inject
+    private PluginManagerService   pluginManagerService;
+
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
+
         ArkServiceLoader.setExtensionLoaderService(extensionLoaderService);
-        ArkServiceLoader.loadExtension(ClassLoaderHook.class);
+
+        List<Biz> bizList = bizManagerService.getBizInOrder();
+        for (Biz biz : bizList) {
+            ArkServiceLoader.loadExtension(biz.getIdentity(), ClassLoaderHook.class);
+        }
+
+        List<Plugin> pluginList = pluginManagerService.getPluginsInOrder();
+        for (Plugin plugin : pluginList) {
+            ArkServiceLoader.loadExtension(plugin.getPluginName(), ClassLoaderHook.class);
+        }
     }
 }
