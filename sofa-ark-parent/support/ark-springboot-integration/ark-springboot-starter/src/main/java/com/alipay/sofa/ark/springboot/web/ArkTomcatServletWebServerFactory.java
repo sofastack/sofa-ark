@@ -100,7 +100,8 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         if (bizManagerService == null) {
             return contextPath;
         }
-        Biz biz = bizManagerService.getBizByClassLoader(Thread.currentThread().getContextClassLoader());
+        Biz biz = bizManagerService.getBizByClassLoader(Thread.currentThread()
+            .getContextClassLoader());
         if (!StringUtils.isEmpty(contextPath)) {
             return contextPath;
         } else if (biz != null) {

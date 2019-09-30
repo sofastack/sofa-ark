@@ -137,7 +137,8 @@ public class ArkTomcatWebServer implements WebServer {
     private Context findContext() {
         for (Container child : this.tomcat.getHost().findChildren()) {
             if (child instanceof Context) {
-                if (child.getParentClassLoader().equals(Thread.currentThread().getContextClassLoader())) {
+                if (child.getParentClassLoader().equals(
+                    Thread.currentThread().getContextClassLoader())) {
                     return (Context) child;
                 }
             }
