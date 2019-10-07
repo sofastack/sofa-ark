@@ -362,6 +362,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 return classLoader == null ? null : classLoader.getResource(resourceName);
             }
 
+            if (resolveArkClass(className) != null) {
+                return classloaderService.getArkClassLoader().getResource(resourceName);
+            }
         }
         return null;
     }
