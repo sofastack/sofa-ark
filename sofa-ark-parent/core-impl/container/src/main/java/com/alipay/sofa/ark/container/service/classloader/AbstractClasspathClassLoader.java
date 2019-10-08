@@ -357,13 +357,13 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     protected URL getClassResource(String resourceName) {
         if (resourceName.endsWith(CLASS_RESOURCE_SUFFIX)) {
             String className = transformClassName(resourceName);
+            if (resolveArkClass(className) != null) {
+                return classloaderService.getArkClassLoader().getResource(resourceName);
+            }
+
             if (shouldFindExportedClass(className)) {
                 ClassLoader classLoader = classloaderService.findExportClassLoader(className);
                 return classLoader == null ? null : classLoader.getResource(resourceName);
-            }
-
-            if (resolveArkClass(className) != null) {
-                return classloaderService.getArkClassLoader().getResource(resourceName);
             }
         }
         return null;
