@@ -25,7 +25,6 @@ import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

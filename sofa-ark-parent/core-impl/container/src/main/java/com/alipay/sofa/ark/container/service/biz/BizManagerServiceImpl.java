@@ -201,12 +201,13 @@ public class BizManagerServiceImpl implements BizManagerService {
     @Override
     public Biz getMasterBiz() {
         String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
-        AssertUtils.isFalse(StringUtils.isEmpty(masterBizName),
-            "Master biz name must not be empty.");
-        // get masterBiz
+        if (StringUtils.isEmpty(masterBizName)) {
+            return null;
+        }
         List<Biz> candidates = this.getBiz(masterBizName);
-        AssertUtils.isFalse(candidates.size() > 1 || candidates.size() == 0,
-            "Master biz count illegally.");
+        if (candidates == null || candidates.size() == 0 || candidates.size() > 1) {
+            return null;
+        }
         return candidates.get(0);
     }
 }

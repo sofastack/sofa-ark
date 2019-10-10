@@ -64,9 +64,16 @@ public class BaseTest {
                         mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
                         return mockArguments;
                     }
+
+                    // to avoid npe
+                    @Mock
+                    String getName() {
+                        return "";
+                    }
                 }.getMockInstance();
             }
         };
+
         arkServiceContainer.start();
         arkServiceContainer.getService(RegisterServiceStage.class).process(null);
         ArkServiceLoader.setExtensionLoaderService(arkServiceContainer

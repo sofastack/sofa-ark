@@ -112,16 +112,28 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         // load plugin
                         Set<? extends ExtensionClass<?, Plugin>> extensionPluginClassSet = loadExtensionFromArkPlugins(interfaceType);
                         for (ExtensionClass extensionClass : extensionPluginClassSet) {
-                            extensionClassMap.put(isolateSpace + Constants.STRING_COLON
-                                                  + extensionClass.getExtension().value(),
-                                extensionClass);
+                            ExtensionClass old = extensionClassMap.get(isolateSpace
+                                                                       + Constants.STRING_COLON
+                                                                       + extensionClass
+                                                                           .getExtension().value());
+                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
+                                extensionClassMap.put(isolateSpace + Constants.STRING_COLON
+                                                      + extensionClass.getExtension().value(),
+                                    extensionClass);
+                            }
                         }
                         // load biz
                         Set<? extends ExtensionClass<?, Biz>> extensionBizClassSet = loadExtensionFromArkBizs(interfaceType);
                         for (ExtensionClass extensionClass : extensionBizClassSet) {
-                            extensionClassMap.put(isolateSpace + Constants.STRING_COLON
-                                                  + extensionClass.getExtension().value(),
-                                extensionClass);
+                            ExtensionClass old = extensionClassMap.get(isolateSpace
+                                                                       + Constants.STRING_COLON
+                                                                       + extensionClass
+                                                                           .getExtension().value());
+                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
+                                extensionClassMap.put(isolateSpace + Constants.STRING_COLON
+                                                      + extensionClass.getExtension().value(),
+                                    extensionClass);
+                            }
                         }
                         EXTENSION_MAP.put(interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
