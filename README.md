@@ -57,9 +57,9 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
 
 
 ## 快速开始
-* [样例工程](sofa-ark-samples)
-  * [基于普通的 Maven 应用构建 Ark Plugin](sofa-ark-samples/sample-ark-plugin)
-  * [基于 SpringBoot 应用使用 SOFAArk](sofa-ark-samples/sample-springboot-ark)
+* [样例工程](https://github.com/sofastack-guides/sofa-ark-samples)
+  * [基于普通的 Maven 应用构建 Ark Plugin](https://github.com/sofastack-guides/sofa-ark-samples/tree/master/sample-ark-plugin)
+  * [基于 SpringBoot 应用使用 SOFAArk](https://github.com/sofastack-guides/sofa-ark-samples/tree/master/sample-ark-springboot)
  
 ## 社区
 * [Gitter channel](https://gitter.im/sofa-ark/Lobby) 
