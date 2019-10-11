@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service.extension;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -70,7 +71,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
+            extensionClassMap = loadExtensionStartup(interfaceType);
         }
         ExtensionClass extensionClass = extensionClassMap.get(isolateSpace + Constants.STRING_COLON
                                                               + extensionName);
@@ -82,7 +83,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
+            extensionClassMap = loadExtensionStartup(interfaceType);
         }
         List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
         Collections.sort(extensionClassList, new OrderComparator());
@@ -99,8 +100,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
      * initialize to loading extension of specified interfaceType
      * @param interfaceType
      */
-    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(String isolateSpace,
-                                                                           Class<?> interfaceType) {
+    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(Class<?> interfaceType) {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
             .get(interfaceType);
         if (extensionClassMap == null) {
@@ -112,28 +112,12 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         // load plugin
                         Set<? extends ExtensionClass<?, Plugin>> extensionPluginClassSet = loadExtensionFromArkPlugins(interfaceType);
                         for (ExtensionClass extensionClass : extensionPluginClassSet) {
-                            ExtensionClass old = extensionClassMap.get(isolateSpace
-                                                                       + Constants.STRING_COLON
-                                                                       + extensionClass
-                                                                           .getExtension().value());
-                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
-                                extensionClassMap.put(isolateSpace + Constants.STRING_COLON
-                                                      + extensionClass.getExtension().value(),
-                                    extensionClass);
-                            }
+                            doInitExtensionClassMap(extensionClass, extensionClassMap);
                         }
                         // load biz
                         Set<? extends ExtensionClass<?, Biz>> extensionBizClassSet = loadExtensionFromArkBizs(interfaceType);
                         for (ExtensionClass extensionClass : extensionBizClassSet) {
-                            ExtensionClass old = extensionClassMap.get(isolateSpace
-                                                                       + Constants.STRING_COLON
-                                                                       + extensionClass
-                                                                           .getExtension().value());
-                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
-                                extensionClassMap.put(isolateSpace + Constants.STRING_COLON
-                                                      + extensionClass.getExtension().value(),
-                                    extensionClass);
-                            }
+                            doInitExtensionClassMap(extensionClass, extensionClassMap);
                         }
                         EXTENSION_MAP.put(interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
@@ -145,6 +129,27 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
         }
         return extensionClassMap;
+    }
+
+    private String getIsolateSpace(ExtensionClass extensionClass) {
+        if (extensionClass.getDefinedLocation() instanceof Biz) {
+            return ((Biz) extensionClass.getDefinedLocation()).getIdentity();
+        }
+        if (extensionClass.getDefinedLocation() instanceof PluginModel) {
+            return ((PluginModel) extensionClass.getDefinedLocation()).getPluginName();
+        }
+        return Constants.EMPTY_STR;
+    }
+
+    private void doInitExtensionClassMap(ExtensionClass extensionClass,
+                                         ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
+        String isolateSpace = getIsolateSpace(extensionClass);
+        ExtensionClass old = extensionClassMap.get(isolateSpace + Constants.STRING_COLON
+                                                   + extensionClass.getExtension().value());
+        if (old == null || old.getPriority() > extensionClass.getPriority()) {
+            extensionClassMap.put(isolateSpace + Constants.STRING_COLON
+                                  + extensionClass.getExtension().value(), extensionClass);
+        }
     }
 
     private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(Class<I> interfaceType)
