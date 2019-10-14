@@ -27,6 +27,7 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
+import com.alipay.sofa.ark.spi.service.session.TelnetServerService;
 import org.slf4j.Logger;
 
 import java.net.URL;
@@ -45,6 +46,9 @@ public class BizCommandProvider implements CommandProvider {
 
     @ArkInject
     private BizManagerService bizManagerService;
+
+    @ArkInject
+    private TelnetServerService telnetServerService;
 
     @Override
     public String getHelp() {
@@ -71,7 +75,8 @@ public class BizCommandProvider implements CommandProvider {
                                                + "  -d  Shows the detail info of specified bizIdentity.\n"
                                                + "  -i  Install biz of specified bizIdentity or bizUrl.\n"
                                                + "  -u  Uninstall biz of specified bizIdentity.\n"
-                                               + "  -o  Switch biz of specified bizIdentity.\n";
+                                               + "  -o  Switch biz of specified bizIdentity.\n"
+                                               + "  -q  Quit.\n";
 
     class BizCommand {
         private boolean        isValidate;
@@ -117,6 +122,7 @@ public class BizCommandProvider implements CommandProvider {
                     case 'i':
                     case 'u':
                     case 'o':
+                    case 'q':
                         continue;
                     default:
                         isValidate = false;
@@ -145,13 +151,13 @@ public class BizCommandProvider implements CommandProvider {
             }
 
             // '-h' or '-a' option need not any parameter
-            if ((options.contains('h') || options.contains('a')) && parameters.size() > 0) {
+            if ((options.contains('h') || options.contains('a') || options.contains('q')) && parameters.size() > 0) {
                 isValidate = false;
                 return;
             }
 
             // if option is not 'h' or 'a', parameter should not be empty
-            if (!(options.contains('h') || options.contains('a')) && parameters.isEmpty()) {
+            if (!(options.contains('h') || options.contains('a') || options.contains('q')) && parameters.isEmpty()) {
                 isValidate = false;
                 return;
             }
@@ -187,7 +193,10 @@ public class BizCommandProvider implements CommandProvider {
                 return uninstallBiz();
             } else if (options.contains('o')) {
                 return switchBiz();
-            } else {
+            } else if (options.contains('q')) {
+                return quit();
+            }
+            else {
                 Set<String> candidates = bizManagerService.getAllBizIdentities();
                 boolean matched = false;
                 for (String pattern : parameters) {
@@ -270,6 +279,11 @@ public class BizCommandProvider implements CommandProvider {
                     }
                 });
             return "Start to process uninstall command now, pls wait and check.";
+        }
+
+        String quit(){
+            telnetServerService.dispose();
+            return Constants.EMPTY_STR;
         }
 
         String switchBiz() {
