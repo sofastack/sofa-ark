@@ -81,19 +81,14 @@ public class NettyTelnetServer {
             pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
             pipeline.addLast(ENCODER);
             pipeline.addLast(DECODER);
-            pipeline.addLast(new NettyTelnetHandler(channel));
+            pipeline.addLast(new NettyTelnetHandler());
         }
 
     }
 
     static class NettyTelnetHandler extends SimpleChannelInboundHandler<String> {
+
         private static ArkCommandHandler arkCommandHandler = new ArkCommandHandler();
-
-        final SocketChannel              channel;
-
-        public NettyTelnetHandler(SocketChannel channel) {
-            this.channel = channel;
-        }
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -112,7 +107,7 @@ public class NettyTelnetServer {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
             if (msg.equals(Constants.CHANNEL_QUIT)) {
-                channel.close();
+                ctx.channel().close();
                 return;
             }
             ctx.write(arkCommandHandler.responseMessage(msg));

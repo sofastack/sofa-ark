@@ -166,5 +166,5 @@ public class Constants {
     public final static String FORCE_DELEGATE_TO_TEST_CLASSLOADER         = "com.alipay.sofa.ark.delegate.to.testClassLoader";
     public final static String FORCE_DELEGATE_TO_APP_CLASSLOADER          = "com.alipay.sofa.ark.delegate.to.appClassLoader";
 
-    public static final String CHANNEL_QUIT = "quit";
+    public static final String CHANNEL_QUIT                               = "quit";
 }
