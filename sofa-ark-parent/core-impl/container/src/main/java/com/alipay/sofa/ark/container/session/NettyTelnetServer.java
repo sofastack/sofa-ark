@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.session;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -86,6 +87,7 @@ public class NettyTelnetServer {
     }
 
     static class NettyTelnetHandler extends SimpleChannelInboundHandler<String> {
+
         private static ArkCommandHandler arkCommandHandler = new ArkCommandHandler();
 
         @Override
@@ -104,6 +106,10 @@ public class NettyTelnetServer {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+            if (msg.equals(Constants.CHANNEL_QUIT)) {
+                ctx.channel().close();
+                return;
+            }
             ctx.write(arkCommandHandler.responseMessage(msg));
             ctx.flush();
         }
