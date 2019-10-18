@@ -19,9 +19,7 @@ package com.alipay.sofa.ark.container.service.extension;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -44,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
 
@@ -54,36 +53,38 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
 @Singleton
 public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
 
-    private static final ConcurrentHashMap<Class, ConcurrentHashMap<String, ExtensionClass>> EXTENSION_MAP = new ConcurrentHashMap<>();
+    private static final CopyOnWriteArraySet<ExtensionLoaderCache> EXTENSION_CACHES = new CopyOnWriteArraySet<>();
 
-    private static final Logger                                                              LOGGER        = ArkLoggerFactory
-                                                                                                               .getDefaultLogger();
-
-    @Inject
-    private PluginManagerService                                                             pluginManagerService;
+    private static final Logger                                    LOGGER           = ArkLoggerFactory
+                                                                                        .getDefaultLogger();
 
     @Inject
-    private BizManagerService                                                                bizManagerService;
+    private PluginManagerService                                   pluginManagerService;
+
+    @Inject
+    private BizManagerService                                      bizManagerService;
 
     @Override
     public <T> T getExtensionContributor(String isolateSpace, Class<T> interfaceType,
                                          String extensionName) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
+
+        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = getExtensionLoaderMap(
+            isolateSpace, interfaceType);
+
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
+            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
         }
-        ExtensionClass extensionClass = extensionClassMap.get(isolateSpace + Constants.STRING_COLON
-                                                              + extensionName);
+        ExtensionClass extensionClass = extensionClassMap.get(extensionName);
+
         return extensionClass == null ? null : (T) extensionClass.getObject();
     }
 
     @Override
     public <T> List<T> getExtensionContributor(String isolateSpace, Class<T> interfaceType) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
+        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = getExtensionLoaderMap(
+            isolateSpace, interfaceType);
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
+            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
         }
         List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
         Collections.sort(extensionClassList, new OrderComparator());
@@ -99,13 +100,19 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
     /**
      * initialize to loading extension of specified interfaceType
      * @param interfaceType
+     * @param isolateSpace
      */
-    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(Class<?> interfaceType) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
+    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(String isolateSpace,
+                                                                           Class<?> interfaceType) {
+
+        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = getExtensionLoaderMap(
+            isolateSpace, interfaceType);
+
         if (extensionClassMap == null) {
             synchronized (ExtensionLoaderServiceImpl.class) {
-                extensionClassMap = EXTENSION_MAP.get(interfaceType);
+
+                extensionClassMap = getExtensionLoaderMap(isolateSpace, interfaceType);
+
                 if (extensionClassMap == null) {
                     try {
                         extensionClassMap = new ConcurrentHashMap<>();
@@ -119,7 +126,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         for (ExtensionClass extensionClass : extensionBizClassSet) {
                             doInitExtensionClassMap(extensionClass, extensionClassMap);
                         }
-                        EXTENSION_MAP.put(interfaceType, extensionClassMap);
+
+                        putExtensionLoaderMap(isolateSpace, interfaceType, extensionClassMap);
                     } catch (Throwable throwable) {
                         LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",
                             interfaceType, throwable);
@@ -131,24 +139,11 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return extensionClassMap;
     }
 
-    private String getIsolateSpace(ExtensionClass extensionClass) {
-        if (extensionClass.getDefinedLocation() instanceof Biz) {
-            return ((Biz) extensionClass.getDefinedLocation()).getIdentity();
-        }
-        if (extensionClass.getDefinedLocation() instanceof PluginModel) {
-            return ((PluginModel) extensionClass.getDefinedLocation()).getPluginName();
-        }
-        return Constants.EMPTY_STR;
-    }
-
     private void doInitExtensionClassMap(ExtensionClass extensionClass,
                                          ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
-        String isolateSpace = getIsolateSpace(extensionClass);
-        ExtensionClass old = extensionClassMap.get(isolateSpace + Constants.STRING_COLON
-                                                   + extensionClass.getExtension().value());
+        ExtensionClass old = extensionClassMap.get(extensionClass.getExtension().value());
         if (old == null || old.getPriority() > extensionClass.getPriority()) {
-            extensionClassMap.put(isolateSpace + Constants.STRING_COLON
-                                  + extensionClass.getExtension().value(), extensionClass);
+            extensionClassMap.put(extensionClass.getExtension().value(), extensionClass);
         }
     }
 
@@ -238,6 +233,84 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             if (reader != null) {
                 reader.close();
             }
+        }
+
+    }
+
+    /**
+     * get ExtensionClass map from EXTENSION_CACHES
+     * @param isolateSpace
+     * @param interfaceType
+     * @return
+     */
+    private ConcurrentHashMap<String, ExtensionClass> getExtensionLoaderMap(String isolateSpace,
+                                                                            Class interfaceType) {
+        if (EXTENSION_CACHES.size() == 0) {
+            return null;
+        }
+
+        for (ExtensionLoaderCache cacheItem : EXTENSION_CACHES) {
+            if (cacheItem.getIsolateSpace().equals(isolateSpace)
+                && cacheItem.getInterfaceType().equals(interfaceType)) {
+                return cacheItem.getExtensionClassMap();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * put extensionClassMap to EXTENSION_CACHES
+     * @param isolateSpace
+     * @param interfaceType
+     * @param extensionClassMap
+     */
+    private void putExtensionLoaderMap(String isolateSpace, Class<?> interfaceType,
+                                       ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
+        ExtensionLoaderCache cache = new ExtensionLoaderCache(isolateSpace, interfaceType,
+            extensionClassMap);
+        EXTENSION_CACHES.add(cache);
+    }
+
+    /**
+     * Describer for ExtensionLoader Class Cache
+     */
+    private static class ExtensionLoaderCache {
+
+        private String                                    isolateSpace;
+
+        private Class                                     interfaceType;
+
+        private ConcurrentHashMap<String, ExtensionClass> extensionClassMap;
+
+        public ExtensionLoaderCache(String isolateSpace, Class interfaceType,
+                                    ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
+            this.isolateSpace = isolateSpace;
+            this.interfaceType = interfaceType;
+            this.extensionClassMap = extensionClassMap;
+        }
+
+        public String getIsolateSpace() {
+            return isolateSpace;
+        }
+
+        public void setIsolateSpace(String isolateSpace) {
+            this.isolateSpace = isolateSpace;
+        }
+
+        public Class getInterfaceType() {
+            return interfaceType;
+        }
+
+        public void setInterfaceType(Class interfaceType) {
+            this.interfaceType = interfaceType;
+        }
+
+        public ConcurrentHashMap<String, ExtensionClass> getExtensionClassMap() {
+            return extensionClassMap;
+        }
+
+        public void setExtensionClassMap(ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
+            this.extensionClassMap = extensionClassMap;
         }
     }
 }
