@@ -139,10 +139,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                             bizClassLoaderHook = ArkServiceLoader.loadExtension(masterBizIdentity,
                                 ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK);
                         }
-                        skipLoadHook.set(true);
                     } catch (Throwable t) {
                         // just compatible test case,because in normal scene,master biz must be exist
                         bizClassLoaderHook = null;
+                    } finally {
+                        skipLoadHook.set(true);
                     }
                 }
             }
