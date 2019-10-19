@@ -142,14 +142,6 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return extensionClassMap;
     }
 
-    private void doInitExtensionClassMap(ExtensionClass extensionClass,
-                                         ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
-        ExtensionClass old = extensionClassMap.get(extensionClass.getExtension().value());
-        if (old == null || old.getPriority() > extensionClass.getPriority()) {
-            extensionClassMap.put(extensionClass.getExtension().value(), extensionClass);
-        }
-    }
-
     private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(Class<I> interfaceType)
                                                                                                   throws Throwable {
         Set<ExtensionClass<I, Plugin>> extensionClassSet = new HashSet<>();
