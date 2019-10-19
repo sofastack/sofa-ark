@@ -119,15 +119,18 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         // load plugin
                         Set<? extends ExtensionClass<?, Plugin>> extensionPluginClassSet = loadExtensionFromArkPlugins(interfaceType);
                         for (ExtensionClass extensionClass : extensionPluginClassSet) {
-                            doInitExtensionClassMap(extensionClass, extensionClassMap);
+                            extensionClassMap.put(extensionClass.getExtension().value(),
+                                extensionClass);
                         }
                         // load biz
                         Set<? extends ExtensionClass<?, Biz>> extensionBizClassSet = loadExtensionFromArkBizs(interfaceType);
                         for (ExtensionClass extensionClass : extensionBizClassSet) {
-                            doInitExtensionClassMap(extensionClass, extensionClassMap);
+                            extensionClassMap.put(extensionClass.getExtension().value(),
+                                extensionClass);
                         }
 
                         putExtensionLoaderMap(isolateSpace, interfaceType, extensionClassMap);
+
                     } catch (Throwable throwable) {
                         LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",
                             interfaceType, throwable);
@@ -151,7 +154,21 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                                                                                                   throws Throwable {
         Set<ExtensionClass<I, Plugin>> extensionClassSet = new HashSet<>();
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
-            extensionClassSet.addAll(loadExtensionFromArkPlugin(interfaceType, plugin));
+            // load isolate by plugin
+            Set<ExtensionClass<I, Plugin>> extensionClasses = loadExtensionFromArkPlugin(
+                interfaceType, plugin);
+            // one interface with multi spi extension impl, select by order
+            if (extensionClasses.size() >= 1) {
+                ExtensionClass target = null;
+                for (ExtensionClass e : extensionClasses) {
+                    if (target == null || target.getPriority() > e.getPriority()) {
+                        target = e;
+                    }
+                }
+                if (target != null) {
+                    extensionClassSet.add(target);
+                }
+            }
         }
         return extensionClassSet;
     }
@@ -166,7 +183,20 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                                                                                             throws Throwable {
         Set<ExtensionClass<I, Biz>> extensionClassSet = new HashSet<>();
         for (Biz biz : bizManagerService.getBizInOrder()) {
-            extensionClassSet.addAll(loadExtensionFromArkBiz(interfaceType, biz));
+            Set<ExtensionClass<I, Biz>> extensionClasses = loadExtensionFromArkBiz(interfaceType,
+                biz);
+            // one interface with multi spi extension impl, select by order
+            if (extensionClasses.size() >= 1) {
+                ExtensionClass target = null;
+                for (ExtensionClass e : extensionClasses) {
+                    if (target == null || target.getPriority() > e.getPriority()) {
+                        target = e;
+                    }
+                }
+                if (target != null) {
+                    extensionClassSet.add(target);
+                }
+            }
         }
         return extensionClassSet;
     }
