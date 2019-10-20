@@ -16,9 +16,11 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
@@ -137,7 +139,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                         ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK);
                     try {
                         // get master biz hook spi
-                        if (bizClassLoaderHook == null && !isMasterBiz()) {
+                        if (bizClassLoaderHook == null && isShouldHookByMaster()) {
                             String masterBizIdentity = bizManagerService.getMasterBiz()
                                 .getIdentity();
                             bizClassLoaderHook = ArkServiceLoader.loadExtension(masterBizIdentity,
@@ -222,7 +224,12 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
      * validate is master biz or not
      * @return
      */
-    public boolean isMasterBiz() {
+    private boolean isMasterBiz() {
         return bizIdentity.equals(bizManagerService.getMasterBiz().getIdentity());
+    }
+
+    private boolean isShouldHookByMaster() {
+        return !isMasterBiz()
+               && ArkConfigs.getBooleanValue(Constants.IS_DELEGATE_MASTER_HOOK, false);
     }
 }

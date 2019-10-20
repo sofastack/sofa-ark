@@ -147,6 +147,8 @@ public class Constants {
      */
     public final static String MASTER_BIZ                                 = "com.alipay.sofa.ark.master.biz";
 
+    public static final String IS_DELEGATE_MASTER_HOOK                    = "com.alipay.sofa.ark.master.biz.hook.enabled";
+
     /**
      * Config Server
      */
