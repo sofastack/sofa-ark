@@ -114,20 +114,19 @@ public class ExtensionServiceTest extends BaseTest {
         Assert.assertTrue(impl1 instanceof ServiceBImpl3);
         ServiceB impl2 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
             ServiceB.class, "type2");
-        Assert.assertTrue(impl2 instanceof ServiceBImpl4);
+        Assert.assertTrue(impl2 == null);
         ServiceB impl3 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
             ServiceB.class, "type1");
         Assert.assertTrue(impl3 instanceof ServiceBImpl3);
         ServiceB impl4 = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
             ServiceB.class, "type2");
-        Assert.assertTrue(impl4 instanceof ServiceBImpl4);
+        Assert.assertTrue(impl4 == null);
         Assert.assertFalse(impl1 == impl3);
-        Assert.assertFalse(impl2 == impl4);
+        Assert.assertTrue(impl2 == impl4);
         List<ServiceB> serviceBS = ArkServiceLoader.loadExtension(pluginModel.getPluginName(),
             ServiceB.class);
-        Assert.assertEquals(2, serviceBS.size());
-        Assert.assertTrue(serviceBS.get(0) instanceof ServiceBImpl4);
-        Assert.assertTrue(serviceBS.get(1) instanceof ServiceBImpl3);
+        Assert.assertEquals(1, serviceBS.size());
+        Assert.assertTrue(serviceBS.get(0) instanceof ServiceBImpl3);
     }
 
 }

@@ -19,11 +19,16 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.container.ArkContainer;
 import com.alipay.sofa.ark.container.ArkContainerTest;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
+import com.alipay.sofa.ark.container.service.classloader.hook.TestPluginClassLoaderHook;
 import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
@@ -38,6 +43,7 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK;
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_CLASS_LOADER_HOOK;
 
 /**
  * @author qilong.zql
@@ -58,6 +64,17 @@ public class ClassLoaderHookTest extends BaseTest {
             .setPluginClassLoader(this.getClass().getClassLoader()).setImportClasses("")
             .setImportPackages("").setImportResources("");
         pluginManagerService.registerPlugin(plugin);
+
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        BizModel biz = new BizModel();
+
+        biz.setBizName("mockBiz");
+        biz.setBizVersion("mockVersion");
+        biz.setClassLoader(this.getClass().getClassLoader());
+        biz.setBizState(BizState.RESOLVED);
+        bizManagerService.registerBiz(biz);
+
     }
 
     @Override
@@ -77,9 +94,24 @@ public class ClassLoaderHookTest extends BaseTest {
         }
     }
 
+    private void doSetBizStateBefore() {
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        Biz biz = bizManagerService.getBiz("mockBiz", "mockVersion");
+        ((BizModel) biz).setBizState(BizState.ACTIVATED);
+    }
+
     @Test
     public void testBizClassLoaderSPI() throws Throwable {
-        ClassLoaderHook mock = ArkServiceLoader.loadExtension("mock", ClassLoaderHook.class,
+
+        doSetBizStateBefore();
+
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        Biz biz = bizManagerService.getBiz("mockBiz", "mockVersion");
+        ((BizModel) biz).setBizState(BizState.ACTIVATED);
+
+        ClassLoaderHook mock = ArkServiceLoader.loadExtension("mockBiz", ClassLoaderHook.class,
             BIZ_CLASS_LOADER_HOOK);
         Assert.assertTrue(mock instanceof TestBizClassLoaderHook);
 
@@ -116,6 +148,14 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testPluginClassLoaderSPI() throws Throwable {
+
+        doSetBizStateBefore();
+
+        ClassLoaderHook mock = ArkServiceLoader.loadExtension("mock", ClassLoaderHook.class,
+            PLUGIN_CLASS_LOADER_HOOK);
+
+        Assert.assertTrue(mock instanceof TestPluginClassLoaderHook);
+
         PluginClassLoader pluginClassLoader = new PluginClassLoader("mock", ((URLClassLoader) this
             .getClass().getClassLoader()).getURLs());
         Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.equals(pluginClassLoader

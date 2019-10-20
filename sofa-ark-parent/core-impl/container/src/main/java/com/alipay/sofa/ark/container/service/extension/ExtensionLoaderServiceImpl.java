@@ -72,7 +72,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             isolateSpace, interfaceType);
 
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
+            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType, extensionName);
         }
         ExtensionClass extensionClass = extensionClassMap.get(extensionName);
 
@@ -84,7 +84,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = getExtensionLoaderMap(
             isolateSpace, interfaceType);
         if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType);
+            extensionClassMap = loadExtensionStartup(isolateSpace, interfaceType, null);
         }
         List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
         Collections.sort(extensionClassList, new OrderComparator());
@@ -103,30 +103,42 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
      * @param isolateSpace
      */
     private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(String isolateSpace,
-                                                                           Class<?> interfaceType) {
+                                                                           Class<?> interfaceType,
+                                                                           String extensionName) {
 
         ConcurrentHashMap<String, ExtensionClass> extensionClassMap = getExtensionLoaderMap(
             isolateSpace, interfaceType);
 
         if (extensionClassMap == null) {
             synchronized (ExtensionLoaderServiceImpl.class) {
-
                 extensionClassMap = getExtensionLoaderMap(isolateSpace, interfaceType);
-
                 if (extensionClassMap == null) {
                     try {
                         extensionClassMap = new ConcurrentHashMap<>();
-                        // load plugin
-                        Set<? extends ExtensionClass<?, Plugin>> extensionPluginClassSet = loadExtensionFromArkPlugins(interfaceType);
-                        for (ExtensionClass extensionClass : extensionPluginClassSet) {
-                            extensionClassMap.put(extensionClass.getExtension().value(),
-                                extensionClass);
-                        }
-                        // load biz
-                        Set<? extends ExtensionClass<?, Biz>> extensionBizClassSet = loadExtensionFromArkBizs(interfaceType);
-                        for (ExtensionClass extensionClass : extensionBizClassSet) {
-                            extensionClassMap.put(extensionClass.getExtension().value(),
-                                extensionClass);
+
+                        if (extensionName != null) {
+                            // load plugin
+                            ExtensionClass<?, Plugin> extensionPluginClass = loadExtensionFromArkPlugins(
+                                isolateSpace, interfaceType, extensionName);
+                            if (extensionPluginClass != null) {
+                                extensionClassMap.putIfAbsent(extensionName, extensionPluginClass);
+                            }
+
+                            // load biz
+                            ExtensionClass<?, Biz> extensionBizClass = loadExtensionFromArkBizs(
+                                isolateSpace, interfaceType, extensionName);
+                            if (extensionBizClass != null) {
+                                extensionClassMap.putIfAbsent(extensionName, extensionBizClass);
+                            }
+                        } else {
+                            // load plugin
+                            Set<? extends ExtensionClass<?, Plugin>> extensionPluginSet = loadExtensionFromArkPlugins(
+                                isolateSpace, interfaceType);
+                            doInitExtensionPluginSetMap(extensionPluginSet, extensionClassMap);
+                            // load biz
+                            Set<? extends ExtensionClass<?, Biz>> extensionBizSet = loadExtensionFromArkBizs(
+                                isolateSpace, interfaceType);
+                            doInitExtensionBizSetMap(extensionBizSet, extensionClassMap);
                         }
 
                         putExtensionLoaderMap(isolateSpace, interfaceType, extensionClassMap);
@@ -142,27 +154,26 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return extensionClassMap;
     }
 
-    private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(Class<I> interfaceType)
-                                                                                                  throws Throwable {
-        Set<ExtensionClass<I, Plugin>> extensionClassSet = new HashSet<>();
-        for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
-            // load isolate by plugin
-            Set<ExtensionClass<I, Plugin>> extensionClasses = loadExtensionFromArkPlugin(
-                interfaceType, plugin);
-            // one interface with multi spi extension impl, select by order
-            if (extensionClasses.size() >= 1) {
-                ExtensionClass target = null;
-                for (ExtensionClass e : extensionClasses) {
-                    if (target == null || target.getPriority() > e.getPriority()) {
-                        target = e;
-                    }
-                }
-                if (target != null) {
-                    extensionClassSet.add(target);
-                }
+    private void doInitExtensionPluginSetMap(Set<? extends ExtensionClass<?, Plugin>> extensionClassSet,
+                                             ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
+        for (ExtensionClass<?, Plugin> ex : extensionClassSet) {
+            String extensionKey = ex.getExtension().value();
+            if (!extensionClassMap.containsKey(extensionKey)
+                || extensionClassMap.get(extensionKey).getPriority() > ex.getPriority()) {
+                extensionClassMap.putIfAbsent(extensionKey, ex);
             }
         }
-        return extensionClassSet;
+    }
+
+    private void doInitExtensionBizSetMap(Set<? extends ExtensionClass<?, Biz>> extensionClassSet,
+                                          ConcurrentHashMap<String, ExtensionClass> extensionClassMap) {
+        for (ExtensionClass<?, Biz> ex : extensionClassSet) {
+            String extensionKey = ex.getExtension().value();
+            if (!extensionClassMap.containsKey(extensionKey)
+                || extensionClassMap.get(extensionKey).getPriority() > ex.getPriority()) {
+                extensionClassMap.putIfAbsent(extensionKey, ex);
+            }
+        }
     }
 
     private <I, L> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugin(Class<I> interfaceType,
@@ -171,26 +182,77 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return loadExtension(interfaceType, plugin, plugin.getPluginClassLoader());
     }
 
-    private <I> Set<ExtensionClass<I, Biz>> loadExtensionFromArkBizs(Class<I> interfaceType)
+    private <I> Set<ExtensionClass<I, Biz>> loadExtensionFromArkBizs(String isolateSpace,
+                                                                     Class<I> interfaceType)
                                                                                             throws Throwable {
         Set<ExtensionClass<I, Biz>> extensionClassSet = new HashSet<>();
-        for (Biz biz : bizManagerService.getBizInOrder()) {
+        Biz biz = bizManagerService.getBizByIdentity(isolateSpace);
+        if (biz != null) {
+            Set<ExtensionClass<I, Biz>> extensionClasses = loadExtensionFromArkBiz(interfaceType,
+                biz);
+            extensionClassSet.addAll(extensionClasses);
+        }
+        return extensionClassSet;
+    }
+
+    private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(String isolateSpace,
+                                                                           Class<I> interfaceType)
+                                                                                                  throws Throwable {
+        Set<ExtensionClass<I, Plugin>> extensionClassSet = new HashSet<>();
+        Plugin plugin = pluginManagerService.getPluginByName(isolateSpace);
+        if (plugin != null) {
+            Set<ExtensionClass<I, Plugin>> extensionClasses = loadExtensionFromArkPlugin(
+                interfaceType, plugin);
+            extensionClassSet.addAll(extensionClasses);
+        }
+        return extensionClassSet;
+    }
+
+    private <I> ExtensionClass<I, Biz> loadExtensionFromArkBizs(String isolateSpace,
+                                                                Class<I> interfaceType,
+                                                                String extensionName)
+                                                                                     throws Throwable {
+        ExtensionClass<I, Biz> extensionClass = null;
+        List<Biz> bizList = bizManagerService.getBiz(isolateSpace);
+        for (Biz biz : bizList) {
             Set<ExtensionClass<I, Biz>> extensionClasses = loadExtensionFromArkBiz(interfaceType,
                 biz);
             // one interface with multi spi extension impl, select by order
             if (extensionClasses.size() >= 1) {
-                ExtensionClass target = null;
                 for (ExtensionClass e : extensionClasses) {
-                    if (target == null || target.getPriority() > e.getPriority()) {
-                        target = e;
+                    if (extensionName.equals(e.getExtension().value())
+                        && (extensionClass == null || extensionClass.getPriority() > e
+                            .getPriority())) {
+                        extensionClass = e;
                     }
-                }
-                if (target != null) {
-                    extensionClassSet.add(target);
                 }
             }
         }
-        return extensionClassSet;
+        return extensionClass;
+    }
+
+    private <I> ExtensionClass<I, Plugin> loadExtensionFromArkPlugins(String isolateSpace,
+                                                                      Class<I> interfaceType,
+                                                                      String extensionName)
+                                                                                           throws Throwable {
+        ExtensionClass<I, Plugin> extensionClass = null;
+        Plugin plugin = pluginManagerService.getPluginByName(isolateSpace);
+        if (plugin != null) {
+            // load isolate by plugin
+            Set<ExtensionClass<I, Plugin>> extensionClasses = loadExtensionFromArkPlugin(
+                interfaceType, plugin);
+            // one interface with multi spi extension impl, select by order
+            if (extensionClasses.size() >= 1) {
+                for (ExtensionClass e : extensionClasses) {
+                    if (extensionName.equals(e.getExtension().value())
+                        && (extensionClass == null || extensionClass.getPriority() > e
+                            .getPriority())) {
+                        extensionClass = e;
+                    }
+                }
+            }
+        }
+        return extensionClass;
     }
 
     private <I, L> Set<ExtensionClass<I, Biz>> loadExtensionFromArkBiz(Class<I> interfaceType,

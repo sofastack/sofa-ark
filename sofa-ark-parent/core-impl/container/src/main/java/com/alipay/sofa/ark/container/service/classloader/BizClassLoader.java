@@ -16,12 +16,14 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
@@ -44,6 +46,8 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     private ClassLoaderHook<Biz> bizClassLoaderHook;
     private AtomicBoolean        isHookLoaded      = new AtomicBoolean(false);
     private AtomicBoolean        skipLoadHook      = new AtomicBoolean(false);
+
+    private static final Logger  LOGGER            = ArkLoggerFactory.getDefaultLogger();
 
     public BizClassLoader(String bizIdentity, URL[] urls) {
         super(urls);
@@ -140,6 +144,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                                 ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK);
                         }
                     } catch (Throwable t) {
+                        LOGGER.error("Failed to load bizClassLoaderHook extension.", t);
                         // just compatible test case,because in normal scene,master biz must be exist
                         bizClassLoaderHook = null;
                     } finally {
