@@ -29,7 +29,9 @@ import com.alipay.sofa.ark.spi.event.BizEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -250,6 +252,12 @@ public class BizModel implements Biz {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
             bizManagerService.unRegisterBiz(bizName, bizVersion);
+
+            ExtensionLoaderService extensionLoaderService = ArkServiceContainerHolder
+                .getContainer().getService(ExtensionLoaderService.class);
+            extensionLoaderService.removeExtensionContributor(this.getIdentity(),
+                ClassLoaderHook.class);
+
             bizState = BizState.UNRESOLVED;
             urls = null;
             classLoader = null;

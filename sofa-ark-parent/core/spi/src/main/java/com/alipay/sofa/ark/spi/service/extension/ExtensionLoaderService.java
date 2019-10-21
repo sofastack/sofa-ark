@@ -44,4 +44,10 @@ public interface ExtensionLoaderService {
      */
     <T> List<T> getExtensionContributor(String isolateSpace, Class<T> interfaceType);
 
+    /**
+     * removeExtensionContributor
+     * @param isolateSpace
+     * @param interfaceType
+     */
+    void removeExtensionContributor(String isolateSpace, Class interfaceType);
 }

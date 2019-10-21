@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,6 +96,25 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
         }
         return ret;
+    }
+
+    @Override
+    public void removeExtensionContributor(String isolateSpace, Class interfaceType) {
+
+        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = getExtensionLoaderMap(
+            isolateSpace, interfaceType);
+
+        if (extensionClassMap == null) {
+            return;
+        }
+
+        for (ExtensionLoaderCache extensionLoaderCache : EXTENSION_CACHES) {
+            if (extensionLoaderCache.getIsolateSpace().equals(isolateSpace)
+                && extensionLoaderCache.getInterfaceType().equals(interfaceType)) {
+                EXTENSION_CACHES.remove(extensionLoaderCache);
+                return;
+            }
+        }
     }
 
     /**
