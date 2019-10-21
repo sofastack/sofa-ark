@@ -336,8 +336,8 @@ public class ArkClient {
 
     public static ClientResponse checkOperation(BizOperation bizOperation) {
         AssertUtils.isTrue(
-            BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
-            "Operation type must be switch");
+            BizOperation.OperationType.CHECK.equals(bizOperation.getOperationType()),
+            "Operation type must be check");
         return checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 
