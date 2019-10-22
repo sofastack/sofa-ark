@@ -30,7 +30,6 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.replay.ReplayContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
-import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
@@ -304,17 +303,6 @@ public class ArkClient {
             bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
                 bizOperation.getBizVersion());
             FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
-        }
-        if (!StringUtils.isEmpty(bizOperation.getBizName())
-            && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
-            for (BizFileGenerator bizFileGenerator : ArkServiceLoader
-                .loadExtension(BizFileGenerator.class)) {
-                bizFile = bizFileGenerator.createBizFile(bizOperation.getBizName(),
-                    bizOperation.getBizVersion());
-                if (bizFile != null && bizFile.exists()) {
-                    break;
-                }
-            }
         }
         return installBiz(bizFile, args);
     }

@@ -39,6 +39,5 @@ public class ExtensionLoaderStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         ArkServiceLoader.setExtensionLoaderService(extensionLoaderService);
-        ArkServiceLoader.loadExtension(ClassLoaderHook.class);
     }
 }

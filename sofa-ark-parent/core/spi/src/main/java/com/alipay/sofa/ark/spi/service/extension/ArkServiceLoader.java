@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.service.extension;
 
-import java.util.List;
-
 /**
  * @author qilong.zql
  * @since 0.6.0
@@ -25,12 +23,15 @@ import java.util.List;
 public class ArkServiceLoader {
     private static ExtensionLoaderService extensionLoaderService;
 
-    public static <T> T loadExtension(Class<T> interfaceType, String extensionName) {
-        return extensionLoaderService.getExtensionContributor(interfaceType, extensionName);
+    public static <T> T loadExtensionInClassLoader(Class<T> interfaceType, ClassLoader classLoader) {
+        return extensionLoaderService.getExtensionContributorInClassloader(interfaceType, "",
+            classLoader);
     }
 
-    public static <T> List<T> loadExtension(Class<T> interfaceType) {
-        return extensionLoaderService.getExtensionContributor(interfaceType);
+    public static <T> T loadExtensionInClassLoader(Class<T> interfaceType, String extensionName,
+                                                   ClassLoader classLoader) {
+        return extensionLoaderService.getExtensionContributorInClassloader(interfaceType,
+            extensionName, classLoader);
     }
 
     public static ExtensionLoaderService getExtensionLoaderService() {
