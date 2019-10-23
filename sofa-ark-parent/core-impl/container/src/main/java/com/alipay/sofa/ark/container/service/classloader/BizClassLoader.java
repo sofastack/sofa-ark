@@ -43,12 +43,12 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     private BizManagerService    bizManagerService = ArkServiceContainerHolder.getContainer()
                                                        .getService(BizManagerService.class);
     private ClassLoaderHook<Biz> bizClassLoaderHook;
+    private AtomicBoolean        isHookLoaded      = new AtomicBoolean(false);
+    private AtomicBoolean        skipLoadHook      = new AtomicBoolean(false);
 
     public BizClassLoader(String bizIdentity, URL[] urls) {
         super(urls);
         this.bizIdentity = bizIdentity;
-        bizClassLoaderHook = ArkServiceLoader.loadExtensionInClassLoader(ClassLoaderHook.class,
-            BIZ_CLASS_LOADER_HOOK, this);
     }
 
     @Override
@@ -125,9 +125,22 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
     }
 
+    private void loadBizClassLoaderHook() {
+        if (!skipLoadHook.get()) {
+            synchronized (this) {
+                if (isHookLoaded.compareAndSet(false, true)) {
+                    bizClassLoaderHook = ArkServiceLoader.loadExtensionInClassLoader(
+                        ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK, this);
+                    skipLoadHook.set(true);
+                }
+            }
+        }
+    }
+
     @Override
     protected Class<?> preLoadClass(String className) throws ArkLoaderException {
         try {
+            loadBizClassLoaderHook();
             return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindClass(className,
                 classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
         } catch (Throwable throwable) {
@@ -140,6 +153,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     @Override
     protected Class<?> postLoadClass(String className) throws ArkLoaderException {
         try {
+            loadBizClassLoaderHook();
             return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindClass(className,
                 classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
         } catch (Throwable throwable) {
@@ -151,24 +165,28 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     @Override
     protected URL preFindResource(String resourceName) {
+        loadBizClassLoaderHook();
         return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindResource(resourceName,
             classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
     }
 
     @Override
     protected URL postFindResource(String resourceName) {
+        loadBizClassLoaderHook();
         return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindResource(
             resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
     }
 
     @Override
     protected Enumeration<URL> preFindResources(String resourceName) throws IOException {
+        loadBizClassLoaderHook();
         return bizClassLoaderHook == null ? null : bizClassLoaderHook.preFindResources(
             resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
     }
 
     @Override
     protected Enumeration<URL> postFindResources(String resourceName) throws IOException {
+        loadBizClassLoaderHook();
         return bizClassLoaderHook == null ? null : bizClassLoaderHook.postFindResources(
             resourceName, classloaderService, bizManagerService.getBizByIdentity(bizIdentity));
     }

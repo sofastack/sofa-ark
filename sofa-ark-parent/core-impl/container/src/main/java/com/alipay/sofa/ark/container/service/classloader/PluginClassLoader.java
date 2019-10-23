@@ -41,6 +41,8 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
 
     private String                  pluginName;
     private ClassLoaderHook<Plugin> pluginClassLoaderHook;
+    private AtomicBoolean           isHookLoaded         = new AtomicBoolean(false);
+    private AtomicBoolean           skipLoadHook         = new AtomicBoolean(false);
     private PluginManagerService    pluginManagerService = ArkServiceContainerHolder
                                                              .getContainer()
                                                              .getService(PluginManagerService.class);
@@ -48,8 +50,6 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
     public PluginClassLoader(String pluginName, URL[] urls) {
         super(urls);
         this.pluginName = pluginName;
-        pluginClassLoaderHook = ArkServiceLoader.loadExtensionInClassLoader(ClassLoaderHook.class,
-            PLUGIN_CLASS_LOADER_HOOK, this);
     }
 
     public String getPluginName() {
@@ -130,9 +130,22 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         return classloaderService.isResourceInImport(pluginName, resourceName);
     }
 
+    private void loadPluginClassLoaderHook() {
+        if (!skipLoadHook.get()) {
+            synchronized (this) {
+                if (isHookLoaded.compareAndSet(false, true)) {
+                    pluginClassLoaderHook = ArkServiceLoader.loadExtensionInClassLoader(
+                        ClassLoaderHook.class, PLUGIN_CLASS_LOADER_HOOK, this);
+                    skipLoadHook.set(true);
+                }
+            }
+        }
+    }
+
     @Override
     protected Class<?> preLoadClass(String className) throws ArkLoaderException {
         try {
+            loadPluginClassLoaderHook();
             return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindClass(
                 className, classloaderService, pluginManagerService.getPluginByName(pluginName));
         } catch (Throwable throwable) {
@@ -145,6 +158,7 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
     @Override
     protected Class<?> postLoadClass(String className) throws ArkLoaderException {
         try {
+            loadPluginClassLoaderHook();
             return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindClass(
                 className, classloaderService, pluginManagerService.getPluginByName(pluginName));
         } catch (Throwable throwable) {
@@ -156,24 +170,28 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
 
     @Override
     protected URL preFindResource(String resourceName) {
+        loadPluginClassLoaderHook();
         return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindResource(
             resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
     }
 
     @Override
     protected URL postFindResource(String resourceName) {
+        loadPluginClassLoaderHook();
         return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindResource(
             resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
     }
 
     @Override
     protected Enumeration<URL> preFindResources(String resourceName) throws IOException {
+        loadPluginClassLoaderHook();
         return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.preFindResources(
             resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
     }
 
     @Override
     protected Enumeration<URL> postFindResources(String resourceName) throws IOException {
+        loadPluginClassLoaderHook();
         return pluginClassLoaderHook == null ? null : pluginClassLoaderHook.postFindResources(
             resourceName, classloaderService, pluginManagerService.getPluginByName(pluginName));
     }
