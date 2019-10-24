@@ -206,13 +206,13 @@
             <groupId>com.alipay.sofa.common</groupId>
             <artifactId>log-sofa-boot-starter</artifactId>
             <type>jar</type>
-            <version>1.0.17</version>
+            <version>3.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa.common</groupId>
             <artifactId>sofa-common-tools</artifactId>
             <type>jar</type>
-            <version>1.0.17</version>
+            <version>1.0.19</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
