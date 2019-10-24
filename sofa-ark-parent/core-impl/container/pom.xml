@@ -33,6 +33,12 @@
             <artifactId>sofa-ark-archive</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alipay.sofa.common</groupId>
+            <artifactId>log-sofa-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!--third party libraries-->
         <dependency>
             <groupId>com.google.inject</groupId>
