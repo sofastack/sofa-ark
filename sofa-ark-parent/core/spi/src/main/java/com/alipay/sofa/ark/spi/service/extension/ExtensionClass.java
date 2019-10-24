@@ -23,7 +23,7 @@ import com.alipay.sofa.ark.spi.service.PriorityOrdered;
  * @author qilong.zql
  * @since 0.6.0
  */
-public class ExtensionClass<I> implements PriorityOrdered {
+public class ExtensionClass<I, T> implements PriorityOrdered {
     /**
      * extensible interface type
      */
@@ -43,6 +43,12 @@ public class ExtensionClass<I> implements PriorityOrdered {
      * annotation on {@link ExtensionClass#implementClass}
      */
     private Extension  extension;
+
+    /**
+     * where extension implementation is defined, ark plugin or ark biz.
+     * now it only support ark plugin.
+     */
+    private T          definedLocation;
 
     /**
      * if extensible interface type is singleton, return this as extension implementation.
@@ -79,6 +85,14 @@ public class ExtensionClass<I> implements PriorityOrdered {
 
     public void setExtension(Extension extension) {
         this.extension = extension;
+    }
+
+    public T getDefinedLocation() {
+        return definedLocation;
+    }
+
+    public void setDefinedLocation(T definedLocation) {
+        this.definedLocation = definedLocation;
     }
 
     public I getSingleton() {

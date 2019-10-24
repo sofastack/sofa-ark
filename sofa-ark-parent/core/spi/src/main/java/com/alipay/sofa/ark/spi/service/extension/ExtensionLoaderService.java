@@ -22,13 +22,26 @@ package com.alipay.sofa.ark.spi.service.extension;
  */
 public interface ExtensionLoaderService {
     /**
-     * get specified extension implementation which match interfaceType and extensionName in classloader
+     * get specified extension implementation which match interfaceType and extensionName from ark plugin
+     *
      * @param interfaceType extensible interface type
      * @param extensionName extension name
      * @param <T> extension implementation type
-     * @param classLoader Classloader
+     * @param pluginName pluginName
      * @return
      */
-    <T> T getExtensionContributorInClassloader(Class<T> interfaceType, String extensionName,
-                                               ClassLoader classLoader);
+    <T> T getExtensionContributorFromArkPlugin(Class<T> interfaceType, String extensionName,
+                                               String pluginName);
+
+    /**
+     * get specified extension implementation which match interfaceType and extensionName from ark biz
+     *
+     * @param interfaceType extensible interface type
+     * @param extensionName extension name
+     * @param <T> extension implementation type
+     * @param bizIdentity bizIdentity
+     * @return
+     */
+    <T> T getExtensionContributorFromArkBiz(Class<T> interfaceType, String extensionName,
+                                            String bizIdentity);
 }

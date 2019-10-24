@@ -17,12 +17,18 @@
 package com.alipay.sofa.ark.container.service.extension;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionClass;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.slf4j.Logger;
 
 import javax.inject.Singleton;
@@ -41,28 +47,58 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
  */
 @Singleton
 public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
-    private static final Logger LOGGER = ArkLoggerFactory.getDefaultLogger();
+    private static final Logger  LOGGER               = ArkLoggerFactory.getDefaultLogger();
+
+    private PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
+                                                          .getService(PluginManagerService.class);
+
+    private BizManagerService    bizManagerService    = ArkServiceContainerHolder.getContainer()
+                                                          .getService(BizManagerService.class);
 
     @Override
-    public <T> T getExtensionContributorInClassloader(Class<T> interfaceType, String extensionName,
-                                                      ClassLoader classLoader) {
-        Set<ExtensionClass<T>> extensionClassSet = loadExtension(interfaceType, extensionName,
-            classLoader);
-        ExtensionClass<T> extensionClass = null;
-        for (ExtensionClass extensionClazz : extensionClassSet) {
-            if (extensionClass == null
-                || extensionClass.getPriority() > extensionClazz.getPriority()) {
-                extensionClass = extensionClazz;
+    public <T> T getExtensionContributorFromArkPlugin(Class<T> interfaceType, String extensionName,
+                                                      String pluginName) {
+        Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+        AssertUtils.assertNotNull(plugin, "plugin: " + pluginName + " is null");
+        return getExtensionContributor(interfaceType, extensionName, plugin,
+            plugin.getPluginClassLoader());
+    }
+
+    @Override
+    public <T> T getExtensionContributorFromArkBiz(Class<T> interfaceType, String extensionName,
+                                                   String bizIdentity) {
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        AssertUtils.assertNotNull(biz, "biz: " + bizIdentity + " is null");
+        return getExtensionContributor(interfaceType, extensionName, biz, biz.getBizClassLoader());
+    }
+
+    public <T, L> T getExtensionContributor(Class<T> interfaceType, String extensionName,
+                                            L location, ClassLoader resourceLoader) {
+        ExtensionClass<T, L> extensionClass = null;
+        try {
+            Set<ExtensionClass<T, L>> extensionClassSet = loadExtension(interfaceType,
+                extensionName, location, resourceLoader);
+            for (ExtensionClass extensionClazz : extensionClassSet) {
+                if (extensionClass == null
+                    || extensionClass.getPriority() > extensionClazz.getPriority()) {
+                    extensionClass = extensionClazz;
+                }
             }
+        } catch (Throwable throwable) {
+            LOGGER.error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
+                throwable);
+            throw new ArkRuntimeException(throwable);
         }
         return extensionClass == null ? null : extensionClass.getObject();
     }
 
-    private <T> Set<ExtensionClass<T>> loadExtension(Class<T> interfaceType, String extensionName,
-                                                     ClassLoader resourceLoader) {
+    private <I, L> Set<ExtensionClass<I, L>> loadExtension(Class<I> interfaceType,
+                                                           String extensionName, L location,
+                                                           ClassLoader resourceLoader)
+                                                                                      throws Throwable {
         BufferedReader reader = null;
         try {
-            Set<ExtensionClass<T>> extensionClassSet = new HashSet<>();
+            Set<ExtensionClass<I, L>> extensionClassSet = new HashSet<>();
             Extensible extensible = interfaceType.getAnnotation(Extensible.class);
             if (extensible == null) {
                 throw new ArkRuntimeException(String.format(
@@ -77,13 +113,15 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             while (enumeration.hasMoreElements()) {
                 URL url = enumeration.nextElement();
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER
-                        .debug("Loading extension of extensible: {} file: {}", interfaceType, url);
+                    LOGGER.debug(
+                        "Loading extension of extensible: {} from location: {} and file: {}",
+                        interfaceType, location, url);
                 }
                 reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    ExtensionClass<T> extensionClass = new ExtensionClass<>();
+                    ExtensionClass<I, L> extensionClass = new ExtensionClass<>();
+                    extensionClass.setDefinedLocation(location);
                     extensionClass.setExtensible(extensible);
                     extensionClass.setInterfaceClass(interfaceType);
                     Class<?> implementClass = resourceLoader.loadClass(line.trim());
@@ -102,21 +140,18 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         continue;
                     }
                     extensionClass.setExtension(extension);
-                    extensionClass.setImplementClass((Class<T>) implementClass);
+                    extensionClass.setImplementClass((Class<I>) implementClass);
                     extensionClassSet.add(extensionClass);
                 }
             }
             return extensionClassSet;
         } catch (Throwable throwable) {
-            LOGGER.error("Loading extension {} occurs an error.", interfaceType, throwable);
-            throw new ArkRuntimeException(throwable);
+            LOGGER
+                .error("Loading extension files from {} occurs an error {}.", location, throwable);
+            throw throwable;
         } finally {
             if (reader != null) {
-                try {
-                    reader.close();
-                } catch (Throwable t) {
-                    throw new ArkRuntimeException(t);
-                }
+                reader.close();
             }
         }
     }

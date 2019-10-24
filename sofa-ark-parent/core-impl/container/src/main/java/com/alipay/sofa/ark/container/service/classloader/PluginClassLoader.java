@@ -132,8 +132,8 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         if (!skipLoadHook.get()) {
             synchronized (this) {
                 if (isHookLoaded.compareAndSet(false, true)) {
-                    pluginClassLoaderHook = ArkServiceLoader.loadExtensionInClassLoader(
-                        ClassLoaderHook.class, PLUGIN_CLASS_LOADER_HOOK, this);
+                    pluginClassLoaderHook = ArkServiceLoader.loadExtensionFromArkPlugin(
+                        ClassLoaderHook.class, PLUGIN_CLASS_LOADER_HOOK, pluginName);
                     skipLoadHook.set(true);
                 }
             }
