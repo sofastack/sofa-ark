@@ -108,7 +108,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
             return extensionClassSet;
         } catch (Throwable throwable) {
-            LOGGER.error("Loading extension occurs an error.", throwable);
+            LOGGER.error("Loading extension {} occurs an error.", interfaceType, throwable);
             throw new ArkRuntimeException(throwable);
         } finally {
             if (reader != null) {

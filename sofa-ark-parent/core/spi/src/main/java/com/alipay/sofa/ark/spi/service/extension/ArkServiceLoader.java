@@ -21,11 +21,12 @@ package com.alipay.sofa.ark.spi.service.extension;
  * @since 0.6.0
  */
 public class ArkServiceLoader {
+    private static final String           DEFAULT_EXTENSION_NAME = "";
     private static ExtensionLoaderService extensionLoaderService;
 
     public static <T> T loadExtensionInClassLoader(Class<T> interfaceType, ClassLoader classLoader) {
-        return extensionLoaderService.getExtensionContributorInClassloader(interfaceType, "",
-            classLoader);
+        return extensionLoaderService.getExtensionContributorInClassloader(interfaceType,
+            DEFAULT_EXTENSION_NAME, classLoader);
     }
 
     public static <T> T loadExtensionInClassLoader(Class<T> interfaceType, String extensionName,

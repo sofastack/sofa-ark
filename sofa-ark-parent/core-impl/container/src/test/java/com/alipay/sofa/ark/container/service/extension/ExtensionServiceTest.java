@@ -36,7 +36,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
-import java.util.List;
 
 /**
  * @author qilong.zql

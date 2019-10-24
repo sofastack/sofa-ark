@@ -23,21 +23,17 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
-import com.alipay.sofa.ark.container.service.extension.ExtensionLoaderServiceImpl;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
-import java.util.Map;
 
 /**
  * @author qilong.zql
@@ -51,7 +47,6 @@ public class ClassLoaderHookTest extends BaseTest {
     public void before() {
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
         arkContainer = (ArkContainer) ArkContainer.main(args);
-        cleanExtensionCache();
         PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
             .getService(PluginManagerService.class);
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
@@ -70,18 +65,6 @@ public class ClassLoaderHookTest extends BaseTest {
     @Override
     public void after() {
         arkContainer.stop();
-        cleanExtensionCache();
-    }
-
-    public void cleanExtensionCache() {
-        try {
-            Field field = ExtensionLoaderServiceImpl.class.getDeclaredField("EXTENSION_MAP");
-            field.setAccessible(true);
-            Map extensionCache = (Map) field.get(null);
-            extensionCache.clear();
-        } catch (Throwable throwable) {
-            // ignore
-        }
     }
 
     @Test
