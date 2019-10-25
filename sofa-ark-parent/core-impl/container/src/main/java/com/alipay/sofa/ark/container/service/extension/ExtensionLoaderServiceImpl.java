@@ -17,10 +17,13 @@
 package com.alipay.sofa.ark.container.service.extension;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.OrderComparator;
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionClass;
@@ -28,18 +31,13 @@ import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.slf4j.Logger;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
 
@@ -49,92 +47,59 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
  */
 @Singleton
 public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
+    private static final Logger  LOGGER               = ArkLoggerFactory.getDefaultLogger();
 
-    private static final ConcurrentHashMap<Class, ConcurrentHashMap<String, ExtensionClass>> EXTENSION_MAP = new ConcurrentHashMap<>();
+    private PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
+                                                          .getService(PluginManagerService.class);
 
-    private static final Logger                                                              LOGGER        = ArkLoggerFactory
-                                                                                                               .getDefaultLogger();
-
-    @Inject
-    private PluginManagerService                                                             pluginManagerService;
+    private BizManagerService    bizManagerService    = ArkServiceContainerHolder.getContainer()
+                                                          .getService(BizManagerService.class);
 
     @Override
-    public <T> T getExtensionContributor(Class<T> interfaceType, String extensionName) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
-        if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
-        }
-        ExtensionClass extensionClass = extensionClassMap.get(extensionName);
-        return extensionClass == null ? null : (T) extensionClass.getObject();
+    public <T> T getExtensionContributorFromArkPlugin(Class<T> interfaceType, String extensionName,
+                                                      String pluginName) {
+        AssertUtils.assertNotNull(interfaceType, "interfaceType can't be null.");
+        AssertUtils.assertNotNull(extensionName, "extensionName can't be null.");
+        AssertUtils.assertNotNull(pluginName, "pluginName can't be null.");
+        Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+        AssertUtils.assertNotNull(plugin, "plugin: " + pluginName + " is null");
+        return getExtensionContributor(interfaceType, extensionName, plugin,
+            plugin.getPluginClassLoader());
     }
 
     @Override
-    public <T> List<T> getExtensionContributor(Class<T> interfaceType) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
-        if (extensionClassMap == null) {
-            extensionClassMap = loadExtensionStartup(interfaceType);
-        }
-        List<ExtensionClass> extensionClassList = new ArrayList<>(extensionClassMap.values());
-        Collections.sort(extensionClassList, new OrderComparator());
-        List<T> ret = new ArrayList<>();
-        for (ExtensionClass extensionClass : extensionClassList) {
-            ret.add((T) extensionClass.getObject());
-        }
-        return ret;
+    public <T> T getExtensionContributorFromArkBiz(Class<T> interfaceType, String extensionName,
+                                                   String bizIdentity) {
+        AssertUtils.assertNotNull(interfaceType, "interfaceType can't be null.");
+        AssertUtils.assertNotNull(extensionName, "extensionName can't be null.");
+        AssertUtils.assertNotNull(bizIdentity, "bizIdentity can't be null.");
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        AssertUtils.assertNotNull(biz, "biz: " + bizIdentity + " is null");
+        return getExtensionContributor(interfaceType, extensionName, biz, biz.getBizClassLoader());
     }
 
-    /**
-     * initialize to loading extension of specified interfaceType
-     * @param interfaceType
-     */
-    private ConcurrentHashMap<String, ExtensionClass> loadExtensionStartup(Class<?> interfaceType) {
-        ConcurrentHashMap<String, ExtensionClass> extensionClassMap = EXTENSION_MAP
-            .get(interfaceType);
-        if (extensionClassMap == null) {
-            synchronized (ExtensionLoaderServiceImpl.class) {
-                extensionClassMap = EXTENSION_MAP.get(interfaceType);
-                if (extensionClassMap == null) {
-                    try {
-                        extensionClassMap = new ConcurrentHashMap<>();
-                        Set<? extends ExtensionClass<?, Plugin>> extensionClassSet = loadExtensionFromArkPlugins(interfaceType);
-                        for (ExtensionClass extensionClass : extensionClassSet) {
-                            ExtensionClass old = extensionClassMap.get(extensionClass
-                                .getExtension().value());
-                            if (old == null || old.getPriority() > extensionClass.getPriority()) {
-                                extensionClassMap.put(extensionClass.getExtension().value(),
-                                    extensionClass);
-                            }
-                        }
-                        EXTENSION_MAP.put(interfaceType, extensionClassMap);
-                    } catch (Throwable throwable) {
-                        LOGGER.error("Loading extension of interfaceType: {} occurs error {}.",
-                            interfaceType, throwable);
-                        throw new ArkRuntimeException(throwable);
-                    }
+    public <T, L> T getExtensionContributor(Class<T> interfaceType, String extensionName,
+                                            L location, ClassLoader resourceLoader) {
+        ExtensionClass<T, L> extensionClass = null;
+        try {
+            Set<ExtensionClass<T, L>> extensionClassSet = loadExtension(interfaceType,
+                extensionName, location, resourceLoader);
+            for (ExtensionClass extensionClazz : extensionClassSet) {
+                if (extensionClass == null
+                    || extensionClass.getPriority() > extensionClazz.getPriority()) {
+                    extensionClass = extensionClazz;
                 }
             }
+        } catch (Throwable throwable) {
+            LOGGER.error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
+                throwable);
+            throw new ArkRuntimeException(throwable);
         }
-        return extensionClassMap;
+        return extensionClass == null ? null : extensionClass.getObject();
     }
 
-    private <I> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugins(Class<I> interfaceType)
-                                                                                                  throws Throwable {
-        Set<ExtensionClass<I, Plugin>> extensionClassSet = new HashSet<>();
-        for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
-            extensionClassSet.addAll(loadExtensionFromArkPlugin(interfaceType, plugin));
-        }
-        return extensionClassSet;
-    }
-
-    private <I, L> Set<ExtensionClass<I, Plugin>> loadExtensionFromArkPlugin(Class<I> interfaceType,
-                                                                             Plugin plugin)
-                                                                                           throws Throwable {
-        return loadExtension(interfaceType, plugin, plugin.getPluginClassLoader());
-    }
-
-    private <I, L> Set<ExtensionClass<I, L>> loadExtension(Class<I> interfaceType, L location,
+    private <I, L> Set<ExtensionClass<I, L>> loadExtension(Class<I> interfaceType,
+                                                           String extensionName, L location,
                                                            ClassLoader resourceLoader)
                                                                                       throws Throwable {
         BufferedReader reader = null;
@@ -176,6 +141,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                         throw new ArkRuntimeException(String.format(
                             "Extension implementation class %s is not annotated by %s.",
                             implementClass, Extension.class));
+                    }
+                    if (!extensionName.equals(extension.value())) {
+                        continue;
                     }
                     extensionClass.setExtension(extension);
                     extensionClass.setImplementClass((Class<I>) implementClass);
