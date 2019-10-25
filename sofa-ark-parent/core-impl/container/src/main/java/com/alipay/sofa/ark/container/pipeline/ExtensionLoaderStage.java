@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.pipeline;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 
@@ -39,6 +38,5 @@ public class ExtensionLoaderStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         ArkServiceLoader.setExtensionLoaderService(extensionLoaderService);
-        ArkServiceLoader.loadExtension(ClassLoaderHook.class);
     }
 }
