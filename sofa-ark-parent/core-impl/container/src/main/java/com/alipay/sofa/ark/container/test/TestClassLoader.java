@@ -59,7 +59,7 @@ public class TestClassLoader extends BizClassLoader {
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
         super(bizIdentity, urls);
         delegateClassLoader = delegate;
-
+        // since version 1.1.0, we support load extension from ark biz, we should register biz now.
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
         Biz testBiz = createTestBiz(bizIdentity);
