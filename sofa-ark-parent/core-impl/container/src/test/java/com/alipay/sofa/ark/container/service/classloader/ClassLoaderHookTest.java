@@ -16,9 +16,8 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
-import com.alipay.sofa.ark.container.ArkContainer;
-import com.alipay.sofa.ark.container.ArkContainerTest;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -40,36 +39,16 @@ import java.util.Enumeration;
  * @since 0.6.0
  */
 public class ClassLoaderHookTest extends BaseTest {
-    private URL  jarURL = ArkContainerTest.class.getClassLoader().getResource("test.jar");
-    ArkContainer arkContainer;
-
     @Override
     public void before() {
-        String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
-        arkContainer = (ArkContainer) ArkContainer.main(args);
-        PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
-            .getService(PluginManagerService.class);
-        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
-            BizManagerService.class);
-        Plugin plugin = new PluginModel().setPluginName("mock")
-            .setPluginClassLoader(this.getClass().getClassLoader()).setImportClasses("")
-            .setImportPackages("").setImportResources("");
-        pluginManagerService.registerPlugin(plugin);
-        Biz biz = new BizModel().setBizName("mockBiz").setBizVersion("1.0")
-            .setClassLoader(this.getClass().getClassLoader()).setDenyImportPackages("")
-            .setDenyImportClasses("").setDenyImportResources("").setBizState(BizState.RESOLVED);
-        bizManagerService.registerBiz(biz);
-        ((BizModel) biz).setBizState(BizState.ACTIVATED);
-    }
-
-    @Override
-    public void after() {
-        arkContainer.stop();
+        super.before();
+        registerMockBiz();
+        registerMockPlugin();
     }
 
     @Test
     public void testBizClassLoaderSPI() throws Throwable {
-        BizClassLoader bizClassLoader = new BizClassLoader("mockBiz:1.0", ((URLClassLoader) this
+        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ((URLClassLoader) this
             .getClass().getClassLoader()).getURLs());
         Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.getName().equals(
             bizClassLoader.loadClass("A.A").getName()));
