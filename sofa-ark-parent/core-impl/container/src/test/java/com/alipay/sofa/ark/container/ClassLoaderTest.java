@@ -17,11 +17,20 @@
 package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.model.PluginModel;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
@@ -29,6 +38,11 @@ import java.net.URLClassLoader;
  * @since 3.1.0
  */
 public class ClassLoaderTest extends BaseTest {
+    @Override
+    public void before() {
+        super.before();
+        //        registerMockBiz();
+    }
 
     @Test
     public void testDefaultDelegate() throws Throwable {

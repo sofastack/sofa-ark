@@ -17,7 +17,12 @@
 package com.alipay.sofa.ark.container.test;
 
 import com.alipay.sofa.ark.container.ArkContainer;
+import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 
 import java.net.URL;

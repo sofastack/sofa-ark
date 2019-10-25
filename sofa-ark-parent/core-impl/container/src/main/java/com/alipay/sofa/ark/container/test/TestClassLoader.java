@@ -19,9 +19,15 @@ package com.alipay.sofa.ark.container.test;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -53,6 +59,12 @@ public class TestClassLoader extends BizClassLoader {
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
         super(bizIdentity, urls);
         delegateClassLoader = delegate;
+
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        Biz testBiz = createTestBiz(bizIdentity);
+        bizManagerService.registerBiz(testBiz);
+        ((BizModel) testBiz).setBizState(BizState.ACTIVATED);
     }
 
     @Override
@@ -99,5 +111,19 @@ public class TestClassLoader extends BizClassLoader {
             }
         }
         return false;
+    }
+
+    private Biz createTestBiz(String bizIdentity) {
+        String[] bizNameAndVersion = bizIdentity.split(":");
+        if (bizNameAndVersion.length != 2) {
+            throw new ArkRuntimeException("error bizIdentity format.");
+        }
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        Biz testBiz = new BizModel().setBizName(bizNameAndVersion[0])
+            .setBizVersion(bizNameAndVersion[1]).setClassLoader(this).setDenyImportPackages("")
+            .setDenyImportClasses("").setDenyImportResources("").setBizState(BizState.RESOLVED);
+        bizManagerService.registerBiz(testBiz);
+        return testBiz;
     }
 }
