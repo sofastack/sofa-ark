@@ -17,10 +17,12 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
@@ -41,12 +43,16 @@ public class BizFactoryServiceTest extends BaseTest {
 
     private BizFactoryService    bizFactoryService;
 
+    private BizManagerService    bizManagerService;
+
     @Override
     public void before() {
         super.before();
         pluginManagerService = arkServiceContainer.getService(PluginManagerService.class);
         pluginFactoryService = arkServiceContainer.getService(PluginFactoryService.class);
         bizFactoryService = arkServiceContainer.getService(BizFactoryService.class);
+        bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
     }
 
     @Test
@@ -59,6 +65,7 @@ public class BizFactoryServiceTest extends BaseTest {
 
         URL sampleBiz = cl.getResource("sample-biz.jar");
         Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
+        bizManagerService.registerBiz(biz);
         Assert.assertNotNull(biz);
         Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
     }

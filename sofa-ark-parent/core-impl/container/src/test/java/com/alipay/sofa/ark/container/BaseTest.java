@@ -16,12 +16,19 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import mockit.Mock;
 import mockit.MockUp;
 import org.junit.After;
@@ -31,6 +38,7 @@ import org.junit.BeforeClass;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +48,10 @@ import java.util.List;
  * @since 0.1.0
  */
 public class BaseTest {
+    private URL                   jarURL              = ArkContainerTest.class.getClassLoader()
+                                                          .getResource("test.jar");
     protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer(new String[] {});
+    protected ArkContainer        arkContainer;
 
     static {
         // fix cobertura bug
@@ -64,6 +75,12 @@ public class BaseTest {
                         mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
                         return mockArguments;
                     }
+
+                    // to avoid npe
+                    @Mock
+                    String getName() {
+                        return "";
+                    }
                 }.getMockInstance();
             }
         };
@@ -76,10 +93,40 @@ public class BaseTest {
     @After
     public void after() {
         arkServiceContainer.stop();
+        if (arkContainer != null) {
+            arkContainer.stop();
+        }
     }
 
     @BeforeClass
     public static void beforeClass() {
 
+    }
+
+    protected void registerMockPlugin() {
+        if (arkContainer == null) {
+            String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+            arkContainer = (ArkContainer) ArkContainer.main(args);
+        }
+        PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
+            .getService(PluginManagerService.class);
+        Plugin plugin = new PluginModel().setPluginName("mock")
+            .setPluginClassLoader(this.getClass().getClassLoader()).setImportClasses("")
+            .setImportPackages("").setImportResources("");
+        pluginManagerService.registerPlugin(plugin);
+    }
+
+    protected void registerMockBiz() {
+        if (arkContainer == null) {
+            String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
+            arkContainer = (ArkContainer) ArkContainer.main(args);
+        }
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        Biz biz = new BizModel().setBizName("mock").setBizVersion("1.0")
+            .setClassLoader(this.getClass().getClassLoader()).setDenyImportPackages("")
+            .setDenyImportClasses("").setDenyImportResources("").setBizState(BizState.RESOLVED);
+        bizManagerService.registerBiz(biz);
+        ((BizModel) biz).setBizState(BizState.ACTIVATED);
     }
 }
