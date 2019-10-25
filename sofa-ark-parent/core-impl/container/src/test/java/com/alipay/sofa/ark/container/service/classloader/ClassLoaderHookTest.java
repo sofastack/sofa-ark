@@ -18,6 +18,15 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
+import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.model.PluginModel;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
+import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Test;
 
