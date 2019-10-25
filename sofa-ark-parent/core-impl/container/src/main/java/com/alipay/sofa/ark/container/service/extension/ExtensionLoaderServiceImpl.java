@@ -58,6 +58,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
     @Override
     public <T> T getExtensionContributorFromArkPlugin(Class<T> interfaceType, String extensionName,
                                                       String pluginName) {
+        AssertUtils.assertNotNull(interfaceType, "interfaceType can't be null.");
+        AssertUtils.assertNotNull(extensionName, "extensionName can't be null.");
+        AssertUtils.assertNotNull(pluginName, "pluginName can't be null.");
         Plugin plugin = pluginManagerService.getPluginByName(pluginName);
         AssertUtils.assertNotNull(plugin, "plugin: " + pluginName + " is null");
         return getExtensionContributor(interfaceType, extensionName, plugin,
@@ -67,6 +70,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
     @Override
     public <T> T getExtensionContributorFromArkBiz(Class<T> interfaceType, String extensionName,
                                                    String bizIdentity) {
+        AssertUtils.assertNotNull(interfaceType, "interfaceType can't be null.");
+        AssertUtils.assertNotNull(extensionName, "extensionName can't be null.");
+        AssertUtils.assertNotNull(bizIdentity, "bizIdentity can't be null.");
         Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
         AssertUtils.assertNotNull(biz, "biz: " + bizIdentity + " is null");
         return getExtensionContributor(interfaceType, extensionName, biz, biz.getBizClassLoader());
