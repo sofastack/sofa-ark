@@ -29,11 +29,6 @@ import java.net.URLClassLoader;
  * @since 3.1.0
  */
 public class ClassLoaderTest extends BaseTest {
-    @Override
-    public void before() {
-        super.before();
-        //        registerMockBiz();
-    }
 
     @Test
     public void testDefaultDelegate() throws Throwable {
