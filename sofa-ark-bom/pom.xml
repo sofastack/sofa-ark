@@ -14,7 +14,7 @@
 
     <properties>
         <log4j.version>1.7.21</log4j.version>
-        <log.sofa.starter.version>1.0.17</log.sofa.starter.version>
+        <log.sofa.starter.version>3.2.1-SNAPSHOT</log.sofa.starter.version>
         <logback.version>1.1.11</logback.version>
 
         <guice.version>4.0</guice.version>
@@ -42,7 +42,7 @@
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
         <maven.plugin.plugin>3.4</maven.plugin.plugin>
         <surefire.version>2.20</surefire.version>
-        <netty.version>4.1.25.Final</netty.version>
+        <netty.version>4.1.42.Final</netty.version>
     </properties>
 
     <dependencyManagement>
@@ -228,7 +228,7 @@
             </dependency>
 
             <dependency>
-                <groupId>com.alipay.sofa.common</groupId>
+                <groupId>com.alipay.sofa</groupId>
                 <artifactId>log-sofa-boot-starter</artifactId>
                 <version>${log.sofa.starter.version}</version>
             </dependency>

@@ -109,7 +109,9 @@ public class BizClassLoaderTest extends BaseTest {
     public void testAgentClass() throws ClassNotFoundException {
         BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
         bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()))
+            .setDenyImportResources("").setDenyImportClasses("");
+        bizManagerService.registerBiz(bizModel);
         Class clazz = bizModel.getBizClassLoader().loadClass("SampleClass");
         Assert.assertFalse(clazz.getClassLoader() instanceof AgentClassLoader);
         Assert.assertTrue(clazz.getClassLoader().getClass().getCanonicalName()
@@ -256,11 +258,12 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testSlashResource() throws Throwable {
+        registerMockBiz();
         URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
         Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
         ucpFiled.setAccessible(true);
         URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
-        BizClassLoader bizClassLoader = new BizClassLoader("bizName:1.0.0", ucp.getURLs());
+        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ucp.getURLs());
         URL url = bizClassLoader.getResource("");
         Assert.assertNotNull(url);
         Assert.assertEquals(url, this.getClass().getResource("/"));
@@ -271,6 +274,7 @@ public class BizClassLoaderTest extends BaseTest {
         BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
         bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
             .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
         String name = "META-INF/services/javax.script.ScriptEngineFactory";

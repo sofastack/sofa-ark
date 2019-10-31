@@ -35,7 +35,7 @@ public @interface Extension {
     /**
      * extension name
      */
-    String value();
+    String value() default "";
 
     /**
      * extension order, Higher values are interpreted as lower priority.

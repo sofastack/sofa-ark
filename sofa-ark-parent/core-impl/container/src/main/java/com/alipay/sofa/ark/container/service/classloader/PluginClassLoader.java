@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_CLASS_LOADER_HOOK;
 
 /**
@@ -133,8 +132,8 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         if (!skipLoadHook.get()) {
             synchronized (this) {
                 if (isHookLoaded.compareAndSet(false, true)) {
-                    pluginClassLoaderHook = ArkServiceLoader.loadExtension(ClassLoaderHook.class,
-                        PLUGIN_CLASS_LOADER_HOOK);
+                    pluginClassLoaderHook = ArkServiceLoader.loadExtensionFromArkPlugin(
+                        ClassLoaderHook.class, PLUGIN_CLASS_LOADER_HOOK, pluginName);
                     skipLoadHook.set(true);
                 }
             }
