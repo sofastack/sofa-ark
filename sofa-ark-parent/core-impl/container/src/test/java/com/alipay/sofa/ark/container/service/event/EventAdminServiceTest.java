@@ -19,8 +19,8 @@ package com.alipay.sofa.ark.container.service.event;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.ArkEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
@@ -40,10 +40,11 @@ import java.util.Set;
 public class EventAdminServiceTest extends BaseTest {
 
     private static int mark = 5;
+    static Map         map  = new HashMap();
 
     @Test
     public void test() throws Throwable {
-        Map map = new HashMap();
+
         try {
             Field field = EventAdminServiceImpl.class.getDeclaredField("SUBSCRIBER_MAP");
             field.setAccessible(true);
@@ -55,6 +56,7 @@ public class EventAdminServiceTest extends BaseTest {
             EventAdminService.class);
         eventAdminService.register(new LowPriorityMockEventHandler());
         eventAdminService.register(new HighPriorityMockEventHandler());
+        eventAdminService.register(new BeforeBizStopEventHandler());
 
         ClassLoader bizClassLoader = getClass().getClassLoader();
         Biz biz = new BizModel().setBizState(BizState.DEACTIVATED).setBizName("mock name")
@@ -70,13 +72,11 @@ public class EventAdminServiceTest extends BaseTest {
         Assert.assertFalse(((Set) map.get(bizClassLoader)).contains(eventHandler));
     }
 
-    class HighPriorityMockEventHandler implements EventHandler {
+    class HighPriorityMockEventHandler implements EventHandler<BeforeBizStopEvent> {
 
         @Override
-        public void handleEvent(ArkEvent event) {
-            if (Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP.equals(event.getTopic())) {
-                mark *= mark;
-            }
+        public void handleEvent(BeforeBizStopEvent event) {
+            mark *= mark;
         }
 
         @Override
@@ -85,13 +85,24 @@ public class EventAdminServiceTest extends BaseTest {
         }
     }
 
-    class LowPriorityMockEventHandler implements EventHandler {
+    class LowPriorityMockEventHandler implements EventHandler<BeforeBizStopEvent> {
 
         @Override
-        public void handleEvent(ArkEvent event) {
-            if (Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP.equals(event.getTopic())) {
-                mark += mark;
-            }
+        public void handleEvent(BeforeBizStopEvent event) {
+            mark += mark;
+        }
+
+        @Override
+        public int getPriority() {
+            return 100;
+        }
+    }
+
+    class BeforeBizStopEventHandler implements EventHandler<AfterBizStopEvent> {
+
+        @Override
+        public void handleEvent(AfterBizStopEvent event) {
+            map.remove(getClass().getClassLoader());
         }
 
         @Override

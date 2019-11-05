@@ -19,11 +19,18 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
+import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStartupEvent;
+import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
+import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStartupEvent;
+import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStopEvent;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -287,23 +294,37 @@ public class PluginModel implements Plugin {
             return;
         }
 
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
+
         ClassLoader oldClassLoader = ClassLoaderUtils
             .pushContextClassLoader(this.pluginClassLoader);
         try {
+            eventAdminService.sendEvent(new BeforePluginStartupEvent(this));
             pluginActivator = (PluginActivator) pluginClassLoader.loadClass(activator)
                 .newInstance();
             pluginActivator.start(pluginContext);
         } catch (Throwable ex) {
             throw new ArkRuntimeException(ex.getMessage(), ex);
         } finally {
+            eventAdminService.sendEvent(new AfterPluginStartupEvent(this));
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
+
         }
     }
 
     @Override
     public void stop() throws ArkRuntimeException {
         if (pluginActivator != null) {
-            pluginActivator.stop(pluginContext);
+            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
+                .getService(EventAdminService.class);
+            try {
+                eventAdminService.sendEvent(new BeforePluginStopEvent(this));
+                pluginActivator.stop(pluginContext);
+            } finally {
+                eventAdminService.sendEvent(new AfterPluginStopEvent(this));
+            }
+
         }
     }
 

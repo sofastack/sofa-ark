@@ -23,12 +23,12 @@ import com.alipay.sofa.ark.spi.service.PriorityOrdered;
  * @author qilong.zql
  * @since 0.4.0
  */
-public interface EventHandler extends PriorityOrdered {
+public interface EventHandler<E extends ArkEvent> extends PriorityOrdered {
     /**
      * Called by the {@link EventAdminService} service to notify the listener of an
      * event.
      *
      * @param event The event that occurred.
      */
-    void handleEvent(ArkEvent event);
+    void handleEvent(E event);
 }
