@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;
@@ -27,7 +28,12 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.google.inject.Singleton;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -138,6 +144,16 @@ public class BizManagerServiceImpl implements BizManagerService {
     }
 
     @Override
+    public List<Biz> getBizInOrderWithoutMasterBiz() {
+        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+        AssertUtils.assertNotNull(masterBizName, "masterBizName must not be null!");
+        List<Biz> bizList = getBizInOrder();
+        Biz masterBiz = getMasterBiz();
+        bizList.remove(masterBiz);
+        return bizList;
+    }
+
+    @Override
     public Biz getActiveBiz(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
         Map<String, Biz> bizCache = bizRegistration.get(bizName);
@@ -195,5 +211,21 @@ public class BizManagerServiceImpl implements BizManagerService {
             "Format of Biz Identity is error.");
         String[] str = bizIdentity.split(Constants.STRING_COLON);
         return getBizState(str[0], str[1]);
+    }
+
+    @Override
+    public Biz getMasterBiz() {
+        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+        AssertUtils.assertNotNull(masterBizName, "masterBizName must not be null!");
+        List<Biz> biz = getBiz(masterBizName);
+        AssertUtils.isFalse(biz.size() != 1,"Master biz count is illegally.");
+        return biz.get(0);
+    }
+
+    @Override
+    public boolean isMasterBiz(String bizName) {
+        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+        AssertUtils.assertNotNull(masterBizName, "masterBizName must not be null!");
+        return masterBizName.equals(bizName);
     }
 }

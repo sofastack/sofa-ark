@@ -95,6 +95,10 @@ public interface BizManagerService {
      */
     Set<String> getAllBizNames();
 
+    /**
+     * get all biz bizIdentity
+     * @return
+     */
     Set<String> getAllBizIdentities();
 
     /**
@@ -102,6 +106,12 @@ public interface BizManagerService {
      * @return
      */
     List<Biz> getBizInOrder();
+
+    /**
+     * Get all biz except master
+     * @return
+     */
+    List<Biz> getBizInOrderWithoutMasterBiz();
 
     /**
      * Get active biz with given biz name whose state
@@ -145,5 +155,18 @@ public interface BizManagerService {
      * @return
      */
     BizState getBizState(String bizIdentity);
+
+    /**
+     * 获取 master biz
+     * @return
+     */
+    Biz getMasterBiz();
+
+    /**
+     * 判断当前 biz 是不是 master Biz
+     * @param bizName
+     * @return
+     */
+    boolean isMasterBiz(String bizName);
 
 }
