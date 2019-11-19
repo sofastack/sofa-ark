@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service.event;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
@@ -46,6 +47,8 @@ public class MultiEventTest extends BaseTest {
         eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         eventAdminService.register(new MultiAfterFinishStartupEventHandler());
+
+        eventAdminService.register(new AbstractEventHandler());
     }
 
     @After
@@ -83,4 +86,20 @@ public class MultiEventTest extends BaseTest {
 
         }
     }
+
+    static class AbstractEventHandler implements EventHandler<AbstractArkEvent> {
+
+        @Override
+        public void handleEvent(AbstractArkEvent event) {
+            if (event instanceof AfterFinishStartupEvent) {
+                result.add(event.getTopic());
+            }
+        }
+
+        @Override
+        public int getPriority() {
+            return 0;
+        }
+    }
+
 }

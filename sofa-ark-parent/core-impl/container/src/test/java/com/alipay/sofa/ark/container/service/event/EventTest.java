@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * test for specified event type
+ *
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/5 10:39 AM
  * @since:
  **/
@@ -75,8 +77,6 @@ public class EventTest extends BaseTest {
         eventAdminService.register(new BeforePluginStartupEventHandler());
         eventAdminService.register(new AfterFinishDeployEventHandler());
         eventAdminService.register(new AfterFinishStartupEventHandler());
-        eventAdminService.register(new ArkEventHandler());
-        eventAdminService.register(new ArkEventHandler1());
         eventAdminService.register(new TestArkEventHandler());
     }
 
@@ -89,30 +89,25 @@ public class EventTest extends BaseTest {
     public void testEvent() {
         Biz biz = new BizModel().setBizName("test-biz").setBizVersion("1.0.0")
             .setBizState(BizState.RESOLVED);
-
         Plugin plugin = new PluginModel().setPluginName("test-plugin").setVersion("1.0.0");
-
         eventAdminService.sendEvent(new AfterBizStartupEvent(biz));
         Assert.assertTrue(result.get(0).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START));
         eventAdminService.sendEvent(new BeforeBizStartupEvent(biz));
         Assert.assertTrue(result.get(1).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_START));
-
         eventAdminService.sendEvent(new BeforeBizStopEvent(biz));
         Assert.assertTrue(result.get(2).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_STOP));
         eventAdminService.sendEvent(new AfterBizStopEvent(biz));
         Assert.assertTrue(result.get(3).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP));
-
         eventAdminService.sendEvent(new BeforeBizSwitchEvent(biz));
         Assert.assertTrue(result.get(4).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_SWITCH));
         eventAdminService.sendEvent(new AfterBizSwitchEvent(biz));
         Assert.assertTrue(result.get(5).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_SWITCH));
-
         eventAdminService.sendEvent(new AfterPluginStartupEvent(plugin));
         Assert.assertTrue(result.get(6).equalsIgnoreCase(
             Constants.PLUGIN_EVENT_TOPIC_AFTER_INVOKE_PLUGIN_START));
@@ -136,15 +131,6 @@ public class EventTest extends BaseTest {
 
         eventAdminService.sendEvent(new TestArkEvent(""));
         Assert.assertTrue(result.get(12).equalsIgnoreCase("test-ark"));
-
-        eventAdminService.sendEvent(new ArkEvent() {
-            @Override
-            public String getTopic() {
-                return "ark-event";
-            }
-        });
-        Assert.assertTrue(result.get(13).equalsIgnoreCase("ark-event"));
-        Assert.assertTrue(result.get(14).equalsIgnoreCase("ark-event"));
     }
 
     static class TestArkEvent extends AbstractArkEvent {
@@ -152,32 +138,6 @@ public class EventTest extends BaseTest {
         public TestArkEvent(Object source) {
             super(source);
             this.topic = "test-ark";
-        }
-    }
-
-    static class ArkEventHandler implements EventHandler {
-
-        @Override
-        public void handleEvent(ArkEvent event) {
-            result.add(event.getTopic());
-        }
-
-        @Override
-        public int getPriority() {
-            return 0;
-        }
-    }
-
-    static class ArkEventHandler1 implements EventHandler<ArkEvent> {
-
-        @Override
-        public void handleEvent(ArkEvent event) {
-            result.add(event.getTopic());
-        }
-
-        @Override
-        public int getPriority() {
-            return 0;
         }
     }
 

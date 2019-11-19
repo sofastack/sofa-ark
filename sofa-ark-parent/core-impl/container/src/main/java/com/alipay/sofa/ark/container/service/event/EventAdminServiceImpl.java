@@ -18,8 +18,6 @@ package com.alipay.sofa.ark.container.service.event;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
-import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
@@ -133,7 +131,6 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
 
     private boolean isSupportEventType(EventHandler eventHandler, ArkEvent event) {
         boolean isSupport = false;
-        String typeName = Constants.EMPTY_STR;
         try {
             Class<? extends EventHandler> aClass = eventHandler.getClass();
             Type[] types = aClass.getGenericInterfaces();
@@ -143,12 +140,16 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
                         Type[] actualTypeArguments = ((ParameterizedType) type)
                             .getActualTypeArguments();
                         if (actualTypeArguments.length == 1) {
-                            typeName = actualTypeArguments[0].getTypeName();
-                            if (typeName.equalsIgnoreCase(event.getClass().getName())) {
+                            if (Class.forName(actualTypeArguments[0].getTypeName())
+                                .isAssignableFrom(event.getClass())) {
                                 isSupport = true;
                                 break;
                             }
-
+                        }
+                    } else {
+                        if (ArkEvent.class.isAssignableFrom(event.getClass())) {
+                            isSupport = true;
+                            break;
                         }
                     }
                 }
@@ -156,15 +157,6 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         } catch (Throwable t) {
             // ignore
         }
-
-        // If the event type cannot be determined from the generic type,
-        // Then judge whether it is a custom ArkEvent event.
-        if (!isSupport) {
-            isSupport = !(event instanceof AbstractArkEvent)
-                        && (typeName.equalsIgnoreCase(ArkEvent.class.getName()) || typeName
-                            .equalsIgnoreCase(Constants.EMPTY_STR));
-        }
-
         return isSupport;
     }
 }
