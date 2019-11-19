@@ -137,14 +137,19 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         try {
             Class<? extends EventHandler> aClass = eventHandler.getClass();
             Type[] types = aClass.getGenericInterfaces();
-            if (types != null && types.length == 1) {
-                Type type = types[0];
-                if (type instanceof ParameterizedType) {
-                    Type[] actualTypeArguments = ((ParameterizedType) type)
-                        .getActualTypeArguments();
-                    if (actualTypeArguments.length == 1) {
-                        typeName = actualTypeArguments[0].getTypeName();
-                        isSupport = typeName.equalsIgnoreCase(event.getClass().getName());
+            if (types != null) {
+                for (Type type : types) {
+                    if (type instanceof ParameterizedType) {
+                        Type[] actualTypeArguments = ((ParameterizedType) type)
+                            .getActualTypeArguments();
+                        if (actualTypeArguments.length == 1) {
+                            typeName = actualTypeArguments[0].getTypeName();
+                            if (typeName.equalsIgnoreCase(event.getClass().getName())) {
+                                isSupport = true;
+                                break;
+                            }
+
+                        }
                     }
                 }
             }
@@ -152,6 +157,8 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
             // ignore
         }
 
+        // If the event type cannot be determined from the generic type,
+        // Then judge whether it is a custom ArkEvent event.
         if (!isSupport) {
             isSupport = !(event instanceof AbstractArkEvent)
                         && (typeName.equalsIgnoreCase(ArkEvent.class.getName()) || typeName

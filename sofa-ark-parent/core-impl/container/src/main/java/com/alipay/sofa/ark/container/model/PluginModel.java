@@ -315,16 +315,17 @@ public class PluginModel implements Plugin {
 
     @Override
     public void stop() throws ArkRuntimeException {
-        if (pluginActivator != null) {
-            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
-                .getService(EventAdminService.class);
-            try {
-                eventAdminService.sendEvent(new BeforePluginStopEvent(this));
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
+        eventAdminService.sendEvent(new BeforePluginStopEvent(this));
+        try {
+            if (pluginActivator != null) {
                 pluginActivator.stop(pluginContext);
-            } finally {
-                eventAdminService.sendEvent(new AfterPluginStopEvent(this));
             }
-
+        } catch (Throwable ex) {
+            throw new ArkRuntimeException(ex.getMessage(), ex);
+        } finally {
+            eventAdminService.sendEvent(new AfterPluginStopEvent(this));
         }
     }
 
