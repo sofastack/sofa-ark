@@ -197,6 +197,12 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             }
         }
 
+        for (String importResource : plugin.getImportResourceStems()) {
+            if (resourceName.endsWith(importResource)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
