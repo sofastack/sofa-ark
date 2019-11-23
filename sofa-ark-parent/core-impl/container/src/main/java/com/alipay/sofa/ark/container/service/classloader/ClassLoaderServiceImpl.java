@@ -65,7 +65,7 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     /* export cache and classloader relationship cache */
     private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, List<ClassLoader>> exportStemResourceAndClassLoaderMap       = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ClassLoader>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, List<ClassLoader>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
 
     private ClassLoader                                  jdkClassLoader;
@@ -132,10 +132,10 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
                 exportResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
                 exportResourceAndClassLoaderMap.get(resource).add(plugin.getPluginClassLoader());
             }
-            for (String resource : plugin.getExportResourceStems()) {
-                exportStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
-                exportStemResourceAndClassLoaderMap.get(resource)
-                    .add(plugin.getPluginClassLoader());
+            for (String resource : plugin.getExportPrefixResourceStems()) {
+                exportPrefixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
+                exportPrefixStemResourceAndClassLoaderMap.get(resource).add(
+                    plugin.getPluginClassLoader());
             }
             for (String resource : plugin.getExportSuffixResourceStems()) {
                 exportSuffixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
@@ -197,7 +197,7 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             }
         }
 
-        for (String importResource : plugin.getImportResourceStems()) {
+        for (String importResource : plugin.getImportPrefixResourceStems()) {
             if (resourceName.startsWith(importResource)) {
                 return true;
             }
@@ -219,9 +219,9 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             return exportResourceAndClassLoaderMap.get(resourceName);
         }
 
-        for (String stemResource : exportStemResourceAndClassLoaderMap.keySet()) {
+        for (String stemResource : exportPrefixStemResourceAndClassLoaderMap.keySet()) {
             if (resourceName.startsWith(stemResource)) {
-                return exportStemResourceAndClassLoaderMap.get(stemResource);
+                return exportPrefixStemResourceAndClassLoaderMap.get(stemResource);
             }
         }
 
