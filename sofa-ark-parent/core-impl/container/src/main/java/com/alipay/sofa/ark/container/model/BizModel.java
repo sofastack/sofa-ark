@@ -57,19 +57,21 @@ public class BizModel implements Biz {
 
     private ClassLoader classLoader;
 
-    private int         priority                = DEFAULT_PRECEDENCE;
+    private int         priority                      = DEFAULT_PRECEDENCE;
 
     private Set<String> denyImportPackages;
 
-    private Set<String> denyImportPackageNodes  = new HashSet<>();
+    private Set<String> denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String> denyImportPackageStems  = new HashSet<>();
+    private Set<String> denyImportPackageStems        = new HashSet<>();
 
     private Set<String> denyImportClasses;
 
-    private Set<String> denyImportResources     = new HashSet<>();
+    private Set<String> denyImportResources           = new HashSet<>();
 
-    private Set<String> denyImportResourceStems = new HashSet<>();
+    private Set<String> denyImportResourceStems       = new HashSet<>();
+
+    private Set<String> denySuffixImportResourceStems = new HashSet<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -132,7 +134,7 @@ public class BizModel implements Biz {
     public BizModel setDenyImportResources(String denyImportResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.denyImportResourceStems, this.denyImportResources);
+            this.denyImportResourceStems, denySuffixImportResourceStems, this.denyImportResources);
         return this;
     }
 

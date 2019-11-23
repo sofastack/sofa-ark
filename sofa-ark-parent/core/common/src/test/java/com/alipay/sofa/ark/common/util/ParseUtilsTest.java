@@ -31,24 +31,28 @@ import java.util.Set;
  **/
 public class ParseUtilsTest {
 
-    Set<String> candidates = new HashSet<>();
+    Set<String> candidates  = new HashSet<>();
 
-    Set<String> resources  = new HashSet<>();
+    Set<String> resources   = new HashSet<>();
 
-    Set<String> stems      = new HashSet<>();
+    Set<String> stems       = new HashSet<>();
+
+    Set<String> suffixStems = new HashSet<>();
 
     @Before
     public void before() {
         candidates.add("spring.xsd");
         candidates.add("*.xsd");
+        candidates.add("spring/*");
         candidates.add(Constants.PACKAGE_PREFIX_MARK);
     }
 
     @Test
     public void testParseUtils() {
-        ParseUtils.parseResourceAndStem(candidates, stems, resources);
-        Assert.assertTrue(stems.size() == 1 && stems.contains(".xsd"));
+        ParseUtils.parseResourceAndStem(candidates, stems, suffixStems, resources);
+        Assert.assertTrue(stems.size() == 1 && stems.contains("spring/"));
         Assert.assertTrue(resources.size() == 1 && resources.contains("spring.xsd"));
+        Assert.assertTrue(suffixStems.size() == 1 && suffixStems.contains(".xsd"));
     }
 
     @After
@@ -56,8 +60,10 @@ public class ParseUtilsTest {
         candidates.clear();
         resources.clear();
         stems.clear();
+        suffixStems.clear();
         candidates = null;
         resources = null;
+        suffixStems = null;
         stems = null;
     }
 }

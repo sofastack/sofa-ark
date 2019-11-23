@@ -148,6 +148,12 @@ public interface Plugin extends PriorityOrdered {
     Set<String> getImportResourceStems();
 
     /**
+     * get Plugin Import Resources matched by suffix
+     * @return plugin Import Resources matched by suffix
+     */
+    Set<String> getImportSuffixResourceStems();
+
+    /**
      * get Plugin Export Resources
      * @return get plugin export resources
      */
@@ -158,6 +164,12 @@ public interface Plugin extends PriorityOrdered {
      * @return plugin export resources matched by prefix
      */
     Set<String> getExportResourceStems();
+
+    /**
+     * get plugin export resources matched by suffix
+     * @return get plugin export resources matched by suffix
+     */
+    Set<String> getExportSuffixResourceStems();
 
     /**
      * get Plugin Archive URL
