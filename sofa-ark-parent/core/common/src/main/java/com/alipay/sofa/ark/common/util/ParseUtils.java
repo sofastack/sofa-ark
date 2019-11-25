@@ -47,15 +47,22 @@ public class ParseUtils {
     /**
      * Parse resource exactly match and stem(with *)
      * @param candidates candidate resources
-     * @param stems with * resources
+     * @param prefixStems with xxx/* resources match by prefix
+     * @param suffixStems with *.xxx  *\/xxx resources match by suffix
      * @param resources exactly match resources
      */
-    public static void parseResourceAndStem(Set<String> candidates, Set<String> stems,
-                                            Set<String> resources) {
+    public static void parseResourceAndStem(Set<String> candidates, Set<String> prefixStems,
+                                            Set<String> suffixStems, Set<String> resources) {
         for (String candidate : candidates) {
+            // do not support export *
+            if (candidate.equals(Constants.RESOURCE_STEM_MARK)) {
+                continue;
+            }
             if (candidate.endsWith(Constants.RESOURCE_STEM_MARK)) {
-                stems.add(candidate.substring(0,
-                    candidate.length() - Constants.RESOURCE_STEM_MARK.length()));
+                prefixStems.add(candidate.substring(0, candidate.length()
+                                                       - Constants.RESOURCE_STEM_MARK.length()));
+            } else if (candidate.startsWith(Constants.RESOURCE_STEM_MARK)) {
+                suffixStems.add(candidate.substring(Constants.RESOURCE_STEM_MARK.length()));
             } else {
                 resources.add(candidate);
             }

@@ -45,31 +45,33 @@ public class PluginModel implements Plugin {
 
     private String          version;
 
-    private int             priority            = DEFAULT_PRECEDENCE;
+    private int             priority                  = DEFAULT_PRECEDENCE;
 
     private Set<String>     exportPackages;
 
-    private Set<String>     exportPackageNodes  = new HashSet<>();
+    private Set<String>     exportPackageNodes        = new HashSet<>();
 
-    private Set<String>     exportPackageStems  = new HashSet<>();
+    private Set<String>     exportPackageStems        = new HashSet<>();
 
     private Set<String>     exportClasses;
 
     private Set<String>     importPackages;
 
-    private Set<String>     importPackageNodes  = new HashSet<>();
+    private Set<String>     importPackageNodes        = new HashSet<>();
 
-    private Set<String>     importPackageStems  = new HashSet<>();
+    private Set<String>     importPackageStems        = new HashSet<>();
 
     private Set<String>     importClasses;
 
-    private Set<String>     importResources     = new HashSet<>();
+    private Set<String>     importResources           = new HashSet<>();
 
-    private Set<String>     importResourceStems = new HashSet<>();
+    private Set<String>     importPrefixResourceStems = new HashSet<>();
+    private Set<String>     importSuffixResourceStems = new HashSet<>();
 
-    private Set<String>     exportResources     = new HashSet<>();
+    private Set<String>     exportResources           = new HashSet<>();
 
-    private Set<String>     exportResourceStems = new HashSet<>();
+    private Set<String>     exportPrefixResourceStems = new HashSet<>();
+    private Set<String>     exportSuffixResourceStems = new HashSet<>();
 
     private String          activator;
 
@@ -145,14 +147,14 @@ public class PluginModel implements Plugin {
     public PluginModel setImportResources(String importResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(importResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.importResourceStems, this.importResources);
+            this.importPrefixResourceStems, importSuffixResourceStems, this.importResources);
         return this;
     }
 
     public PluginModel setExportResources(String exportResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(exportResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.exportResourceStems, this.exportResources);
+            this.exportPrefixResourceStems, exportSuffixResourceStems, this.exportResources);
         return this;
     }
 
@@ -262,8 +264,13 @@ public class PluginModel implements Plugin {
     }
 
     @Override
-    public Set<String> getImportResourceStems() {
-        return importResourceStems;
+    public Set<String> getImportPrefixResourceStems() {
+        return importPrefixResourceStems;
+    }
+
+    @Override
+    public Set<String> getImportSuffixResourceStems() {
+        return importSuffixResourceStems;
     }
 
     @Override
@@ -272,8 +279,13 @@ public class PluginModel implements Plugin {
     }
 
     @Override
-    public Set<String> getExportResourceStems() {
-        return exportResourceStems;
+    public Set<String> getExportPrefixResourceStems() {
+        return exportPrefixResourceStems;
+    }
+
+    @Override
+    public Set<String> getExportSuffixResourceStems() {
+        return exportSuffixResourceStems;
     }
 
     @Override

@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Set;
 
 /**
  *
@@ -172,5 +173,32 @@ public class ClassLoaderServiceTest extends BaseTest {
             .findExportClassLoader("a.b.f.m.g")));
         Assert.assertNull(classloaderService.findExportClassLoader("a.f.h.m"));
         Assert.assertNull(classloaderService.findExportClassLoader("a"));
+        pluginManagerService.getPluginsInOrder().remove(plugin);
+    }
+
+    @Test
+    public void testFindExportResources() {
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("mockPlugin", new URL[] {});
+        String exportResources = "spring-beans.xsd,*.xsd,com/alipay/sofa/*,xml-test.xml";
+        Plugin plugin = new PluginModel().setPluginName("mockPlugin").setExportPackages("")
+            .setExportClasses("").setPluginClassLoader(pluginClassLoader)
+            .setExportResources(exportResources);
+        pluginManagerService.registerPlugin(plugin);
+        classloaderService.prepareExportClassAndResourceCache();
+
+        Set<String> exportPrefixResourceStems = plugin.getExportPrefixResourceStems();
+        Assert.assertTrue(exportPrefixResourceStems.contains("com/alipay/sofa/"));
+
+        Set<String> exportSuffixResourceStems = plugin.getExportSuffixResourceStems();
+        Assert.assertTrue(exportSuffixResourceStems.contains(".xsd"));
+
+        Set<String> resources = plugin.getExportResources();
+        Assert.assertTrue(resources.contains("xml-test.xml"));
+        Assert.assertTrue(resources.contains("spring-beans.xsd"));
+
+        plugin.getExportPrefixResourceStems().clear();
+        plugin.getExportSuffixResourceStems().clear();
+        plugin.getExportResources().clear();
+        pluginManagerService.getPluginsInOrder().remove(plugin);
     }
 }
