@@ -345,8 +345,14 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             }
         }
 
-        for (String resource : biz.getDenyImportResourceStems()) {
+        for (String resource : biz.getDenyPrefixImportResourceStems()) {
             if (resourceName.startsWith(resource)) {
+                return true;
+            }
+        }
+
+        for (String resource : biz.getDenySuffixImportResourceStems()) {
+            if (resourceName.endsWith(resource)) {
                 return true;
             }
         }

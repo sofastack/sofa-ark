@@ -84,10 +84,16 @@ public interface BizInfo {
     Set<String> getDenyImportResources();
 
     /**
-     * get denied imported resource stems
+     * get denied imported resource stems by prefix
      * @return denied imported resource stems
      */
-    Set<String> getDenyImportResourceStems();
+    Set<String> getDenyPrefixImportResourceStems();
+
+    /**
+     * get denied imported resource stems by suffix
+     * @return denied imported resource stems
+     */
+    Set<String> getDenySuffixImportResourceStems();
 
     /**
      * get Biz Classloader

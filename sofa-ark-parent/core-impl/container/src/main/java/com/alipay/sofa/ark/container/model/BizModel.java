@@ -69,7 +69,7 @@ public class BizModel implements Biz {
 
     private Set<String> denyImportResources           = new HashSet<>();
 
-    private Set<String> denyImportResourceStems       = new HashSet<>();
+    private Set<String> denyPrefixImportResourceStems = new HashSet<>();
 
     private Set<String> denySuffixImportResourceStems = new HashSet<>();
 
@@ -134,7 +134,8 @@ public class BizModel implements Biz {
     public BizModel setDenyImportResources(String denyImportResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.denyImportResourceStems, denySuffixImportResourceStems, this.denyImportResources);
+            this.denyPrefixImportResourceStems, denySuffixImportResourceStems,
+            this.denyImportResources);
         return this;
     }
 
@@ -199,8 +200,13 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public Set<String> getDenyImportResourceStems() {
-        return denyImportResourceStems;
+    public Set<String> getDenyPrefixImportResourceStems() {
+        return denyPrefixImportResourceStems;
+    }
+
+    @Override
+    public Set<String> getDenySuffixImportResourceStems() {
+        return denySuffixImportResourceStems;
     }
 
     @Override
