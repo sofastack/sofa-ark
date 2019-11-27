@@ -102,8 +102,9 @@ public class ArkClientTest extends BaseTest {
         ArkClient.uninstallBiz("biz-demo", "3.0.0");
         ArkClient.installBiz(new File(bizUrl3.getFile()), new String[] { "demo" });
         ArkClient.uninstallBiz("biz-demo", "3.0.0");
-        Assert.assertEquals("No arguments", topicList.get(0));
-        Assert.assertEquals("demo", topicList.get(1));
+        Assert.assertEquals("BEFORE-INVOKE-BIZ-START", topicList.get(0));
+        Assert.assertEquals("No arguments", topicList.get(1));
+        Assert.assertEquals("AFTER-INVOKE-BIZ-START", topicList.get(2));
     }
 
     @Test
