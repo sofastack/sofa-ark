@@ -279,9 +279,7 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
-
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
-        eventAdminService.sendEvent(new BeforeBizSwitchEvent(biz));
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
             .setMessage(
                 String.format("Switch biz: %s not found.",
@@ -293,12 +291,13 @@ public class ArkClient {
                     String.format("Switch Biz: %s's state must not be %s.", biz.getIdentity(),
                         biz.getBizState()));
             } else {
+                eventAdminService.sendEvent(new BeforeBizSwitchEvent(biz));
                 bizManagerService.activeBiz(bizName, bizVersion);
+                eventAdminService.sendEvent(new AfterBizSwitchEvent(biz));
                 response.setCode(ResponseCode.SUCCESS).setMessage(
                     String.format("Switch biz: %s is activated.", biz.getIdentity()));
             }
         }
-        eventAdminService.sendEvent(new AfterBizSwitchEvent(biz));
         LOGGER.info(response.getMessage());
         return response;
     }

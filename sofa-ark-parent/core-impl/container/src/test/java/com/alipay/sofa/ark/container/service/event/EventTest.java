@@ -24,7 +24,6 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
-import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizSwitchEvent;
