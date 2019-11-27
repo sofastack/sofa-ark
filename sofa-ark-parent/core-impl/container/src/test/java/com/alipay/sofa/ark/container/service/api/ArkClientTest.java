@@ -105,6 +105,7 @@ public class ArkClientTest extends BaseTest {
         Assert.assertEquals("BEFORE-INVOKE-BIZ-START", topicList.get(0));
         Assert.assertEquals("No arguments", topicList.get(1));
         Assert.assertEquals("AFTER-INVOKE-BIZ-START", topicList.get(2));
+        Assert.assertEquals("demo", topicList.get(6));
     }
 
     @Test
