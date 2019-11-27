@@ -19,7 +19,8 @@ package com.alipay.sofa.ark.container.service.event;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
-import com.alipay.sofa.ark.spi.event.BizEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
+import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
@@ -29,14 +30,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP;
 
 /**
  * @author qilong.zql
@@ -46,6 +47,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EVENT_TOPIC_AFTER_I
 public class EventAdminServiceImpl implements EventAdminService, EventHandler {
 
     private final static ConcurrentMap<ClassLoader, CopyOnWriteArraySet<EventHandler>> SUBSCRIBER_MAP = new ConcurrentHashMap<>();
+
     private final static Logger                                                        LOGGER         = ArkLoggerFactory
                                                                                                           .getDefaultLogger();
 
@@ -68,7 +70,9 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         }
         Collections.sort(eventHandlers, new OrderComparator());
         for (EventHandler eventHandler : eventHandlers) {
-            eventHandler.handleEvent(event);
+            if (isSupportEventType(eventHandler, event)) {
+                eventHandler.handleEvent(event);
+            }
         }
     }
 
@@ -77,7 +81,7 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
         CopyOnWriteArraySet<EventHandler> set = SUBSCRIBER_MAP.get(eventHandler.getClass()
             .getClassLoader());
         if (set == null) {
-            set = new CopyOnWriteArraySet<EventHandler>();
+            set = new CopyOnWriteArraySet<>();
             CopyOnWriteArraySet<EventHandler> old = SUBSCRIBER_MAP.putIfAbsent(eventHandler
                 .getClass().getClassLoader(), set);
             if (old != null) {
@@ -107,16 +111,71 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
 
     @Override
     public void handleEvent(ArkEvent event) {
-        if (!(event instanceof BizEvent)) {
-            return;
+        ClassLoader classLoader = null;
+
+        if (event instanceof AfterBizStopEvent) {
+            classLoader = ((AfterBizStopEvent) event).getSource().getBizClassLoader();
+        } else if (event instanceof AfterPluginStopEvent) {
+            classLoader = ((AfterPluginStopEvent) event).getSource().getPluginClassLoader();
         }
-        if (BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP.equals(event.getTopic())) {
-            unRegister(((BizEvent) event).getBiz().getBizClassLoader());
+
+        if (classLoader != null) {
+            unRegister(classLoader);
         }
     }
 
     @Override
     public int getPriority() {
         return PriorityOrdered.LOWEST_PRECEDENCE;
+    }
+
+    private boolean isSupportEventType(EventHandler eventHandler, ArkEvent event) {
+        boolean isSupport = false;
+        try {
+            Class<? extends EventHandler> aClass = eventHandler.getClass();
+            // get current class's interface type
+            Type[] types = aClass.getGenericInterfaces();
+            if (types != null) {
+                // traverse types
+                for (Type type : types) {
+                    if (!checkEventHandlerType(type)) {
+                        continue;
+                    }
+                    if (type instanceof ParameterizedType) {
+                        // 1、a generic type is specified, the current type and its subclasses will be processed
+                        Type[] actualTypeArguments = ((ParameterizedType) type)
+                            .getActualTypeArguments();
+                        if (actualTypeArguments.length == 1) {
+                            if (Class.forName(actualTypeArguments[0].getTypeName())
+                                .isAssignableFrom(event.getClass())) {
+                                isSupport = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // 2、no generic type is specified, ArkEvent and its subclasses will handle
+                        if (ArkEvent.class.isAssignableFrom(event.getClass())) {
+                            isSupport = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            // ignore
+        }
+        return isSupport;
+    }
+
+    private boolean checkEventHandlerType(Type type) {
+        if (type.getTypeName().equals(EventHandler.class.getTypeName())) {
+            return true;
+        }
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            return parameterizedType.getRawType().getTypeName()
+                .equals(EventHandler.class.getTypeName());
+        }
+        return false;
     }
 }

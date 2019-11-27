@@ -23,6 +23,8 @@ import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizSwitchEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizSwitchEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizOperation;
@@ -31,6 +33,7 @@ import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.replay.ReplayContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 
 import java.io.File;
@@ -55,6 +58,9 @@ public class ArkClient {
     private static InjectionService  injectionService;
     private static String[]          arguments;
     private final static File        bizInstallDirectory;
+
+    private static EventAdminService eventAdminService;
+
     static {
         bizInstallDirectory = getBizInstallDirectory();
     }
@@ -102,6 +108,14 @@ public class ArkClient {
 
     public static void setBizFactoryService(BizFactoryService bizFactoryService) {
         ArkClient.bizFactoryService = bizFactoryService;
+    }
+
+    public static EventAdminService getEventAdminService() {
+        return eventAdminService;
+    }
+
+    public static void setEventAdminService(EventAdminService eventAdminService) {
+        ArkClient.eventAdminService = eventAdminService;
     }
 
     public static String[] getArguments() {
@@ -265,7 +279,6 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
-
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
             .setMessage(
@@ -278,7 +291,9 @@ public class ArkClient {
                     String.format("Switch Biz: %s's state must not be %s.", biz.getIdentity(),
                         biz.getBizState()));
             } else {
+                eventAdminService.sendEvent(new BeforeBizSwitchEvent(biz));
                 bizManagerService.activeBiz(bizName, bizVersion);
+                eventAdminService.sendEvent(new AfterBizSwitchEvent(biz));
                 response.setCode(ResponseCode.SUCCESS).setMessage(
                     String.format("Switch biz: %s is activated.", biz.getIdentity()));
             }

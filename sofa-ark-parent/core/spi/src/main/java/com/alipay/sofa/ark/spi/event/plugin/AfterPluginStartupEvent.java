@@ -14,28 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.pipeline;
+package com.alipay.sofa.ark.spi.event.plugin;
 
-import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
-import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
-import com.alipay.sofa.ark.spi.service.event.EventAdminService;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
+import com.alipay.sofa.ark.spi.model.Plugin;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
- */
-@Singleton
-public class FinishStartupStage implements PipelineStage {
-    @Inject
-    private EventAdminService eventAdminService;
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 6:17 PM
+ * @since:
+ **/
+public class AfterPluginStartupEvent extends AbstractArkEvent<Plugin> {
 
-    @Override
-    public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
-        eventAdminService.sendEvent(new AfterFinishStartupEvent());
+    public AfterPluginStartupEvent(Plugin source) {
+        super(source);
+        this.topic = Constants.PLUGIN_EVENT_TOPIC_AFTER_INVOKE_PLUGIN_START;
     }
 }

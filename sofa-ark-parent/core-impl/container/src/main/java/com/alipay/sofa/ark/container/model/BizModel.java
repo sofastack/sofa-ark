@@ -25,7 +25,10 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.BizEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -217,19 +220,19 @@ public class BizModel implements Biz {
         }
 
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
         try {
+            eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
-            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
-                .getService(EventAdminService.class);
-            // this can trigger health checker handler
-            eventAdminService.sendEvent(new BizEvent(this,
-                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
         } finally {
+            // this can trigger health checker handler
+            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
 
@@ -248,12 +251,11 @@ public class BizModel implements Biz {
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
         bizState = BizState.DEACTIVATED;
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
         try {
-            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
-                .getService(EventAdminService.class);
             // this can trigger uninstall handler
-            eventAdminService.sendEvent(new BizEvent(this,
-                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP));
+            eventAdminService.sendEvent(new BeforeBizStopEvent(this));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -264,6 +266,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
+            eventAdminService.sendEvent(new AfterBizStopEvent(this));
         }
     }
 

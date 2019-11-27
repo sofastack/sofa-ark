@@ -25,7 +25,6 @@ import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +86,7 @@ public class ArkClientTest extends BaseTest {
         EventAdminService eventAdminService = arkServiceContainer
             .getService(EventAdminService.class);
         List<String> topicList = new ArrayList<>();
-        EventHandler eventHandler = new EventHandler() {
+        EventHandler eventHandler = new EventHandler<ArkEvent>() {
             @Override
             public void handleEvent(ArkEvent event) {
                 topicList.add(event.getTopic());
@@ -103,8 +102,10 @@ public class ArkClientTest extends BaseTest {
         ArkClient.uninstallBiz("biz-demo", "3.0.0");
         ArkClient.installBiz(new File(bizUrl3.getFile()), new String[] { "demo" });
         ArkClient.uninstallBiz("biz-demo", "3.0.0");
-        Assert.assertEquals("No arguments", topicList.get(0));
-        Assert.assertEquals("demo", topicList.get(3));
+        Assert.assertEquals("BEFORE-INVOKE-BIZ-START", topicList.get(0));
+        Assert.assertEquals("No arguments", topicList.get(1));
+        Assert.assertEquals("AFTER-INVOKE-BIZ-START", topicList.get(2));
+        Assert.assertEquals("demo", topicList.get(6));
     }
 
     @Test
