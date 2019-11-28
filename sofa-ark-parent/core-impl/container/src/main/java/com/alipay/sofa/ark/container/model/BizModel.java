@@ -226,13 +226,14 @@ public class BizModel implements Biz {
             resetProperties();
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
+            // this can trigger health checker handler
+            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
-
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
         if (bizManagerService.getActiveBiz(bizName) == null) {
@@ -240,8 +241,6 @@ public class BizModel implements Biz {
         } else {
             bizState = BizState.DEACTIVATED;
         }
-        // this can trigger health checker handler
-        eventAdminService.sendEvent(new AfterBizStartupEvent(this));
     }
 
     @Override
