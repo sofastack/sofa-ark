@@ -218,7 +218,6 @@ public class BizModel implements Biz {
         if (mainClass == null) {
             throw new ArkRuntimeException(String.format("biz: %s has no main method", getBizName()));
         }
-
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
@@ -227,15 +226,14 @@ public class BizModel implements Biz {
             resetProperties();
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
+            // this can trigger health checker handler
+            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
         } finally {
-            // this can trigger health checker handler
-            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
-
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
         if (bizManagerService.getActiveBiz(bizName) == null) {
