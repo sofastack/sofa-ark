@@ -55,6 +55,7 @@ public class ArkClient {
     private static ArkLogger         LOGGER = ArkLoggerFactory.getDefaultLogger();
     private static BizManagerService bizManagerService;
     private static BizFactoryService bizFactoryService;
+    private static Biz               masterBiz;
     private static InjectionService  injectionService;
     private static String[]          arguments;
     private final static File        bizInstallDirectory;
@@ -108,6 +109,14 @@ public class ArkClient {
 
     public static void setBizFactoryService(BizFactoryService bizFactoryService) {
         ArkClient.bizFactoryService = bizFactoryService;
+    }
+
+    public static Biz getMasterBiz() {
+        return masterBiz;
+    }
+
+    public static void setMasterBiz(Biz masterBiz) {
+        ArkClient.masterBiz = masterBiz;
     }
 
     public static EventAdminService getEventAdminService() {
