@@ -201,7 +201,7 @@ public class ArkClient {
                 "Master biz must not be uninstalled.");
         }
 
-        Biz biz = bizManagerService.unRegisterBiz(bizName, bizVersion);
+        Biz biz = bizManagerService.getBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
             .setMessage(
                 String.format("Uninstall biz: %s not found.",

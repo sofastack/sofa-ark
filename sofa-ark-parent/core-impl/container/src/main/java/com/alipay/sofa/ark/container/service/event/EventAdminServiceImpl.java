@@ -142,7 +142,7 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
                         continue;
                     }
                     if (type instanceof ParameterizedType) {
-                        // 1、a generic type is specified, the current type and its subclasses will be processed
+                        // a generic type is specified, the current type and its subclasses will be processed
                         Type[] actualTypeArguments = ((ParameterizedType) type)
                             .getActualTypeArguments();
                         if (actualTypeArguments.length == 1) {
@@ -153,7 +153,7 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
                             }
                         }
                     } else {
-                        // 2、no generic type is specified, ArkEvent and its subclasses will handle
+                        // no generic type is specified, ArkEvent and its subclasses will handle
                         if (ArkEvent.class.isAssignableFrom(event.getClass())) {
                             isSupport = true;
                             break;
