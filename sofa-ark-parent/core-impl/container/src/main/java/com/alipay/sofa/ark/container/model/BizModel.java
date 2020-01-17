@@ -38,6 +38,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ark Biz Standard Model
@@ -61,7 +62,7 @@ public class BizModel implements Biz {
 
     private ClassLoader         classLoader;
 
-    private Map<String, String> attributes;
+    private Map<String, String> attributes                    = new ConcurrentHashMap<>();
 
     private int                 priority                      = DEFAULT_PRECEDENCE;
 
