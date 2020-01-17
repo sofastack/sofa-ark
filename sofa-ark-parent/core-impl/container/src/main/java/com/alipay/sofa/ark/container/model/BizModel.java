@@ -36,6 +36,7 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -46,35 +47,37 @@ import java.util.Set;
  */
 public class BizModel implements Biz {
 
-    private String      bizName;
+    private String              bizName;
 
-    private String      bizVersion;
+    private String              bizVersion;
 
-    private BizState    bizState;
+    private BizState            bizState;
 
-    private String      mainClass;
+    private String              mainClass;
 
-    private String      webContextPath;
+    private String              webContextPath;
 
-    private URL[]       urls;
+    private URL[]               urls;
 
-    private ClassLoader classLoader;
+    private ClassLoader         classLoader;
 
-    private int         priority                      = DEFAULT_PRECEDENCE;
+    private Map<String, String> attributes;
 
-    private Set<String> denyImportPackages;
+    private int                 priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String> denyImportPackageNodes        = new HashSet<>();
+    private Set<String>         denyImportPackages;
 
-    private Set<String> denyImportPackageStems        = new HashSet<>();
+    private Set<String>         denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String> denyImportClasses;
+    private Set<String>         denyImportPackageStems        = new HashSet<>();
 
-    private Set<String> denyImportResources           = new HashSet<>();
+    private Set<String>         denyImportClasses;
 
-    private Set<String> denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>         denyImportResources           = new HashSet<>();
 
-    private Set<String> denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
+
+    private Set<String>         denySuffixImportResourceStems = new HashSet<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -139,6 +142,16 @@ public class BizModel implements Biz {
             StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT),
             this.denyPrefixImportResourceStems, denySuffixImportResourceStems,
             this.denyImportResources);
+        return this;
+    }
+
+    public BizModel setAttribute(String key, String val) {
+        attributes.put(key, val);
+        return this;
+    }
+
+    public BizModel setAttributes(Map<String, String> attributes) {
+        this.attributes.putAll(attributes);
         return this;
     }
 
@@ -276,6 +289,11 @@ public class BizModel implements Biz {
     @Override
     public String getWebContextPath() {
         return webContextPath;
+    }
+
+    @Override
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
     @Override
