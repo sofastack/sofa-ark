@@ -26,6 +26,9 @@ import java.net.URLClassLoader;
  * @since 0.1.0
  */
 public class JDKDelegateClassLoader extends URLClassLoader {
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
 
     public JDKDelegateClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
