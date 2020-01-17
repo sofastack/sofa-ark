@@ -52,6 +52,10 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     protected ClassLoaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
                                                             .getService(ClassLoaderService.class);
 
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
     public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
     }
