@@ -113,7 +113,7 @@ public interface BizInfo {
     String getWebContextPath();
 
     /**
-     * 属性
+     * get Biz attributes
      * @return
      */
     Map<String, String> getAttributes();
