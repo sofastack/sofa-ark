@@ -44,6 +44,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     private ClassLoaderHook<Biz> bizClassLoaderHook;
     private AtomicBoolean        isHookLoaded      = new AtomicBoolean(false);
     private AtomicBoolean        skipLoadHook      = new AtomicBoolean(false);
+    private final Object         lock              = new Object();
+
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
 
     public BizClassLoader(String bizIdentity, URL[] urls) {
         super(urls);
@@ -126,7 +131,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     private void loadBizClassLoaderHook() {
         if (!skipLoadHook.get()) {
-            synchronized (this) {
+            synchronized (lock) {
                 if (isHookLoaded.compareAndSet(false, true)) {
                     bizClassLoaderHook = ArkServiceLoader.loadExtensionFromArkBiz(
                         ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK, bizIdentity);

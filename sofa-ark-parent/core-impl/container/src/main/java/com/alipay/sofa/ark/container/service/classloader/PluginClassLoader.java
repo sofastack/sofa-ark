@@ -44,6 +44,11 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
     private PluginManagerService    pluginManagerService = ArkServiceContainerHolder
                                                              .getContainer()
                                                              .getService(PluginManagerService.class);
+    private final Object            lock                 = new Object();
+
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
 
     public PluginClassLoader(String pluginName, URL[] urls) {
         super(urls);
@@ -130,7 +135,7 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
 
     private void loadPluginClassLoaderHook() {
         if (!skipLoadHook.get()) {
-            synchronized (this) {
+            synchronized (lock) {
                 if (isHookLoaded.compareAndSet(false, true)) {
                     pluginClassLoaderHook = ArkServiceLoader.loadExtensionFromArkPlugin(
                         ClassLoaderHook.class, PLUGIN_CLASS_LOADER_HOOK, pluginName);
