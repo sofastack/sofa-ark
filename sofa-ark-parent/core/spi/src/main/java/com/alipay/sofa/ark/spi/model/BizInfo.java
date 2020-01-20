@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.spi.model;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -110,4 +111,10 @@ public interface BizInfo {
      * get web context path
      */
     String getWebContextPath();
+
+    /**
+     * get Biz attributes
+     * @return
+     */
+    Map<String, String> getAttributes();
 }
