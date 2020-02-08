@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.config.ConfigProcessor;
 import com.alipay.sofa.ark.config.util.OperationTransformer;
@@ -54,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_SERVER_ENABLE;
+
 /**
  * @author qilong.zql
  * @author GengZhang
@@ -63,6 +66,10 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     private final static ArkLogger LOGGER          = ArkLoggerFactory
                                                        .getLogger(ZookeeperConfigActivator.class);
+
+    private boolean                enableZkServer  = EnvironmentUtils.getProperty(
+                                                       CONFIG_SERVER_ENABLE, "true")
+                                                       .equalsIgnoreCase("true");
 
     /**
      * Zookeeper zkClient
@@ -88,6 +95,12 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     @Override
     public void start(final PluginContext context) {
+
+        if (!enableZkServer) {
+            LOGGER.warn("config server is disabled.");
+            return;
+        }
+
         String config = ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ADDRESS);
         RegistryConfig registryConfig = ZookeeperConfigurator.buildConfig(config);
         String address = registryConfig.getAddress();
@@ -135,6 +148,11 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     @Override
     public void stop(PluginContext context) {
+
+        if (!enableZkServer) {
+            return;
+        }
+
         if (ipNodeCache != null) {
             try {
                 ipNodeCache.close();
