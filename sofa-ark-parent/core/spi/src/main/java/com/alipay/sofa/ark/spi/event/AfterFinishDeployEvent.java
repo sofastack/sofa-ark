@@ -16,34 +16,16 @@
  */
 package com.alipay.sofa.ark.spi.event;
 
-import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 /**
- * An biz event
- *
- * @author qilong.zql
- * @since 0.4.
- */
-public class BizEvent implements ArkEvent {
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/4 3:31 PM
+ * @since:
+ **/
+public class AfterFinishDeployEvent extends AbstractArkEvent<String> {
 
-    private final Biz    biz;
-    private final String topic;
-
-    public BizEvent(Biz biz, String topic) {
-        this.biz = biz;
-        this.topic = topic;
-    }
-
-    /**
-     * Get Biz related to this biz event
-     * @return
-     */
-    public Biz getBiz() {
-        return biz;
-    }
-
-    @Override
-    public String getTopic() {
-        return this.topic;
+    public AfterFinishDeployEvent() {
+        super(Constants.EMPTY_STR);
+        this.topic = Constants.ARK_EVENT_TOPIC_AFTER_FINISH_DEPLOY_STAGE;
     }
 }

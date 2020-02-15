@@ -25,7 +25,10 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.BizEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -33,7 +36,9 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ark Biz Standard Model
@@ -43,33 +48,37 @@ import java.util.Set;
  */
 public class BizModel implements Biz {
 
-    private String      bizName;
+    private String              bizName;
 
-    private String      bizVersion;
+    private String              bizVersion;
 
-    private BizState    bizState;
+    private BizState            bizState;
 
-    private String      mainClass;
+    private String              mainClass;
 
-    private String      webContextPath;
+    private String              webContextPath;
 
-    private URL[]       urls;
+    private URL[]               urls;
 
-    private ClassLoader classLoader;
+    private ClassLoader         classLoader;
 
-    private int         priority                = DEFAULT_PRECEDENCE;
+    private Map<String, String> attributes                    = new ConcurrentHashMap<>();
 
-    private Set<String> denyImportPackages;
+    private int                 priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String> denyImportPackageNodes  = new HashSet<>();
+    private Set<String>         denyImportPackages;
 
-    private Set<String> denyImportPackageStems  = new HashSet<>();
+    private Set<String>         denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String> denyImportClasses;
+    private Set<String>         denyImportPackageStems        = new HashSet<>();
 
-    private Set<String> denyImportResources     = new HashSet<>();
+    private Set<String>         denyImportClasses;
 
-    private Set<String> denyImportResourceStems = new HashSet<>();
+    private Set<String>         denyImportResources           = new HashSet<>();
+
+    private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
+
+    private Set<String>         denySuffixImportResourceStems = new HashSet<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -132,7 +141,18 @@ public class BizModel implements Biz {
     public BizModel setDenyImportResources(String denyImportResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(denyImportResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.denyImportResourceStems, this.denyImportResources);
+            this.denyPrefixImportResourceStems, denySuffixImportResourceStems,
+            this.denyImportResources);
+        return this;
+    }
+
+    public BizModel setAttribute(String key, String val) {
+        attributes.put(key, val);
+        return this;
+    }
+
+    public BizModel setAttributes(Map<String, String> attributes) {
+        this.attributes.putAll(attributes);
         return this;
     }
 
@@ -197,8 +217,13 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public Set<String> getDenyImportResourceStems() {
-        return denyImportResourceStems;
+    public Set<String> getDenyPrefixImportResourceStems() {
+        return denyPrefixImportResourceStems;
+    }
+
+    @Override
+    public Set<String> getDenySuffixImportResourceStems() {
+        return denySuffixImportResourceStems;
     }
 
     @Override
@@ -207,24 +232,22 @@ public class BizModel implements Biz {
         if (mainClass == null) {
             throw new ArkRuntimeException(String.format("biz: %s has no main method", getBizName()));
         }
-
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
         try {
+            eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
             MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
             mainMethodRunner.run();
-            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
-                .getService(EventAdminService.class);
             // this can trigger health checker handler
-            eventAdminService.sendEvent(new BizEvent(this,
-                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START));
+            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
-
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
         if (bizManagerService.getActiveBiz(bizName) == null) {
@@ -240,12 +263,11 @@ public class BizModel implements Biz {
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
         bizState = BizState.DEACTIVATED;
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
         try {
-            EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer()
-                .getService(EventAdminService.class);
             // this can trigger uninstall handler
-            eventAdminService.sendEvent(new BizEvent(this,
-                Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP));
+            eventAdminService.sendEvent(new BeforeBizStopEvent(this));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -256,6 +278,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
+            eventAdminService.sendEvent(new AfterBizStopEvent(this));
         }
     }
 
@@ -267,6 +290,11 @@ public class BizModel implements Biz {
     @Override
     public String getWebContextPath() {
         return webContextPath;
+    }
+
+    @Override
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
     @Override

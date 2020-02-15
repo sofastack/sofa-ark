@@ -14,17 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.service.biz;
+package com.alipay.sofa.ark.spi.event.plugin;
 
-import com.alipay.sofa.ark.spi.service.extension.Extensible;
-
-import java.io.File;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
+import com.alipay.sofa.ark.spi.model.Plugin;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
- */
-@Extensible
-public interface BizFileGenerator {
-    File createBizFile(String bizName, String bizVersion);
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 10:56 AM
+ * @since:
+ **/
+public class BeforePluginStartupEvent extends AbstractArkEvent<Plugin> {
+
+    public BeforePluginStartupEvent(Plugin source) {
+        super(source);
+        this.topic = Constants.PLUGIN_EVENT_TOPIC_BEFORE_INVOKE_PLUGIN_START;
+    }
 }

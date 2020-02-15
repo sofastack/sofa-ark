@@ -26,6 +26,10 @@ import java.net.URLClassLoader;
  * @since 0.6.0
  */
 public class AgentClassLoader extends URLClassLoader {
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
     public AgentClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }

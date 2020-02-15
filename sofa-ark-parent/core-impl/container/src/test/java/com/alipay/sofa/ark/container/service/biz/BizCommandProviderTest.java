@@ -209,6 +209,11 @@ public class BizCommandProviderTest extends BaseTest {
 
         @Override
         public void stop() {
+            // just to mock stop
+            Biz biz = bizManagerService.getBiz(this.getBizName(), this.getBizVersion());
+            if (biz.getBizState() != BizState.RESOLVED) {
+                bizManagerService.unRegisterBiz(this.getBizName(), this.getBizVersion());
+            }
         }
     }
 

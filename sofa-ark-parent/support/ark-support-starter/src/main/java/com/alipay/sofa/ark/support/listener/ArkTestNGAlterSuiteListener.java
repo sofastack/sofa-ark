@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.support.listener;
 
-import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import org.testng.IAlterSuiteListener;

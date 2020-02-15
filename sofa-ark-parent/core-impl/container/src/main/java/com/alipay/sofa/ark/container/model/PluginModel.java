@@ -19,11 +19,17 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStartupEvent;
+import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
+import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStartupEvent;
+import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStopEvent;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -45,31 +51,33 @@ public class PluginModel implements Plugin {
 
     private String          version;
 
-    private int             priority            = DEFAULT_PRECEDENCE;
+    private int             priority                  = DEFAULT_PRECEDENCE;
 
     private Set<String>     exportPackages;
 
-    private Set<String>     exportPackageNodes  = new HashSet<>();
+    private Set<String>     exportPackageNodes        = new HashSet<>();
 
-    private Set<String>     exportPackageStems  = new HashSet<>();
+    private Set<String>     exportPackageStems        = new HashSet<>();
 
     private Set<String>     exportClasses;
 
     private Set<String>     importPackages;
 
-    private Set<String>     importPackageNodes  = new HashSet<>();
+    private Set<String>     importPackageNodes        = new HashSet<>();
 
-    private Set<String>     importPackageStems  = new HashSet<>();
+    private Set<String>     importPackageStems        = new HashSet<>();
 
     private Set<String>     importClasses;
 
-    private Set<String>     importResources     = new HashSet<>();
+    private Set<String>     importResources           = new HashSet<>();
 
-    private Set<String>     importResourceStems = new HashSet<>();
+    private Set<String>     importPrefixResourceStems = new HashSet<>();
+    private Set<String>     importSuffixResourceStems = new HashSet<>();
 
-    private Set<String>     exportResources     = new HashSet<>();
+    private Set<String>     exportResources           = new HashSet<>();
 
-    private Set<String>     exportResourceStems = new HashSet<>();
+    private Set<String>     exportPrefixResourceStems = new HashSet<>();
+    private Set<String>     exportSuffixResourceStems = new HashSet<>();
 
     private String          activator;
 
@@ -145,14 +153,14 @@ public class PluginModel implements Plugin {
     public PluginModel setImportResources(String importResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(importResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.importResourceStems, this.importResources);
+            this.importPrefixResourceStems, importSuffixResourceStems, this.importResources);
         return this;
     }
 
     public PluginModel setExportResources(String exportResources) {
         ParseUtils.parseResourceAndStem(
             StringUtils.strToSet(exportResources, Constants.MANIFEST_VALUE_SPLIT),
-            this.exportResourceStems, this.exportResources);
+            this.exportPrefixResourceStems, exportSuffixResourceStems, this.exportResources);
         return this;
     }
 
@@ -262,8 +270,13 @@ public class PluginModel implements Plugin {
     }
 
     @Override
-    public Set<String> getImportResourceStems() {
-        return importResourceStems;
+    public Set<String> getImportPrefixResourceStems() {
+        return importPrefixResourceStems;
+    }
+
+    @Override
+    public Set<String> getImportSuffixResourceStems() {
+        return importSuffixResourceStems;
     }
 
     @Override
@@ -272,8 +285,13 @@ public class PluginModel implements Plugin {
     }
 
     @Override
-    public Set<String> getExportResourceStems() {
-        return exportResourceStems;
+    public Set<String> getExportPrefixResourceStems() {
+        return exportPrefixResourceStems;
+    }
+
+    @Override
+    public Set<String> getExportSuffixResourceStems() {
+        return exportSuffixResourceStems;
     }
 
     @Override
@@ -287,23 +305,38 @@ public class PluginModel implements Plugin {
             return;
         }
 
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
+
         ClassLoader oldClassLoader = ClassLoaderUtils
             .pushContextClassLoader(this.pluginClassLoader);
         try {
+            eventAdminService.sendEvent(new BeforePluginStartupEvent(this));
             pluginActivator = (PluginActivator) pluginClassLoader.loadClass(activator)
                 .newInstance();
             pluginActivator.start(pluginContext);
         } catch (Throwable ex) {
             throw new ArkRuntimeException(ex.getMessage(), ex);
         } finally {
+            eventAdminService.sendEvent(new AfterPluginStartupEvent(this));
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
+
         }
     }
 
     @Override
     public void stop() throws ArkRuntimeException {
-        if (pluginActivator != null) {
-            pluginActivator.stop(pluginContext);
+        EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
+            EventAdminService.class);
+        eventAdminService.sendEvent(new BeforePluginStopEvent(this));
+        try {
+            if (pluginActivator != null) {
+                pluginActivator.stop(pluginContext);
+            }
+        } catch (Throwable ex) {
+            throw new ArkRuntimeException(ex.getMessage(), ex);
+        } finally {
+            eventAdminService.sendEvent(new AfterPluginStopEvent(this));
         }
     }
 

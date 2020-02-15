@@ -48,24 +48,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class ClassLoaderServiceImpl implements ClassLoaderService {
 
-    private static final ArkLogger                       LOGGER                              = ArkLoggerFactory
-                                                                                                 .getDefaultLogger();
+    private static final ArkLogger                       LOGGER                                    = ArkLoggerFactory
+                                                                                                       .getDefaultLogger();
 
-    private static final String                          ARK_SPI_PACKAGES                    = "com.alipay.sofa.ark.spi";
-    private static final String                          ARK_API_PACKAGES                    = "com.alipay.sofa.ark.api";
-    private static final String                          ARK_LOG_PACKAGES                    = "com.alipay.sofa.ark.common.log";
-    private static final String                          ARK_EXCEPTION_PACKAGES              = "com.alipay.sofa.ark.exception";
+    private static final String                          ARK_SPI_PACKAGES                          = "com.alipay.sofa.ark.spi";
+    private static final String                          ARK_API_PACKAGES                          = "com.alipay.sofa.ark.api";
+    private static final String                          ARK_LOG_PACKAGES                          = "com.alipay.sofa.ark.common.log";
+    private static final String                          ARK_EXCEPTION_PACKAGES                    = "com.alipay.sofa.ark.exception";
 
-    private static final List<String>                    SUN_REFLECT_GENERATED_ACCESSOR      = new ArrayList<>();
+    private static final List<String>                    SUN_REFLECT_GENERATED_ACCESSOR            = new ArrayList<>();
 
     /* export class and classloader relationship cache */
-    private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassLoaderMap        = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ClassLoader>       exportNodeAndClassLoaderMap         = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ClassLoader>       exportStemAndClassLoaderMap         = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassLoaderMap              = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportNodeAndClassLoaderMap               = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClassLoader>       exportStemAndClassLoaderMap               = new ConcurrentHashMap<>();
 
     /* export cache and classloader relationship cache */
-    private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassLoaderMap     = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, List<ClassLoader>> exportStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ClassLoader>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ClassLoader>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
 
     private ClassLoader                                  jdkClassLoader;
     private ClassLoader                                  arkClassLoader;
@@ -131,10 +132,15 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
                 exportResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
                 exportResourceAndClassLoaderMap.get(resource).add(plugin.getPluginClassLoader());
             }
-            for (String resource : plugin.getExportResourceStems()) {
-                exportStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
-                exportStemResourceAndClassLoaderMap.get(resource)
-                    .add(plugin.getPluginClassLoader());
+            for (String resource : plugin.getExportPrefixResourceStems()) {
+                exportPrefixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
+                exportPrefixStemResourceAndClassLoaderMap.get(resource).add(
+                    plugin.getPluginClassLoader());
+            }
+            for (String resource : plugin.getExportSuffixResourceStems()) {
+                exportSuffixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
+                exportSuffixStemResourceAndClassLoaderMap.get(resource).add(
+                    plugin.getPluginClassLoader());
             }
         }
     }
@@ -191,8 +197,14 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             }
         }
 
-        for (String importResource : plugin.getImportResourceStems()) {
+        for (String importResource : plugin.getImportPrefixResourceStems()) {
             if (resourceName.startsWith(importResource)) {
+                return true;
+            }
+        }
+
+        for (String importResource : plugin.getImportSuffixResourceStems()) {
+            if (resourceName.endsWith(importResource)) {
                 return true;
             }
         }
@@ -202,12 +214,20 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     @Override
     public List<ClassLoader> findExportResourceClassLoadersInOrder(String resourceName) {
+
         if (exportResourceAndClassLoaderMap.containsKey(resourceName)) {
             return exportResourceAndClassLoaderMap.get(resourceName);
         }
-        for (String stemResource : exportStemResourceAndClassLoaderMap.keySet()) {
+
+        for (String stemResource : exportPrefixStemResourceAndClassLoaderMap.keySet()) {
             if (resourceName.startsWith(stemResource)) {
-                return exportStemResourceAndClassLoaderMap.get(stemResource);
+                return exportPrefixStemResourceAndClassLoaderMap.get(stemResource);
+            }
+        }
+
+        for (String stemResource : exportSuffixStemResourceAndClassLoaderMap.keySet()) {
+            if (resourceName.endsWith(stemResource)) {
+                return exportSuffixStemResourceAndClassLoaderMap.get(stemResource);
             }
         }
         return null;
@@ -325,8 +345,14 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             }
         }
 
-        for (String resource : biz.getDenyImportResourceStems()) {
+        for (String resource : biz.getDenyPrefixImportResourceStems()) {
             if (resourceName.startsWith(resource)) {
+                return true;
+            }
+        }
+
+        for (String resource : biz.getDenySuffixImportResourceStems()) {
+            if (resourceName.endsWith(resource)) {
                 return true;
             }
         }

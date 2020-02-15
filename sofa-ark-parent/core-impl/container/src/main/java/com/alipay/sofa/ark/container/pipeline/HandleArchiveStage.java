@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
@@ -121,11 +122,18 @@ public class HandleArchiveStage implements PipelineStage {
                 AssertUtils.isFalse(
                     StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ)),
                     "Master biz should be configured when deploy multi biz.");
+                String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
+                for (Biz biz : bizManagerService.getBizInOrder()) {
+                    if (masterBizName.equals(biz.getBizName())) {
+                        ArkClient.setMasterBiz(biz);
+                    }
+                }
             } else {
                 List<Biz> bizList = bizManagerService.getBizInOrder();
                 if (!bizList.isEmpty()
                     && StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     ArkConfigs.putStringValue(Constants.MASTER_BIZ, bizList.get(0).getBizName());
+                    ArkClient.setMasterBiz(bizList.get(0));
                 }
             }
 

@@ -23,6 +23,8 @@ import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizSwitchEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizSwitchEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizOperation;
@@ -30,9 +32,8 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.replay.ReplayContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
-import com.alipay.sofa.ark.spi.service.biz.BizFileGenerator;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 
 import java.io.File;
@@ -54,9 +55,13 @@ public class ArkClient {
     private static ArkLogger         LOGGER = ArkLoggerFactory.getDefaultLogger();
     private static BizManagerService bizManagerService;
     private static BizFactoryService bizFactoryService;
+    private static Biz               masterBiz;
     private static InjectionService  injectionService;
     private static String[]          arguments;
     private final static File        bizInstallDirectory;
+
+    private static EventAdminService eventAdminService;
+
     static {
         bizInstallDirectory = getBizInstallDirectory();
     }
@@ -104,6 +109,22 @@ public class ArkClient {
 
     public static void setBizFactoryService(BizFactoryService bizFactoryService) {
         ArkClient.bizFactoryService = bizFactoryService;
+    }
+
+    public static Biz getMasterBiz() {
+        return masterBiz;
+    }
+
+    public static void setMasterBiz(Biz masterBiz) {
+        ArkClient.masterBiz = masterBiz;
+    }
+
+    public static EventAdminService getEventAdminService() {
+        return eventAdminService;
+    }
+
+    public static void setEventAdminService(EventAdminService eventAdminService) {
+        ArkClient.eventAdminService = eventAdminService;
     }
 
     public static String[] getArguments() {
@@ -180,7 +201,7 @@ public class ArkClient {
                 "Master biz must not be uninstalled.");
         }
 
-        Biz biz = bizManagerService.unRegisterBiz(bizName, bizVersion);
+        Biz biz = bizManagerService.getBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
             .setMessage(
                 String.format("Uninstall biz: %s not found.",
@@ -267,7 +288,6 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
-
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
             .setMessage(
@@ -280,7 +300,9 @@ public class ArkClient {
                     String.format("Switch Biz: %s's state must not be %s.", biz.getIdentity(),
                         biz.getBizState()));
             } else {
+                eventAdminService.sendEvent(new BeforeBizSwitchEvent(biz));
                 bizManagerService.activeBiz(bizName, bizVersion);
+                eventAdminService.sendEvent(new AfterBizSwitchEvent(biz));
                 response.setCode(ResponseCode.SUCCESS).setMessage(
                     String.format("Switch biz: %s is activated.", biz.getIdentity()));
             }
@@ -304,17 +326,6 @@ public class ArkClient {
             bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
                 bizOperation.getBizVersion());
             FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
-        }
-        if (!StringUtils.isEmpty(bizOperation.getBizName())
-            && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
-            for (BizFileGenerator bizFileGenerator : ArkServiceLoader
-                .loadExtension(BizFileGenerator.class)) {
-                bizFile = bizFileGenerator.createBizFile(bizOperation.getBizName(),
-                    bizOperation.getBizVersion());
-                if (bizFile != null && bizFile.exists()) {
-                    break;
-                }
-            }
         }
         return installBiz(bizFile, args);
     }

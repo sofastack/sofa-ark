@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.spi.model;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,10 +85,16 @@ public interface BizInfo {
     Set<String> getDenyImportResources();
 
     /**
-     * get denied imported resource stems
+     * get denied imported resource stems by prefix
      * @return denied imported resource stems
      */
-    Set<String> getDenyImportResourceStems();
+    Set<String> getDenyPrefixImportResourceStems();
+
+    /**
+     * get denied imported resource stems by suffix
+     * @return denied imported resource stems
+     */
+    Set<String> getDenySuffixImportResourceStems();
 
     /**
      * get Biz Classloader
@@ -104,4 +111,10 @@ public interface BizInfo {
      * get web context path
      */
     String getWebContextPath();
+
+    /**
+     * get Biz attributes
+     * @return
+     */
+    Map<String, String> getAttributes();
 }
