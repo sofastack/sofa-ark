@@ -100,7 +100,8 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         if (bizManagerService == null) {
             return contextPath;
         }
-        Biz biz = bizManagerService.getBizByClassLoader(this.getClass().getClassLoader());
+        Biz biz = bizManagerService.getBizByClassLoader(Thread.currentThread()
+            .getContextClassLoader());
         if (!StringUtils.isEmpty(contextPath)) {
             return contextPath;
         } else if (biz != null) {
@@ -176,7 +177,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             File docBase = (documentRoot != null) ? documentRoot : createTempDir("tomcat-docbase");
             context.setDocBase(docBase.getAbsolutePath());
             context.addLifecycleListener(new Tomcat.FixContextListener());
-            context.setParentClassLoader(this.getClass().getClassLoader());
+            context.setParentClassLoader(Thread.currentThread().getContextClassLoader());
             resetDefaultLocaleMapping(context);
             addLocaleMappings(context);
             context.setUseRelativeRedirects(false);

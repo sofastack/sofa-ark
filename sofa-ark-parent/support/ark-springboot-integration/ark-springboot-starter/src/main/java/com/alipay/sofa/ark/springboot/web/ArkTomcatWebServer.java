@@ -117,7 +117,7 @@ public class ArkTomcatWebServer implements WebServer {
 
                 try {
                     ContextBindings.bindClassLoader(context, context.getNamingToken(),
-                            getClass().getClassLoader());
+                            Thread.currentThread().getContextClassLoader());
                 }
                 catch (NamingException ex) {
                     // Naming is not enabled. Continue
@@ -137,7 +137,8 @@ public class ArkTomcatWebServer implements WebServer {
     private Context findContext() {
         for (Container child : this.tomcat.getHost().findChildren()) {
             if (child instanceof Context) {
-                if (child.getParentClassLoader().equals(this.getClass().getClassLoader())) {
+                if (child.getParentClassLoader().equals(
+                    Thread.currentThread().getContextClassLoader())) {
                     return (Context) child;
                 }
             }
@@ -181,7 +182,7 @@ public class ArkTomcatWebServer implements WebServer {
             }
 
         };
-        awaitThread.setContextClassLoader(getClass().getClassLoader());
+        awaitThread.setContextClassLoader(Thread.currentThread().getContextClassLoader());
         awaitThread.setDaemon(false);
         awaitThread.start();
     }
