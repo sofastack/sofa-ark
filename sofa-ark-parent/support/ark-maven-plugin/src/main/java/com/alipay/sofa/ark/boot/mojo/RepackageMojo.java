@@ -310,7 +310,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.addMainClassTimeoutWarningListener(new LoggingMainClassTimeoutWarningListener());
         repackager.setMainClass(this.mainClass);
         repackager.setBizName(bizName);
-        if (!StringUtils.isEmpty(System.getProperty("bizName"))){
+        if (!StringUtils.isEmpty(System.getProperty("bizName"))) {
             repackager.setBizName(System.getProperty("bizName"));
         }
         repackager.setBizVersion(bizVersion);
