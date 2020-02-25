@@ -34,6 +34,7 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
+import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
@@ -79,6 +80,8 @@ public class BizModel implements Biz {
     private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
 
     private Set<String>         denySuffixImportResourceStems = new HashSet<>();
+
+    private File                bizTempWorkDir;
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -278,6 +281,10 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
+            if (bizTempWorkDir != null && bizTempWorkDir.exists()) {
+                bizTempWorkDir.delete();
+            }
+            bizTempWorkDir = null;
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
         }
     }
@@ -304,5 +311,14 @@ public class BizModel implements Biz {
 
     private void resetProperties() {
         System.getProperties().remove("logging.path");
+    }
+
+    public File getBizTempWorkDir() {
+        return bizTempWorkDir;
+    }
+
+    public BizModel setBizTempWorkDir(File bizTempWorkDir) {
+        this.bizTempWorkDir = bizTempWorkDir;
+        return this;
     }
 }
