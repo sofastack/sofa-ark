@@ -81,7 +81,9 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         JarFile bizFile = new JarFile(file);
         JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
         JarBizArchive bizArchive = new JarBizArchive(jarFileArchive);
-        return createBiz(bizArchive);
+        BizModel biz = (BizModel) createBiz(bizArchive);
+        biz.setBizTempWorkDir(file);
+        return biz;
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
