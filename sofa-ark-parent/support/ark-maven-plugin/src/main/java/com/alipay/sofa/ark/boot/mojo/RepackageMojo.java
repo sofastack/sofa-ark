@@ -47,6 +47,8 @@ import com.alipay.sofa.ark.tools.Repackager;
 @Mojo(name = "repackage", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class RepackageMojo extends AbstractMojo {
 
+    private static final String   BIZ_NAME = "com.alipay.sofa.ark.bizName";
+
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject          project;
 
@@ -310,6 +312,9 @@ public class RepackageMojo extends AbstractMojo {
         repackager.addMainClassTimeoutWarningListener(new LoggingMainClassTimeoutWarningListener());
         repackager.setMainClass(this.mainClass);
         repackager.setBizName(bizName);
+        if (!StringUtils.isEmpty(System.getProperty(BIZ_NAME))) {
+            repackager.setBizName(System.getProperty(BIZ_NAME));
+        }
         repackager.setBizVersion(bizVersion);
         repackager.setPriority(String.valueOf(priority));
         repackager.setArkVersion(arkVersion);
