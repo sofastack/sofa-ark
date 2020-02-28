@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service.api;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.api.ResponseCode;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.BizInfo;
@@ -65,17 +66,26 @@ public class ArkClientTest extends BaseTest {
         Assert.assertEquals(0, response.getBizInfos().size());
 
         // test install
-        response = ArkClient.installBiz(new File(bizUrl1.getFile()));
+        File bizFile = ArkClient.createBizSaveFile("biz-demo", "1.0.0");
+        FileUtils.copyInputStreamToFile(bizUrl1.openStream(), bizFile);
+        response = ArkClient.installBiz(bizFile);
+
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         BizInfo bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
 
         // test install biz with same bizName and bizVersion
-        response = ArkClient.installBiz(new File(bizUrl1.getFile()));
+        // test install
+        File bizFile1 = ArkClient.createBizSaveFile("biz-demo", "1.0.0");
+        FileUtils.copyInputStreamToFile(bizUrl1.openStream(), bizFile1);
+        response = ArkClient.installBiz(bizFile1);
         Assert.assertEquals(ResponseCode.REPEAT_BIZ, response.getCode());
 
         // test install biz with same bizName and different bizVersion
-        response = ArkClient.installBiz(new File(bizUrl2.getFile()));
+        //        response = ArkClient.installBiz(new File(bizUrl2.getFile()));
+        File bizFile2 = ArkClient.createBizSaveFile("biz-demo", "2.0.0");
+        FileUtils.copyInputStreamToFile(bizUrl2.openStream(), bizFile2);
+        response = ArkClient.installBiz(bizFile2);
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
@@ -98,9 +108,16 @@ public class ArkClientTest extends BaseTest {
             }
         };
         eventAdminService.register(eventHandler);
-        ArkClient.installBiz(new File(bizUrl3.getFile()));
+
+        File bizFile3 = ArkClient.createBizSaveFile("biz-demo", "3.0.0");
+        FileUtils.copyInputStreamToFile(bizUrl3.openStream(), bizFile3);
+        ArkClient.installBiz(bizFile3);
+        //        ArkClient.installBiz(new File(bizUrl3.getFile()));
         ArkClient.uninstallBiz("biz-demo", "3.0.0");
-        ArkClient.installBiz(new File(bizUrl3.getFile()), new String[] { "demo" });
+
+        File bizFile33 = ArkClient.createBizSaveFile("biz-demo", "3.0.0");
+        FileUtils.copyInputStreamToFile(bizUrl3.openStream(), bizFile33);
+        ArkClient.installBiz(bizFile33, new String[] { "demo" });
         ArkClient.uninstallBiz("biz-demo", "3.0.0");
         Assert.assertEquals("BEFORE-INVOKE-BIZ-START", topicList.get(0));
         Assert.assertEquals("No arguments", topicList.get(1));
