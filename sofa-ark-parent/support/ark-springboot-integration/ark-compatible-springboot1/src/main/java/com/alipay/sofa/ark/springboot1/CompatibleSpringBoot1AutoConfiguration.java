@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.springboot1.endpoint.IntrospectBizEndpointMvcAdapter;
 import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,7 @@ public class CompatibleSpringBoot1AutoConfiguration {
     @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.Endpoint")
     public static class ConditionIntrospectEndpointConfiguration {
         @Bean
+        @ConditionalOnMissingBean
         @ConditionalOnEnabledEndpoint("bizState")
         public IntrospectBizEndpoint introspectBizEndpoint() {
             return new IntrospectBizEndpoint();
@@ -47,6 +49,7 @@ public class CompatibleSpringBoot1AutoConfiguration {
 
     @Bean
     @ConditionalOnBean(IntrospectBizEndpoint.class)
+    @ConditionalOnMissingBean
     @ConditionalOnWebApplication
     public IntrospectBizEndpointMvcAdapter introspectBizEndpointMvcAdapter(IntrospectBizEndpoint introspectBizEndpoint) {
         return new IntrospectBizEndpointMvcAdapter(introspectBizEndpoint);
