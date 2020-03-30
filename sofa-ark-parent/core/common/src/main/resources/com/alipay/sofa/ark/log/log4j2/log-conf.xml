@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+    <Properties>
+        <Property name="ARK_LOG_LEVEL">${sys:logging.level.com.alipay.sofa.ark}</Property>
+        <Property name="ARK_LOG_PATH">${sys:logging.path}</Property>
+        <Property name="ARK_FILE_ENCODING">${sys:file.encoding}</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="ERROR-APPENDER" fileName="${ARK_LOG_PATH}/sofa-ark/common-error.log" append="true"
+                     filePattern="${ARK_LOG_PATH}/sofa-ark/common-error.log.%d{yyyy-MM-dd}">
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="${ARK_FILE_ENCODING}">
+                <pattern>%d %-5p %-32t - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="SOFA-APPENDER" fileName="${ARK_LOG_PATH}/sofa-ark/common-default.log" append="true"
+                     filePattern="${ARK_LOG_PATH}/sofa-ark/common-default.log.%d{yyyy-MM-dd}">
+            <ThresholdFilter level="${ARK_LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="${ARK_FILE_ENCODING}">
+                <pattern>%d %-5p %-32t - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="CONFIG-APPENDER" fileName="${ARK_LOG_PATH}/sofa-ark/config-manager.log" append="true"
+                     filePattern="${ARK_LOG_PATH}/sofa-ark/config-manager.log.%d{yyyy-MM-dd}">
+            <ThresholdFilter level="${ARK_LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="${ARK_FILE_ENCODING}">
+                <pattern>%d %-5p %-32t %c - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.alipay.sofa.ark" level="${ARK_LOG_LEVEL}" additivity="false">
+            <appender-ref ref="SOFA-APPENDER"/>
+            <appender-ref ref="ERROR-APPENDER"/>
+        </Logger>
+
+        <Logger name="com.alipay.sofa.ark.config" level="${ARK_LOG_LEVEL}" additivity="false">
+            <appender-ref ref="CONFIG-APPENDER"/>
+            <appender-ref ref="ERROR-APPENDER"/>
+        </Logger>
+
+        <Root level="${logging.level.com.alipay.sofa.runtime}">
+            <appender-ref ref="SOFA-APPENDER"/>
+            <appender-ref ref="ERROR-APPENDER"/>
+        </Root>
+    </Loggers>
+</configuration>
