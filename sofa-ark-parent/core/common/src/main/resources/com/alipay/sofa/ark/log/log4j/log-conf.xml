@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="ERROR-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${logging.path}/sofa-ark/common-error.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="${file.encoding}"/>
+        <param name="threshold" value="error"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %-32t - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="SOFA-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${logging.path}/sofa-ark/common-default.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="${file.encoding}"/>
+        <param name="threshold" value="${logging.level.com.alipay.sofa.ark}"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %-32t - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="CONFIG-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${logging.path}/sofa-ark/config-manage.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="${file.encoding}"/>
+        <param name="threshold" value="${logging.level.com.alipay.sofa.ark}"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %-32t - %m%n"/>
+        </layout>
+    </appender>
+
+    <logger name="com.alipay.sofa.ark" additivity="false">
+        <level value="${logging.level.com.alipay.sofa.ark}"/>
+        <appender-ref ref="SOFA-APPENDER"/>
+        <appender-ref ref="ERROR-APPENDER"/>
+    </logger>
+
+    <logger name="com.alipay.sofa.ark.config" additivity="false">
+        <level value="${logging.level.com.alipay.sofa.ark}"/>
+        <appender-ref ref="CONFIG-APPENDER"/>
+        <appender-ref ref="ERROR-APPENDER"/>
+    </logger>
+
+    <root>
+        <level value="${logging.level.com.alipay.sofa.runtime}"/>
+        <appender-ref ref="SOFA-APPENDER"/>
+        <appender-ref ref="ERROR-APPENDER"/>
+    </root>
+</log4j:configuration>
