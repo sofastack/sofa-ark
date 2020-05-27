@@ -44,6 +44,14 @@ public class TestHelper {
             classloaderService.getSystemClassLoader());
     }
 
+    public ClassLoader createNoneDelegateTestClassLoader() {
+        PipelineContext context = arkContainer.getPipelineContext();
+        URL[] classpath = context.getLaunchCommand().getClasspath();
+        ClassLoaderService classloaderService = arkContainer.getArkServiceContainer().getService(
+            ClassLoaderService.class);
+        return new NoneDelegateTestClassLoader(MOCK_BIZ_IDENTITY, classpath);
+    }
+
     public boolean isStarted() {
         return arkContainer.isStarted();
     }
