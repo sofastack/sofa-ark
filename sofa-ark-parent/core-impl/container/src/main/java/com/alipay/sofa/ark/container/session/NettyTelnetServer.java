@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.session;
 
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import io.netty.bootstrap.ServerBootstrap;
@@ -39,6 +40,9 @@ import io.netty.handler.logging.LoggingHandler;
 
 import java.util.concurrent.Executor;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_BINDING_LOCAL_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_SERVER_ENABLE;
+
 /**
  * @author qilong.zql
  * @since 1.0.0
@@ -50,6 +54,10 @@ public class NettyTelnetServer {
     private EventLoopGroup  bossGroup;
     private EventLoopGroup  workerGroup;
     private Channel         channel;
+    /**
+     * binding localhost or 127.0.0.1 default false
+     */
+    private boolean         bindingLocal   = EnvironmentUtils.getProperty(TELNET_BINDING_LOCAL_ENABLE, "true").equalsIgnoreCase("true");
 
     public NettyTelnetServer(int port, Executor executor) {
         this.port = port;

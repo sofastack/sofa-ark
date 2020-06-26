@@ -109,6 +109,7 @@ public class Constants {
      */
     public final static String TELNET_SERVER_ENABLE                          = "sofa.ark.telnet.server.enable";
     public final static String CONFIG_SERVER_ENABLE                          = "sofa.ark.config.server.enable";
+    public final static String TELNET_BINDING_LOCAL_ENABLE                   = "sofa.ark.telnet.binding.local.enable";
     public final static String TELNET_PORT_ATTRIBUTE                         = "sofa.ark.telnet.port";
     public final static int    DEFAULT_TELNET_PORT                           = 1234;
     public final static int    DEFAULT_SELECT_PORT_SIZE                      = 100;
