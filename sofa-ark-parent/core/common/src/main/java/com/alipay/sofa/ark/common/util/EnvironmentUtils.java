@@ -18,6 +18,8 @@ package com.alipay.sofa.ark.common.util;
 
 import java.util.Properties;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_SERVER_SECURITY_ENABLE;
+
 /**
  * a utils class to get environment properties
  *
@@ -58,6 +60,10 @@ public class EnvironmentUtils {
 
     public static void clearSystemProperty(String key) {
         System.clearProperty(key);
+    }
+
+    public static boolean isOpenSecurity() {
+        return getProperty(TELNET_SERVER_SECURITY_ENABLE, "false").equalsIgnoreCase("true");
     }
 
 }

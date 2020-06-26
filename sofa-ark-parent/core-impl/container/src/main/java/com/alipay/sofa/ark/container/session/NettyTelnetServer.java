@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.session;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,8 +39,8 @@ import io.netty.handler.logging.LoggingHandler;
 
 import java.util.concurrent.Executor;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_BINDING_LOCAL_ENABLE;
-import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_SERVER_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.CHANNEL_QUIT;
+import static com.alipay.sofa.ark.spi.constant.Constants.LOCAL_HOST;
 
 /**
  * @author qilong.zql
@@ -54,10 +53,6 @@ public class NettyTelnetServer {
     private EventLoopGroup  bossGroup;
     private EventLoopGroup  workerGroup;
     private Channel         channel;
-    /**
-     * binding localhost or 127.0.0.1 default false
-     */
-    private boolean         bindingLocal   = EnvironmentUtils.getProperty(TELNET_BINDING_LOCAL_ENABLE, "true").equalsIgnoreCase("true");
 
     public NettyTelnetServer(int port, Executor executor) {
         this.port = port;
@@ -85,6 +80,11 @@ public class NettyTelnetServer {
 
         @Override
         protected void initChannel(SocketChannel channel) throws Exception {
+            if (EnvironmentUtils.isOpenSecurity()) {
+                if (!channel.remoteAddress().getHostName().equals(LOCAL_HOST)) {
+                    return;
+                }
+            }
             ChannelPipeline pipeline = channel.pipeline();
             pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
             pipeline.addLast(ENCODER);
@@ -114,7 +114,7 @@ public class NettyTelnetServer {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-            if (msg.equals(Constants.CHANNEL_QUIT)) {
+            if (CHANNEL_QUIT.contains(msg)) {
                 ctx.channel().close();
                 return;
             }
