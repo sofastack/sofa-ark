@@ -220,7 +220,7 @@ public class BizCommandProvider implements CommandProvider {
         String installBiz() {
 
             if (EnvironmentUtils.isOpenSecurity()) {
-                return "Cannot execute install command in security mode'.\n";
+                return "Cannot execute install command in security mode.\n";
             }
 
             if (!isReadyInstall()) {
@@ -259,7 +259,7 @@ public class BizCommandProvider implements CommandProvider {
         String uninstallBiz() {
 
             if (EnvironmentUtils.isOpenSecurity()) {
-                return "Cannot execute uninstall command in security mode'.\n";
+                return "Cannot execute uninstall command in security mode.\n";
             }
 
             ThreadPoolManager.getThreadPool(Constants.TELNET_COMMAND_THREAD_POOL_NAME)
