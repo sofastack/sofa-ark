@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service.biz;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.thread.ThreadPoolManager;
+import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -217,6 +218,11 @@ public class BizCommandProvider implements CommandProvider {
         }
 
         String installBiz() {
+
+            if (EnvironmentUtils.isOpenSecurity()) {
+                return "Cannot execute install command in security mode.\n";
+            }
+
             if (!isReadyInstall()) {
                 return "Exists some biz whose state is neither 'activated' nor 'deactivated'.\n";
             }
@@ -251,6 +257,11 @@ public class BizCommandProvider implements CommandProvider {
         }
 
         String uninstallBiz() {
+
+            if (EnvironmentUtils.isOpenSecurity()) {
+                return "Cannot execute uninstall command in security mode.\n";
+            }
+
             ThreadPoolManager.getThreadPool(Constants.TELNET_COMMAND_THREAD_POOL_NAME)
                 .getExecutor().execute(new Runnable() {
                     @Override
