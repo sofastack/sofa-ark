@@ -18,11 +18,9 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +56,28 @@ public class BizManagerServiceTest extends BaseTest {
             .setBizState(BizState.RESOLVED);
         Assert.assertFalse(bizManagerService.registerBiz(biz));
         Assert.assertTrue(bizManagerService.getBiz("test-biz").size() == 1);
+    }
+
+    @Test
+    public void testRemovingAndAddBiz() {
+        Biz adding = new BizModel().setBizName("test-biz-adding").setBizVersion("1.0.0")
+            .setBizState(BizState.ACTIVATED);
+
+        Biz removing = new BizModel().setBizName("test-biz-removing").setBizVersion("1.0.0")
+            .setBizState(BizState.RESOLVED);
+
+        bizManagerService.registerBiz(removing);
+        ((BizModel) removing).setBizState(BizState.ACTIVATED);
+
+        bizManagerService.removeAndAddBiz(adding, removing);
+
+        List<Biz> biz = bizManagerService.getBiz("test-biz-adding");
+        Assert.assertTrue(biz.size() == 1);
+
+        biz = bizManagerService.getBiz("test-biz-removing");
+        Assert.assertTrue(biz.size() == 0);
+
+        bizManagerService.unRegisterBiz(adding.getBizName(), adding.getBizVersion());
     }
 
     @Test
