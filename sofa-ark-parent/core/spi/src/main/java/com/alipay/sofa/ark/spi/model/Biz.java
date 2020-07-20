@@ -27,6 +27,7 @@ import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 public interface Biz extends BizInfo, PriorityOrdered {
     /**
      * start Biz
+     * @param args
      * @throws Throwable
      */
     void start(String[] args) throws Throwable;
@@ -36,4 +37,10 @@ public interface Biz extends BizInfo, PriorityOrdered {
      * @throws Throwable
      */
     void stop() throws Throwable;
+
+    /**
+     * allow to dynamic update biz name
+     * @param bizName
+     */
+    void setCustomBizName(String bizName);
 }

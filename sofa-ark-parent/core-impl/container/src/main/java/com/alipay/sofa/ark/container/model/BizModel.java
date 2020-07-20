@@ -290,6 +290,11 @@ public class BizModel implements Biz {
     }
 
     @Override
+    public void setCustomBizName(String bizName) {
+        this.bizName = bizName;
+    }
+
+    @Override
     public BizState getBizState() {
         return bizState;
     }

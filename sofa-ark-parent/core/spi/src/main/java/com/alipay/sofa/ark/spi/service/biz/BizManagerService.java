@@ -146,4 +146,12 @@ public interface BizManagerService {
      */
     BizState getBizState(String bizIdentity);
 
+    /**
+     * dynamic to instead a biz
+     * @param addingBiz
+     * @param removing
+     * @return
+     */
+    boolean removeAndAddBiz(Biz addingBiz, Biz removing);
+
 }

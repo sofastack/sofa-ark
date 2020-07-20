@@ -48,7 +48,7 @@ public class BizManagerServiceImpl implements BizManagerService {
         AssertUtils.isTrue(biz.getBizState() == BizState.RESOLVED, "BizState must be RESOLVED.");
         bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<String, Biz>(16));
         ConcurrentHashMap bizCache = bizRegistration.get(biz.getBizName());
-        return bizCache.putIfAbsent(biz.getBizVersion(), biz) == null;
+        return bizCache.put(biz.getBizVersion(), biz) == null;
     }
 
     @Override
@@ -195,5 +195,16 @@ public class BizManagerServiceImpl implements BizManagerService {
             "Format of Biz Identity is error.");
         String[] str = bizIdentity.split(Constants.STRING_COLON);
         return getBizState(str[0], str[1]);
+    }
+
+    @Override
+    public boolean removeAndAddBiz(Biz addingBiz, Biz removingBiz) {
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(removingBiz.getBizName());
+        if (bizCache != null) {
+            bizCache.remove(removingBiz.getBizVersion());
+        }
+        bizRegistration.putIfAbsent(addingBiz.getBizName(), new ConcurrentHashMap<>(16));
+        bizCache = bizRegistration.get(addingBiz.getBizName());
+        return bizCache.put(addingBiz.getBizVersion(), addingBiz) == null;
     }
 }
