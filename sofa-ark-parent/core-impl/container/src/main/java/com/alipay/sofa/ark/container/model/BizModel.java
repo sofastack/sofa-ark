@@ -279,6 +279,7 @@ public class BizModel implements Biz {
             bizState = BizState.UNRESOLVED;
             eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
             urls = null;
+            classLoader = null;
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
@@ -286,7 +287,6 @@ public class BizModel implements Biz {
                 bizTempWorkDir.delete();
             }
             bizTempWorkDir = null;
-            classLoader = null;
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
         }
     }
