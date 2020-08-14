@@ -28,6 +28,6 @@ public class BeforeBizRecycleEvent extends AbstractArkEvent<Biz> {
 
     public BeforeBizRecycleEvent(Biz source) {
         super(source);
-        this.topic = Constants.BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_RECYCLE;
+        this.topic = Constants.BIZ_EVENT_TOPIC_BEFORE_RECYCLE_BIZ;
     }
 }
