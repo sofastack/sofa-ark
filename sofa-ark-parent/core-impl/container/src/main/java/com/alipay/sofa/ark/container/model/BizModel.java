@@ -266,6 +266,7 @@ public class BizModel implements Biz {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
+        ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         bizState = BizState.DEACTIVATED;
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
@@ -279,7 +280,6 @@ public class BizModel implements Biz {
             bizState = BizState.UNRESOLVED;
             eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
             urls = null;
-            classLoader = null;
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
@@ -287,6 +287,8 @@ public class BizModel implements Biz {
                 bizTempWorkDir.delete();
             }
             bizTempWorkDir = null;
+            classLoader = null;
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
         }
     }
