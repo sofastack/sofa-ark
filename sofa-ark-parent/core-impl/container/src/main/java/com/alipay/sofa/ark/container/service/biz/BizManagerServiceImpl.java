@@ -199,12 +199,20 @@ public class BizManagerServiceImpl implements BizManagerService {
 
     @Override
     public boolean removeAndAddBiz(Biz addingBiz, Biz removingBiz) {
-        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(removingBiz.getBizName());
-        if (bizCache != null) {
-            bizCache.remove(removingBiz.getBizVersion());
-        }
+        Set<Map.Entry<String, ConcurrentHashMap<String, Biz>>> bizEntrySet = bizRegistration.entrySet();
+        bizEntrySet.forEach(item -> {
+            String bizName = item.getKey();
+            if (removingBiz.getBizName().equals(bizName)){
+                bizEntrySet.remove(item);
+                return;
+            }
+        });
         bizRegistration.putIfAbsent(addingBiz.getBizName(), new ConcurrentHashMap<>(16));
-        bizCache = bizRegistration.get(addingBiz.getBizName());
-        return bizCache.put(addingBiz.getBizVersion(), addingBiz) == null;
+        return bizRegistration.get(addingBiz.getBizName()).put(addingBiz.getBizVersion(), addingBiz) == null;
+    }
+
+    @Override
+    public ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> getBizRegistration() {
+        return bizRegistration;
     }
 }

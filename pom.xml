@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -207,6 +207,17 @@
                 <repository>
                     <id>ossrh</id>
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+
+        <profile>
+            <id>alipay-dev</id>
+            <distributionManagement>
+                <repository>
+                    <id>nexus-server@alipay-dev</id>
+                    <name>alipay dev Repository</name>
+                    <url>http://mvn.dev.alipay.net/artifactory/content/repositories/Alipay-Snapshot/</url>
                 </repository>
             </distributionManagement>
         </profile>
