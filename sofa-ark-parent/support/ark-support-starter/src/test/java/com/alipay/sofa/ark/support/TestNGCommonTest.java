@@ -23,12 +23,13 @@ import org.testng.annotations.Test;
  * @author qilong.zql 18/4/26-上午8:58
  */
 public class TestNGCommonTest {
+
     @Test
     public void test() {
         ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader thisClassLoader = this.getClass().getClassLoader();
-
-        Assert.assertTrue(threadClassLoader.equals(ClassLoader.getSystemClassLoader()));
+        Assert.assertTrue(threadClassLoader.getClass().getCanonicalName()
+            .contains("TestClassLoader"));
         Assert.assertTrue(thisClassLoader.equals(ClassLoader.getSystemClassLoader()));
     }
 }
