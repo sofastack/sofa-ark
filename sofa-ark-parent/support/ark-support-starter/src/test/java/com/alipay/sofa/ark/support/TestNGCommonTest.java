@@ -20,6 +20,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
+ * TestNGCommonTest
  * @author qilong.zql 18/4/26-上午8:58
  */
 public class TestNGCommonTest {
