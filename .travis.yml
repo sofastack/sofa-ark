@@ -1,5 +1,4 @@
 language: java
-
 sudo: false
 
 jdk:
@@ -7,10 +6,10 @@ jdk:
 
 install:
 - mvn clean install -DskipTests -B -U
+- mvn clean test
 
 script:
 - sh ./check_format.sh
 
 after_success:
-- mvn clean test
 - bash <(curl -s https://codecov.io/bash)
