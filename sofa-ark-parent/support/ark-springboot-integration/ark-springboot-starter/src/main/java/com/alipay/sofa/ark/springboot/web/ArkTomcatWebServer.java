@@ -167,8 +167,11 @@ public class ArkTomcatWebServer implements WebServer {
     private void rethrowDeferredStartupExceptions() throws Exception {
         Container[] children = this.tomcat.getHost().findChildren();
         for (Container container : children) {
-            if (!LifecycleState.STARTED.equals(container.getState())) {
-                throw new IllegalStateException(container + " failed to start");
+            // just to check current biz status
+            if (container.getParentClassLoader() == Thread.currentThread().getContextClassLoader()) {
+                if (!LifecycleState.STARTED.equals(container.getState())) {
+                    throw new IllegalStateException(container + " failed to start");
+                }
             }
         }
     }
