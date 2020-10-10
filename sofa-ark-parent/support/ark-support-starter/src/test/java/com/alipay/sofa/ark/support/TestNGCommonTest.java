@@ -26,10 +26,9 @@ public class TestNGCommonTest {
 
     @Test
     public void test() {
-        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+//        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+//        Assert.assertTrue(threadClassLoader.equals(ClassLoader.getSystemClassLoader()));
         ClassLoader thisClassLoader = this.getClass().getClassLoader();
-        Assert.assertTrue(threadClassLoader.getClass().getCanonicalName()
-            .contains("TestClassLoader"));
         Assert.assertTrue(thisClassLoader.equals(ClassLoader.getSystemClassLoader()));
     }
 }
