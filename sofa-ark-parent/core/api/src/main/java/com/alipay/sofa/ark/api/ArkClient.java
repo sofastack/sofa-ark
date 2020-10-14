@@ -169,13 +169,13 @@ public class ArkClient {
             response.setCode(ResponseCode.FAILED).setMessage(
                 String.format("Install Biz: %s fail.", biz.getIdentity()));
             LOGGER.error(response.getMessage(), throwable);
-
-            bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             try {
                 biz.stop();
             } catch (Throwable e) {
                 LOGGER.error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), e);
                 throw e;
+            } finally {
+                bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             }
             return response;
         }
@@ -213,6 +213,8 @@ public class ArkClient {
                 LOGGER
                     .error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), throwable);
                 throw throwable;
+            } finally {
+                bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             }
             response.setCode(ResponseCode.SUCCESS).setMessage(
                 String.format("Uninstall biz: %s success.", biz.getIdentity()));
