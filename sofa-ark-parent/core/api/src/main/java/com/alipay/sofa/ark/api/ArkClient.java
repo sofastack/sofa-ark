@@ -81,10 +81,16 @@ public class ArkClient {
         return workingDir;
     }
 
+    public static File createBizSaveFile(String bizName, String bizVersion, String fileSuffix) {
+        String suffix = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+        if (!StringUtils.isEmpty(fileSuffix)) {
+            suffix = fileSuffix;
+        }
+        return new File(bizInstallDirectory, bizName + "-" + bizVersion + "-" + suffix);
+    }
+
     public static File createBizSaveFile(String bizName, String bizVersion) {
-        return new File(bizInstallDirectory,
-            bizName + "-" + bizVersion + "-"
-                    + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
+        return createBizSaveFile(bizName, bizVersion, null);
     }
 
     public static InjectionService getInjectionService() {
