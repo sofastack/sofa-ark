@@ -60,6 +60,12 @@ public class ArkClientTest extends BaseTest {
     }
 
     @Test
+    public void testCreateBizSaveFile() {
+        File bizFile = ArkClient.createBizSaveFile("test-biz-demo", "1.0.0", "suffix");
+        Assert.assertTrue(bizFile.getName().contains("test-biz-demo-1.0.0-suffix"));
+    }
+
+    @Test
     public void testInstallBiz() throws Throwable {
         ClientResponse response = ArkClient.checkBiz();
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
