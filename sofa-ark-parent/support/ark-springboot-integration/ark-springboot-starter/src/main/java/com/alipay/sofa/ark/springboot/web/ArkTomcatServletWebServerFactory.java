@@ -105,6 +105,9 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         if (!StringUtils.isEmpty(contextPath)) {
             return contextPath;
         } else if (biz != null) {
+            if (StringUtils.isEmpty(biz.getWebContextPath())) {
+                return ROOT_WEB_CONTEXT_PATH;
+            }
             return biz.getWebContextPath();
         } else {
             return ROOT_WEB_CONTEXT_PATH;
