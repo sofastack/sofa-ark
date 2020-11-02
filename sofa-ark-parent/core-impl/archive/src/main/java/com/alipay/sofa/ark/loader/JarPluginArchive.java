@@ -68,6 +68,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
         return this.archive.getInputStream(zipEntry);
     }
 
+    @Override
     public Archive getNestedArchive(Entry entry) throws IOException {
         return this.archive.getNestedArchive(entry);
     }
@@ -82,6 +83,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
      *
      * @return
      */
+    @Override
     public URL[] getUrls() throws IOException {
         return getUrls(new EntryFilter() {
             @Override

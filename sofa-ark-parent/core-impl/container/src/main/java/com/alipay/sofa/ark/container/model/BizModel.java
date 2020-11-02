@@ -78,6 +78,8 @@ public class BizModel implements Biz {
 
     private Set<String>         denyImportResources           = new HashSet<>();
 
+    private Set<String>         injectPluginDependencies      = new HashSet<>();
+
     private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
 
     private Set<String>         denySuffixImportResourceStems = new HashSet<>();
@@ -160,6 +162,11 @@ public class BizModel implements Biz {
         return this;
     }
 
+    public BizModel setInjectPluginDependencies(Set<String> injectPluginDependencies) {
+        this.injectPluginDependencies = injectPluginDependencies;
+        return this;
+    }
+
     @Override
     public String getBizName() {
         return bizName;
@@ -218,6 +225,10 @@ public class BizModel implements Biz {
     @Override
     public Set<String> getDenyImportResources() {
         return denyImportResources;
+    }
+
+    public Set<String> getInjectPluginDependencies() {
+        return injectPluginDependencies;
     }
 
     @Override

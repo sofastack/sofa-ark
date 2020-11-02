@@ -30,6 +30,7 @@ public class Constants {
     public final static String       SPACE_SPLIT                                   = "\\s+";
     public final static String       STRING_COLON                                  = ":";
     public final static String       STRING_SEMICOLON                              = ";";
+    public final static String       STRING_SLASH                                  = "/";
     public final static String       TELNET_STRING_END                             = new String(
                                                                                        new byte[] {
             (byte) 13, (byte) 10                                                      });
@@ -96,6 +97,7 @@ public class Constants {
     public final static String       DENY_IMPORT_CLASSES                           = "deny-import-classes";
     public final static String       DENY_IMPORT_PACKAGES                          = "deny-import-packages";
     public final static String       DENY_IMPORT_RESOURCES                         = "deny-import-resources";
+    public final static String       INJECT_PLUGIN_DEPENDENCIES                    = "inject-plugin-dependencies";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
     public final static String       DEFAULT_PACKAGE                               = ".";

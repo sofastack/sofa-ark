@@ -16,7 +16,9 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.PluginContextImpl;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
@@ -32,6 +34,7 @@ import com.google.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -44,6 +47,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
  */
 @Singleton
 public class PluginFactoryServiceImpl implements PluginFactoryService {
+
     @Override
     public Plugin createPlugin(PluginArchive pluginArchive) throws IOException,
                                                            IllegalArgumentException {
@@ -69,6 +73,86 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                 new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
+    }
+
+    @Override
+    public Plugin createPlugin(PluginArchive pluginArchive, URL[] extensions) throws IOException,
+                                                                             IllegalArgumentException {
+        AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
+        if (extensions == null || extensions.length == 0) {
+            return createPlugin(pluginArchive);
+        }
+
+        PluginModel plugin = new PluginModel();
+        Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
+        plugin
+            .setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
+            .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
+            .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
+            .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
+            .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
+            .setClassPath(getFinalPluginUrls(pluginArchive, extensions, plugin.getPluginName()))
+            .setPluginUrl(pluginArchive.getUrl())
+            .setExportClasses(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE))
+            .setExportPackages(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE))
+            .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
+            .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
+            .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
+            .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
+            .setPluginClassLoader(
+                new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
+            .setPluginContext(new PluginContextImpl(plugin));
+        return plugin;
+    }
+
+    public URL[] getFinalPluginUrls(PluginArchive pluginArchive, URL[] extensions, String pluginName)
+                                                                                                     throws IOException {
+        // get config by PLUGIN-EXPORT key
+        URL[] urls = pluginArchive.getUrls();
+        String stringValue = ArkConfigs.getStringValue("PLUGIN-EXPORT" + "[" + pluginName + "]");
+        if (StringUtils.isEmpty(stringValue)) {
+            return urls;
+        }
+
+        String[] dependencies = stringValue.split(STRING_SEMICOLON);
+
+        for (String dependency : dependencies) {
+            String artifactId = dependency.split(STRING_COLON)[0];
+            String version = dependency.split(STRING_COLON)[1];
+            for (int i = 0; i < urls.length; i++) {
+                if (urls[i].getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
+                    if (getUrl(extensions, artifactId) != null) {
+                        urls[i] = getUrl(extensions, artifactId);
+                    }
+                }
+            }
+        }
+        return urls;
+    }
+
+    public URL getUrl(URL[] extensions, String artifactId) {
+        for (URL extension : extensions) {
+            if (getLastNestedJarPath(extension.getPath()).startsWith(artifactId)) {
+                return extension;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * SOFA-ARK/plugin/serverless-runtime-alipay-sofa-boot-plugin-3.4.6.jar!/lib/sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar!/
+     *
+     * sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar
+     *
+     * @return
+     */
+    private String getLastNestedJarPath(String urlPath) {
+        if (urlPath.endsWith("!/")) {
+            urlPath = urlPath.substring(0, urlPath.lastIndexOf("!/"));
+            urlPath = urlPath.substring(urlPath.lastIndexOf(STRING_SLASH) + 1, urlPath.length());
+        }
+        return urlPath;
     }
 
     @Override

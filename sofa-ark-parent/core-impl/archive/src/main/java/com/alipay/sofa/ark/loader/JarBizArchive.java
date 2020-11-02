@@ -41,7 +41,9 @@ public class JarBizArchive extends AbstractArchive implements BizArchive {
 
     public final Archive archive;
 
-    private final String SOFA_ARK_BIZ_LIB = "lib/";
+    private final String SOFA_ARK_BIZ_LIB        = "lib/";
+
+    private final String SOFA_ARK_BIZ_LIB_EXPORT = "lib/export";
 
     public JarBizArchive(Archive archive) {
         this.archive = archive;
@@ -93,4 +95,12 @@ public class JarBizArchive extends AbstractArchive implements BizArchive {
         });
     }
 
+    public URL[] getExportUrls() throws IOException {
+        return getUrls(new EntryFilter() {
+            @Override
+            public boolean matches(Entry entry) {
+                return entry.getName().startsWith(SOFA_ARK_BIZ_LIB_EXPORT);
+            }
+        });
+    }
 }

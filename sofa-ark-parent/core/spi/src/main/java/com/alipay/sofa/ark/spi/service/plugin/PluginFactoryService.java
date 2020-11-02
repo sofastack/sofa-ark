@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.spi.model.Plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Create Plugin according to {@link File} and {@link PluginArchive}
@@ -37,6 +38,15 @@ public interface PluginFactoryService {
      * @throws IOException throw io exception when {@link PluginArchive} is invalid.
      */
     Plugin createPlugin(PluginArchive pluginArchive) throws IOException;
+
+    /**
+     * can custom plugin extensions urls
+     * @param pluginArchive
+     * @param extensions
+     * @return
+     * @throws IOException
+     */
+    Plugin createPlugin(PluginArchive pluginArchive, URL[] extensions) throws IOException;
 
     /**
      * Create Plugin Model according to {@link File}

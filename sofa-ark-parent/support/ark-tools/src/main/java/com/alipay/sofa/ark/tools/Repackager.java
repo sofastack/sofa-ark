@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.tools;
 
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -68,6 +69,8 @@ public class Repackager {
     private LinkedHashSet<String>                 denyImportClasses;
 
     private LinkedHashSet<String>                 denyImportResources;
+
+    private LinkedHashSet<ArtifactItem>           injectPluginDependencies;
 
     private final File                            source;
 
@@ -157,6 +160,19 @@ public class Repackager {
 
     public void setDenyImportResources(LinkedHashSet<String> denyImportResources) {
         this.denyImportResources = denyImportResources;
+    }
+
+    public void setInjectPluginDependencies(LinkedHashSet<String> injectPluginDependencies) {
+        if (this.injectPluginDependencies == null) {
+            this.injectPluginDependencies = new LinkedHashSet();
+        }
+
+        for (String artifact : injectPluginDependencies) {
+            ArtifactItem item = new ArtifactItem();
+            item.setArtifactId(artifact.split(":")[0]);
+            item.setVersion(artifact.split(":")[1]);
+            this.injectPluginDependencies.add(item);
+        }
     }
 
     /**
@@ -316,7 +332,18 @@ public class Repackager {
                 if (!alreadySeen.add(destination + library.getName())) {
                     throw new IllegalStateException("Duplicate library " + library.getName());
                 }
-                writer.writeNestedLibrary(destination, library);
+                boolean isWrite = false;
+                for (ArtifactItem item : injectPluginDependencies) {
+                    if (library.getName().startsWith(item.getArtifactId())
+                        && library.getName().endsWith(item.getVersion() + ".jar")) {
+                        writer.writeNestedLibrary(destination + "export/", library);
+                        isWrite = true;
+                        break;
+                    }
+                }
+                if (!isWrite) {
+                    writer.writeNestedLibrary(destination, library);
+                }
             }
         }
     }
@@ -387,8 +414,21 @@ public class Repackager {
             StringUtils.setToStr(denyImportClasses, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DENY_IMPORT_RESOURCES,
             StringUtils.setToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
-
+        manifest.getMainAttributes().putValue(INJECT_PLUGIN_DEPENDENCIES,
+            setToStr(injectPluginDependencies, MANIFEST_VALUE_SPLIT));
         return manifest;
+    }
+
+    public static String setToStr(Set<ArtifactItem> artifactItemSet, String delimiter) {
+        if (artifactItemSet == null || artifactItemSet.isEmpty()) {
+            return "";
+        }
+        AssertUtils.assertNotNull(delimiter, "Delimiter should not be null.");
+        StringBuilder sb = new StringBuilder();
+        for (ArtifactItem item : artifactItemSet) {
+            sb.append(item.getArtifactId()).append("-").append(item.getVersion()).append(delimiter);
+        }
+        return sb.toString().substring(0, sb.length() - delimiter.length());
     }
 
     private Manifest buildAppManifest(JarFile source) throws IOException {

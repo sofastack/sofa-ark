@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
+import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
@@ -39,6 +40,7 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -74,9 +76,18 @@ public class HandleArchiveStage implements PipelineStage {
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
+            List<BizArchive> bizArchives = executableArchive.getBizArchives();
+            List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
+            URL[] exportUrls = null;
+            if (bizArchives.size() == 1) {
+                BizArchive bizArchive = bizArchives.get(0);
+                if (bizArchive instanceof JarBizArchive) {
+                    exportUrls = ((JarBizArchive) bizArchive).getExportUrls();
+                }
+            }
 
-            for (PluginArchive pluginArchive : executableArchive.getPluginArchives()) {
-                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive);
+            for (PluginArchive pluginArchive : pluginArchives) {
+                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive, exportUrls);
                 if (!isPluginExcluded(plugin)) {
                     pluginManagerService.registerPlugin(plugin);
                 } else {
@@ -92,7 +103,7 @@ public class HandleArchiveStage implements PipelineStage {
             }
 
             int bizCount = 0;
-            for (BizArchive bizArchive : executableArchive.getBizArchives()) {
+            for (BizArchive bizArchive : bizArchives) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
                 if (bizArchive instanceof DirectoryBizArchive) {
                     if (!((DirectoryBizArchive) bizArchive).isTestMode()) {

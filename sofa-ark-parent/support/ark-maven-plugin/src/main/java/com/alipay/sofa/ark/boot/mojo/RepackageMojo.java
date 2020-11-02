@@ -194,6 +194,9 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     private LinkedHashSet<String> denyImportResources;
 
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String> injectPluginDependencies;
+
     /**
      * whether package provided dependencies into ark
      */
@@ -321,6 +324,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setDenyImportClasses(denyImportClasses);
         repackager.setDenyImportPackages(denyImportPackages);
         repackager.setDenyImportResources(denyImportResources);
+        repackager.setInjectPluginDependencies(injectPluginDependencies);
         repackager.setPackageProvided(packageProvided);
         repackager.setSkipArkExecutable(skipArkExecutable);
         repackager.setKeepArkBizJar(keepArkBizJar);
