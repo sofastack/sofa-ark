@@ -37,6 +37,12 @@ public interface PluginArchive extends Archive {
     URL[] getUrls() throws IOException;
 
     /**
+     * setExtensionUrls
+     * @param extensionUrls
+     */
+    void setExtensionUrls(URL[] extensionUrls);
+
+    /**
      * check whether the entry satisfy the given {@link com.alipay.sofa.ark.spi.archive.Archive.EntryFilter}
      * exists or not
      *

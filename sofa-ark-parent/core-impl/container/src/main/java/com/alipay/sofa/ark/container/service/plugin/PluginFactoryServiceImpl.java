@@ -35,6 +35,8 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -111,48 +113,38 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         // get config by PLUGIN-EXPORT key
         URL[] urls = pluginArchive.getUrls();
         String stringValue = ArkConfigs.getStringValue("PLUGIN-EXPORT" + "[" + pluginName + "]");
-        if (StringUtils.isEmpty(stringValue)) {
+        if (StringUtils.isEmpty(stringValue) || extensions == null) {
             return urls;
         }
-
-        String[] dependencies = stringValue.split(STRING_SEMICOLON);
-
-        for (String dependency : dependencies) {
-            String artifactId = dependency.split(STRING_COLON)[0];
-            String version = dependency.split(STRING_COLON)[1];
-            for (int i = 0; i < urls.length; i++) {
-                if (urls[i].getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
-                    if (getUrl(extensions, artifactId) != null) {
-                        urls[i] = getUrl(extensions, artifactId);
-                    }
+        pluginArchive.setExtensionUrls(extensions);
+        java.util.ArrayList<URL> urlList = new ArrayList<>(Arrays.asList(urls));
+        java.util.List<URL> preRemoveList = new ArrayList<>();
+        urlList.remove(null);
+        for (URL url : urlList) {
+            String[] dependencies = stringValue.split(STRING_SEMICOLON);
+            for (String dependency : dependencies) {
+                String artifactId = dependency.split(STRING_COLON)[0];
+                String version = dependency.split(STRING_COLON)[1];
+                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
+                    preRemoveList.add(url);
+                    break;
                 }
             }
         }
-        return urls;
-    }
-
-    public URL getUrl(URL[] extensions, String artifactId) {
-        for (URL extension : extensions) {
-            if (getLastNestedJarPath(extension.getPath()).startsWith(artifactId)) {
-                return extension;
+        urlList.removeAll(preRemoveList);
+        if (pluginArchive instanceof JarPluginArchive) {
+            URL[] extensionUrls = ((JarPluginArchive) pluginArchive).getExtensionUrls();
+            if (extensionUrls != null) {
+                urlList.addAll(Arrays.asList(extensionUrls));
             }
         }
-        return null;
-    }
 
-    /**
-     * SOFA-ARK/plugin/xxx-plugin-1.0.0.jar!/lib/sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar!/
-     *
-     * sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar
-     *
-     * @return
-     */
-    private String getLastNestedJarPath(String urlPath) {
-        if (urlPath.endsWith("!/")) {
-            urlPath = urlPath.substring(0, urlPath.lastIndexOf("!/"));
-            urlPath = urlPath.substring(urlPath.lastIndexOf(STRING_SLASH) + 1, urlPath.length());
+        Object[] objects = urlList.toArray();
+        urls = new URL[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            urls[i] = (URL) objects[i];
         }
-        return urlPath;
+        return urls;
     }
 
     @Override

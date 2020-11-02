@@ -46,8 +46,6 @@ public class ExecutableArkBizJar implements ExecutableArchive {
 
     public final String  SOFA_ARK_PLUGIN     = "SOFA-ARK/plugin/";
 
-    public final String  SOFA_ARK_BIZ_EXPORT = "lib/export";
-
     public final Archive archive;
 
     public final URL     url;
