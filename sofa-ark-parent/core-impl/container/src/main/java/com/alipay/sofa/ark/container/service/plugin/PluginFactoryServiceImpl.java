@@ -141,7 +141,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
     }
 
     /**
-     * SOFA-ARK/plugin/serverless-runtime-alipay-sofa-boot-plugin-3.4.6.jar!/lib/sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar!/
+     * SOFA-ARK/plugin/xxx-plugin-1.0.0.jar!/lib/sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar!/
      *
      * sofa-boot-actuator-autoconfigure-3.4.6-SNAPSHOT.jar
      *
