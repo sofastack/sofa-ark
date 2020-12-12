@@ -71,6 +71,7 @@ public class Repackager {
     private LinkedHashSet<String>                 denyImportResources;
 
     private LinkedHashSet<ArtifactItem>           injectPluginDependencies;
+    private LinkedHashSet<String>                 injectPluginExportPackages;
 
     private final File                            source;
 
@@ -160,6 +161,10 @@ public class Repackager {
 
     public void setDenyImportResources(LinkedHashSet<String> denyImportResources) {
         this.denyImportResources = denyImportResources;
+    }
+
+    public void setInjectPluginExportPackages(LinkedHashSet<String> injectPluginExportPackages) {
+        this.injectPluginExportPackages = injectPluginExportPackages;
     }
 
     public void setInjectPluginDependencies(LinkedHashSet<String> injectPluginDependencies) {
@@ -416,6 +421,8 @@ public class Repackager {
             StringUtils.setToStr(denyImportResources, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(INJECT_PLUGIN_DEPENDENCIES,
             setToStr(injectPluginDependencies, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(INJECT_EXPORT_PACKAGES,
+            StringUtils.setToStr(injectPluginExportPackages, MANIFEST_VALUE_SPLIT));
         return manifest;
     }
 

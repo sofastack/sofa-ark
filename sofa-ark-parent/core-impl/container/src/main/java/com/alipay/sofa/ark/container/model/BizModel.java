@@ -79,6 +79,7 @@ public class BizModel implements Biz {
     private Set<String>         denyImportResources           = new HashSet<>();
 
     private Set<String>         injectPluginDependencies      = new HashSet<>();
+    private Set<String>         injectExportPackages          = new HashSet<>();
 
     private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
 
@@ -164,6 +165,12 @@ public class BizModel implements Biz {
 
     public BizModel setInjectPluginDependencies(Set<String> injectPluginDependencies) {
         this.injectPluginDependencies = injectPluginDependencies;
+        return this;
+    }
+
+    public BizModel setInjectExportPackages(String injectExportPackages) {
+        this.injectExportPackages = StringUtils.strToSet(injectExportPackages,
+            Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
 

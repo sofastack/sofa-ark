@@ -99,7 +99,8 @@ public class JarBizArchive extends AbstractArchive implements BizArchive {
         return getUrls(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
-                return entry.getName().startsWith(SOFA_ARK_BIZ_LIB_EXPORT) && !entry.getName().equals(SOFA_ARK_BIZ_LIB_EXPORT);
+                return entry.getName().startsWith(SOFA_ARK_BIZ_LIB_EXPORT)
+                       && !entry.getName().equals(SOFA_ARK_BIZ_LIB_EXPORT);
             }
         });
     }

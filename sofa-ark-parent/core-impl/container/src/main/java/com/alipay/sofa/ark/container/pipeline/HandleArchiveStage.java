@@ -41,12 +41,16 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.MANIFEST_VALUE_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_INCLUDE;
 
@@ -79,15 +83,21 @@ public class HandleArchiveStage implements PipelineStage {
             List<BizArchive> bizArchives = executableArchive.getBizArchives();
             List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
             URL[] exportUrls = null;
+            Set<String> exportPackages = new HashSet<>();
             if (bizArchives.size() == 1) {
                 BizArchive bizArchive = bizArchives.get(0);
                 if (bizArchive instanceof JarBizArchive) {
+                    Attributes mainAttributes = bizArchive.getManifest().getMainAttributes();
+                    String exportPackageStr = mainAttributes.getValue(INJECT_EXPORT_PACKAGES);
+                    exportPackages.addAll(StringUtils.strToSet(exportPackageStr,
+                        MANIFEST_VALUE_SPLIT));
                     exportUrls = ((JarBizArchive) bizArchive).getExportUrls();
                 }
             }
 
             for (PluginArchive pluginArchive : pluginArchives) {
-                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive, exportUrls);
+                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive, exportUrls,
+                    exportPackages);
                 if (!isPluginExcluded(plugin)) {
                     pluginManagerService.registerPlugin(plugin);
                 } else {

@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.spi.archive.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -40,11 +39,11 @@ import static com.alipay.sofa.ark.spi.constant.Constants.CONF_BASE_DIR;
  */
 public class ExecutableArkBizJar implements ExecutableArchive {
 
-    public final String  SOFA_ARK_CONTAINER  = "SOFA-ARK/container/";
+    public final String  SOFA_ARK_CONTAINER = "SOFA-ARK/container/";
 
-    public final String  SOFA_ARK_MODULE     = "SOFA-ARK/biz/";
+    public final String  SOFA_ARK_MODULE    = "SOFA-ARK/biz/";
 
-    public final String  SOFA_ARK_PLUGIN     = "SOFA-ARK/plugin/";
+    public final String  SOFA_ARK_PLUGIN    = "SOFA-ARK/plugin/";
 
     public final Archive archive;
 

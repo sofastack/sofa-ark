@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.service.plugin;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.PluginContextImpl;
 import com.alipay.sofa.ark.container.model.PluginModel;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -78,8 +80,9 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
     }
 
     @Override
-    public Plugin createPlugin(PluginArchive pluginArchive, URL[] extensions) throws IOException,
-                                                                             IllegalArgumentException {
+    public Plugin createPlugin(PluginArchive pluginArchive, URL[] extensions,
+                               Set<String> exportPackages) throws IOException,
+                                                          IllegalArgumentException {
         AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
         if (extensions == null || extensions.length == 0) {
             return createPlugin(pluginArchive);
@@ -97,7 +100,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setClassPath(getFinalPluginUrls(pluginArchive, extensions, plugin.getPluginName()))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportClasses(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE))
-            .setExportPackages(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE))
+            .setExportPackages(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE),
+                exportPackages)
             .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
             .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))

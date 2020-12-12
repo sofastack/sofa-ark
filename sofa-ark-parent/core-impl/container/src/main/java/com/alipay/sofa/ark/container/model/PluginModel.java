@@ -133,6 +133,14 @@ public class PluginModel implements Plugin {
         return this;
     }
 
+    public PluginModel setExportPackages(String exportPackages, Set<String> exportExtensionPackages) {
+        this.exportPackages = StringUtils.strToSet(exportPackages, Constants.MANIFEST_VALUE_SPLIT);
+        this.exportPackages.addAll(exportExtensionPackages);
+        ParseUtils.parsePackageNodeAndStem(this.exportPackages, this.exportPackageStems,
+            this.exportPackageNodes);
+        return this;
+    }
+
     public PluginModel setExportClasses(String exportClasses) {
         this.exportClasses = StringUtils.strToSet(exportClasses, Constants.MANIFEST_VALUE_SPLIT);
         return this;
