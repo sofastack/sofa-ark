@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
 import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
@@ -82,29 +83,6 @@ public class HandleArchiveStage implements PipelineStage {
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
             List<BizArchive> bizArchives = executableArchive.getBizArchives();
             List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
-            URL[] exportUrls = null;
-            Set<String> exportPackages = new HashSet<>();
-            if (bizArchives.size() == 1) {
-                BizArchive bizArchive = bizArchives.get(0);
-                if (bizArchive instanceof JarBizArchive) {
-                    Attributes mainAttributes = bizArchive.getManifest().getMainAttributes();
-                    String exportPackageStr = mainAttributes.getValue(INJECT_EXPORT_PACKAGES);
-                    exportPackages.addAll(StringUtils.strToSet(exportPackageStr,
-                        MANIFEST_VALUE_SPLIT));
-                    exportUrls = ((JarBizArchive) bizArchive).getExportUrls();
-                }
-            }
-
-            for (PluginArchive pluginArchive : pluginArchives) {
-                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive, exportUrls,
-                    exportPackages);
-                if (!isPluginExcluded(plugin)) {
-                    pluginManagerService.registerPlugin(plugin);
-                } else {
-                    LOGGER.warn(String.format("The plugin of %s is excluded.",
-                        plugin.getPluginName()));
-                }
-            }
 
             if (useDynamicConfig()) {
                 AssertUtils.isFalse(
@@ -155,6 +133,33 @@ public class HandleArchiveStage implements PipelineStage {
                     && StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     ArkConfigs.putStringValue(Constants.MASTER_BIZ, bizList.get(0).getBizName());
                     ArkClient.setMasterBiz(bizList.get(0));
+                }
+            }
+
+            URL[] exportUrls = null;
+            Set<String> exportPackages = new HashSet<>();
+            Biz masterBiz = ArkClient.getMasterBiz();
+            for (BizArchive bizArchive : bizArchives) {
+                Attributes mainAttributes = bizArchive.getManifest().getMainAttributes();
+                String bizName = mainAttributes.getValue(ARK_BIZ_NAME);
+                // extension from master biz
+                if (bizArchive instanceof JarBizArchive
+                    && masterBiz.getBizName().equalsIgnoreCase(bizName)) {
+                    String exportPackageStr = mainAttributes.getValue(INJECT_EXPORT_PACKAGES);
+                    exportPackages.addAll(StringUtils.strToSet(exportPackageStr,
+                        MANIFEST_VALUE_SPLIT));
+                    exportUrls = ((JarBizArchive) bizArchive).getExportUrls();
+                }
+            }
+
+            for (PluginArchive pluginArchive : pluginArchives) {
+                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive, exportUrls,
+                    exportPackages);
+                if (!isPluginExcluded(plugin)) {
+                    pluginManagerService.registerPlugin(plugin);
+                } else {
+                    LOGGER.warn(String.format("The plugin of %s is excluded.",
+                        plugin.getPluginName()));
                 }
             }
 

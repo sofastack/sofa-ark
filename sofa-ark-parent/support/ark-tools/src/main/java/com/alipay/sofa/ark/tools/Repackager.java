@@ -253,6 +253,7 @@ public class Repackager {
 
         try {
             writer.writeManifest(manifest);
+            writeConfDir(new File(baseDir, Constants.CONF_BASE_DIR), writer);
             writer.writeEntries(jarFileSource);
             writer.writeMarkEntry();
             writeNestedLibraries(standardLibraries, Layouts.Module.module(), writer);

@@ -116,7 +116,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                                                                                                      throws IOException {
         // get config by PLUGIN-EXPORT key
         URL[] urls = pluginArchive.getUrls();
-        String stringValue = ArkConfigs.getStringValue("PLUGIN-EXPORT" + "[" + pluginName + "]");
+        String stringValue = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
+            pluginName));
         if (StringUtils.isEmpty(stringValue) || extensions == null) {
             return urls;
         }
