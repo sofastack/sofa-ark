@@ -116,9 +116,9 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                                                                                                      throws IOException {
         // get config by PLUGIN-EXPORT key
         URL[] urls = pluginArchive.getUrls();
-        String stringValue = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
+        String excludeArtifact = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
             pluginName));
-        if (StringUtils.isEmpty(stringValue) || extensions == null) {
+        if (StringUtils.isEmpty(excludeArtifact) || extensions == null) {
             return urls;
         }
         pluginArchive.setExtensionUrls(extensions);
@@ -126,7 +126,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         java.util.List<URL> preRemoveList = new ArrayList<>();
         urlList.remove(null);
         for (URL url : urlList) {
-            String[] dependencies = stringValue.split(STRING_SEMICOLON);
+            String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
             for (String dependency : dependencies) {
                 String artifactId = dependency.split(STRING_COLON)[0];
                 String version = dependency.split(STRING_COLON)[1];

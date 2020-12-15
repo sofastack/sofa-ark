@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -174,6 +175,10 @@ public class Repackager {
 
         for (String artifact : injectPluginDependencies) {
             ArtifactItem item = new ArtifactItem();
+            String[] artifactWithVersion = artifact.split(STRING_COLON);
+            AssertUtils.isFalse(artifactWithVersion.length != 2,
+                "injectPluginDependencies item must be follow format by name:version, current is:"
+                        + artifact);
             item.setArtifactId(artifact.split(":")[0]);
             item.setVersion(artifact.split(":")[1]);
             this.injectPluginDependencies.add(item);
