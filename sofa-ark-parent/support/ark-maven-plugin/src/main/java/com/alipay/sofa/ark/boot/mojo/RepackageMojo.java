@@ -16,10 +16,13 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.artifact.Artifact;
@@ -36,6 +39,8 @@ import org.apache.maven.project.MavenProjectHelper;
 
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -73,6 +78,9 @@ public class RepackageMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.basedir}", required = true)
     private File                  baseDir;
+
+    @Parameter(defaultValue = "", required = true)
+    private String                packExcludesConfig;
 
     /**
      * Name of the generated archive
@@ -364,6 +372,9 @@ public class RepackageMojo extends AbstractMojo {
      * @return dependencies excluded the excludes config
      */
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
+        // extension from other resource
+        extensionExcludeArtifacts();
+
         List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : excludes) {
             ArtifactItem item = ArtifactItem.parseArtifactItemIgnoreVersion(exclude);
@@ -395,6 +406,29 @@ public class RepackageMojo extends AbstractMojo {
         }
 
         return result;
+    }
+
+    private void extensionExcludeArtifacts() {
+        if (!StringUtils.isEmpty(packExcludesConfig)) {
+            try {
+                File configFile = new File(baseDir + "/" + ARK_CONF_BASE_DIR + "/"
+                                           + packExcludesConfig);
+                if (configFile.exists()) {
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
+                    String dataLine = bufferedReader.readLine();
+                    if (dataLine.startsWith("excludes")) {
+                        ParseUtils.parseExcludeConf(excludes, dataLine, "excludes");
+                    } else if (dataLine.startsWith("excludeGroupIds")) {
+                        ParseUtils.parseExcludeConf(excludeGroupIds, dataLine, "excludeGroupIds");
+                    } else if (dataLine.startsWith("excludeArtifactIds")) {
+                        ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
+                            "excludeArtifactIds");
+                    }
+                }
+            } catch (IOException ex) {
+                // ignore
+            }
+        }
     }
 
     public static class ArkConstants {

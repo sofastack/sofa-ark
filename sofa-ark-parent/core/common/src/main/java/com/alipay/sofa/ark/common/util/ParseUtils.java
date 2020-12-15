@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -65,6 +66,16 @@ public class ParseUtils {
                 suffixStems.add(candidate.substring(Constants.RESOURCE_STEM_MARK.length()));
             } else {
                 resources.add(candidate);
+            }
+        }
+    }
+
+    public static void parseExcludeConf(LinkedHashSet<String> targetSet, String origin,
+                                        String confKey) {
+        if (origin.startsWith(confKey + Constants.EQUAL_SPLIT)) {
+            String confVal = origin.split(Constants.EQUAL_SPLIT)[1];
+            if (!StringUtils.isEmpty(confVal) && !targetSet.contains(confVal)) {
+                targetSet.add(confVal);
             }
         }
     }
