@@ -174,6 +174,10 @@ public class BizModel implements Biz {
         return this;
     }
 
+    public Set<String> getInjectExportPackages() {
+        return injectExportPackages;
+    }
+
     @Override
     public String getBizName() {
         return bizName;
