@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -179,8 +178,8 @@ public class Repackager {
             AssertUtils.isFalse(artifactWithVersion.length != 2,
                 "injectPluginDependencies item must be follow format by name:version, current is:"
                         + artifact);
-            item.setArtifactId(artifact.split(":")[0]);
-            item.setVersion(artifact.split(":")[1]);
+            item.setArtifactId(artifactWithVersion[0]);
+            item.setVersion(artifactWithVersion[1]);
             this.injectPluginDependencies.add(item);
         }
     }
@@ -345,8 +344,8 @@ public class Repackager {
                 }
                 boolean isWrite = false;
                 for (ArtifactItem item : injectPluginDependencies) {
-                    if (library.getName().startsWith(item.getArtifactId())
-                        && library.getName().endsWith(item.getVersion() + ".jar")) {
+                    if (library.getName().equals(
+                        item.getArtifactId() + "-" + item.getVersion() + ".jar")) {
                         writer.writeNestedLibrary(destination + "export/", library);
                         isWrite = true;
                         break;
@@ -441,7 +440,7 @@ public class Repackager {
         for (ArtifactItem item : artifactItemSet) {
             sb.append(item.getArtifactId()).append("-").append(item.getVersion()).append(delimiter);
         }
-        return sb.toString().substring(0, sb.length() - delimiter.length());
+        return sb.substring(0, sb.length() - delimiter.length());
     }
 
     private Manifest buildAppManifest(JarFile source) throws IOException {

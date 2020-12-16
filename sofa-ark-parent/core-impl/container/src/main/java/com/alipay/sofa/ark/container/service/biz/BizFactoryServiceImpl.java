@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -91,13 +92,12 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         return biz;
     }
 
-    private java.util.Set<String> getInjectDependencies(String injectPluginDependencies) {
-        java.util.Set<String> dependencies = new HashSet<>();
-        if (StringUtils.strToSet(injectPluginDependencies, Constants.MANIFEST_VALUE_SPLIT) == null) {
-            return dependencies;
+    private Set<String> getInjectDependencies(String injectPluginDependencies) {
+        Set<String> dependencies = new HashSet<>();
+        if (StringUtils.strToSet(injectPluginDependencies, Constants.MANIFEST_VALUE_SPLIT) != null) {
+            dependencies.addAll(StringUtils.strToSet(injectPluginDependencies,
+                Constants.MANIFEST_VALUE_SPLIT));
         }
-        dependencies.addAll(StringUtils.strToSet(injectPluginDependencies,
-            Constants.MANIFEST_VALUE_SPLIT));
         return dependencies;
     }
 

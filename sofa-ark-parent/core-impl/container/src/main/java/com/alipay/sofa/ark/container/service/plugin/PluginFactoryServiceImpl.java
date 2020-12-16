@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.container.service.plugin;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.PluginContextImpl;
 import com.alipay.sofa.ark.container.model.PluginModel;
@@ -38,6 +37,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
@@ -122,8 +122,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             return urls;
         }
         pluginArchive.setExtensionUrls(extensions);
-        java.util.ArrayList<URL> urlList = new ArrayList<>(Arrays.asList(urls));
-        java.util.List<URL> preRemoveList = new ArrayList<>();
+        ArrayList<URL> urlList = new ArrayList<>(Arrays.asList(urls));
+        List<URL> preRemoveList = new ArrayList<>();
         urlList.remove(null);
         for (URL url : urlList) {
             String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
@@ -146,10 +146,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
 
         Object[] objects = urlList.toArray();
         urls = new URL[objects.length];
-        for (int i = 0; i < objects.length; i++) {
-            urls[i] = (URL) objects[i];
-        }
-        return urls;
+        return urlList.toArray(urls);
     }
 
     @Override
