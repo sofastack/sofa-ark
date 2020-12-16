@@ -52,7 +52,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 @Mojo(name = "repackage", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class RepackageMojo extends AbstractMojo {
 
-    private static final String   BIZ_NAME = "com.alipay.sofa.ark.bizName";
+    private static final String   BIZ_NAME           = "com.alipay.sofa.ark.bizName";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject          project;
@@ -170,19 +170,19 @@ public class RepackageMojo extends AbstractMojo {
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludes = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludes           = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludeGroupIds;
+    private LinkedHashSet<String> excludeGroupIds    = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludeArtifactIds;
+    private LinkedHashSet<String> excludeArtifactIds = new LinkedHashSet<>();
 
     /**
      * list of packages denied to be imported
@@ -373,7 +373,9 @@ public class RepackageMojo extends AbstractMojo {
      */
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
         // extension from other resource
-        extensionExcludeArtifacts();
+        if (!StringUtils.isEmpty(packExcludesConfig)) {
+            extensionExcludeArtifacts(baseDir + "/" + ARK_CONF_BASE_DIR + "/" + packExcludesConfig);
+        }
 
         List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : excludes) {
@@ -408,14 +410,13 @@ public class RepackageMojo extends AbstractMojo {
         return result;
     }
 
-    private void extensionExcludeArtifacts() {
-        if (!StringUtils.isEmpty(packExcludesConfig)) {
-            try {
-                File configFile = new File(baseDir + "/" + ARK_CONF_BASE_DIR + "/"
-                                           + packExcludesConfig);
-                if (configFile.exists()) {
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
-                    String dataLine = bufferedReader.readLine();
+    protected void extensionExcludeArtifacts(String extraResources) {
+        try {
+            File configFile = new File(extraResources);
+            if (configFile.exists()) {
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
+                String dataLine = bufferedReader.readLine();
+                while (!StringUtils.isEmpty(dataLine)) {
                     if (dataLine.startsWith("excludes")) {
                         ParseUtils.parseExcludeConf(excludes, dataLine, "excludes");
                     } else if (dataLine.startsWith("excludeGroupIds")) {
@@ -424,10 +425,11 @@ public class RepackageMojo extends AbstractMojo {
                         ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
                             "excludeArtifactIds");
                     }
+                    dataLine = bufferedReader.readLine();
                 }
-            } catch (IOException ex) {
-                // ignore
             }
+        } catch (IOException ex) {
+            getLog().error("failed to extension excludes artifacts.", ex);
         }
     }
 
