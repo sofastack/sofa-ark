@@ -24,6 +24,7 @@ import java.util.*;
 
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -41,6 +42,9 @@ import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -374,7 +378,8 @@ public class RepackageMojo extends AbstractMojo {
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
         // extension from other resource
         if (!StringUtils.isEmpty(packExcludesConfig)) {
-            extensionExcludeArtifacts(baseDir + "/" + ARK_CONF_BASE_DIR + "/" + packExcludesConfig);
+            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                                      + packExcludesConfig);
         }
 
         List<ArtifactItem> excludeList = new ArrayList<>();
@@ -415,17 +420,17 @@ public class RepackageMojo extends AbstractMojo {
             File configFile = new File(extraResources);
             if (configFile.exists()) {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
-                String dataLine = bufferedReader.readLine();
-                while (!StringUtils.isEmpty(dataLine)) {
-                    if (dataLine.startsWith("excludes")) {
-                        ParseUtils.parseExcludeConf(excludes, dataLine, "excludes");
-                    } else if (dataLine.startsWith("excludeGroupIds")) {
-                        ParseUtils.parseExcludeConf(excludeGroupIds, dataLine, "excludeGroupIds");
-                    } else if (dataLine.startsWith("excludeArtifactIds")) {
+                String dataLine;
+                while ((dataLine = bufferedReader.readLine()) != null) {
+                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
+                        ParseUtils.parseExcludeConf(excludes, dataLine, EXTENSION_EXCLUDES);
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConf(excludeGroupIds, dataLine,
+                            EXTENSION_EXCLUDES_GROUPIDS);
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
-                            "excludeArtifactIds");
+                            EXTENSION_EXCLUDES_ARTIFACTIDS);
                     }
-                    dataLine = bufferedReader.readLine();
                 }
             }
         } catch (IOException ex) {

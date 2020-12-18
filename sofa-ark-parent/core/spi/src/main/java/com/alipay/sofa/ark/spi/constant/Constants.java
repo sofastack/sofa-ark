@@ -186,6 +186,10 @@ public class Constants {
     public final static String       FORCE_DELEGATE_TO_TEST_CLASSLOADER            = "com.alipay.sofa.ark.delegate.to.testClassLoader";
     public final static String       FORCE_DELEGATE_TO_APP_CLASSLOADER             = "com.alipay.sofa.ark.delegate.to.appClassLoader";
 
+    public final static String       EXTENSION_EXCLUDES                            = "excludes";
+    public final static String       EXTENSION_EXCLUDES_GROUPIDS                   = "excludeGroupIds";
+    public final static String       EXTENSION_EXCLUDES_ARTIFACTIDS                = "excludeGroupIds";
+
     public static final List<String> CHANNEL_QUIT                                  = new ArrayList<>();
 
     static {
