@@ -33,7 +33,7 @@
         <plexus.build.api.version>0.0.7</plexus.build.api.version>
         <plexus.component.annotations.version>1.5.5</plexus.component.annotations.version>
 
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
         <jmockit.version>1.35</jmockit.version>
         <mockito.version>2.21.0</mockito.version>
