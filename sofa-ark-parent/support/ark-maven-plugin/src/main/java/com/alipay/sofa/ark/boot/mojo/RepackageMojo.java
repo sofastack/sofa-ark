@@ -55,7 +55,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
 @Mojo(name = "repackage", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class RepackageMojo extends AbstractMojo {
 
-    private static final String   BIZ_NAME           = "com.alipay.sofa.ark.bizName";
+    private static final String   BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject          project;
@@ -82,7 +82,7 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.basedir}", required = true)
     private File                  baseDir;
 
-    @Parameter(defaultValue = "", required = true)
+    @Parameter(defaultValue = "", required = false)
     private String                packExcludesConfig;
 
     /**
@@ -173,19 +173,19 @@ public class RepackageMojo extends AbstractMojo {
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludes           = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludes                   = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludeGroupIds    = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeGroupIds            = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludeArtifactIds = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeArtifactIds         = new LinkedHashSet<>();
 
     /**
      * list of packages denied to be imported
@@ -209,13 +209,13 @@ public class RepackageMojo extends AbstractMojo {
      * list of inject plugin dependencies
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> injectPluginDependencies;
+    private LinkedHashSet<String> injectPluginDependencies   = new LinkedHashSet<>();         ;
 
     /**
      * list of inject plugin export packages
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> injectPluginExportPackages;
+    private LinkedHashSet<String> injectPluginExportPackages = new LinkedHashSet<>();         ;
 
     /**
      * whether package provided dependencies into ark
