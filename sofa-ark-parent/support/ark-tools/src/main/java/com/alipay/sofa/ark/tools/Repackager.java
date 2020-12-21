@@ -70,8 +70,8 @@ public class Repackager {
 
     private LinkedHashSet<String>                 denyImportResources;
 
-    private LinkedHashSet<ArtifactItem>           injectPluginDependencies;
-    private LinkedHashSet<String>                 injectPluginExportPackages;
+    private LinkedHashSet<ArtifactItem>           injectPluginDependencies           = new LinkedHashSet<>();
+    private LinkedHashSet<String>                 injectPluginExportPackages         = new LinkedHashSet<>();
 
     private final File                            source;
 
@@ -168,8 +168,8 @@ public class Repackager {
     }
 
     public void setInjectPluginDependencies(LinkedHashSet<String> injectPluginDependencies) {
-        if (this.injectPluginDependencies == null) {
-            this.injectPluginDependencies = new LinkedHashSet();
+        if (injectPluginDependencies == null) {
+            return;
         }
 
         for (String artifact : injectPluginDependencies) {
