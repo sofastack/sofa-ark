@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.loader.JarBizArchive;
@@ -38,7 +39,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -70,6 +73,9 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
             .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
             .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
+            .setInjectPluginDependencies(
+                getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
+            .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(
                 new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath())));
@@ -84,6 +90,15 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         BizModel biz = (BizModel) createBiz(bizArchive);
         biz.setBizTempWorkDir(file);
         return biz;
+    }
+
+    private Set<String> getInjectDependencies(String injectPluginDependencies) {
+        Set<String> dependencies = new HashSet<>();
+        if (StringUtils.strToSet(injectPluginDependencies, Constants.MANIFEST_VALUE_SPLIT) != null) {
+            dependencies.addAll(StringUtils.strToSet(injectPluginDependencies,
+                Constants.MANIFEST_VALUE_SPLIT));
+        }
+        return dependencies;
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {

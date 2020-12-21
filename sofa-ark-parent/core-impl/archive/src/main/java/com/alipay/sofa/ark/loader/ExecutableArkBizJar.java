@@ -84,6 +84,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
         return this.archive.getInputStream(zipEntry);
     }
 
+    @Override
     public Archive getNestedArchive(Entry entry) throws IOException {
         return this.archive.getNestedArchive(entry);
     }
@@ -116,6 +117,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
      * @return biz-app archives
      * @throws Exception
      */
+    @Override
     public List<BizArchive> getBizArchives() throws Exception {
 
         List<Archive> archives = getNestedArchives(new EntryFilter() {
@@ -139,6 +141,7 @@ public class ExecutableArkBizJar implements ExecutableArchive {
      * @return ark plugin archives
      * @throws Exception
      */
+    @Override
     public List<PluginArchive> getPluginArchives() throws Exception {
 
         List<Archive> archives = this.archive.getNestedArchives(new EntryFilter() {

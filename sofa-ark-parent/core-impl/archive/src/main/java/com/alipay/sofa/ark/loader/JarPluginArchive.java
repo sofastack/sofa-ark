@@ -35,11 +35,16 @@ import java.util.zip.ZipEntry;
 public class JarPluginArchive extends AbstractArchive implements PluginArchive {
 
     public final Archive        archive;
+    private URL[]               extensionUrls;
 
     private final static String SOFA_ARK_PLUGIN_LIB = "lib/";
 
     public JarPluginArchive(Archive archive) {
         this.archive = archive;
+    }
+
+    public URL[] getExtensionUrls() {
+        return extensionUrls;
     }
 
     @Override
@@ -68,6 +73,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
         return this.archive.getInputStream(zipEntry);
     }
 
+    @Override
     public Archive getNestedArchive(Entry entry) throws IOException {
         return this.archive.getNestedArchive(entry);
     }
@@ -82,6 +88,7 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
      *
      * @return
      */
+    @Override
     public URL[] getUrls() throws IOException {
         return getUrls(new EntryFilter() {
             @Override
@@ -90,5 +97,10 @@ public class JarPluginArchive extends AbstractArchive implements PluginArchive {
                        && !SOFA_ARK_PLUGIN_LIB.equals(entry.getName());
             }
         });
+    }
+
+    @Override
+    public void setExtensionUrls(URL[] extensionUrls) {
+        this.extensionUrls = extensionUrls;
     }
 }

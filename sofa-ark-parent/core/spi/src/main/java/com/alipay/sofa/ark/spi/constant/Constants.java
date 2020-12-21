@@ -47,6 +47,9 @@ public class Constants {
     public final static String       ARK_CONF_BASE_DIR                             = "conf/ark";
     public final static String       ARK_CONF_FILE                                 = "bootstrap.properties";
     public final static String       ARK_CONF_FILE_FORMAT                          = "bootstrap-%s.properties";
+
+    public final static String       PLUGIN_EXTENSION_FORMAT                       = "PLUGIN-EXPORT[%s]";
+
     public final static String       DEFAULT_PROFILE                               = EMPTY_STR;
 
     public final static String       LOCAL_HOST                                    = "localhost";
@@ -96,6 +99,8 @@ public class Constants {
     public final static String       DENY_IMPORT_CLASSES                           = "deny-import-classes";
     public final static String       DENY_IMPORT_PACKAGES                          = "deny-import-packages";
     public final static String       DENY_IMPORT_RESOURCES                         = "deny-import-resources";
+    public final static String       INJECT_PLUGIN_DEPENDENCIES                    = "inject-plugin-dependencies";
+    public final static String       INJECT_EXPORT_PACKAGES                        = "inject-export-packages";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
     public final static String       DEFAULT_PACKAGE                               = ".";

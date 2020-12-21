@@ -53,8 +53,20 @@ public interface Archive extends Iterable<Archive.Entry> {
      */
     List<Archive> getNestedArchives(EntryFilter filter) throws IOException;
 
+    /**
+     * getNestedArchive
+     * @param entry
+     * @return
+     * @throws IOException
+     */
     Archive getNestedArchive(Entry entry) throws IOException;
 
+    /**
+     * getInputStream
+     * @param zipEntry
+     * @return
+     * @throws IOException
+     */
     InputStream getInputStream(ZipEntry zipEntry) throws IOException;
 
     /**

@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
+import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
@@ -39,12 +40,18 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.Attributes;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
 import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.MANIFEST_VALUE_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_INCLUDE;
 
@@ -74,16 +81,8 @@ public class HandleArchiveStage implements PipelineStage {
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
-
-            for (PluginArchive pluginArchive : executableArchive.getPluginArchives()) {
-                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive);
-                if (!isPluginExcluded(plugin)) {
-                    pluginManagerService.registerPlugin(plugin);
-                } else {
-                    LOGGER.warn(String.format("The plugin of %s is excluded.",
-                        plugin.getPluginName()));
-                }
-            }
+            List<BizArchive> bizArchives = executableArchive.getBizArchives();
+            List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
 
             if (useDynamicConfig()) {
                 AssertUtils.isFalse(
@@ -92,7 +91,7 @@ public class HandleArchiveStage implements PipelineStage {
             }
 
             int bizCount = 0;
-            for (BizArchive bizArchive : executableArchive.getBizArchives()) {
+            for (BizArchive bizArchive : bizArchives) {
                 Biz biz = bizFactoryService.createBiz(bizArchive);
                 if (bizArchive instanceof DirectoryBizArchive) {
                     if (!((DirectoryBizArchive) bizArchive).isTestMode()) {
@@ -134,6 +133,33 @@ public class HandleArchiveStage implements PipelineStage {
                     && StringUtils.isEmpty(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
                     ArkConfigs.putStringValue(Constants.MASTER_BIZ, bizList.get(0).getBizName());
                     ArkClient.setMasterBiz(bizList.get(0));
+                }
+            }
+
+            URL[] exportUrls = null;
+            Set<String> exportPackages = new HashSet<>();
+            Biz masterBiz = ArkClient.getMasterBiz();
+            for (BizArchive bizArchive : bizArchives) {
+                Attributes mainAttributes = bizArchive.getManifest().getMainAttributes();
+                String bizName = mainAttributes.getValue(ARK_BIZ_NAME);
+                // extension from master biz
+                if (bizArchive instanceof JarBizArchive
+                    && masterBiz.getBizName().equalsIgnoreCase(bizName)) {
+                    String exportPackageStr = mainAttributes.getValue(INJECT_EXPORT_PACKAGES);
+                    exportPackages.addAll(StringUtils.strToSet(exportPackageStr,
+                        MANIFEST_VALUE_SPLIT));
+                    exportUrls = ((JarBizArchive) bizArchive).getExportUrls();
+                }
+            }
+
+            for (PluginArchive pluginArchive : pluginArchives) {
+                Plugin plugin = pluginFactoryService.createPlugin(pluginArchive, exportUrls,
+                    exportPackages);
+                if (!isPluginExcluded(plugin)) {
+                    pluginManagerService.registerPlugin(plugin);
+                } else {
+                    LOGGER.warn(String.format("The plugin of %s is excluded.",
+                        plugin.getPluginName()));
                 }
             }
 
