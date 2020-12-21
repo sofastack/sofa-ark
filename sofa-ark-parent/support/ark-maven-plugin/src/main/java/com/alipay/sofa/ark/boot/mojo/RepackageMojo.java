@@ -16,10 +16,13 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.artifact.Artifact;
@@ -37,6 +40,11 @@ import org.apache.maven.project.MavenProjectHelper;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+
 /**
  * Repackages existing JAR archives so that they can be executed from the command
  * line using {@literal java -jar}.
@@ -47,7 +55,7 @@ import com.alipay.sofa.ark.tools.Repackager;
 @Mojo(name = "repackage", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class RepackageMojo extends AbstractMojo {
 
-    private static final String   BIZ_NAME = "com.alipay.sofa.ark.bizName";
+    private static final String   BIZ_NAME           = "com.alipay.sofa.ark.bizName";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject          project;
@@ -73,6 +81,9 @@ public class RepackageMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.basedir}", required = true)
     private File                  baseDir;
+
+    @Parameter(defaultValue = "", required = true)
+    private String                packExcludesConfig;
 
     /**
      * Name of the generated archive
@@ -162,19 +173,19 @@ public class RepackageMojo extends AbstractMojo {
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludes = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludes           = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludeGroupIds;
+    private LinkedHashSet<String> excludeGroupIds    = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String> excludeArtifactIds;
+    private LinkedHashSet<String> excludeArtifactIds = new LinkedHashSet<>();
 
     /**
      * list of packages denied to be imported
@@ -364,6 +375,12 @@ public class RepackageMojo extends AbstractMojo {
      * @return dependencies excluded the excludes config
      */
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
+        // extension from other resource
+        if (!StringUtils.isEmpty(packExcludesConfig)) {
+            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                                      + packExcludesConfig);
+        }
+
         List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : excludes) {
             ArtifactItem item = ArtifactItem.parseArtifactItemIgnoreVersion(exclude);
@@ -395,6 +412,29 @@ public class RepackageMojo extends AbstractMojo {
         }
 
         return result;
+    }
+
+    protected void extensionExcludeArtifacts(String extraResources) {
+        try {
+            File configFile = new File(extraResources);
+            if (configFile.exists()) {
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
+                String dataLine;
+                while ((dataLine = bufferedReader.readLine()) != null) {
+                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
+                        ParseUtils.parseExcludeConf(excludes, dataLine, EXTENSION_EXCLUDES);
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConf(excludeGroupIds, dataLine,
+                            EXTENSION_EXCLUDES_GROUPIDS);
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
+                        ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
+                            EXTENSION_EXCLUDES_ARTIFACTIDS);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            getLog().error("failed to extension excludes artifacts.", ex);
+        }
     }
 
     public static class ArkConstants {

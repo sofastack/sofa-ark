@@ -1,0 +1,6 @@
+excludes=tracer-core:3.0.10
+excludes=tracer-core:3.0.11
+excludeGroupIds=com.alipay.sofa
+excludeGroupIds=org.springframework.boot
+excludeArtifactIds=tracer-core
+excludeArtifactIds=tracer-extension
