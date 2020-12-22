@@ -193,7 +193,7 @@ public class Constants {
 
     public final static String       EXTENSION_EXCLUDES                            = "excludes";
     public final static String       EXTENSION_EXCLUDES_GROUPIDS                   = "excludeGroupIds";
-    public final static String       EXTENSION_EXCLUDES_ARTIFACTIDS                = "excludeGroupIds";
+    public final static String       EXTENSION_EXCLUDES_ARTIFACTIDS                = "excludeArtifactIds";
 
     public static final List<String> CHANNEL_QUIT                                  = new ArrayList<>();
 
