@@ -22,8 +22,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -412,8 +414,16 @@ public class RepackageMojo extends AbstractMojo {
                 }
             }
 
-            if (excludeGroupIds != null && excludeGroupIds.contains(e.getGroupId())) {
-                isExclude = true;
+            if (excludeGroupIds != null) {
+                // 支持通配符
+                for (String excludeGroupId : excludeGroupIds) {
+                    if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        excludeGroupId = ClassUtils.getPackageName(excludeGroupId);
+                    }
+                    if (e.getGroupId().startsWith(excludeGroupId)) {
+                        isExclude = true;
+                    }
+                }
             }
 
             if (excludeArtifactIds != null && excludeArtifactIds.contains(e.getArtifactId())) {
