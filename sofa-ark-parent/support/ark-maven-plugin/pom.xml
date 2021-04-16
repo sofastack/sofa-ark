@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.1.6</version>
+        <version>1.1.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>maven-plugin</packaging>
