@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
+import com.google.common.cache.Cache;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.jar.JarFile;
+
+import static com.google.common.cache.CacheBuilder.newBuilder;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  *
@@ -49,7 +53,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     protected ClassLoaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
                                                             .getService(ClassLoaderService.class);
 
-    Map<String, URL> urlResourceMap = new HashMap<>();
+    protected Cache<String, Optional<URL>>  urlResourceCache  = newBuilder().expireAfterWrite(10,SECONDS).build();
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -141,18 +145,18 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     @Override
     public URL getResource(String name) {
         Handler.setUseFastConnectionExceptions(true);
-        URL url = null;
+        Optional<URL> urlOptional = urlResourceCache.getIfPresent(name);
         try {
-            if (urlResourceMap.containsKey(name)) {
-                return urlResourceMap.get(name);
+            if (urlOptional != null && urlOptional.isPresent()) {
+                return urlOptional.get();
             }
             URL ret = preFindResource(name);
             if (ret != null) {
                 return ret;
             }
             ret = getResourceInternal(name);
-            url = ret != null ? ret : postFindResource(name);
-            urlResourceMap.put(name, url);
+            URL url = ret != null ? ret : postFindResource(name);
+            urlResourceCache.put(name, url != null ? Optional.of(url) : Optional.empty());
             return url;
         } finally {
             Handler.setUseFastConnectionExceptions(false);
