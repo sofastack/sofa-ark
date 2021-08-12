@@ -18,21 +18,15 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
-import com.alipay.sofa.ark.container.model.BizModel;
-import com.alipay.sofa.ark.container.model.PluginModel;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
-import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizState;
-import com.alipay.sofa.ark.spi.model.Plugin;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK_DIR;
 
 /**
  * @author qilong.zql
@@ -78,6 +72,16 @@ public class ClassLoaderHookTest extends BaseTest {
         url = urls.nextElement();
         Assert.assertFalse(urls.hasMoreElements());
         Assert.assertTrue(url.getFile().contains("sample-plugin.jar"));
+    }
+
+    @Test
+    public void testDefaultBizClassLoaderSPI() throws Throwable {
+        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ((URLClassLoader) this
+                .getClass().getClassLoader()).getURLs());
+        System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR, "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
+        Assert.assertTrue(TestDefaultBizClassLoaderHook.ClassDefaultA.class.getName().equals(
+                bizClassLoader.loadClass("defaultA").getName()));
+        System.clearProperty(BIZ_CLASS_LOADER_HOOK_DIR);
     }
 
     @Test
