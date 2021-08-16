@@ -84,7 +84,6 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                                Set<String> exportPackages) throws IOException,
                                                           IllegalArgumentException {
         AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
-        // extensions注入依赖，exportPackages导出包
         if (extensions == null || extensions.length == 0) {
             return createPlugin(pluginArchive);
         }
