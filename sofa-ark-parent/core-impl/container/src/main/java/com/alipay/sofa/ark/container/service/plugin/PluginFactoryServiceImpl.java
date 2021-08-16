@@ -84,6 +84,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                                Set<String> exportPackages) throws IOException,
                                                           IllegalArgumentException {
         AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
+        // extensions注入依赖，exportPackages导出包
         if (extensions == null || extensions.length == 0) {
             return createPlugin(pluginArchive);
         }
@@ -118,25 +119,31 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         URL[] urls = pluginArchive.getUrls();
         String excludeArtifact = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
             pluginName));
-        if (StringUtils.isEmpty(excludeArtifact) || extensions == null) {
+        if (extensions == null) {
             return urls;
         }
         pluginArchive.setExtensionUrls(extensions);
         ArrayList<URL> urlList = new ArrayList<>(Arrays.asList(urls));
-        List<URL> preRemoveList = new ArrayList<>();
         urlList.remove(null);
-        for (URL url : urlList) {
-            String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
-            for (String dependency : dependencies) {
-                String artifactId = dependency.split(STRING_COLON)[0];
-                String version = dependency.split(STRING_COLON)[1];
-                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
-                    preRemoveList.add(url);
-                    break;
+
+        // remove exclude
+        if (!StringUtils.isEmpty(excludeArtifact)) {
+            List<URL> preRemoveList = new ArrayList<>();
+            for (URL url : urlList) {
+                String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
+                for (String dependency : dependencies) {
+                    String artifactId = dependency.split(STRING_COLON)[0];
+                    String version = dependency.split(STRING_COLON)[1];
+                    if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
+                        preRemoveList.add(url);
+                        break;
+                    }
                 }
             }
+            urlList.removeAll(preRemoveList);
         }
-        urlList.removeAll(preRemoveList);
+
+        // inject extension
         if (pluginArchive instanceof JarPluginArchive) {
             URL[] extensionUrls = ((JarPluginArchive) pluginArchive).getExtensionUrls();
             if (extensionUrls != null) {
