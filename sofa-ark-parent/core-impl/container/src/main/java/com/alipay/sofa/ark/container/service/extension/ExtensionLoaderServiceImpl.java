@@ -39,8 +39,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.alipay.sofa.ark.api.ArkConfigs.getStringValue;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK_DIR;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
 
 /**
@@ -128,13 +126,29 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    loadExtensionInner(interfaceType, extensionName, location, resourceLoader, line.trim(), extensible, extensionClassSet);
+                    ExtensionClass<I, L> extensionClass = new ExtensionClass<>();
+                    extensionClass.setDefinedLocation(location);
+                    extensionClass.setExtensible(extensible);
+                    extensionClass.setInterfaceClass(interfaceType);
+                    Class<?> implementClass = resourceLoader.loadClass(line.trim());
+                    if (!interfaceType.isAssignableFrom(implementClass)) {
+                        throw new ArkRuntimeException(String.format(
+                            "Extension implementation class %s is not type of %s.",
+                            implementClass.getCanonicalName(), interfaceType.getCanonicalName()));
+                    }
+                    Extension extension = implementClass.getAnnotation(Extension.class);
+                    if (extension == null) {
+                        throw new ArkRuntimeException(String.format(
+                            "Extension implementation class %s is not annotated by %s.",
+                            implementClass, Extension.class));
+                    }
+                    if (!extensionName.equals(extension.value())) {
+                        continue;
+                    }
+                    extensionClass.setExtension(extension);
+                    extensionClass.setImplementClass((Class<I>) implementClass);
+                    extensionClassSet.add(extensionClass);
                 }
-            }
-            // get default biz classloader hook
-            String defaultBizClassloaderHookDir = getStringValue(BIZ_CLASS_LOADER_HOOK_DIR);
-            if (!StringUtils.isEmpty(defaultBizClassloaderHookDir)) {
-                loadExtensionInner(interfaceType, extensionName, location, resourceLoader, defaultBizClassloaderHookDir, extensible, extensionClassSet);
             }
             return extensionClassSet;
         } catch (Throwable throwable) {
@@ -146,31 +160,5 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 reader.close();
             }
         }
-    }
-
-    private <I, L> void loadExtensionInner(Class<I> interfaceType, String extensionName, L location, ClassLoader resourceLoader, String fileName,
-                                           Extensible extensible, Set<ExtensionClass<I, L>> extensionClassSet) throws ClassNotFoundException {
-        ExtensionClass<I, L> extensionClass = new ExtensionClass<>();
-        extensionClass.setDefinedLocation(location);
-        extensionClass.setExtensible(extensible);
-        extensionClass.setInterfaceClass(interfaceType);
-        Class<?> implementClass = resourceLoader.loadClass(fileName.trim());
-        if (!interfaceType.isAssignableFrom(implementClass)) {
-            throw new ArkRuntimeException(String.format(
-                    "Extension implementation class %s is not type of %s.",
-                    implementClass.getCanonicalName(), interfaceType.getCanonicalName()));
-        }
-        Extension extension = implementClass.getAnnotation(Extension.class);
-        if (extension == null) {
-            throw new ArkRuntimeException(String.format(
-                    "Extension implementation class %s is not annotated by %s.",
-                    implementClass, Extension.class));
-        }
-        if (!extensionName.equals(extension.value())) {
-            return;
-        }
-        extensionClass.setExtension(extension);
-        extensionClass.setImplementClass((Class<I>) implementClass);
-        extensionClassSet.add(extensionClass);
     }
 }
