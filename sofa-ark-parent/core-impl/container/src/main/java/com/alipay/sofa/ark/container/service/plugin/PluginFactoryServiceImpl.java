@@ -118,31 +118,25 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         URL[] urls = pluginArchive.getUrls();
         String excludeArtifact = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
             pluginName));
-        if (extensions == null) {
+        if (StringUtils.isEmpty(excludeArtifact) || extensions == null) {
             return urls;
         }
         pluginArchive.setExtensionUrls(extensions);
         ArrayList<URL> urlList = new ArrayList<>(Arrays.asList(urls));
+        List<URL> preRemoveList = new ArrayList<>();
         urlList.remove(null);
-
-        // remove exclude
-        if (!StringUtils.isEmpty(excludeArtifact)) {
-            List<URL> preRemoveList = new ArrayList<>();
-            for (URL url : urlList) {
-                String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
-                for (String dependency : dependencies) {
-                    String artifactId = dependency.split(STRING_COLON)[0];
-                    String version = dependency.split(STRING_COLON)[1];
-                    if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
-                        preRemoveList.add(url);
-                        break;
-                    }
+        for (URL url : urlList) {
+            String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
+            for (String dependency : dependencies) {
+                String artifactId = dependency.split(STRING_COLON)[0];
+                String version = dependency.split(STRING_COLON)[1];
+                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
+                    preRemoveList.add(url);
+                    break;
                 }
             }
-            urlList.removeAll(preRemoveList);
         }
-
-        // inject extension
+        urlList.removeAll(preRemoveList);
         if (pluginArchive instanceof JarPluginArchive) {
             URL[] extensionUrls = ((JarPluginArchive) pluginArchive).getExtensionUrls();
             if (extensionUrls != null) {
