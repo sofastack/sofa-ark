@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
@@ -309,6 +310,9 @@ public class BizModel implements Biz {
                 bizTempWorkDir.delete();
             }
             bizTempWorkDir = null;
+            if (classLoader instanceof AbstractClasspathClassLoader) {
+                ((AbstractClasspathClassLoader) classLoader).clearNonLocalClassCache();
+            }
             classLoader = null;
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             eventAdminService.sendEvent(new AfterBizStopEvent(this));

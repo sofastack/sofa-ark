@@ -16,13 +16,18 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheStats;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -47,10 +52,15 @@ import java.util.jar.JarFile;
  */
 public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
-    protected static final String CLASS_RESOURCE_SUFFIX = ".class";
+    protected static final String   CLASS_RESOURCE_SUFFIX = ".class";
 
-    protected ClassLoaderService  classloaderService    = ArkServiceContainerHolder.getContainer()
-                                                            .getService(ClassLoaderService.class);
+    protected ClassLoaderService    classloaderService    = ArkServiceContainerHolder
+                                                              .getContainer().getService(
+                                                                  ClassLoaderService.class);
+
+    private static final Object     DUMMY_CACHE_VALUE     = new Object();
+
+    protected Cache<String, Object> nonLocalClassCache;
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -58,6 +68,16 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
+        if (ArkConfigs.getBooleanValue(Constants.ARK_CLASSLOADER_CACHE_ENABLE, true)) {
+            nonLocalClassCache = CacheBuilder
+                .newBuilder()
+                .initialCapacity(
+                    ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_SIZE_INITIAL, 2000))
+                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_SIZE_MAX, 3000))
+                .concurrencyLevel(
+                    ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
+                .recordStats().build();
+        }
     }
 
     @Override
@@ -298,12 +318,21 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveLocalClass(String name) {
+        if (nonLocalClassCache != null && nonLocalClassCache.getIfPresent(name) != null) {
+            return null;
+        }
+
+        Class<?> clazz = null;
         try {
-            return super.loadClass(name, false);
+            clazz = super.loadClass(name, false);
         } catch (ClassNotFoundException e) {
             // ignore
         }
-        return null;
+
+        if (nonLocalClassCache != null && clazz == null) {
+            nonLocalClassCache.put(name, DUMMY_CACHE_VALUE);
+        }
+        return clazz;
     }
 
     /**
@@ -419,6 +448,26 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     protected Enumeration<URL> getJdkResources(String resourceName) throws IOException {
         return new UseFastConnectionExceptionsEnumeration(classloaderService.getJDKClassLoader()
             .getResources(resourceName));
+    }
+
+    public void clearNonLocalClassCache() {
+        if (nonLocalClassCache != null) {
+            nonLocalClassCache.cleanUp();
+        }
+    }
+
+    public CacheStats getNonLocalClassStats() {
+        if (nonLocalClassCache != null) {
+            return nonLocalClassCache.stats();
+        }
+        return null;
+    }
+
+    public long getNonLocalClassCacheSize() {
+        if (nonLocalClassCache != null) {
+            return nonLocalClassCache.size();
+        }
+        return 0;
     }
 
     /**
