@@ -20,27 +20,29 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.google.common.cache.Cache;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import sun.misc.URLClassPath;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
-import java.io.IOException;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Optional;
 
 /**
  * @author ruoshan
@@ -199,6 +201,8 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
             "pluginA_export_resource2.xml"));
         bizModel.setDenyImportResources("pluginA_export_resource2.xml");
+        Cache<String, Optional<URL>> urlResourceCache = getUrlResourceCache(bizModel.getBizClassLoader());
+        urlResourceCache.invalidateAll();
         Assert.assertNull(bizModel.getBizClassLoader().getResource("pluginA_export_resource2.xml"));
 
         Assert.assertTrue(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
@@ -292,5 +296,36 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertEquals(Sets.newHashSet(Collections.list(enu2)),
             Sets.newHashSet(Collections.list(enu1)));
 
+    }
+
+    @Test
+    public void testCacheResource() throws NoSuchFieldException, IllegalAccessException {
+        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
+        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
+                .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        bizManagerService.registerBiz(bizModel);
+
+        ClassLoader cl = bizModel.getBizClassLoader();
+        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        URL res1 = cl.getResource(name);
+        Assert.assertNotNull(res1);
+        Assert.assertNotNull(cl.getResource(name));
+        Cache<String, Optional<URL>> urlResourceCache = getUrlResourceCache(cl);
+        Assert.assertNotNull(urlResourceCache.getIfPresent(name));
+        Assert.assertNotNull(urlResourceCache.getIfPresent(name).get());
+
+        // not existing url
+        String notExistingName = "META-INF/services/javax.script.ScriptEngineFactory/NotExisting";
+        URL notExistingRes = cl.getResource(notExistingName);
+        Assert.assertNull(notExistingRes);
+        Assert.assertNull(cl.getResource(notExistingName));
+        Assert.assertNotNull(urlResourceCache.getIfPresent(notExistingName));
+        Assert.assertFalse(urlResourceCache.getIfPresent(notExistingName).isPresent());
+    }
+
+    private Cache<String, Optional<URL>> getUrlResourceCache(Object classloader) throws NoSuchFieldException, IllegalAccessException {
+        Field field = AbstractClasspathClassLoader.class.getDeclaredField("urlResourceCache");
+        field.setAccessible(true);
+        return (Cache<String, Optional<URL>>) field.get(classloader);
     }
 }

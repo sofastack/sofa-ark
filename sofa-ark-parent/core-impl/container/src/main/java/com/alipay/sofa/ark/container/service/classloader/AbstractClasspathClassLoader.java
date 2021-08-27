@@ -37,11 +37,11 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarFile;
+
+import static com.google.common.cache.CacheBuilder.newBuilder;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  *
@@ -61,6 +61,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     private static final Object     DUMMY_CACHE_VALUE     = new Object();
 
     protected Cache<String, Object> nonLocalClassCache;
+
+    protected Cache<String, Optional<URL>>  urlResourceCache  = newBuilder().expireAfterWrite(10,SECONDS).build();
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -162,13 +164,19 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     @Override
     public URL getResource(String name) {
         Handler.setUseFastConnectionExceptions(true);
+        Optional<URL> urlOptional = urlResourceCache.getIfPresent(name);
         try {
+            if (urlOptional != null && urlOptional.isPresent()) {
+                return urlOptional.get();
+            }
             URL ret = preFindResource(name);
             if (ret != null) {
                 return ret;
             }
             ret = getResourceInternal(name);
-            return ret != null ? ret : postFindResource(name);
+            URL url = ret != null ? ret : postFindResource(name);
+            urlResourceCache.put(name, url != null ? Optional.of(url) : Optional.empty());
+            return url;
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
