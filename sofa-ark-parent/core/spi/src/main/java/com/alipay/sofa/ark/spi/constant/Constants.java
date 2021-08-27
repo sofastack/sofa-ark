@@ -55,6 +55,14 @@ public class Constants {
     public final static String       LOCAL_HOST                                    = "localhost";
 
     /**
+     * ark classloader cache conf
+     */
+    public final static String       ARK_CLASSLOADER_CACHE_ENABLE                  = "ark.classloader.cache.enable";
+    public final static String       ARK_CLASSLOADER_CACHE_SIZE_INITIAL            = "ark.classloader.cache.size.initial";
+    public final static String       ARK_CLASSLOADER_CACHE_SIZE_MAX                = "ark.classloader.cache.size.max";
+    public final static String       ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL       = "ark.classloader.cache.concurrencylevel";
+
+    /**
      * plugin conf, multi value is split by comma.
      */
     public final static String       PLUGIN_ACTIVE_INCLUDE                         = "ark.plugin.active.include";

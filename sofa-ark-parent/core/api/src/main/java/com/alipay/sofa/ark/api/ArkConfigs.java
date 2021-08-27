@@ -126,6 +126,18 @@ public class ArkConfigs {
     }
 
     /**
+     * Get boolean value.
+     *
+     * @param primaryKey the primary key
+     * @param defaultValue
+     * @return the boolean value
+     */
+    public static boolean getBooleanValue(String primaryKey, boolean defaultValue) {
+        String val = getStringValue(primaryKey);
+        return val == null ? defaultValue : Boolean.valueOf(val);
+    }
+
+    /**
      * Get ArkConfigs key set
      *
      * @return
