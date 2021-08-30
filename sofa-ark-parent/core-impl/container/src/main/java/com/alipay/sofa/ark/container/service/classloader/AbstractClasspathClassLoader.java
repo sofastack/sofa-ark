@@ -62,7 +62,10 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     protected Cache<String, Object> nonLocalClassCache;
 
+    protected Cache<String, Object> defineFailPkgCache;
+
     protected Cache<String, Optional<URL>>  urlResourceCache  = newBuilder().expireAfterWrite(10,SECONDS).build();
+
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -74,11 +77,20 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             nonLocalClassCache = CacheBuilder
                 .newBuilder()
                 .initialCapacity(
-                    ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_SIZE_INITIAL, 2000))
-                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_SIZE_MAX, 3000))
+                    ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 2000))
+                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 3000))
                 .concurrencyLevel(
                     ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
                 .recordStats().build();
+
+            defineFailPkgCache = CacheBuilder
+                    .newBuilder()
+                    .initialCapacity(
+                            ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL, 1000))
+                    .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX, 2000))
+                    .concurrencyLevel(
+                            ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
+                    .recordStats().build();
         }
     }
 
@@ -106,6 +118,10 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         int lastDot = className.lastIndexOf('.');
         if (lastDot >= 0) {
             String packageName = className.substring(0, lastDot);
+            // avoid redundant define for packages which ever defined failed
+            if (defineFailPkgCache != null && defineFailPkgCache.getIfPresent(packageName) != null) {
+                return;
+            }
             if (getPackage(packageName) == null) {
                 try {
                     definePackage(className, packageName);
@@ -142,6 +158,10 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         } catch (IOException ex) {
                             // Ignore
                         }
+                    }
+
+                    if (defineFailPkgCache != null) {
+                        defineFailPkgCache.put(packageName, DUMMY_CACHE_VALUE);
                     }
                     return null;
                 }
@@ -474,6 +494,26 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     public long getNonLocalClassCacheSize() {
         if (nonLocalClassCache != null) {
             return nonLocalClassCache.size();
+        }
+        return 0;
+    }
+
+    public void clearDefineFailPkgCache() {
+        if (defineFailPkgCache != null) {
+            defineFailPkgCache.cleanUp();
+        }
+    }
+
+    public CacheStats getDefineFailPkgStats() {
+        if (defineFailPkgCache != null) {
+            return defineFailPkgCache.stats();
+        }
+        return null;
+    }
+
+    public long getDefineFailPkgSize() {
+        if (defineFailPkgCache != null) {
+            return defineFailPkgCache.size();
         }
         return 0;
     }
