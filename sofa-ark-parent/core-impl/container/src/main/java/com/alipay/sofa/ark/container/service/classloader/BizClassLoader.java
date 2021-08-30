@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -29,6 +31,7 @@ import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK_DIR;
 
 /**
  * Ark Biz ClassLoader
@@ -135,6 +138,20 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                 if (isHookLoaded.compareAndSet(false, true)) {
                     bizClassLoaderHook = ArkServiceLoader.loadExtensionFromArkBiz(
                         ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK, bizIdentity);
+                    Biz masterBiz = ArkClient.getMasterBiz();
+                    if (bizClassLoaderHook == null && masterBiz != null && !masterBiz.getIdentity().equals(bizIdentity)) {
+                        ClassLoader masterClassLoader = masterBiz.getBizClassLoader();
+                        String defaultBizClassloaderHook = System.getProperty(BIZ_CLASS_LOADER_HOOK_DIR);
+                        if (!StringUtils.isEmpty(defaultBizClassloaderHook)) {
+                            try {
+                                bizClassLoaderHook = (ClassLoaderHook<Biz>) masterClassLoader
+                                        .loadClass(defaultBizClassloaderHook).newInstance();
+                            } catch (Exception e) {
+                                throw new RuntimeException(String.format(
+                                        "can not find master classloader hook: %s", defaultBizClassloaderHook), e);
+                            }
+                        }
+                    }
                     skipLoadHook.set(true);
                 }
             }

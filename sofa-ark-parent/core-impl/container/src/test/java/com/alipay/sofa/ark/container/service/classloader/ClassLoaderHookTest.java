@@ -16,23 +16,30 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
+import com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import mockit.Expectations;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * @author qilong.zql
@@ -78,6 +85,24 @@ public class ClassLoaderHookTest extends BaseTest {
         url = urls.nextElement();
         Assert.assertFalse(urls.hasMoreElements());
         Assert.assertTrue(url.getFile().contains("sample-plugin.jar"));
+    }
+
+    @Test
+    public void testDefaultBizClassLoaderSPI() throws Throwable {
+        new Expectations(ArkServiceLoader.class) {{
+            ArkServiceLoader.loadExtensionFromArkBiz(ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK, "mock_default_classloader:1.0");
+            result = null;
+        }};
+        new Expectations(ArkClient.class) {{
+            ArkClient.getMasterBiz();
+            result = new BizModel().setBizName("mock_master_biz").setBizVersion("1.0").setClassLoader(this.getClass().getClassLoader());
+        }};
+        BizClassLoader bizClassLoader = new BizClassLoader("mock_default_classloader:1.0", ((URLClassLoader) this
+                .getClass().getClassLoader()).getURLs());
+        System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR, "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
+        Assert.assertTrue(TestDefaultBizClassLoaderHook.ClassDefaultA.class.getName().equals(
+                bizClassLoader.loadClass("defaultA").getName()));
+        System.clearProperty(BIZ_CLASS_LOADER_HOOK_DIR);
     }
 
     @Test

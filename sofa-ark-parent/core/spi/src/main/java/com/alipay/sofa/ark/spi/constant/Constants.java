@@ -174,6 +174,7 @@ public class Constants {
     public final static String       EXTENSION_FILE_DIR                            = "META-INF/services/sofa-ark/";
     public final static String       PLUGIN_CLASS_LOADER_HOOK                      = "plugin-classloader-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK                         = "biz-classloader-hook";
+    public final static String       BIZ_CLASS_LOADER_HOOK_DIR                     = "com.alipay.sofa.ark.biz.classloader.hook.dir";
 
     /**
      * Multiply biz name
