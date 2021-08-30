@@ -115,6 +115,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     }
 
     private void definePackage(final String className, final String packageName) {
+        // avoid redundant define
+        Package pkg = super.getPackage(packageName);
+        if (pkg != null) {
+            return;
+        }
+
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
                 @Override
