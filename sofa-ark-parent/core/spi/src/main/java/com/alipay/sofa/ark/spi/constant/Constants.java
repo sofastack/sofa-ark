@@ -58,8 +58,10 @@ public class Constants {
      * ark classloader cache conf
      */
     public final static String       ARK_CLASSLOADER_CACHE_ENABLE                  = "ark.classloader.cache.enable";
-    public final static String       ARK_CLASSLOADER_CACHE_SIZE_INITIAL            = "ark.classloader.cache.size.initial";
-    public final static String       ARK_CLASSLOADER_CACHE_SIZE_MAX                = "ark.classloader.cache.size.max";
+    public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL      = "ark.classloader.cache.class.size.initial";
+    public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX          = "ark.classloader.cache.class.size.max";
+    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL      = "ark.classloader.cache.pkg.size.initial";
+    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX          = "ark.classloader.cache.pkg.size.max";
     public final static String       ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL       = "ark.classloader.cache.concurrencylevel";
 
     /**
