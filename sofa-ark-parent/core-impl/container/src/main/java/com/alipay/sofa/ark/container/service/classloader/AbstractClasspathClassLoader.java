@@ -60,7 +60,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     private static final Object     DUMMY_CACHE_VALUE     = new Object();
 
-    protected Cache<String, Object> nonLocalClassCache;
+    protected Cache<String, Object> loadFailClassCache;
 
     protected Cache<String, Object> defineFailPkgCache;
 
@@ -74,7 +74,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
         if (ArkConfigs.getBooleanValue(Constants.ARK_CLASSLOADER_CACHE_ENABLE, true)) {
-            nonLocalClassCache = CacheBuilder
+            loadFailClassCache = CacheBuilder
                 .newBuilder()
                 .initialCapacity(
                     ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 2000))
@@ -102,9 +102,27 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         try {
             definePackageIfNecessary(name);
-            return loadClassInternal(name, resolve);
+            return loadClassInternalWithCache(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
+        }
+    }
+
+    private Class<?> loadClassInternalWithCache(String name, boolean resolve) throws ArkLoaderException {
+        if (loadFailClassCache != null && loadFailClassCache.getIfPresent(name) != null) {
+            return null;
+        }
+        try {
+            Class<?> clazz = loadClassInternal(name, resolve);
+            if (loadFailClassCache != null && clazz == null) {
+                loadFailClassCache.put(name, DUMMY_CACHE_VALUE);
+            }
+            return clazz;
+        } catch (ArkLoaderException e) {
+            if (loadFailClassCache != null) {
+                loadFailClassCache.put(name, DUMMY_CACHE_VALUE);
+            }
+            throw e;
         }
     }
 
@@ -346,19 +364,11 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveLocalClass(String name) {
-        if (nonLocalClassCache != null && nonLocalClassCache.getIfPresent(name) != null) {
-            return null;
-        }
-
         Class<?> clazz = null;
         try {
             clazz = super.loadClass(name, false);
         } catch (ClassNotFoundException e) {
             // ignore
-        }
-
-        if (nonLocalClassCache != null && clazz == null) {
-            nonLocalClassCache.put(name, DUMMY_CACHE_VALUE);
         }
         return clazz;
     }
@@ -478,22 +488,22 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             .getResources(resourceName));
     }
 
-    public void clearNonLocalClassCache() {
-        if (nonLocalClassCache != null) {
-            nonLocalClassCache.cleanUp();
+    public void clearLoadFailClassCache() {
+        if (loadFailClassCache != null) {
+            loadFailClassCache.cleanUp();
         }
     }
 
-    public CacheStats getNonLocalClassStats() {
-        if (nonLocalClassCache != null) {
-            return nonLocalClassCache.stats();
+    public CacheStats getLoadFailClassCacheStats() {
+        if (loadFailClassCache != null) {
+            return loadFailClassCache.stats();
         }
         return null;
     }
 
-    public long getNonLocalClassCacheSize() {
-        if (nonLocalClassCache != null) {
-            return nonLocalClassCache.size();
+    public long getLoadFailClassCacheSize() {
+        if (loadFailClassCache != null) {
+            return loadFailClassCache.size();
         }
         return 0;
     }
