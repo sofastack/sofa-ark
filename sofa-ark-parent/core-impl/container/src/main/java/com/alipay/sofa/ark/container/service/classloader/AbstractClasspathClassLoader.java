@@ -58,7 +58,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                                                               .getContainer().getService(
                                                                   ClassLoaderService.class);
 
-    private static final Object     DUMMY_CACHE_VALUE     = new Object();
+    protected static final Object     DUMMY_CACHE_VALUE     = new Object();
 
     protected Cache<String, Object> loadFailClassCache;
 
@@ -102,27 +102,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         try {
             definePackageIfNecessary(name);
-            return loadClassInternalWithCache(name, resolve);
+            return loadClassInternal(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
-        }
-    }
-
-    private Class<?> loadClassInternalWithCache(String name, boolean resolve) throws ArkLoaderException {
-        if (loadFailClassCache != null && loadFailClassCache.getIfPresent(name) != null) {
-            return null;
-        }
-        try {
-            Class<?> clazz = loadClassInternal(name, resolve);
-            if (loadFailClassCache != null && clazz == null) {
-                loadFailClassCache.put(name, DUMMY_CACHE_VALUE);
-            }
-            return clazz;
-        } catch (ArkLoaderException e) {
-            if (loadFailClassCache != null) {
-                loadFailClassCache.put(name, DUMMY_CACHE_VALUE);
-            }
-            throw e;
         }
     }
 
