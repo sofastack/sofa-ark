@@ -60,11 +60,6 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
-        if (loadFailClassCache != null && loadFailClassCache.getIfPresent(name) != null) {
-            throw new ArkLoaderException(String.format("[ArkBiz Loader] %s : can not load class: %s",
-                    bizIdentity, name));
-        }
-
         Class<?> clazz = null;
 
         // 0. sun reflect related class throw exception directly
@@ -121,10 +116,6 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                 super.resolveClass(clazz);
             }
             return clazz;
-        }
-
-        if (loadFailClassCache != null) {
-            loadFailClassCache.put(name, DUMMY_CACHE_VALUE);
         }
 
         throw new ArkLoaderException(String.format("[ArkBiz Loader] %s : can not load class: %s",

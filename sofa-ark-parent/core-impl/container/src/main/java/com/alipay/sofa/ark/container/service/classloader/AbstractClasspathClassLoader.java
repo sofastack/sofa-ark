@@ -26,7 +26,6 @@ import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -37,6 +36,7 @@ import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.jar.JarFile;
 
 import static com.google.common.cache.CacheBuilder.newBuilder;
@@ -59,10 +59,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     protected static final Object     DUMMY_CACHE_VALUE     = new Object();
 
-    protected Cache<String, Object> loadFailClassCache;
-    protected Cache<String, Object> resolveJDKClassFailCache;
-    protected Cache<String, Object> resolveAgentClassFailCache;
-    protected Cache<String, Object> resolveLocalClassFailCache;
+    protected Cache<String, LoadClassResult> classCache;
 
     protected Cache<String, Object> defineFailPkgCache;
 
@@ -75,27 +72,17 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
-        if (ArkConfigs.getBooleanValue(Constants.ARK_CLASSLOADER_CACHE_ENABLE, true)) {
-            loadFailClassCache = createResolveFailClassCache();
-            resolveJDKClassFailCache = createResolveFailClassCache();
-            resolveAgentClassFailCache = createResolveFailClassCache();
-            resolveLocalClassFailCache = createResolveFailClassCache();
+        classCache = newBuilder()
+                .initialCapacity(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 2500))
+                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 2500))
+                .concurrencyLevel(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
+                .expireAfterWrite(15, SECONDS)
+                .recordStats().build();
 
-            defineFailPkgCache = newBuilder()
-                    .initialCapacity(
-                            ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL, 1000))
-                    .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX, 2000))
-                    .concurrencyLevel(
-                            ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
-                    .recordStats().build();
-        }
-    }
-
-    private Cache<String, Object> createResolveFailClassCache() {
-        return newBuilder()
+        defineFailPkgCache = newBuilder()
                 .initialCapacity(
-                        ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 1500))
-                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 1500))
+                        ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL, 1000))
+                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX, 2000))
                 .concurrencyLevel(
                         ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
                 .recordStats().build();
@@ -109,7 +96,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         try {
             definePackageIfNecessary(name);
-            return loadClassInternal(name, resolve);
+            return loadClassWithCache(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -175,6 +162,35 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             }, AccessController.getContext());
         } catch (java.security.PrivilegedActionException ex) {
             // Ignore
+        }
+    }
+
+    /**
+     * cache load results of classes recently loaded
+     * @param name
+     * @param resolve
+     * @return
+     * @throws ArkLoaderException
+     */
+    protected Class<?> loadClassWithCache(String name, boolean resolve) throws ArkLoaderException {
+        try {
+            LoadClassResult resultInCache = classCache.get(name, () -> {
+                LoadClassResult r = new LoadClassResult();
+                try {
+                    r.setClazz(loadClassInternal(name, resolve));
+                } catch (ArkLoaderException ex) {
+                    r.setEx(ex);
+                }
+                return r;
+            });
+
+            if (resultInCache.getEx() != null) {
+                throw resultInCache.getEx();
+            }
+
+            return resultInCache.getClazz();
+        } catch (ExecutionException e) {
+            throw new ArkLoaderException(String.format("[Ark Loader] unexpected exception when load class: %s", name), e.getCause());
         }
     }
 
@@ -297,21 +313,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveJDKClass(String name) {
-        if (resolveJDKClassFailCache != null && resolveJDKClassFailCache.getIfPresent(name) != null) {
-            return null;
-        }
-
-        Class<?> clazz = null;
         try {
-            clazz = classloaderService.getJDKClassLoader().loadClass(name);
+            return classloaderService.getJDKClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }
-
-        if (resolveJDKClassFailCache != null && clazz == null) {
-            resolveJDKClassFailCache.put(name, DUMMY_CACHE_VALUE);
-        }
-        return clazz;
+        return null;
     }
 
     /**
@@ -362,22 +369,13 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveLocalClass(String name) {
-        if (resolveLocalClassFailCache != null && resolveLocalClassFailCache.getIfPresent(name) != null) {
-            return null;
-        }
-
-        Class<?> clazz = null;
         try {
-            clazz = super.loadClass(name, false);
+            return super.loadClass(name, false);
         } catch (ClassNotFoundException e) {
             // ignore
         }
 
-        if (resolveLocalClassFailCache != null && clazz == null) {
-            resolveLocalClassFailCache.put(name, DUMMY_CACHE_VALUE);
-        }
-
-        return clazz;
+        return null;
     }
 
     /**
@@ -386,23 +384,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveJavaAgentClass(String name) {
-        if (resolveAgentClassFailCache != null && resolveAgentClassFailCache.getIfPresent(name) != null) {
-            return null;
-        }
-
-        Class<?> clazz = null;
         try {
             classloaderService.getAgentClassLoader().loadClass(name);
-            clazz = classloaderService.getSystemClassLoader().loadClass(name);
+            return classloaderService.getSystemClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }
 
-        if (resolveAgentClassFailCache != null && clazz == null) {
-            resolveAgentClassFailCache.put(name, DUMMY_CACHE_VALUE);
-        }
-
-        return clazz;
+        return null;
     }
 
     /**
@@ -506,17 +495,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     }
 
     public void clearCache() {
-        clearCacheIfNotNull(loadFailClassCache);
-        clearCacheIfNotNull(resolveAgentClassFailCache);
-        clearCacheIfNotNull(resolveJDKClassFailCache);
-        clearCacheIfNotNull(resolveLocalClassFailCache);
-        clearCacheIfNotNull(defineFailPkgCache);
-    }
-
-    private void clearCacheIfNotNull(Cache c) {
-        if (c != null) {
-            c.cleanUp();
-        }
+        classCache.cleanUp();
+        defineFailPkgCache.cleanUp();
+        urlResourceCache.cleanUp();
     }
 
     /**
@@ -568,4 +549,25 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected abstract Enumeration<URL> postFindResources(String resourceName) throws IOException;
+
+    public static class LoadClassResult {
+        private ArkLoaderException ex;
+        private Class clazz;
+
+        public ArkLoaderException getEx() {
+            return ex;
+        }
+
+        public void setEx(ArkLoaderException ex) {
+            this.ex = ex;
+        }
+
+        public Class getClazz() {
+            return clazz;
+        }
+
+        public void setClazz(Class clazz) {
+            this.clazz = clazz;
+        }
+    }
 }
