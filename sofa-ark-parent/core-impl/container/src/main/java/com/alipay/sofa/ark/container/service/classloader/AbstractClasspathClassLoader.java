@@ -27,7 +27,6 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheStats;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -61,6 +60,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     protected static final Object     DUMMY_CACHE_VALUE     = new Object();
 
     protected Cache<String, Object> loadFailClassCache;
+    protected Cache<String, Object> resolveJDKClassFailCache;
+    protected Cache<String, Object> resolveAgentClassFailCache;
+    protected Cache<String, Object> resolveLocalClassFailCache;
 
     protected Cache<String, Object> defineFailPkgCache;
 
@@ -74,17 +76,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
         if (ArkConfigs.getBooleanValue(Constants.ARK_CLASSLOADER_CACHE_ENABLE, true)) {
-            loadFailClassCache = CacheBuilder
-                .newBuilder()
-                .initialCapacity(
-                    ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 2000))
-                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 3000))
-                .concurrencyLevel(
-                    ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
-                .recordStats().build();
+            loadFailClassCache = createResolveFailClassCache();
+            resolveJDKClassFailCache = createResolveFailClassCache();
+            resolveAgentClassFailCache = createResolveFailClassCache();
+            resolveLocalClassFailCache = createResolveFailClassCache();
 
-            defineFailPkgCache = CacheBuilder
-                    .newBuilder()
+            defineFailPkgCache = newBuilder()
                     .initialCapacity(
                             ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL, 1000))
                     .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX, 2000))
@@ -92,6 +89,16 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                             ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
                     .recordStats().build();
         }
+    }
+
+    private Cache<String, Object> createResolveFailClassCache() {
+        return newBuilder()
+                .initialCapacity(
+                        ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 1500))
+                .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 1500))
+                .concurrencyLevel(
+                        ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
+                .recordStats().build();
     }
 
     @Override
@@ -290,12 +297,21 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveJDKClass(String name) {
+        if (resolveJDKClassFailCache != null && resolveJDKClassFailCache.getIfPresent(name) != null) {
+            return null;
+        }
+
+        Class<?> clazz = null;
         try {
-            return classloaderService.getJDKClassLoader().loadClass(name);
+            clazz = classloaderService.getJDKClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }
-        return null;
+
+        if (resolveJDKClassFailCache != null && clazz == null) {
+            resolveJDKClassFailCache.put(name, DUMMY_CACHE_VALUE);
+        }
+        return clazz;
     }
 
     /**
@@ -346,12 +362,21 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveLocalClass(String name) {
+        if (resolveLocalClassFailCache != null && resolveLocalClassFailCache.getIfPresent(name) != null) {
+            return null;
+        }
+
         Class<?> clazz = null;
         try {
             clazz = super.loadClass(name, false);
         } catch (ClassNotFoundException e) {
             // ignore
         }
+
+        if (resolveLocalClassFailCache != null && clazz == null) {
+            resolveLocalClassFailCache.put(name, DUMMY_CACHE_VALUE);
+        }
+
         return clazz;
     }
 
@@ -361,13 +386,23 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveJavaAgentClass(String name) {
+        if (resolveAgentClassFailCache != null && resolveAgentClassFailCache.getIfPresent(name) != null) {
+            return null;
+        }
+
+        Class<?> clazz = null;
         try {
             classloaderService.getAgentClassLoader().loadClass(name);
-            return classloaderService.getSystemClassLoader().loadClass(name);
+            clazz = classloaderService.getSystemClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             // ignore
         }
-        return null;
+
+        if (resolveAgentClassFailCache != null && clazz == null) {
+            resolveAgentClassFailCache.put(name, DUMMY_CACHE_VALUE);
+        }
+
+        return clazz;
     }
 
     /**
@@ -470,44 +505,18 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             .getResources(resourceName));
     }
 
-    public void clearLoadFailClassCache() {
-        if (loadFailClassCache != null) {
-            loadFailClassCache.cleanUp();
-        }
+    public void clearCache() {
+        clearCacheIfNotNull(loadFailClassCache);
+        clearCacheIfNotNull(resolveAgentClassFailCache);
+        clearCacheIfNotNull(resolveJDKClassFailCache);
+        clearCacheIfNotNull(resolveLocalClassFailCache);
+        clearCacheIfNotNull(defineFailPkgCache);
     }
 
-    public CacheStats getLoadFailClassCacheStats() {
-        if (loadFailClassCache != null) {
-            return loadFailClassCache.stats();
+    private void clearCacheIfNotNull(Cache c) {
+        if (c != null) {
+            c.cleanUp();
         }
-        return null;
-    }
-
-    public long getLoadFailClassCacheSize() {
-        if (loadFailClassCache != null) {
-            return loadFailClassCache.size();
-        }
-        return 0;
-    }
-
-    public void clearDefineFailPkgCache() {
-        if (defineFailPkgCache != null) {
-            defineFailPkgCache.cleanUp();
-        }
-    }
-
-    public CacheStats getDefineFailPkgStats() {
-        if (defineFailPkgCache != null) {
-            return defineFailPkgCache.stats();
-        }
-        return null;
-    }
-
-    public long getDefineFailPkgSize() {
-        if (defineFailPkgCache != null) {
-            return defineFailPkgCache.size();
-        }
-        return 0;
     }
 
     /**
