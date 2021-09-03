@@ -33,7 +33,7 @@ public class ArkLoaderException extends ClassNotFoundException {
     }
 
     @Override
-    public synchronized Throwable fillInStackTrace() {
+    public Throwable fillInStackTrace() {
         // dont fill stack trace, avoid cpu hotspot
         return this;
     }

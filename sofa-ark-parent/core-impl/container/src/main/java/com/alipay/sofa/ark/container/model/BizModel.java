@@ -311,8 +311,7 @@ public class BizModel implements Biz {
             }
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
-                ((AbstractClasspathClassLoader) classLoader).clearLoadFailClassCache();
-                ((AbstractClasspathClassLoader) classLoader).clearDefineFailPkgCache();
+                ((AbstractClasspathClassLoader) classLoader).clearCache();
             }
             classLoader = null;
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
