@@ -201,7 +201,8 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
             "pluginA_export_resource2.xml"));
         bizModel.setDenyImportResources("pluginA_export_resource2.xml");
-        Cache<String, Optional<URL>> urlResourceCache = getUrlResourceCache(bizModel.getBizClassLoader());
+        Cache<String, Optional<URL>> urlResourceCache = getUrlResourceCache(bizModel
+            .getBizClassLoader());
         urlResourceCache.invalidateAll();
         Assert.assertNull(bizModel.getBizClassLoader().getResource("pluginA_export_resource2.xml"));
 
@@ -302,7 +303,7 @@ public class BizClassLoaderTest extends BaseTest {
     public void testCacheResource() throws NoSuchFieldException, IllegalAccessException {
         BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
         bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-                .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
@@ -323,7 +324,9 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertFalse(urlResourceCache.getIfPresent(notExistingName).isPresent());
     }
 
-    private Cache<String, Optional<URL>> getUrlResourceCache(Object classloader) throws NoSuchFieldException, IllegalAccessException {
+    private Cache<String, Optional<URL>> getUrlResourceCache(Object classloader)
+                                                                                throws NoSuchFieldException,
+                                                                                IllegalAccessException {
         Field field = AbstractClasspathClassLoader.class.getDeclaredField("urlResourceCache");
         field.setAccessible(true);
         return (Cache<String, Optional<URL>>) field.get(classloader);

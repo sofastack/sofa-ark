@@ -68,10 +68,11 @@ public class PluginFactoryServiceTest extends BaseTest {
         Set<String> exportPackages = new HashSet<>();
         exportPackages.add("com.alipay.test.export.*");
 
-        ArkConfigs.putStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
-                "sample-ark-plugin"), "tracer-core:3.0.10");
+        ArkConfigs.putStringValue(String.format(PLUGIN_EXTENSION_FORMAT, "sample-ark-plugin"),
+            "tracer-core:3.0.10");
 
-        Plugin plugin = pluginFactoryService.createPlugin(jarPluginArchive, extensions, exportPackages);
+        Plugin plugin = pluginFactoryService.createPlugin(jarPluginArchive, extensions,
+            exportPackages);
         Assert.assertNotNull(plugin);
         Assert.assertEquals(plugin.getExportPackages().size(), 2);
         Assert.assertTrue(Arrays.asList(plugin.getClassPath()).contains(bizFile.getUrl()));
