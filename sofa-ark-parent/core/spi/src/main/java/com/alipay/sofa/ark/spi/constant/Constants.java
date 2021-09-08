@@ -59,8 +59,8 @@ public class Constants {
      */
     public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL      = "ark.classloader.cache.class.size.initial";
     public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX          = "ark.classloader.cache.class.size.max";
-    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL      = "ark.classloader.cache.pkg.size.initial";
-    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX          = "ark.classloader.cache.pkg.size.max";
+    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL        = "ark.classloader.cache.pkg.size.initial";
+    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX            = "ark.classloader.cache.pkg.size.max";
     public final static String       ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL       = "ark.classloader.cache.concurrencylevel";
 
     /**
