@@ -33,7 +33,8 @@ import java.util.Enumeration;
 @Extension(value = Constants.BIZ_CLASS_LOADER_HOOK, order = 99)
 public class TestDefaultBizClassLoaderHook implements ClassLoaderHook<Biz> {
     @Override
-    public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz) throws ClassNotFoundException {
+    public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
+                                                                                             throws ClassNotFoundException {
         if ("defaultA".equals(name)) {
             return ClassDefaultA.class;
         }
@@ -41,7 +42,8 @@ public class TestDefaultBizClassLoaderHook implements ClassLoaderHook<Biz> {
     }
 
     @Override
-    public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz) throws ClassNotFoundException {
+    public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
+                                                                                              throws ClassNotFoundException {
         if ("defaultB".equals(name)) {
             return ClassDefaultB.class;
         }
@@ -59,12 +61,14 @@ public class TestDefaultBizClassLoaderHook implements ClassLoaderHook<Biz> {
     }
 
     @Override
-    public Enumeration<URL> preFindResources(String name, ClassLoaderService classLoaderService, Biz biz) throws IOException {
+    public Enumeration<URL> preFindResources(String name, ClassLoaderService classLoaderService,
+                                             Biz biz) throws IOException {
         return null;
     }
 
     @Override
-    public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService, Biz biz) throws IOException {
+    public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService,
+                                              Biz biz) throws IOException {
         return null;
     }
 

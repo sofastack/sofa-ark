@@ -142,7 +142,7 @@ public class StringUtils {
         }
         StringBuilder sb = new StringBuilder(capacity);
 
-        int pos = 0;  // our position in the old string
+        int pos = 0; // our position in the old string
         int patLen = oldPattern.length();
         while (index >= 0) {
             sb.append(inString.substring(pos, index));

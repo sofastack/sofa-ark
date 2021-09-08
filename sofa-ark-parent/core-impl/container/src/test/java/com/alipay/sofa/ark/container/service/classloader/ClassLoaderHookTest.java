@@ -89,19 +89,26 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testDefaultBizClassLoaderSPI() throws Throwable {
-        new Expectations(ArkServiceLoader.class) {{
-            ArkServiceLoader.loadExtensionFromArkBiz(ClassLoaderHook.class, BIZ_CLASS_LOADER_HOOK, "mock_default_classloader:1.0");
-            result = null;
-        }};
-        new Expectations(ArkClient.class) {{
-            ArkClient.getMasterBiz();
-            result = new BizModel().setBizName("mock_master_biz").setBizVersion("1.0").setClassLoader(this.getClass().getClassLoader());
-        }};
-        BizClassLoader bizClassLoader = new BizClassLoader("mock_default_classloader:1.0", ((URLClassLoader) this
-                .getClass().getClassLoader()).getURLs());
-        System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR, "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
+        new Expectations(ArkServiceLoader.class) {
+            {
+                ArkServiceLoader.loadExtensionFromArkBiz(ClassLoaderHook.class,
+                    BIZ_CLASS_LOADER_HOOK, "mock_default_classloader:1.0");
+                result = null;
+            }
+        };
+        new Expectations(ArkClient.class) {
+            {
+                ArkClient.getMasterBiz();
+                result = new BizModel().setBizName("mock_master_biz").setBizVersion("1.0")
+                    .setClassLoader(this.getClass().getClassLoader());
+            }
+        };
+        BizClassLoader bizClassLoader = new BizClassLoader("mock_default_classloader:1.0",
+            ((URLClassLoader) this.getClass().getClassLoader()).getURLs());
+        System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR,
+            "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
         Assert.assertTrue(TestDefaultBizClassLoaderHook.ClassDefaultA.class.getName().equals(
-                bizClassLoader.loadClass("defaultA").getName()));
+            bizClassLoader.loadClass("defaultA").getName()));
         System.clearProperty(BIZ_CLASS_LOADER_HOOK_DIR);
     }
 
