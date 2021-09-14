@@ -226,8 +226,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         Optional<URL> urlOptional = urlResourceCache.getIfPresent(name);
         try {
-            if (urlOptional != null && urlOptional.isPresent()) {
-                return urlOptional.get();
+            if (urlOptional != null) {
+                return urlOptional.orElse(null);
             }
             URL ret = preFindResource(name);
             if (ret != null) {
