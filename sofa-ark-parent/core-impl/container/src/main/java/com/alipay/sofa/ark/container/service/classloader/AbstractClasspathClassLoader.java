@@ -115,7 +115,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         int lastDot = className.lastIndexOf('.');
         if (lastDot >= 0) {
             String packageName = className.substring(0, lastDot);
-            if (getPackage(packageName) == null) {
+            Optional<Package> pkgInCache = packageCache.getIfPresent(packageName);
+            // null means not cached, package haven't been defined yet, try to define it now
+            if (pkgInCache == null) {
                 try {
                     definePackage(className, packageName);
                 } catch (IllegalArgumentException ex) {
