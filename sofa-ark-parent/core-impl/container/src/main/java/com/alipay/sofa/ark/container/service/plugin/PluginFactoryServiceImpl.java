@@ -130,10 +130,12 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             for (String dependency : dependencies) {
                 String artifactId = dependency.split(STRING_COLON)[0];
                 String version = dependency.split(STRING_COLON)[1];
-                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
+                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")
+                    || url.getPath().endsWith(artifactId + "-" + version + ".jar")) {
                     preRemoveList.add(url);
                     break;
                 }
+
             }
         }
         urlList.removeAll(preRemoveList);
@@ -158,6 +160,9 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
     }
 
     private boolean isArkPlugin(PluginArchive pluginArchive) {
+        if (pluginArchive instanceof JarPluginArchive) {
+            return true;
+        }
         return pluginArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
             public boolean matches(Archive.Entry entry) {

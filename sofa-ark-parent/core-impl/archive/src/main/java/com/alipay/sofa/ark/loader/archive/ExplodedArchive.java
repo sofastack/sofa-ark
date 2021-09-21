@@ -221,7 +221,7 @@ public class ExplodedArchive implements Archive {
     /**
      * {@link Entry} backed by a File.
      */
-    private static class FileEntry implements Entry {
+    protected static class FileEntry implements Entry {
 
         private final String name;
 

@@ -102,6 +102,9 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
+        if (bizArchive instanceof JarBizArchive) {
+            return true;
+        }
         return bizArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
             public boolean matches(Archive.Entry entry) {
