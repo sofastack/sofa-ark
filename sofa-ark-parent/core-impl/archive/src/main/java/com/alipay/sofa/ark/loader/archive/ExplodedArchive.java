@@ -18,25 +18,13 @@ package com.alipay.sofa.ark.loader.archive;
 
 import com.alipay.sofa.ark.spi.archive.Archive;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * {@link Archive} implementation backed by an exploded archive directory.
@@ -58,6 +46,7 @@ public class ExplodedArchive implements Archive {
 
     /**
      * Create a new {@link ExplodedArchive} instance.
+     *
      * @param root the root folder
      */
     public ExplodedArchive(File root) {
@@ -66,11 +55,12 @@ public class ExplodedArchive implements Archive {
 
     /**
      * Create a new {@link ExplodedArchive} instance.
-     * @param root the root folder
+     *
+     * @param root      the root folder
      * @param recursive if recursive searching should be used to locate the manifest.
-     * Defaults to {@code true}, folders with a large tree might want to set this to
-     * {@code
-     * false}.
+     *                  Defaults to {@code true}, folders with a large tree might want to set this to
+     *                  {@code
+     *                  false}.
      */
     public ExplodedArchive(File root, boolean recursive) {
         if (!root.exists() || !root.isDirectory()) {

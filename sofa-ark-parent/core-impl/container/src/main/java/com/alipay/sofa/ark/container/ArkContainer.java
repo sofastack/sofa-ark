@@ -93,8 +93,7 @@ public class ArkContainer {
                 File rootFile = new File(URLDecoder.decode(launchCommand.getExecutableArkBizJar()
                     .getFile()));
                 if (rootFile.isDirectory()) {
-                    String enableExploded = System.getProperty("enable_exploded");
-                    if ("true".equals(enableExploded)) {
+                    if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
                         executableArchive = new ExplodedExecutableArkBizJar(
                             new ExplodedDirectoryArchive(rootFile));
                     } else {

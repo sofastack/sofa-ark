@@ -20,22 +20,11 @@ import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.JarContainerArchive;
 import com.alipay.sofa.ark.loader.JarPluginArchive;
-import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.spi.archive.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-
-import static com.alipay.sofa.ark.spi.constant.Constants.CONF_BASE_DIR;
 
 /**
  * Executable Ark Biz Fat Jar
@@ -79,7 +68,12 @@ public class ExplodedExecutableArkBizJar extends ExecutableArkBizJar {
      */
     @Override
     public List<BizArchive> getBizArchives() throws Exception {
-
+        List<BizArchive> bizArchives = new ArrayList<>();
+        if ("true".equals(System.getProperty("start_in_ide", "true"))) {
+            ClasspathBizArchive bizArchive = new ClasspathBizArchive();
+            bizArchives.add(bizArchive);
+            return bizArchives;
+        }
         List<Archive> archives = getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
@@ -88,13 +82,10 @@ public class ExplodedExecutableArkBizJar extends ExecutableArkBizJar {
                        && entry.getName().split("/").length == 3;
             }
         });
-
-        List<BizArchive> bizArchives = new ArrayList<>();
         for (Archive archive : archives) {
             bizArchives.add(new JarBizArchive(archive));
         }
         return bizArchives;
-
     }
 
     /**

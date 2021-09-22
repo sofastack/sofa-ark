@@ -28,16 +28,20 @@ import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-public class FileArchive implements Archive {
-    private File file;
+public class UrlArchive implements Archive {
+    private URL url;
 
-    public FileArchive(File file) {
-        this.file = file;
+    public UrlArchive(URL url) {
+        this.url = url;
+    }
+
+    public UrlArchive(File file) throws MalformedURLException {
+        this.url = file.toURI().toURL();
     }
 
     @Override
     public URL getUrl() throws MalformedURLException {
-        return file.toURI().toURL();
+        return this.url;
     }
 
     @Override

@@ -155,7 +155,7 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
-
+        long start = System.currentTimeMillis();
         Biz biz = bizFactoryService.createBiz(bizFile);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
@@ -170,6 +170,8 @@ public class ArkClient {
                 .setMessage(String.format("Install Biz: %s success.", biz.getIdentity()))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
             LOGGER.info(response.getMessage());
+            System.out.println("Ark Biz " + biz.getIdentity() + "started cost "
+                               + (System.currentTimeMillis() - start) + " ms"); //NOPMD
             return response;
         } catch (Throwable throwable) {
             response.setCode(ResponseCode.FAILED).setMessage(

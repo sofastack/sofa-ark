@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.loader.jar;
 import com.alipay.sofa.ark.loader.data.RandomAccessData;
 import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -371,8 +372,7 @@ public class JarFile extends java.util.jar.JarFile {
      * {@link URLStreamHandler} will be located to deal with jar URLs.
      */
     public static void registerUrlProtocolHandler() {
-        String enable = System.getProperty("enable_exploded");
-        if ("true".equals(enable)) {
+        if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
             return;
         }
 

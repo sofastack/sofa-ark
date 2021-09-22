@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.loader.exploded;
 
 import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
-import com.alipay.sofa.ark.spi.archive.BizArchive;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExplodedDirectoryArchive extends ExplodedArchive {
+
     public ExplodedDirectoryArchive(File root) {
         super(root);
     }
@@ -37,8 +37,8 @@ public class ExplodedDirectoryArchive extends ExplodedArchive {
 
     public Archive getNestedArchive(Entry entry) throws IOException {
         File file = ((FileEntry) entry).getFile();
-        return (file.isDirectory() ? new ExplodedDirectoryArchive(file, true) : new FileArchive(
-            file));
+        return (file.isDirectory() ? new ExplodedDirectoryArchive(file, true)
+            : new UrlArchive(file));
     }
 
     public URL[] getUrls(EntryFilter entryFilter) throws IOException {
@@ -52,34 +52,5 @@ public class ExplodedDirectoryArchive extends ExplodedArchive {
         }
 
         return urls.toArray(new URL[urls.size()]);
-    }
-
-    public static void main(String[] args) throws Exception {
-        ExplodedDirectoryArchive directoryArchive = new ExplodedDirectoryArchive(new File(
-            "/Users/syd/java/fundapplication/plugin/"));
-        ExplodedExecutableArkBizJar bizJar = new ExplodedExecutableArkBizJar(directoryArchive);
-        for (BizArchive bizArchive : bizJar.getBizArchives()) {
-            System.out.println("biz:" + bizArchive.getUrl());
-            //            printAchive(((JarBizArchive) bizArchive).getExportUrls());
-
-            printAchive(bizArchive.getUrls());
-        }
-        //        ContainerArchive containerArchive = bizJar.getContainerArchive();
-        //        System.out.println("container:" + containerArchive.getUrls().length + ","
-        //                + containerArchive.getUrl());
-        //        printAchive(containerArchive.getUrls());
-        //
-        //        for (PluginArchive pluginArchive : bizJar.getPluginArchives()) {
-        //            System.out.println("plugin:" + pluginArchive.getUrl());
-        //            printAchive(pluginArchive.getUrls());
-        //        }
-    }
-
-    public static void printAchive(URL[] urls) {
-        int i = 0;
-        for (URL url : urls) {
-            if (url.getPath().contains("log4j-1.2.16"))
-                System.out.println((i++) + "," + url);
-        }
     }
 }
