@@ -26,6 +26,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.CONF_BASE_DIR;
+
 /**
  * Executable Ark Biz Fat Jar
  *
@@ -69,7 +71,7 @@ public class ExplodedExecutableArkBizJar extends ExecutableArkBizJar {
     @Override
     public List<BizArchive> getBizArchives() throws Exception {
         List<BizArchive> bizArchives = new ArrayList<>();
-        if ("true".equals(System.getProperty("start_in_ide", "true"))) {
+        if ("true".equals(System.getProperty("start_in_ide", "false"))) {
             ClasspathBizArchive bizArchive = new ClasspathBizArchive();
             bizArchives.add(bizArchive);
             return bizArchives;
@@ -96,7 +98,6 @@ public class ExplodedExecutableArkBizJar extends ExecutableArkBizJar {
      */
     @Override
     public List<PluginArchive> getPluginArchives() throws Exception {
-
         List<Archive> archives = this.archive.getNestedArchives(new EntryFilter() {
             @Override
             public boolean matches(Entry entry) {
@@ -111,6 +112,20 @@ public class ExplodedExecutableArkBizJar extends ExecutableArkBizJar {
             pluginArchives.add(new JarPluginArchive(archive));
         }
         return pluginArchives;
+    }
 
+    @Override
+    public List<URL> getConfClasspath() throws Exception {
+        List<Archive> archives = getNestedArchives(new EntryFilter() {
+            @Override
+            public boolean matches(Entry entry) {
+                return entry.getName().startsWith(CONF_BASE_DIR) && entry.isDirectory();
+            }
+        });
+        List<URL> urls = new ArrayList<>();
+        for (Archive archive : archives) {
+            urls.add(archive.getUrl());
+        }
+        return urls;
     }
 }

@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.loader.exploded;
 
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,23 +32,13 @@ import java.util.zip.ZipEntry;
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 public class ClasspathBizArchive implements BizArchive {
-    private URL[]    urls;
-    private URL[]    exportUrls;
+    private URL[] urls;
+    private URL[] exportUrls;
     private Manifest manifest;
 
     public ClasspathBizArchive() throws MalformedURLException {
         this.urls = getUrlFromSystemClasspath();
     }
-
-    public ClasspathBizArchive(URL[] urls) {
-        this(urls, null);
-    }
-
-    public ClasspathBizArchive(URL[] urls, Manifest manifest) {
-        this.urls = urls;
-        this.manifest = manifest;
-    }
-
     @Override
     public URL getUrl() throws MalformedURLException {
         throw new RuntimeException("unreachable invocation.");
@@ -58,17 +49,17 @@ public class ClasspathBizArchive implements BizArchive {
         if (this.manifest == null) {
             Manifest manifest = new Manifest();
             manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE,
-                System.getProperty(MAIN_CLASS_ATTRIBUTE));
+                    System.getProperty(MAIN_CLASS_ATTRIBUTE));
             manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE, String.valueOf(100));
             manifest.getMainAttributes().putValue(ARK_BIZ_NAME,
-                System.getProperty(ARK_BIZ_NAME, System.getProperty("app_name")));
+                    System.getProperty(ARK_BIZ_NAME, System.getProperty("app_name", "MockApp")));
             manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, "1.0.0");
             manifest.getMainAttributes().putValue(WEB_CONTEXT_PATH,
-                System.getProperty(WEB_CONTEXT_PATH, ROOT_WEB_CONTEXT_PATH));
+                    System.getProperty(WEB_CONTEXT_PATH, ROOT_WEB_CONTEXT_PATH));
             manifest.getMainAttributes().putValue(INJECT_PLUGIN_DEPENDENCIES,
-                System.getProperty(INJECT_PLUGIN_DEPENDENCIES));
+                    System.getProperty(INJECT_PLUGIN_DEPENDENCIES));
             manifest.getMainAttributes().putValue(INJECT_EXPORT_PACKAGES,
-                System.getProperty(INJECT_EXPORT_PACKAGES));
+                    System.getProperty(INJECT_EXPORT_PACKAGES));
             this.manifest = manifest;
         }
         return manifest;
@@ -152,7 +143,19 @@ public class ClasspathBizArchive implements BizArchive {
             File file = new File(path);
             urlSet.add(file.toURI().toURL());
         }
+        URL confUrl = getArkConfUrl();
+        if (confUrl != null) {
+            urlSet.add(confUrl);
+        }
         return urlSet.toArray(new URL[urlSet.size()]);
+    }
+
+    protected URL getArkConfUrl() throws MalformedURLException {
+        File file = new File(Constants.ARK_CONF_BASE_DIR + "/" + Constants.ARK_CONF_FILE);
+        if (file.exists()) {
+            return file.toURI().toURL();
+        }
+        return null;
     }
 
     protected static class UrlEntry implements Entry {

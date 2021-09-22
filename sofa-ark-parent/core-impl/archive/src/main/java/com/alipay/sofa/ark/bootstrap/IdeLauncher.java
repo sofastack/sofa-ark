@@ -16,9 +16,12 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +69,10 @@ public class IdeLauncher extends ArkLauncher {
     public static void initEnv() throws Exception {
         System.setProperty("start_in_ide", "true");
         System.setProperty(Constants.ENABLE_EXPLODED, "true");
+        initRuntime();
+    }
+
+    private static void initRuntime() throws Exception {
         String version = System.getProperty("serverless_runtime_version", "3.4.7");
         File runtime = new File(System.getProperty("runtime_path", "./.ark-runtime"));
         if (!runtime.exists()) {
@@ -82,6 +89,7 @@ public class IdeLauncher extends ArkLauncher {
             process.waitFor(10, TimeUnit.SECONDS);
             process.destroy();
         }
+
     }
 
     private static String eatStream(InputStream stream) {
