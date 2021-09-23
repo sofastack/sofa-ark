@@ -55,13 +55,16 @@ public class ExplodedArkLauncher extends ArkLauncher {
 
     }
 
-    protected static void copyConf(String workingDirectory, String explodedDirectory) throws IOException {
-        File file = new File(workingDirectory + "/" + Constants.ARK_CONF_BASE_DIR + "/" + Constants.ARK_CONF_FILE);
-        if(!file.exists()){
+    protected static void copyConf(String workingDirectory, String explodedDirectory)
+                                                                                     throws IOException {
+        File file = new File(workingDirectory + "/" + Constants.ARK_CONF_BASE_DIR + "/"
+                             + Constants.ARK_CONF_FILE);
+        if (!file.exists()) {
             return;
         }
-        File target = new File(explodedDirectory + "/" + Constants.ARK_CONF_BASE_DIR + "/" + Constants.ARK_CONF_FILE);
-        if(target.exists()){
+        File target = new File(explodedDirectory + "/" + Constants.ARK_CONF_BASE_DIR + "/"
+                               + Constants.ARK_CONF_FILE);
+        if (target.exists()) {
             target.delete();
         }
         org.apache.commons.io.FileUtils.copyFile(file, target);

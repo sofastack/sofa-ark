@@ -131,7 +131,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                 String artifactId = dependency.split(STRING_COLON)[0];
                 String version = dependency.split(STRING_COLON)[1];
                 if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")
-                    || (url.getPath().endsWith(artifactId + "-" + version + ".jar") && "true".equals(System.getProperty(ENABLE_EXPLODED)))) {
+                    || (url.getPath().endsWith(artifactId + "-" + version + ".jar") && "true"
+                        .equals(System.getProperty(ENABLE_EXPLODED)))) {
                     preRemoveList.add(url);
                     break;
                 }

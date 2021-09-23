@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 /**
  * {@link AbstractLauncher} for JAR based archives. This launcher assumes that dependency jars are
@@ -32,7 +33,11 @@ public class ArkLauncher extends BaseExecutableArchiveLauncher {
     public final String SOFA_ARK_MAIN = "com.alipay.sofa.ark.container.ArkContainer";
 
     public static void main(String[] args) throws Exception {
-        new ArkLauncher().launch(args);
+        if("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))){
+            new ExplodedArkLauncher().launch(args);
+        } else {
+            new ArkLauncher().launch(args);
+        }
     }
 
     public ArkLauncher() {

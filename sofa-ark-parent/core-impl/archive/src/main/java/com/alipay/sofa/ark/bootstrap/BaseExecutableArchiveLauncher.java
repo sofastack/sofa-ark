@@ -76,7 +76,7 @@ public abstract class BaseExecutableArchiveLauncher extends AbstractLauncher {
         }
         if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
             return new ExplodedExecutableArkBizJar(new ExplodedDirectoryArchive(new File(
-                System.getProperty("runtime_path", "./.ark-runtime"))));
+                System.getProperty("runtime_path", "."))));
         }
         return root.isDirectory() ? new ExecutableArkBizJar(new ExplodedArchive(root))
             : new ExecutableArkBizJar(new JarFileArchive(root), root.toURI().toURL());
