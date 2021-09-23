@@ -51,21 +51,20 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
-    protected static final String            CLASS_RESOURCE_SUFFIX = ".class";
+    protected static final String              CLASS_RESOURCE_SUFFIX = ".class";
 
-    protected ClassLoaderService             classloaderService    = ArkServiceContainerHolder
-                                                                       .getContainer()
-                                                                       .getService(
-                                                                           ClassLoaderService.class);
+    protected ClassLoaderService               classloaderService    = ArkServiceContainerHolder
+                                                                         .getContainer()
+                                                                         .getService(
+                                                                             ClassLoaderService.class);
 
-    protected static final Object            DUMMY_CACHE_VALUE     = new Object();
+    protected Cache<String, LoadClassResult>   classCache;
 
-    protected Cache<String, LoadClassResult> classCache;
+    protected Cache<String, Optional<Package>> packageCache;
 
-    protected Cache<String, Object>          defineFailPkgCache;
-
-    protected Cache<String, Optional<URL>>   urlResourceCache      = newBuilder().expireAfterWrite(
-                                                                       10, SECONDS).build();
+    protected Cache<String, Optional<URL>>     urlResourceCache      = newBuilder()
+                                                                         .expireAfterWrite(10,
+                                                                             SECONDS).build();
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -82,13 +81,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
             .expireAfterWrite(15, SECONDS).recordStats().build();
 
-        defineFailPkgCache = newBuilder()
+        packageCache = newBuilder()
             .initialCapacity(
-                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL, 1000))
-            .maximumSize(ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX, 2000))
+                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 500))
+            .maximumSize(
+                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 500))
             .concurrencyLevel(
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
-            .recordStats().build();
+            .expireAfterWrite(15, SECONDS).recordStats().build();
     }
 
     @Override
@@ -115,10 +115,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         int lastDot = className.lastIndexOf('.');
         if (lastDot >= 0) {
             String packageName = className.substring(0, lastDot);
-            // avoid redundant define for packages which ever defined failed
-            if (defineFailPkgCache != null && defineFailPkgCache.getIfPresent(packageName) != null) {
-                return;
-            }
             if (getPackage(packageName) == null) {
                 try {
                     definePackage(className, packageName);
@@ -157,15 +153,32 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         }
                     }
 
-                    if (defineFailPkgCache != null) {
-                        defineFailPkgCache.put(packageName, DUMMY_CACHE_VALUE);
-                    }
                     return null;
                 }
             }, AccessController.getContext());
         } catch (java.security.PrivilegedActionException ex) {
             // Ignore
+        } finally {
+            Package pkgAfterDefined = super.getPackage(packageName);
+            packageCache.put(packageName,
+                pkgAfterDefined == null ? Optional.empty() : Optional.of(pkgAfterDefined));
         }
+    }
+
+    @Override
+    protected Package getPackage(String name) {
+        Optional<Package> pkgInCache = packageCache.getIfPresent(name);
+        if (pkgInCache != null) {
+            return pkgInCache.orElse(null);
+        }
+
+        Package pkg = super.getPackage(name);
+        // don't cache null here because we may define pkg successfully later,
+        // only cache null after define fail
+        if (pkg != null) {
+            packageCache.put(name, Optional.of(pkg));
+        }
+        return pkg;
     }
 
     /**
@@ -499,7 +512,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     public void clearCache() {
         classCache.cleanUp();
-        defineFailPkgCache.cleanUp();
+        packageCache.cleanUp();
         urlResourceCache.cleanUp();
     }
 
