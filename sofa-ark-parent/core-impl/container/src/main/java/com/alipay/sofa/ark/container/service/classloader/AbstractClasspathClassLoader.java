@@ -115,11 +115,18 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         int lastDot = className.lastIndexOf('.');
         if (lastDot >= 0) {
             String packageName = className.substring(0, lastDot);
-            if (getPackage(packageName) == null) {
+            Optional<Package> pkgInCache = packageCache.getIfPresent(packageName);
+            // null means not cached, package haven't been defined yet, try to define it now
+            if (pkgInCache == null) {
                 try {
                     definePackage(className, packageName);
                 } catch (IllegalArgumentException ex) {
                     // Tolerate race condition due to being parallel capable
+                } finally {
+                    // cache define result
+                    Package pkgAfterDefined = super.getPackage(packageName);
+                    packageCache.put(packageName, pkgAfterDefined == null ? Optional.empty()
+                        : Optional.of(pkgAfterDefined));
                 }
             }
         }
@@ -158,10 +165,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             }, AccessController.getContext());
         } catch (java.security.PrivilegedActionException ex) {
             // Ignore
-        } finally {
-            Package pkgAfterDefined = super.getPackage(packageName);
-            packageCache.put(packageName,
-                pkgAfterDefined == null ? Optional.empty() : Optional.of(pkgAfterDefined));
         }
     }
 
@@ -225,8 +228,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         Handler.setUseFastConnectionExceptions(true);
         Optional<URL> urlOptional = urlResourceCache.getIfPresent(name);
         try {
-            if (urlOptional != null && urlOptional.isPresent()) {
-                return urlOptional.get();
+            if (urlOptional != null) {
+                return urlOptional.orElse(null);
             }
             URL ret = preFindResource(name);
             if (ret != null) {
