@@ -43,7 +43,8 @@ public class ExplodedArkLauncher extends ArkLauncher {
     }
 
     public static void initEnv() throws IOException {
-        String workingDirectory = System.getProperty("working_directory", "/home/admin/app-run");
+        String workingDirectory = System.getProperty("working_directory",
+            new File("").getAbsolutePath());
         if (workingDirectory.endsWith("/")) {
             workingDirectory = workingDirectory.substring(0, workingDirectory.length() - 1);
         }
@@ -52,7 +53,6 @@ public class ExplodedArkLauncher extends ArkLauncher {
         System.setProperty("runtime_path", explodedDirectory);
         copyConf(workingDirectory, explodedDirectory);
         unzip(workingDirectory, explodedDirectory);
-
     }
 
     protected static void copyConf(String workingDirectory, String explodedDirectory)

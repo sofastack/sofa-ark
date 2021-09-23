@@ -33,8 +33,8 @@ public class ArkLauncher extends BaseExecutableArchiveLauncher {
     public final String SOFA_ARK_MAIN = "com.alipay.sofa.ark.container.ArkContainer";
 
     public static void main(String[] args) throws Exception {
-        if("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))){
-            new ExplodedArkLauncher().launch(args);
+        if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
+            ExplodedArkLauncher.main(args);
         } else {
             new ArkLauncher().launch(args);
         }
