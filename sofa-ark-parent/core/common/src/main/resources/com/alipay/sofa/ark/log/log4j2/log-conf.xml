@@ -52,7 +52,7 @@
             <appender-ref ref="ERROR-APPENDER"/>
         </Logger>
 
-        <Root level="${logging.level.com.alipay.sofa.runtime}">
+        <Root level="${ARK_LOG_LEVEL}">
             <appender-ref ref="SOFA-APPENDER"/>
             <appender-ref ref="ERROR-APPENDER"/>
         </Root>
