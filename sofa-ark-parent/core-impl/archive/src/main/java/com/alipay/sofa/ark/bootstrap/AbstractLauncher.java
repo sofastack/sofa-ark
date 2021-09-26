@@ -16,16 +16,18 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.loader.JarContainerArchive;
+import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author qilong.zql
@@ -35,11 +37,17 @@ public abstract class AbstractLauncher {
 
     /**
      * Launch the ark container. This method is the initial entry point when execute an fat jar.
+     *
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args) throws Exception {
         JarFile.registerUrlProtocolHandler();
-        ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
+        ClassLoader classLoader;
+        if ("true".equals(System.getProperty("embed_ark"))) {
+            classLoader = createContainerClassLoader();
+        } else {
+            classLoader = createContainerClassLoader(getContainerArchive());
+        }
         List<String> attachArgs = new ArrayList<>();
         attachArgs
             .add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
@@ -52,11 +60,17 @@ public abstract class AbstractLauncher {
 
     /**
      * Launch the ark container. This method is the initial entry point when execute in IDE.
+     *
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args, String classpath, Method method) throws Exception {
         JarFile.registerUrlProtocolHandler();
-        ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
+        ClassLoader classLoader;
+        if ("true".equals(System.getProperty("embed_ark"))) {
+            classLoader = createContainerClassLoader();
+        } else {
+            classLoader = createContainerClassLoader(getContainerArchive());
+        }
         List<String> attachArgs = new ArrayList<>();
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
             CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
@@ -78,8 +92,13 @@ public abstract class AbstractLauncher {
      * @throws Exception
      */
     public Object launch(String classpath, Class testClass) throws Exception {
-        JarFile.registerUrlProtocolHandler();
-        ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
+        ClassLoader classLoader;
+        if ("true".equals(System.getProperty("embed_ark"))) {
+            classLoader = createContainerClassLoader();
+        } else {
+            JarFile.registerUrlProtocolHandler();
+            classLoader = createContainerClassLoader(getContainerArchive());
+        }
         List<String> attachArgs = new ArrayList<>();
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
             CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
@@ -106,6 +125,7 @@ public abstract class AbstractLauncher {
 
     /**
      * Returns the executable archive
+     *
      * @return the executable archive
      * @throws Exception
      */
@@ -113,6 +133,7 @@ public abstract class AbstractLauncher {
 
     /**
      * Returns the container archive archive
+     *
      * @return the container archive archive
      * @throws Exception
      */
@@ -122,6 +143,7 @@ public abstract class AbstractLauncher {
 
     /**
      * Create a classloader for the ark container archive
+     *
      * @param containerArchive the ark container archive
      * @return the classloader load ark container
      * @throws Exception
@@ -133,9 +155,28 @@ public abstract class AbstractLauncher {
         return createContainerClassLoader(classpath.toArray(new URL[] {}), null);
     }
 
+    protected ClassLoader createContainerClassLoader() throws Exception {
+        String classPath = System.getProperty("java.class.path");
+        String[] classPaths = classPath.split(":");
+        Set<URL> urlSet = new HashSet<>();
+        String arkUrl = null;
+        for (String path : classPaths) {
+            if (path.contains("sofa-ark-all")) {
+                arkUrl = path;
+            }
+        }
+        if (arkUrl == null) {
+            throw new RuntimeException("arkUrl is null");
+        }
+        ContainerArchive containerArchive = new JarContainerArchive(new JarFileArchive(new File(
+            arkUrl)));
+        return createContainerClassLoader(containerArchive.getUrls(), null);
+    }
+
     /**
      * Create a classloader for the specified URLs.
-     * @param urls the URLs
+     *
+     * @param urls   the URLs
      * @param parent the parent
      * @return the classloader load ark container
      */

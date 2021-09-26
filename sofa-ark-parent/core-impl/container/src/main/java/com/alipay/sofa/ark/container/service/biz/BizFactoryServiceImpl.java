@@ -40,6 +40,7 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -99,6 +100,19 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         BizModel biz = (BizModel) createBiz(bizArchive);
         biz.setBizTempWorkDir(file);
         return biz;
+    }
+
+    @Override
+    public Biz createMasterBiz() {
+        BizModel bizModel = new BizModel();
+        URLClassLoader masterClassLoader = (URLClassLoader) this.getClass().getClassLoader()
+            .getClass().getClassLoader();
+        bizModel.setBizState(BizState.RESOLVED).setBizName("masterBiz").setBizVersion("1.0.0")
+            .setMainClass("mock main").setPriority("100").setWebContextPath("/")
+            .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
+            .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
+            .setClassPath(masterClassLoader.getURLs()).setClassLoader(masterClassLoader);
+        return bizModel;
     }
 
     private Set<String> getInjectDependencies(String injectPluginDependencies) {

@@ -80,6 +80,12 @@ public class HandleArchiveStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
+            if ("true".equals(System.getProperty("embed_ark"))) {
+                Biz masterBiz = bizFactoryService.createMasterBiz();
+                bizManagerService.registerBiz(masterBiz);
+                ArkClient.setMasterBiz(masterBiz);
+                return;
+            }
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
             List<BizArchive> bizArchives = executableArchive.getBizArchives();
             List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();

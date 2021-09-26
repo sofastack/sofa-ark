@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
@@ -265,8 +266,12 @@ public class BizModel implements Biz {
         try {
             eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
-            MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
-            mainMethodRunner.run();
+            if (this == ArkClient.getMasterBiz() && "true".equals(System.getProperty("embed_ark"))) {
+                //已经启动了，不再启动
+            } else {
+                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
+                mainMethodRunner.run();
+            }
             // this can trigger health checker handler
             eventAdminService.sendEvent(new AfterBizStartupEvent(this));
         } catch (Throwable e) {

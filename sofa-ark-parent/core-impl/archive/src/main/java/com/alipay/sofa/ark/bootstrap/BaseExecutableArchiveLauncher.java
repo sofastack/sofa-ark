@@ -74,10 +74,6 @@ public abstract class BaseExecutableArchiveLauncher extends AbstractLauncher {
         if (!root.exists()) {
             throw new IllegalStateException("Unable to determine code source archive from " + root);
         }
-        if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
-            return new ExplodedExecutableArkBizJar(new ExplodedDirectoryArchive(new File(
-                System.getProperty("runtime_path", "."))));
-        }
         return root.isDirectory() ? new ExecutableArkBizJar(new ExplodedArchive(root))
             : new ExecutableArkBizJar(new JarFileArchive(root), root.toURI().toURL());
     }

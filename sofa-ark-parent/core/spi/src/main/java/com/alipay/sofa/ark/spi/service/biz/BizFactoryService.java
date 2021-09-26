@@ -46,4 +46,10 @@ public interface BizFactoryService {
      * @throws IOException throw io exception when {@link File} is invalid.
      */
     Biz createBiz(File file) throws IOException;
+
+    /**
+     *
+     * @return
+     */
+    Biz createMasterBiz();
 }
