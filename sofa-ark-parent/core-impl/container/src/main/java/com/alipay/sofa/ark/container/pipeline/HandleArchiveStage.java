@@ -84,6 +84,7 @@ public class HandleArchiveStage implements PipelineStage {
                 Biz masterBiz = bizFactoryService.createMasterBiz();
                 bizManagerService.registerBiz(masterBiz);
                 ArkClient.setMasterBiz(masterBiz);
+                ArkConfigs.putStringValue(Constants.MASTER_BIZ, masterBiz.getBizName());
                 return;
             }
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();

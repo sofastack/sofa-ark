@@ -170,7 +170,8 @@ public abstract class AbstractLauncher {
         }
         ContainerArchive containerArchive = new JarContainerArchive(new JarFileArchive(new File(
             arkUrl)));
-        return createContainerClassLoader(containerArchive.getUrls(), null);
+        return createContainerClassLoader(containerArchive.getUrls(), this.getClass()
+            .getClassLoader());
     }
 
     /**

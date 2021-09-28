@@ -105,8 +105,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createMasterBiz() {
         BizModel bizModel = new BizModel();
-        URLClassLoader masterClassLoader = (URLClassLoader) this.getClass().getClassLoader()
-            .getClass().getClassLoader();
+        URLClassLoader masterClassLoader = (URLClassLoader) this.getClass().getClassLoader();
         bizModel.setBizState(BizState.RESOLVED).setBizName("masterBiz").setBizVersion("1.0.0")
             .setMainClass("mock main").setPriority("100").setWebContextPath("/")
             .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)

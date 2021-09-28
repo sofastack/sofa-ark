@@ -155,6 +155,9 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
                             }
                         }
                     }
+                    if (bizClassLoaderHook == null) {
+                        bizClassLoaderHook = new MasterBizClassLoaderHookAll();
+                    }
                     skipLoadHook.set(true);
                 }
             }
