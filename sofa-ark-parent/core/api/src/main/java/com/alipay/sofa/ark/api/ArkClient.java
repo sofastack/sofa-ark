@@ -171,8 +171,11 @@ public class ArkClient {
         try {
             biz.start(args);
             long end = System.currentTimeMillis();
-            response.setCode(ResponseCode.SUCCESS)
-                .setMessage(String.format("Install Biz: %s success, cost: %sms, started at: %s", biz.getIdentity(), end - start, startDate))
+            response
+                .setCode(ResponseCode.SUCCESS)
+                .setMessage(
+                    String.format("Install Biz: %s success, cost: %sms, started at: %s",
+                        biz.getIdentity(), end - start, startDate))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
             LOGGER.info(response.getMessage());
             return response;
