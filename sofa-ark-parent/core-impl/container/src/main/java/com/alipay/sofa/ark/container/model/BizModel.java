@@ -271,9 +271,10 @@ public class BizModel implements Biz {
             } else {
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
+                // this can trigger health checker handler
+                eventAdminService.sendEvent(new AfterBizStartupEvent(this));
             }
-            // this can trigger health checker handler
-            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
+
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;

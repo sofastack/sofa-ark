@@ -18,9 +18,7 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassUtils;
-import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.*;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -34,9 +32,7 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -142,6 +138,27 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
                 exportSuffixStemResourceAndClassLoaderMap.get(resource).add(
                     plugin.getPluginClassLoader());
             }
+        }
+    }
+
+    @Override
+    public void prepareExportResourceCache(ClassLoader classLoader, String exportPackage) {
+        Set<String> exportPackages = StringUtils.strToSet(exportPackage,
+            Constants.MANIFEST_VALUE_SPLIT);
+        Set<String> exportPackageStems = new HashSet<>();
+        Set<String> exportPackageNodes = new HashSet<>();
+        ParseUtils.parsePackageNodeAndStem(exportPackages, exportPackageStems, exportPackageNodes);
+        for (String resource : exportPackages) {
+            exportResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
+            exportResourceAndClassLoaderMap.get(resource).add(classLoader);
+        }
+        for (String resource : exportPackageStems) {
+            exportPrefixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
+            exportPrefixStemResourceAndClassLoaderMap.get(resource).add(classLoader);
+        }
+        for (String resource : exportPackageNodes) {
+            exportSuffixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
+            exportSuffixStemResourceAndClassLoaderMap.get(resource).add(classLoader);
         }
     }
 

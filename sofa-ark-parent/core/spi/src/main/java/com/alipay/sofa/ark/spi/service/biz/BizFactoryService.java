@@ -51,5 +51,5 @@ public interface BizFactoryService {
      *
      * @return
      */
-    Biz createMasterBiz();
+    Biz createEmbedMasterBiz();
 }

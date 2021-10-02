@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
@@ -103,14 +104,15 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     @Override
-    public Biz createMasterBiz() {
+    public Biz createEmbedMasterBiz() {
         BizModel bizModel = new BizModel();
         URLClassLoader masterClassLoader = (URLClassLoader) this.getClass().getClassLoader();
-        bizModel.setBizState(BizState.RESOLVED).setBizName("masterBiz").setBizVersion("1.0.0")
-            .setMainClass("mock main").setPriority("100").setWebContextPath("/")
-            .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
-            .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
-            .setClassPath(masterClassLoader.getURLs()).setClassLoader(masterClassLoader);
+        bizModel.setBizState(BizState.RESOLVED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
+            .setBizVersion("1.0.0").setMainClass("mock main").setPriority("100")
+            .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
+            .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
+            .setInjectExportPackages(null).setClassPath(masterClassLoader.getURLs())
+            .setClassLoader(masterClassLoader);
         return bizModel;
     }
 

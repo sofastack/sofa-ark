@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
@@ -35,6 +36,7 @@ import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
@@ -77,14 +79,20 @@ public class HandleArchiveStage implements PipelineStage {
     @Inject
     private BizFactoryService      bizFactoryService;
 
+    @Inject
+    private ClassLoaderService     classLoaderService;
+
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
             if ("true".equals(System.getProperty("embed_ark"))) {
-                Biz masterBiz = bizFactoryService.createMasterBiz();
+                Biz masterBiz = bizFactoryService.createEmbedMasterBiz();
                 bizManagerService.registerBiz(masterBiz);
                 ArkClient.setMasterBiz(masterBiz);
                 ArkConfigs.putStringValue(Constants.MASTER_BIZ, masterBiz.getBizName());
+                String exportResources = System.getProperty("ark.master.biz.export.resources");
+                classLoaderService.prepareExportResourceCache(masterBiz.getBizClassLoader(),
+                    exportResources);
                 return;
             }
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
