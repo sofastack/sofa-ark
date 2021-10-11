@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.loader.jar.Handler;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,19 +31,58 @@ import java.util.Enumeration;
  * @since 0.1.0
  */
 public class ContainerClassLoader extends URLClassLoader {
+    private static final String ARK_SPI_PACKAGES       = "com.alipay.sofa.ark.spi";
+    private static final String ARK_API_PACKAGES       = "com.alipay.sofa.ark.api";
+    private static final String ARK_LOG_PACKAGES       = "com.alipay.sofa.ark.common.log";
+    private static final String ARK_EXCEPTION_PACKAGES = "com.alipay.sofa.ark.exception";
+    private ClassLoader         arkExportClassLoader;
 
     public ContainerClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+    }
+
+    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader arkExportClassLoader) {
+        super(urls, parent);
+        this.arkExportClassLoader = arkExportClassLoader;
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Handler.setUseFastConnectionExceptions(true);
         try {
+            if ("true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))) {
+                Class<?> clazz = resolveArkExportClass(name);
+                if (clazz != null) {
+                    return clazz;
+                }
+            }
             return super.loadClass(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    /**
+     * Load ark spi class
+     *
+     * @param name
+     * @return
+     */
+    protected Class<?> resolveArkExportClass(String name) {
+        if (isArkExportClass(name) && arkExportClassLoader != null) {
+            try {
+                return arkExportClassLoader.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                // ignore
+            }
+        }
+        return null;
+    }
+
+    public boolean isArkExportClass(String className) {
+        return className.startsWith(ARK_SPI_PACKAGES) || className.startsWith(ARK_API_PACKAGES)
+        //               || className.startsWith(ARK_LOG_PACKAGES)
+               || className.startsWith(ARK_EXCEPTION_PACKAGES);
     }
 
     @Override
@@ -63,5 +103,9 @@ public class ContainerClassLoader extends URLClassLoader {
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    public ClassLoader getArkExportClassLoader() {
+        return arkExportClassLoader;
     }
 }

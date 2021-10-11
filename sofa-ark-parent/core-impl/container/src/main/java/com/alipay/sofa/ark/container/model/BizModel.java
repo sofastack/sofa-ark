@@ -266,8 +266,9 @@ public class BizModel implements Biz {
         try {
             eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
-            if (this == ArkClient.getMasterBiz() && "true".equals(System.getProperty("embed_ark"))) {
-                //已经启动了，不再启动
+            if (this == ArkClient.getMasterBiz()
+                && "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))) {
+                //内嵌模式，不再启动master biz
             } else {
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();

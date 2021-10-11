@@ -90,7 +90,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createBiz(File file) throws IOException {
         JarBizArchive bizArchive;
-        if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
+        if ("true".equals(System.getProperty(Constants.CONTAINER_EXPLODED_ENABLE))) {
             File unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "unpack");
             bizArchive = new JarBizArchive(new ExplodedDirectoryArchive(unpackFile));
         } else {
@@ -104,14 +104,14 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     @Override
-    public Biz createEmbedMasterBiz() {
+    public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
         BizModel bizModel = new BizModel();
-        URLClassLoader masterClassLoader = (URLClassLoader) this.getClass().getClassLoader();
         bizModel.setBizState(BizState.RESOLVED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
             .setBizVersion("1.0.0").setMainClass("mock main").setPriority("100")
             .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
             .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
-            .setInjectExportPackages(null).setClassPath(masterClassLoader.getURLs())
+            .setInjectExportPackages(null)
+            .setClassPath(((URLClassLoader) masterClassLoader).getURLs())
             .setClassLoader(masterClassLoader);
         return bizModel;
     }
@@ -126,7 +126,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
-        if ("true".equals(System.getProperty(Constants.ENABLE_EXPLODED))) {
+        if ("true".equals(System.getProperty(Constants.CONTAINER_EXPLODED_ENABLE))) {
             if (bizArchive instanceof JarBizArchive || bizArchive instanceof ClasspathBizArchive) {
                 return true;
             }

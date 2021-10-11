@@ -38,7 +38,17 @@ import java.util.Enumeration;
  */
 @Extension("biz-classloader-hook")
 public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
-    private Logger logger = LoggerFactory.getLogger(MasterBizClassLoaderHookAll.class);
+
+    /**
+     * 不需要委托给基座加载的包
+     **/
+    public static String[] _UNPROXY_PACKAGE_ROOT = new String[] { "Class.class", "Object.class",
+            "com.class", "java/lang/com.class", "com/alipay.class", "Throwable.class",
+            "String.class", "Boolean.class", "config/application.properties",
+            "config/application.xml", "application.xml", "application.yml", "application.yaml",
+            "config/application-default.properties", "config/application-default.xml",
+            "config/application-default.yml", "config/application-default.yaml",
+            "application-default.properties", "application-default.xml", "application-default.yml" };
 
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
@@ -49,17 +59,25 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
     @Override
     public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
                                                                                               throws ClassNotFoundException {
+        if (inUnProxyPackage(name)) {
+            return null;
+        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         return bizClassLoader.loadClass(name);
     }
 
     @Override
     public URL preFindResource(String name, ClassLoaderService classLoaderService, Biz biz) {
+
         return null;
     }
 
     @Override
     public URL postFindResource(String name, ClassLoaderService classLoaderService, Biz biz) {
+        if (inUnProxyResource(name)) {
+            return null;
+        }
+
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         try {
             return bizClassLoader.getResource(name);
@@ -73,16 +91,55 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
                                              Biz biz) throws IOException {
 
         return null;
+
     }
 
     @Override
     public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService,
                                               Biz biz) throws IOException {
+        if (inUnProxyResource(name)) {
+            return null;
+        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         try {
             return bizClassLoader.getResources(name);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * 判断类或者资源是否在名单的包里面
+     */
+    private boolean inUnProxyPackage(String packageName) {
+        if (StringUtil.isNotBlank(packageName)) {
+            for (String packageRoot : _UNPROXY_PACKAGE_ROOT) {
+                if (packageName.startsWith(packageRoot)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断类或者资源是否在名单的包里面
+     */
+    private boolean inUnProxyResource(String resourceName) {
+        //资源类文件过滤掉
+        if (StringUtil.isNotBlank(resourceName)) {
+            for (String packageRoot : _UNPROXY_PACKAGE_ROOT) {
+                if (resourceName.startsWith(packageRoot)) {
+                    return true;
+                }
+            }
+            for (String packageRoot : _UNPROXY_PACKAGE_ROOT) {
+                String packageRootUri = packageRoot.replaceAll("\\.", "\\/");
+                if (resourceName.startsWith(packageRootUri)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

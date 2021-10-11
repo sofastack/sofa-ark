@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.loader.exploded;
+package com.alipay.sofa.ark.loader.archive;
 
 import com.alipay.sofa.ark.spi.archive.Archive;
 
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Manifest;
@@ -66,6 +67,26 @@ public class UrlArchive implements Archive {
 
     @Override
     public Iterator<Entry> iterator() {
-        throw new RuntimeException("unreachable invocation.");
+        List<Entry> entries = new ArrayList<>();
+        entries.add(new UrlEntry(this.url));
+        return entries.iterator();
+    }
+
+    protected static class UrlEntry implements Entry {
+        private URL url;
+
+        public UrlEntry(URL url) {
+            this.url = url;
+        }
+
+        @Override
+        public boolean isDirectory() {
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            return url.getFile();
+        }
     }
 }

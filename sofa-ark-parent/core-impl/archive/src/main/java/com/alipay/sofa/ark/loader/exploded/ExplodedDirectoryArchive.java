@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.loader.exploded;
 
 import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
+import com.alipay.sofa.ark.loader.archive.UrlArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 
 import java.io.File;

@@ -21,7 +21,6 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
@@ -85,12 +84,13 @@ public class HandleArchiveStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
-            if ("true".equals(System.getProperty("embed_ark"))) {
-                Biz masterBiz = bizFactoryService.createEmbedMasterBiz();
+            if ("true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))) {
+                Biz masterBiz = bizFactoryService.createEmbedMasterBiz(pipelineContext.getClass()
+                    .getClassLoader());
                 bizManagerService.registerBiz(masterBiz);
                 ArkClient.setMasterBiz(masterBiz);
                 ArkConfigs.putStringValue(Constants.MASTER_BIZ, masterBiz.getBizName());
-                String exportResources = System.getProperty("ark.master.biz.export.resources");
+                String exportResources = System.getProperty(Constants.BIZ_EXPORT_RESOURCES);
                 classLoaderService.prepareExportResourceCache(masterBiz.getBizClassLoader(),
                     exportResources);
                 return;
