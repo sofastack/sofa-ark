@@ -54,8 +54,6 @@ public class EmbedArkLauncher extends AbstractLauncher {
         getOrSetDefault(
             BIZ_EXPORT_RESOURCES,
             "META-INF/spring.*,META-INF/services/*,META-INF/com/aipay/boot/middleware/service/config/*,org/springframework/boot/logging/*,*.xsd,*/sql-map-2.dtd,*/sql-map-config-2.dtd,*/mybatis-3-config.dtd,*/mybatis-3-mapper.dtd");
-        getOrSetDefault("com.alipay.sofa.ark.master.biz",
-            System.getProperty("spring.application.name"));
         new EmbedArkLauncher().launch(args);
     }
 
