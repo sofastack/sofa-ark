@@ -49,15 +49,20 @@ public class EmbedArkLauncher extends AbstractLauncher {
 
     public static void main(String[] args) throws Exception {
         System.setProperty(Constants.CONTAINER_EMBED_ENABLE, "true");
-        System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR,
+        getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
             "com.alipay.sofa.ark.container.service.classloader.MasterBizClassLoaderHookAll");
-        System
-            .setProperty(
-                BIZ_EXPORT_RESOURCES,
-                "META-INF/spring.*,META-INF/services/*,META-INF/com/aipay/boot/middleware/service/config/*,org/springframework/boot/logging/*,*.xsd,*/sql-map-2.dtd,*/sql-map-config-2.dtd,*/mybatis-3-config.dtd,*/mybatis-3-mapper.dtd");
-        System.setProperty("com.alipay.sofa.ark.master.biz",
+        getOrSetDefault(
+            BIZ_EXPORT_RESOURCES,
+            "META-INF/spring.*,META-INF/services/*,META-INF/com/aipay/boot/middleware/service/config/*,org/springframework/boot/logging/*,*.xsd,*/sql-map-2.dtd,*/sql-map-config-2.dtd,*/mybatis-3-config.dtd,*/mybatis-3-mapper.dtd");
+        getOrSetDefault("com.alipay.sofa.ark.master.biz",
             System.getProperty("spring.application.name"));
         new EmbedArkLauncher().launch(args);
+    }
+
+    private static void getOrSetDefault(String key, String value) {
+        if (System.getProperty(key) == null) {
+            System.setProperty(key, value);
+        }
     }
 
     @Override

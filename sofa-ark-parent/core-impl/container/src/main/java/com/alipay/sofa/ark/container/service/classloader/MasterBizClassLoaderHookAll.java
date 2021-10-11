@@ -48,7 +48,8 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
             "config/application.xml", "application.xml", "application.yml", "application.yaml",
             "config/application-default.properties", "config/application-default.xml",
             "config/application-default.yml", "config/application-default.yaml",
-            "application-default.properties", "application-default.xml", "application-default.yml" };
+            "application-default.properties", "application-default.xml", "application-default.yml",
+            "log4j2"                            };
 
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
