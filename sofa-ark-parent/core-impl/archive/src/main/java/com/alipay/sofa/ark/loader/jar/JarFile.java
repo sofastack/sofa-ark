@@ -372,7 +372,7 @@ public class JarFile extends java.util.jar.JarFile {
      * {@link URLStreamHandler} will be located to deal with jar URLs.
      */
     public static void registerUrlProtocolHandler() {
-        if ("true".equals(System.getProperty(Constants.JAR_PROTOCOL_ENABLE))) {
+        if ("true".equals(System.getProperty(Constants.JAR_PROTOCOL_DISABLE))) {
             return;
         }
 

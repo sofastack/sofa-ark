@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.embed.EmbedExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.exploded.ExplodedDirectoryArchive;
@@ -23,13 +24,9 @@ import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.File;
-import java.net.URI;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_CLASS_LOADER_HOOK_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EXPORT_RESOURCES;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 public class EmbedArkLauncher extends AbstractLauncher {
     public final String             SOFA_ARK_MAIN = "com.alipay.sofa.ark.container.EmbedArkContainer";
@@ -49,6 +46,7 @@ public class EmbedArkLauncher extends AbstractLauncher {
 
     public static void main(String[] args) throws Exception {
         System.setProperty(Constants.CONTAINER_EMBED_ENABLE, "true");
+        getOrSetDefault(CONTAINER_DIR, new File("").getAbsolutePath());
         getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
             "com.alipay.sofa.ark.container.service.classloader.MasterBizClassLoaderHookAll");
         getOrSetDefault(
@@ -74,27 +72,14 @@ public class EmbedArkLauncher extends AbstractLauncher {
     }
 
     protected ExecutableArchive createArchive() throws Exception {
-        ProtectionDomain protectionDomain = getClass().getProtectionDomain();
-        CodeSource codeSource = protectionDomain.getCodeSource();
-        URI location = (codeSource == null ? null : codeSource.getLocation().toURI());
-        String path = (location == null ? null : location.getSchemeSpecificPart());
-        if (path == null) {
-            throw new IllegalStateException("Unable to determine code source archive");
-        }
-        int pos = path.indexOf("!");
-        if (pos != -1) {
-            path = path.substring(0, pos);
-        }
-        if (path.startsWith("file:")) {
-            path = path.replace("file:", "");
-        }
+        String path = System.getProperty(CONTAINER_DIR);
         File root = new File(path);
         if (!root.exists()) {
             throw new IllegalStateException("Unable to determine code source archive from " + root);
         }
-        return root.isDirectory() ? new EmbedExecutableArkBizJar(
-            new ExplodedDirectoryArchive(root), root.toURI().toURL())
-            : new EmbedExecutableArkBizJar(new JarFileArchive(root), root.toURI().toURL());
+        return root.isDirectory() ? new EmbedExecutableArkBizJar(new ExplodedArchive(root), root
+            .toURI().toURL()) : new EmbedExecutableArkBizJar(new JarFileArchive(root), root.toURI()
+            .toURL());
     }
 
     /**

@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
+import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.embed.EmbedExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.exploded.ExplodedDirectoryArchive;
@@ -54,8 +55,8 @@ public class EmbedArkContainer extends ArkContainer {
             File rootFile = new File(URLDecoder.decode(launchCommand.getExecutableArkBizJar()
                 .getFile()));
             if (rootFile.isDirectory()) {
-                executableArchive = new EmbedExecutableArkBizJar(new ExplodedDirectoryArchive(
-                    rootFile), rootFile.toURI().toURL());
+                executableArchive = new EmbedExecutableArkBizJar(new ExplodedArchive(rootFile),
+                    rootFile.toURI().toURL());
             } else {
                 executableArchive = new EmbedExecutableArkBizJar(new JarFileArchive(rootFile,
                     launchCommand.getExecutableArkBizJar()), rootFile.toURI().toURL());

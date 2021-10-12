@@ -18,8 +18,8 @@ package com.alipay.sofa.ark.loader.embed;
 
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.JarContainerArchive;
+import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.exploded.ExplodedDirectoryArchive;
 import com.alipay.sofa.ark.spi.archive.*;
 
 import java.io.File;
@@ -48,9 +48,8 @@ public class EmbedExecutableArkBizJar extends ExecutableArkBizJar {
         if (archives.isEmpty()) {
             File sofaArkAll = getSofaArkAllFromClasspath();
             if (sofaArkAll != null) {
-                return new JarContainerArchive(
-                    sofaArkAll.isDirectory() ? new ExplodedDirectoryArchive(sofaArkAll)
-                        : new JarFileArchive(sofaArkAll));
+                return new JarContainerArchive(sofaArkAll.isDirectory() ? new ExplodedArchive(
+                    sofaArkAll) : new JarFileArchive(sofaArkAll));
             }
             throw new RuntimeException("No ark container archive found!");
         }

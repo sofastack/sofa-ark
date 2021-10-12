@@ -162,9 +162,9 @@ public class Constants {
     public final static String       SPRING_BOOT_ENDPOINTS_JMX_ENABLED             = "endpoints.jmx.enabled";
     public final static String       LOG4J_IGNORE_TCL                              = "log4j.ignoreTCL";
     public final static String       RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY     = "hessian.parent.context.create";
-    public final static String       JAR_PROTOCOL_ENABLE                           = "sofa.ark.loader.protocol.enable";
+    public final static String       JAR_PROTOCOL_DISABLE                          = "sofa.ark.loader.protocol.disable";
     public final static String       CONTAINER_EXPLODED_ENABLE                     = "sofa.ark.container.exploded.enable";
-    public final static String       CONTAINER_EXPLODED_DIR                        = "sofa.ark.container.exploded.dir";
+    public final static String       CONTAINER_DIR                                 = "sofa.ark.container.dir";
     public final static String       CONTAINER_EMBED_ENABLE                        = "sofa.ark.container.embed.enable";
     public final static String       BIZ_EXPORT_RESOURCES                          = "sofa.ark.master.biz.export.resources";
 
