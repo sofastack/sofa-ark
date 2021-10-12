@@ -104,8 +104,4 @@ public class ContainerClassLoader extends URLClassLoader {
             Handler.setUseFastConnectionExceptions(false);
         }
     }
-
-    public ClassLoader getArkExportClassLoader() {
-        return arkExportClassLoader;
-    }
 }

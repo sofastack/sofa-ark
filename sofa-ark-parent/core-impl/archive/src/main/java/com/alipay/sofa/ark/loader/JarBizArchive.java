@@ -90,27 +90,21 @@ public class JarBizArchive extends AbstractArchive implements BizArchive {
 
     @Override
     public URL[] getUrls() throws IOException {
-        if (this.urls == null) {
-            this.urls = getUrls(new EntryFilter() {
-                @Override
-                public boolean matches(Entry entry) {
-                    return entry.getName().startsWith(SOFA_ARK_BIZ_LIB);
-                }
-            });
-        }
-        return this.urls;
+        return getUrls(new EntryFilter() {
+            @Override
+            public boolean matches(Entry entry) {
+                return entry.getName().startsWith(SOFA_ARK_BIZ_LIB);
+            }
+        });
     }
 
     public URL[] getExportUrls() throws IOException {
-        if (this.exportUrls == null) {
-            this.exportUrls = getUrls(new EntryFilter() {
-                @Override
-                public boolean matches(Entry entry) {
-                    return entry.getName().startsWith(SOFA_ARK_BIZ_LIB_EXPORT)
-                           && !entry.getName().equals(SOFA_ARK_BIZ_LIB_EXPORT);
-                }
-            });
-        }
-        return this.exportUrls;
+        return getUrls(new EntryFilter() {
+            @Override
+            public boolean matches(Entry entry) {
+                return entry.getName().startsWith(SOFA_ARK_BIZ_LIB_EXPORT)
+                       && !entry.getName().equals(SOFA_ARK_BIZ_LIB_EXPORT);
+            }
+        });
     }
 }

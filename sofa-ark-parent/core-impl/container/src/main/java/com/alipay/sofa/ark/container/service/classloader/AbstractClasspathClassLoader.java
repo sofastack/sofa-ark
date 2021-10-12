@@ -171,14 +171,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     @Override
     protected Package getPackage(String name) {
         Optional<Package> pkgInCache = packageCache.getIfPresent(name);
-        boolean spring = name != null && name.contains("SpringBootVersion");
-        if (spring) {
-            System.out.println("SpringBootVersion pkgInCache: " + pkgInCache);
-        }
         if (pkgInCache != null) {
-            if (spring) {
-                System.out.println("SpringBootVersion pkgInCache.orElse: " + pkgInCache);
-            }
             return pkgInCache.orElse(null);
         }
 
@@ -186,13 +179,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         // don't cache null here because we may define pkg successfully later,
         // only cache null after define fail
         if (pkg != null) {
-            if (spring) {
-                System.out.println("SpringBootVersion put pkg: " + pkg);
-            }
             packageCache.put(name, Optional.of(pkg));
-        }
-        if (spring) {
-            System.out.println("SpringBootVersion return pkg: " + pkg);
         }
         return pkg;
     }
