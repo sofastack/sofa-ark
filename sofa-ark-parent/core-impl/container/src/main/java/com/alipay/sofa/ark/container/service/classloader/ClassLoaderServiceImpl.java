@@ -145,18 +145,19 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     public void prepareExportResourceCache(ClassLoader classLoader, String exportPackage) {
         Set<String> exportPackages = StringUtils.strToSet(exportPackage,
             Constants.MANIFEST_VALUE_SPLIT);
-        Set<String> exportPackageStems = new HashSet<>();
-        Set<String> exportPackageNodes = new HashSet<>();
-        ParseUtils.parsePackageNodeAndStem(exportPackages, exportPackageStems, exportPackageNodes);
+        Set<String> prefixStems = new HashSet<>();
+        Set<String> suffixStems = new HashSet<>();
+        Set<String> resources = new HashSet<>();
+        ParseUtils.parseResourceAndStem(exportPackages, prefixStems, suffixStems, resources);
         for (String resource : exportPackages) {
             exportResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
             exportResourceAndClassLoaderMap.get(resource).add(classLoader);
         }
-        for (String resource : exportPackageStems) {
+        for (String resource : prefixStems) {
             exportPrefixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
             exportPrefixStemResourceAndClassLoaderMap.get(resource).add(classLoader);
         }
-        for (String resource : exportPackageNodes) {
+        for (String resource : suffixStems) {
             exportSuffixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
             exportSuffixStemResourceAndClassLoaderMap.get(resource).add(classLoader);
         }
