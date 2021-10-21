@@ -20,8 +20,7 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.embed.EmbedExecutableArkBizJar;
-import com.alipay.sofa.ark.loader.exploded.ExplodedDirectoryArchive;
+import com.alipay.sofa.ark.loader.EmbedExecutableArkBizJar;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 

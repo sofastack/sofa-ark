@@ -14,10 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.loader.exploded;
+package com.alipay.sofa.ark.loader.archive;
 
-import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
-import com.alipay.sofa.ark.loader.archive.UrlArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 
 import java.io.File;

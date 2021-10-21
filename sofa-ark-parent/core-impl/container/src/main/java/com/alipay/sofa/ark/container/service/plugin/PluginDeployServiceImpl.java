@@ -16,9 +16,15 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.container.model.PluginContextImpl;
+import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.PluginContext;
+import com.alipay.sofa.ark.spi.service.PluginActivator;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
@@ -27,6 +33,7 @@ import com.google.inject.Singleton;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Service Implementation to deploy ark plugin
@@ -53,6 +60,9 @@ public class PluginDeployServiceImpl implements PluginDeployService {
                 throw e;
             }
         }
+        if ("true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))) {
+            startActivator();
+        }
     }
 
     private void deployPlugin(Plugin plugin) throws ArkRuntimeException {
@@ -63,6 +73,29 @@ public class PluginDeployServiceImpl implements PluginDeployService {
         } catch (ArkRuntimeException e) {
             LOGGER.error(String.format("Start plugin: %s meet error", plugin.getPluginName()), e);
             throw e;
+        }
+    }
+
+    private void startActivator() throws ArkRuntimeException {
+        ServiceLoader<PluginActivator> pluginActivators = ServiceLoader.load(PluginActivator.class,
+            ArkClient.getMasterBiz().getBizClassLoader());
+        if (!pluginActivators.iterator().hasNext()) {
+            return;
+        }
+        for (PluginActivator pluginActivator : pluginActivators) {
+            PluginModel plugin = new PluginModel().setPluginName(pluginActivator.getClass()
+                .getName());
+            PluginContext context = new PluginContextImpl(plugin);
+            plugin.setPluginContext(context);
+            try {
+                LOGGER.info(String.format("Start to deploy mock plugin"));
+                pluginActivator.start(context);
+                LOGGER.info(String.format("Finish to deploy plugin: %s", plugin.getPluginName()));
+            } catch (ArkRuntimeException e) {
+                LOGGER.error(String.format("Start plugin: %s meet error", plugin.getPluginName()),
+                    e);
+                throw e;
+            }
         }
     }
 

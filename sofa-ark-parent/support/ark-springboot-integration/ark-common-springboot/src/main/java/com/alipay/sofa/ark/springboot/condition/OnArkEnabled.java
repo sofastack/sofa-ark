@@ -22,6 +22,7 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author qilong.zql
@@ -40,8 +41,31 @@ public class OnArkEnabled extends SpringBootCondition {
             || ARK_BIZ_CLASSLOADER_NAME.equals(currentClassLoader)
             || ARK_PLUGIN_CLASSLOADER_NAME.equals(currentClassLoader)) {
             return new ConditionOutcome(true, "SOFAArk has started.");
+        } else if ("true".equals(context.getEnvironment().getProperty(
+            "sofa.ark.container.embed.enable"))) {
+            return new ConditionOutcome(true, "Embed SOFAArk has started.");
         } else {
             return new ConditionOutcome(false, "SOFAArk has not started.");
         }
+    }
+
+    public static boolean isPresent(String className, ClassLoader classLoader) {
+        if (classLoader == null) {
+            classLoader = ClassUtils.getDefaultClassLoader();
+        }
+        try {
+            forName(className, classLoader);
+            return true;
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
+
+    private static Class<?> forName(String className, ClassLoader classLoader)
+                                                                              throws ClassNotFoundException {
+        if (classLoader != null) {
+            return classLoader.loadClass(className);
+        }
+        return Class.forName(className);
     }
 }

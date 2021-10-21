@@ -166,6 +166,7 @@ public class Constants {
     public final static String       CONTAINER_EXPLODED_ENABLE                     = "sofa.ark.container.exploded.enable";
     public final static String       CONTAINER_DIR                                 = "sofa.ark.container.dir";
     public final static String       CONTAINER_EMBED_ENABLE                        = "sofa.ark.container.embed.enable";
+    public final static String       CONTAINER_EMBED_ACTIVATOR                     = "sofa.ark.container.embed.activator";
     public final static String       BIZ_EXPORT_RESOURCES                          = "sofa.ark.master.biz.export.resources";
 
     /**

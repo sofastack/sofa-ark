@@ -24,8 +24,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.exploded.ClasspathBizArchive;
-import com.alipay.sofa.ark.loader.exploded.ExplodedDirectoryArchive;
+import com.alipay.sofa.ark.loader.archive.ExplodedDirectoryArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
@@ -127,7 +126,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     private boolean isArkBiz(BizArchive bizArchive) {
         if ("true".equals(System.getProperty(Constants.CONTAINER_EXPLODED_ENABLE))) {
-            if (bizArchive instanceof JarBizArchive || bizArchive instanceof ClasspathBizArchive) {
+            if (bizArchive instanceof JarBizArchive) {
                 return true;
             }
         }

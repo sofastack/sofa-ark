@@ -16,10 +16,22 @@
  */
 package com.alipay.sofa.ark.springboot.listener;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.bootstrap.EmbedArkLauncher;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.event.ApplicationFailedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.Environment;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EXPORT_RESOURCES;
 
 /**
  * Ark Spring boot starter when run on ide
@@ -36,6 +48,10 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
+            if (isMasterBizEnableEmbed()) {
+                handleEmbedArk(event);
+                return;
+            }
             if (isSpringBoot2()
                 && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
                 startUpArk(event);
@@ -63,4 +79,64 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     public boolean isSpringBoot2() {
         return SpringBootVersion.getVersion().startsWith("2");
     }
+
+    protected void handleEmbedArk(SpringApplicationEvent event) throws Exception {
+        if (event instanceof ApplicationEnvironmentPreparedEvent) {
+            onApplicationEnvironmentPrepare((ApplicationEnvironmentPreparedEvent) event);
+        }
+        if (event instanceof ApplicationReadyEvent) {
+            onApplicationReady((ApplicationReadyEvent) event);
+        }
+        if (event instanceof ApplicationFailedEvent) {
+            onApplicationFailed((ApplicationFailedEvent) event);
+        }
+    }
+
+    protected void onApplicationEnvironmentPrepare(ApplicationEnvironmentPreparedEvent preparedEvent)
+                                                                                                     throws Exception {
+        Environment environment = preparedEvent.getEnvironment();
+        getOrSetDefault(MASTER_BIZ,
+            environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
+        getOrSetDefault(CONTAINER_DIR, environment.getProperty(CONTAINER_DIR));
+        getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
+            environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
+        getOrSetDefault(BIZ_EXPORT_RESOURCES, environment.getProperty(BIZ_EXPORT_RESOURCES));
+        getOrSetDefault(JAR_PROTOCOL_DISABLE, environment.getProperty(JAR_PROTOCOL_DISABLE, "true"));
+        getOrSetDefault(CONTAINER_EXPLODED_ENABLE,
+            environment.getProperty(CONTAINER_EXPLODED_ENABLE, "true"));
+        EmbedArkLauncher.main(new String[] {});
+    }
+
+    public void onApplicationReady(ApplicationReadyEvent event) {
+        if (isMasterBizEnableEmbed(event.getApplicationContext().getClassLoader())) {
+            ArkClient.getEventAdminService().sendEvent(
+                new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+        }
+    }
+
+    public void onApplicationFailed(ApplicationFailedEvent event) {
+        if (isMasterBizEnableEmbed(event.getApplicationContext().getClassLoader())) {
+            ArkClient.getEventAdminService().sendEvent(
+                new AfterBizStopEvent(ArkClient.getMasterBiz()));
+        }
+    }
+
+    protected boolean isMasterBizEnableEmbed() {
+        return "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))
+               && this.getClass().getClassLoader() == Thread.currentThread()
+                   .getContextClassLoader();
+    }
+
+    protected boolean isMasterBizEnableEmbed(ClassLoader classLoader) {
+        return "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))
+               && ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null
+               && classLoader == ArkClient.getMasterBiz().getBizClassLoader();
+    }
+
+    private static void getOrSetDefault(String key, String value) {
+        if (System.getProperty(key) == null && value != null) {
+            System.setProperty(key, value);
+        }
+    }
+
 }
