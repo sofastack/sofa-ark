@@ -48,7 +48,7 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
-            if (isMasterBizEnableEmbed()) {
+            if (isEnableEmbed()) {
                 handleEmbedArk(event);
                 return;
             }
@@ -81,14 +81,14 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     protected void handleEmbedArk(SpringApplicationEvent event) throws Exception {
+        if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
+            return;
+        }
         if (event instanceof ApplicationEnvironmentPreparedEvent) {
             onApplicationEnvironmentPrepare((ApplicationEnvironmentPreparedEvent) event);
         }
         if (event instanceof ApplicationReadyEvent) {
             onApplicationReady((ApplicationReadyEvent) event);
-        }
-        if (event instanceof ApplicationFailedEvent) {
-            onApplicationFailed((ApplicationFailedEvent) event);
         }
     }
 
@@ -108,29 +108,18 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     public void onApplicationReady(ApplicationReadyEvent event) {
-        if (isMasterBizEnableEmbed(event.getApplicationContext().getClassLoader())) {
+        if (isMasterBizReady()) {
             ArkClient.getEventAdminService().sendEvent(
                 new AfterBizStartupEvent(ArkClient.getMasterBiz()));
         }
     }
 
-    public void onApplicationFailed(ApplicationFailedEvent event) {
-        if (isMasterBizEnableEmbed(event.getApplicationContext().getClassLoader())) {
-            ArkClient.getEventAdminService().sendEvent(
-                new AfterBizStopEvent(ArkClient.getMasterBiz()));
-        }
+    protected boolean isEnableEmbed() {
+        return "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE));
     }
 
-    protected boolean isMasterBizEnableEmbed() {
-        return "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))
-               && this.getClass().getClassLoader() == Thread.currentThread()
-                   .getContextClassLoader();
-    }
-
-    protected boolean isMasterBizEnableEmbed(ClassLoader classLoader) {
-        return "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))
-               && ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null
-               && classLoader == ArkClient.getMasterBiz().getBizClassLoader();
+    protected boolean isMasterBizReady() {
+        return ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null;
     }
 
     private static void getOrSetDefault(String key, String value) {
@@ -138,5 +127,4 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
             System.setProperty(key, value);
         }
     }
-
 }
