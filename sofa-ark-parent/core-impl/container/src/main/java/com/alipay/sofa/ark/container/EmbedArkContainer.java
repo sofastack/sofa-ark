@@ -16,17 +16,12 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
-import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
-import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.EmbedExecutableArkBizJar;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
 
 public class EmbedArkContainer extends ArkContainer {
     /**
@@ -47,20 +42,12 @@ public class EmbedArkContainer extends ArkContainer {
         if (args.length < MINIMUM_ARGS_SIZE) {
             throw new ArkRuntimeException("Please provide suitable arguments to continue !");
         }
-
         try {
             LaunchCommand launchCommand = LaunchCommand.parse(args);
-            ExecutableArkBizJar executableArchive;
-            File rootFile = new File(URLDecoder.decode(launchCommand.getExecutableArkBizJar()
-                .getFile()));
-            if (rootFile.isDirectory()) {
-                executableArchive = new EmbedExecutableArkBizJar(new ExplodedArchive(rootFile),
-                    rootFile.toURI().toURL());
-            } else {
-                executableArchive = new EmbedExecutableArkBizJar(new JarFileArchive(rootFile,
-                    launchCommand.getExecutableArkBizJar()), rootFile.toURI().toURL());
-            }
-            return new EmbedArkContainer(executableArchive, launchCommand).start();
+            ClasspathLauncher.ClassPathArchive classPathArchive = new ClasspathLauncher.ClassPathArchive(
+                launchCommand.getEntryClassName(), launchCommand.getEntryMethodName(),
+                launchCommand.getClasspath());
+            return new ArkContainer(classPathArchive, launchCommand).start();
         } catch (IOException e) {
             throw new ArkRuntimeException(String.format("SOFAArk startup failed, commandline=%s",
                 LaunchCommand.toString(args)), e);

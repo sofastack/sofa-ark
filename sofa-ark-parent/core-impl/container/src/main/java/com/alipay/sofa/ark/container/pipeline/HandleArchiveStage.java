@@ -84,15 +84,8 @@ public class HandleArchiveStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
-            if ("true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))) {
-                Biz masterBiz = bizFactoryService.createEmbedMasterBiz(pipelineContext.getClass()
-                    .getClassLoader());
-                bizManagerService.registerBiz(masterBiz);
-                ArkClient.setMasterBiz(masterBiz);
-                ArkConfigs.putStringValue(Constants.MASTER_BIZ, masterBiz.getBizName());
-                String exportResources = System.getProperty(Constants.BIZ_EXPORT_RESOURCES);
-                classLoaderService.prepareExportResourceCache(masterBiz.getBizClassLoader(),
-                    exportResources);
+            if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+                processEmbed(pipelineContext);
                 return;
             }
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
@@ -181,6 +174,26 @@ public class HandleArchiveStage implements PipelineStage {
         } catch (Throwable ex) {
             throw new ArkRuntimeException(ex.getMessage(), ex);
         }
+    }
+
+    protected void processEmbed(PipelineContext pipelineContext) throws Exception {
+        ClassLoader masterBizClassLoader = pipelineContext.getClass().getClassLoader();
+        Biz masterBiz = bizFactoryService.createEmbedMasterBiz(masterBizClassLoader);
+        bizManagerService.registerBiz(masterBiz);
+        ArkClient.setMasterBiz(masterBiz);
+        ArkConfigs.putStringValue(Constants.MASTER_BIZ, masterBiz.getBizName());
+        ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
+        List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
+        for (PluginArchive pluginArchive : pluginArchives) {
+            Plugin plugin = pluginFactoryService.mockEmbedPlugin(pluginArchive,
+                masterBizClassLoader);
+            if (!isPluginExcluded(plugin)) {
+                pluginManagerService.registerPlugin(plugin);
+            } else {
+                LOGGER.warn(String.format("The plugin of %s is excluded.", plugin.getPluginName()));
+            }
+        }
+        return;
     }
 
     public boolean isPluginExcluded(Plugin plugin) {

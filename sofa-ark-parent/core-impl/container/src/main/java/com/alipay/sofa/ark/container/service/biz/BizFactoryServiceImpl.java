@@ -89,7 +89,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createBiz(File file) throws IOException {
         JarBizArchive bizArchive;
-        if ("true".equals(System.getProperty(Constants.CONTAINER_EXPLODED_ENABLE))) {
+        if ("true".equals(System.getProperty(Constants.EXPLODED_ENABLE))) {
             File unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "unpack");
             bizArchive = new JarBizArchive(new ExplodedDirectoryArchive(unpackFile));
         } else {
@@ -125,7 +125,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
-        if ("true".equals(System.getProperty(Constants.CONTAINER_EXPLODED_ENABLE))) {
+        if ("true".equals(System.getProperty(Constants.EXPLODED_ENABLE))) {
             if (bizArchive instanceof JarBizArchive) {
                 return true;
             }

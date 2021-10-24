@@ -34,11 +34,6 @@ public interface ClassLoaderService extends ArkService {
     void prepareExportClassAndResourceCache();
 
     /**
-     * prepare plugin exported class and resource index Cache
-     */
-    void prepareExportResourceCache(ClassLoader classLoader, String exportPackages);
-
-    /**
      * Whether class is sun reflect related class
      * @param className class name
      * @return

@@ -16,21 +16,20 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
-import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
-import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.EmbedExecutableArkBizJar;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
+import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import org.springframework.core.env.Environment;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 public class EmbedArkLauncher extends AbstractLauncher {
     private static final String     SOFA_ARK_MAIN                     = "com.alipay.sofa.ark.container.EmbedArkContainer";
-    private static final String     DEFAULT_BIZ_EXPORT_RESOURCES      = "META-INF/spring.*,META-INF/services/*,META-INF/com/aipay/boot/middleware/service/config/*,org/springframework/boot/logging/*,*.xsd,*/sql-map-2.dtd,*/sql-map-config-2.dtd,*/mybatis-3-config.dtd,*/mybatis-3-mapper.dtd";
     private static final String     DEFAULT_BIZ_CLASS_LOADER_HOOK_DIR = "com.alipay.sofa.ark.container.service.classloader.MasterBizClassLoaderHookAll";
     private final ExecutableArchive executableArchive;
 
@@ -46,12 +45,23 @@ public class EmbedArkLauncher extends AbstractLauncher {
         this.executableArchive = executableArchive;
     }
 
+    public Object launch(String[] args) throws Exception {
+        ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
+        List<String> attachArgs = new ArrayList<>();
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
+            CommandArgument.CLASSPATH_ARGUMENT_KEY, getClasspath()));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, SOFA_ARK_MAIN));
+        attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
+            CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, "main"));
+        return launch(attachArgs.toArray(new String[attachArgs.size()]), getMainClass(),
+            classLoader);
+    }
+
     public static void main(String[] args) throws Exception {
-        System.setProperty(Constants.CONTAINER_EMBED_ENABLE, "true");
-        getOrSetDefault(CONTAINER_DIR, new File("").getAbsolutePath());
+        System.setProperty(Constants.EMBED_ENABLE, "true");
         getOrSetDefault(MASTER_BIZ, new File("").getAbsolutePath());
         getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR, DEFAULT_BIZ_CLASS_LOADER_HOOK_DIR);
-        getOrSetDefault(BIZ_EXPORT_RESOURCES, DEFAULT_BIZ_EXPORT_RESOURCES);
         new EmbedArkLauncher().launch(args);
     }
 
@@ -72,14 +82,20 @@ public class EmbedArkLauncher extends AbstractLauncher {
     }
 
     protected ExecutableArchive createArchive() throws Exception {
-        String path = System.getProperty(CONTAINER_DIR);
-        File root = new File(path);
-        if (!root.exists()) {
-            throw new IllegalStateException("Unable to determine code source archive from " + root);
+        return new ClasspathLauncher.ClassPathArchive(SOFA_ARK_MAIN, "main", getUrls());
+    }
+
+    protected URL[] getUrls() {
+        return ((URLClassLoader) this.getClass().getClassLoader()).getURLs();
+    }
+
+    private String getClasspath() {
+        URL[] urls = getUrls();
+        StringBuilder sb = new StringBuilder();
+        for (URL url : urls) {
+            sb.append(url.toExternalForm()).append(CommandArgument.CLASSPATH_SPLIT);
         }
-        return root.isDirectory() ? new EmbedExecutableArkBizJar(new ExplodedArchive(root), root
-            .toURI().toURL()) : new EmbedExecutableArkBizJar(new JarFileArchive(root), root.toURI()
-            .toURL());
+        return sb.toString();
     }
 
     /**

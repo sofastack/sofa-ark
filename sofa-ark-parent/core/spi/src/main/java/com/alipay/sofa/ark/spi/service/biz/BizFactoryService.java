@@ -48,7 +48,7 @@ public interface BizFactoryService {
     Biz createBiz(File file) throws IOException;
 
     /**
-     *
+     * Create Biz Model according to master biz
      * @return
      */
     Biz createEmbedMasterBiz(ClassLoader masterClassLoader);

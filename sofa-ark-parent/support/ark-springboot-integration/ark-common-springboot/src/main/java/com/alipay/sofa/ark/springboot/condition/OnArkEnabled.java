@@ -41,8 +41,7 @@ public class OnArkEnabled extends SpringBootCondition {
             || ARK_BIZ_CLASSLOADER_NAME.equals(currentClassLoader)
             || ARK_PLUGIN_CLASSLOADER_NAME.equals(currentClassLoader)) {
             return new ConditionOutcome(true, "SOFAArk has started.");
-        } else if ("true".equals(context.getEnvironment().getProperty(
-            "sofa.ark.container.embed.enable"))) {
+        } else if ("true".equals(context.getEnvironment().getProperty("sofa.ark.embed.enable"))) {
             return new ConditionOutcome(true, "Embed SOFAArk has started.");
         } else {
             return new ConditionOutcome(false, "SOFAArk has not started.");

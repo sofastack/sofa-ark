@@ -20,18 +20,15 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.bootstrap.EmbedArkLauncher;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
-import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_EXPORT_RESOURCES;
 
 /**
  * Ark Spring boot starter when run on ide
@@ -97,13 +94,11 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         Environment environment = preparedEvent.getEnvironment();
         getOrSetDefault(MASTER_BIZ,
             environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
-        getOrSetDefault(CONTAINER_DIR, environment.getProperty(CONTAINER_DIR));
         getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
             environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
-        getOrSetDefault(BIZ_EXPORT_RESOURCES, environment.getProperty(BIZ_EXPORT_RESOURCES));
-        getOrSetDefault(JAR_PROTOCOL_DISABLE, environment.getProperty(JAR_PROTOCOL_DISABLE, "true"));
-        getOrSetDefault(CONTAINER_EXPLODED_ENABLE,
-            environment.getProperty(CONTAINER_EXPLODED_ENABLE, "true"));
+        getOrSetDefault(EXPLODED_ENABLE, environment.getProperty(EXPLODED_ENABLE, "true"));
+        getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE,
+            environment.getProperty(PLUGIN_EXPORT_CLASS_ENABLE, "false"));
         EmbedArkLauncher.main(new String[] {});
     }
 
@@ -115,7 +110,7 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     protected boolean isEnableEmbed() {
-        return "true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE));
+        return "true".equals(System.getProperty(Constants.EMBED_ENABLE));
     }
 
     protected boolean isMasterBizReady() {

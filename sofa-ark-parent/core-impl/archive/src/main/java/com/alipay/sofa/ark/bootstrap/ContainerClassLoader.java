@@ -50,7 +50,7 @@ public class ContainerClassLoader extends URLClassLoader {
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            if ("true".equals(System.getProperty(Constants.CONTAINER_EMBED_ENABLE))) {
+            if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
                 Class<?> clazz = resolveArkExportClass(name);
                 if (clazz != null) {
                     return clazz;
