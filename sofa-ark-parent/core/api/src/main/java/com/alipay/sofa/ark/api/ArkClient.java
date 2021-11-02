@@ -156,6 +156,10 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
 
+        long start = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
+        String startDate = sdf.format(new Date(start));
+
         Biz biz = bizFactoryService.createBiz(bizFile);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
@@ -166,8 +170,12 @@ public class ArkClient {
 
         try {
             biz.start(args);
-            response.setCode(ResponseCode.SUCCESS)
-                .setMessage(String.format("Install Biz: %s success.", biz.getIdentity()))
+            long end = System.currentTimeMillis();
+            response
+                .setCode(ResponseCode.SUCCESS)
+                .setMessage(
+                    String.format("Install Biz: %s success, cost: %sms, started at: %s",
+                        biz.getIdentity(), end - start, startDate))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
             LOGGER.info(response.getMessage());
             return response;

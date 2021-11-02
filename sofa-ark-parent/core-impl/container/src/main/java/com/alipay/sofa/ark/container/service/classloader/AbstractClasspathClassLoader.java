@@ -79,16 +79,16 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 2500))
             .concurrencyLevel(
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
-            .expireAfterWrite(15, SECONDS).recordStats().build();
+            .expireAfterWrite(30, SECONDS).recordStats().build();
 
         packageCache = newBuilder()
             .initialCapacity(
-                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 500))
+                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 2000))
             .maximumSize(
-                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 500))
+                ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX, 2000))
             .concurrencyLevel(
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
-            .expireAfterWrite(15, SECONDS).recordStats().build();
+            .expireAfterWrite(30, SECONDS).recordStats().build();
     }
 
     @Override
