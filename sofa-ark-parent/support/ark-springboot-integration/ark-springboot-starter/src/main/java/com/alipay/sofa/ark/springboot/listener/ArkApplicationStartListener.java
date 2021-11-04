@@ -38,8 +38,8 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
  */
 public class ArkApplicationStartListener implements ApplicationListener<SpringApplicationEvent> {
 
-    private static final String LAUNCH_CLASSLOADER_NAME    = "sun.misc.Launcher$AppClassLoader";
-    private static final String APPLICATION_STARTED_EVENT  = "org.springframework.boot.context.event.ApplicationStartedEvent";
+    private static final String LAUNCH_CLASSLOADER_NAME = "sun.misc.Launcher$AppClassLoader";
+    private static final String APPLICATION_STARTED_EVENT = "org.springframework.boot.context.event.ApplicationStartedEvent";
     private static final String APPLICATION_STARTING_EVENT = "org.springframework.boot.context.event.ApplicationStartingEvent";
 
     @Override
@@ -50,12 +50,12 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
                 return;
             }
             if (isSpringBoot2()
-                && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
+                    && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
                 startUpArk(event);
             }
 
             if (isSpringBoot1()
-                && APPLICATION_STARTED_EVENT.equals(event.getClass().getCanonicalName())) {
+                    && APPLICATION_STARTED_EVENT.equals(event.getClass().getCanonicalName())) {
                 startUpArk(event);
             }
         } catch (Throwable e) {
@@ -79,6 +79,9 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
 
     protected void handleEmbedArk(SpringApplicationEvent event) throws Exception {
         if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
+            if ("true".equals(System.getProperty("spring.application.admin.enabled"))) {
+                System.setProperty("spring.application.admin.enabled", "false");
+            }
             return;
         }
         if (event instanceof ApplicationEnvironmentPreparedEvent) {
@@ -90,22 +93,22 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     protected void onApplicationEnvironmentPrepare(ApplicationEnvironmentPreparedEvent preparedEvent)
-                                                                                                     throws Exception {
+            throws Exception {
         Environment environment = preparedEvent.getEnvironment();
         getOrSetDefault(MASTER_BIZ,
-            environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
+                environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
         getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
-            environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
+                environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
         getOrSetDefault(EXPLODED_ENABLE, environment.getProperty(EXPLODED_ENABLE, "true"));
         getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE,
-            environment.getProperty(PLUGIN_EXPORT_CLASS_ENABLE, "false"));
-        EmbedArkLauncher.main(new String[] {});
+                environment.getProperty(PLUGIN_EXPORT_CLASS_ENABLE, "false"));
+        EmbedArkLauncher.main(new String[]{});
     }
 
     public void onApplicationReady(ApplicationReadyEvent event) {
         if (isMasterBizReady()) {
             ArkClient.getEventAdminService().sendEvent(
-                new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+                    new AfterBizStartupEvent(ArkClient.getMasterBiz()));
         }
     }
 
