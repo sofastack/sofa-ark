@@ -274,7 +274,7 @@ public class BizModel implements Biz {
                 mainMethodRunner.run();
                 // this can trigger health checker handler
                 eventAdminService.sendEvent(new AfterBizStartupEvent(this));
-                System.out.println("Ark biz [" + getIdentity() + "] started in cost  "
+                System.out.println("Ark biz [" + getIdentity() + "] started cost  "
                                    + (System.currentTimeMillis() - start) + " ms");
             }
 
