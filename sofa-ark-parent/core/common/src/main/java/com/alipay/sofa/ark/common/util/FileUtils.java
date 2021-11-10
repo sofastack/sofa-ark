@@ -118,42 +118,64 @@ public class FileUtils {
                     File dir = new File(dirPath);
                     dir.mkdirs();
                 } else {
-                    InputStream inputStream = null;
-                    FileOutputStream fileOutputStream = null;
-                    try {
-                        inputStream = zipFile.getInputStream(entry);
-                        File file = new File(targetPath + File.separator + entry.getName());
-                        //文件名
-                        if (!file.exists()) {
-                            File fileParent = file.getParentFile();
-                            if (!fileParent.exists()) {
-                                fileParent.mkdirs();
-                            }
-                        }
-                        file.createNewFile();
-                        // 将压缩文件内容写入到这个文件中
-                        fileOutputStream = new FileOutputStream(file);
-                        int count;
-                        byte[] buf = new byte[8192];
-                        while ((count = inputStream.read(buf)) != -1) {
-                            fileOutputStream.write(buf, 0, count);
-                        }
-
-                    } finally {
-                        if (fileOutputStream != null) {
-                            fileOutputStream.flush();
-                            fileOutputStream.close();
-                        }
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                    }
+                    unzipEntry(zipFile,entry,targetPath + File.separator + entry.getName());
                 }
             }
             return new File(targetPath);
         } finally {
             if (zipFile != null) {
                 zipFile.close();
+            }
+        }
+    }
+
+    public static File unzipEntry(File root, String targetPath, String entryName)
+                                                                                 throws IOException {
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(root);
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().endsWith(entryName)) {
+                    return unzipEntry(zipFile, entry, targetPath + File.separator + entryName);
+                }
+            }
+            return null;
+        } finally {
+            if (zipFile != null) {
+                zipFile.close();
+            }
+        }
+    }
+
+    private static  File unzipEntry(ZipFile zipFile, ZipEntry entry, String targetEntryPath) throws IOException {
+        InputStream inputStream = null;
+        FileOutputStream fileOutputStream = null;
+        try {
+            inputStream = zipFile.getInputStream(entry);
+            File file = new File(targetEntryPath);
+            if (!file.exists()) {
+                File fileParent = file.getParentFile();
+                if (!fileParent.exists()) {
+                    fileParent.mkdirs();
+                }
+            }
+            file.createNewFile();
+            fileOutputStream = new FileOutputStream(file);
+            int count;
+            byte[] buf = new byte[8192];
+            while ((count = inputStream.read(buf)) != -1) {
+                fileOutputStream.write(buf, 0, count);
+            }
+            return file;
+        } finally {
+            if (fileOutputStream != null) {
+                fileOutputStream.flush();
+                fileOutputStream.close();
+            }
+            if (inputStream != null) {
+                inputStream.close();
             }
         }
     }

@@ -16,10 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
-import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.ClassUtils;
-import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.common.util.*;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -115,7 +112,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 throw new ArkRuntimeException("Duplicate Container Jar File Found.");
             }
 
-            return new JarContainerArchive(new JarFileArchive(new File(urlList.get(0).getFile())));
+            return new JarContainerArchive(new JarFileArchive(getUrlFile(urlList.get(0))));
         }
 
         @Override
@@ -140,11 +137,23 @@ public class ClasspathLauncher extends ArkLauncher {
 
             List<PluginArchive> pluginArchives = new ArrayList<>();
             for (URL url : urlList) {
-                pluginArchives
-                    .add(new JarPluginArchive(new JarFileArchive(new File(url.getFile()))));
+                pluginArchives.add(new JarPluginArchive(new JarFileArchive(getUrlFile(url))));
             }
 
             return pluginArchives;
+        }
+
+        protected File getUrlFile(URL url) throws IOException {
+            String file = url.getFile();
+            if (file.contains(FILE_IN_JAR)) {
+                int pos = file.indexOf("!/");
+                File fatJarFile = new File(file.substring(0, pos));
+                String containerLib = file.substring(file.lastIndexOf("/") + 1);
+                String unpackDir = System.getProperty(Constants.EMBED_UNPACK_DIR, fatJarFile.getParent());
+                return FileUtils.unzipEntry(fatJarFile, unpackDir, containerLib);
+            } else {
+                return new File(file);
+            }
         }
 
         @Override
