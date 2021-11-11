@@ -47,27 +47,27 @@ public class ClasspathLauncher extends ArkLauncher {
 
     public static class ClassPathArchive implements ExecutableArchive {
 
-        public static final String   FILE_IN_JAR = "!/";
+        public static final String FILE_IN_JAR = "!/";
 
-        private final String         className;
+        private final String className;
 
-        private final String         methodName;
+        private final String methodName;
 
-        private final URL[]          urls;
+        private final URL[] urls;
 
         private final URLClassLoader urlClassLoader;
 
-        private File                 arkConfBaseDir;
+        private File arkConfBaseDir;
 
         public ClassPathArchive(String className, String methodName, URL[] urls) throws IOException {
             AssertUtils.isFalse(StringUtils.isEmpty(className),
-                "Entry class name must be specified.");
+                    "Entry class name must be specified.");
             this.className = className;
             this.methodName = methodName;
             this.urls = urls;
             List<URL> classpath = getConfClasspath();
             classpath.addAll(Arrays.asList(this.urls));
-            urlClassLoader = new URLClassLoader(classpath.toArray(new URL[] {}), null);
+            urlClassLoader = new URLClassLoader(classpath.toArray(new URL[]{}), null);
         }
 
         public List<URL> filterUrls(String resource) throws Exception {
@@ -78,7 +78,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 URL resourceUrl = enumeration.nextElement();
                 String resourceFile = resourceUrl.getFile();
                 String jarFile = resourceFile.substring(0,
-                    resourceFile.length() - resource.length() - FILE_IN_JAR.length());
+                        resourceFile.length() - resource.length() - FILE_IN_JAR.length());
                 urlList.add(new URL(jarFile));
             }
 
@@ -143,13 +143,13 @@ public class ClasspathLauncher extends ArkLauncher {
             return pluginArchives;
         }
 
-        protected File getUrlFile(URL url) throws IOException {
+        protected static File getUrlFile(URL url) throws IOException {
             String file = url.getFile();
             if (file.contains(FILE_IN_JAR)) {
                 int pos = file.indexOf("!/");
                 File fatJarFile = new File(file.substring(0, pos));
                 String containerLib = file.substring(file.lastIndexOf("/") + 1);
-                String unpackDir = System.getProperty(Constants.EMBED_UNPACK_DIR, fatJarFile.getParent());
+                String unpackDir = System.getProperty(Constants.EMBED_UNPACK_DIR, fatJarFile.getParent() + "/sofa-ark") ;
                 return FileUtils.unzipEntry(fatJarFile, unpackDir, containerLib);
             } else {
                 return new File(file);
@@ -168,7 +168,7 @@ public class ClasspathLauncher extends ArkLauncher {
 
         private void scanConfClasspath(File arkConfBaseDir, List<URL> classpath) throws IOException {
             if (arkConfBaseDir == null || arkConfBaseDir.isFile()
-                || arkConfBaseDir.listFiles() == null) {
+                    || arkConfBaseDir.listFiles() == null) {
                 return;
             }
             classpath.add(arkConfBaseDir.toURI().toURL());
@@ -259,7 +259,7 @@ public class ClasspathLauncher extends ArkLauncher {
          */
         protected URL[] filterURLs(URL[] urls) {
             Set<String> arkContainerJarMarkers = DirectoryContainerArchive
-                .getArkContainerJarMarkers();
+                    .getArkContainerJarMarkers();
 
             Set<URL> containerClassPath = new HashSet<>();
             for (String marker : arkContainerJarMarkers) {
@@ -271,7 +271,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             return arkContainerJarMarkers.size() != containerClassPath.size() ? null
-                : containerClassPath.toArray(new URL[] {});
+                    : containerClassPath.toArray(new URL[]{});
         }
 
         /**
@@ -304,7 +304,7 @@ public class ClasspathLauncher extends ArkLauncher {
                 }
             }
 
-            return bizURls.toArray(new URL[] {});
+            return bizURls.toArray(new URL[]{});
         }
 
         /**
@@ -318,12 +318,12 @@ public class ClasspathLauncher extends ArkLauncher {
             AssertUtils.assertNotNull(surefireBootJar, "SurefireBooter jar should not be null.");
             try (JarFile jarFile = new JarFile(surefireBootJar.getFile())) {
                 String[] classPath = jarFile.getManifest().getMainAttributes()
-                    .getValue(SUREFIRE_BOOT_CLASSPATH).split(SUREFIRE_BOOT_CLASSPATH_SPLIT);
+                        .getValue(SUREFIRE_BOOT_CLASSPATH).split(SUREFIRE_BOOT_CLASSPATH_SPLIT);
                 List<URL> urls = new ArrayList<>();
                 for (String path : classPath) {
                     urls.add(new URL(path));
                 }
-                return urls.toArray(new URL[] {});
+                return urls.toArray(new URL[]{});
             } catch (IOException ex) {
                 throw new ArkRuntimeException("Parse classpath failed from surefire boot jar.", ex);
             }
