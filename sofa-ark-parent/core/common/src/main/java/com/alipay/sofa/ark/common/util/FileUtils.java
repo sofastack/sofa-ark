@@ -18,13 +18,13 @@ package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Utilities for manipulating files and directories in ark tooling.
@@ -104,57 +104,5 @@ public class FileUtils {
             return path.replace("\\", "/");
         }
         return path;
-    }
-
-    public static File unzipEntry(File root, String targetPath, String entryName)
-                                                                                 throws IOException {
-        ZipFile zipFile = null;
-        try {
-            zipFile = new ZipFile(root);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entry.getName().endsWith(entryName)) {
-                    return unzipEntry(zipFile, entry, targetPath + File.separator + entryName);
-                }
-            }
-            return null;
-        } finally {
-            if (zipFile != null) {
-                zipFile.close();
-            }
-        }
-    }
-
-    private static File unzipEntry(ZipFile zipFile, ZipEntry entry, String targetEntryPath)
-                                                                                           throws IOException {
-        InputStream inputStream = null;
-        FileOutputStream fileOutputStream = null;
-        try {
-            inputStream = zipFile.getInputStream(entry);
-            File file = new File(targetEntryPath);
-            if (!file.exists()) {
-                File fileParent = file.getParentFile();
-                if (!fileParent.exists()) {
-                    fileParent.mkdirs();
-                }
-            }
-            file.createNewFile();
-            fileOutputStream = new FileOutputStream(file);
-            int count;
-            byte[] buf = new byte[8192];
-            while ((count = inputStream.read(buf)) != -1) {
-                fileOutputStream.write(buf, 0, count);
-            }
-            return file;
-        } finally {
-            if (fileOutputStream != null) {
-                fileOutputStream.flush();
-                fileOutputStream.close();
-            }
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
     }
 }

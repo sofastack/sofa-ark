@@ -91,17 +91,17 @@ public class ClasspathLauncher extends ArkLauncher {
         @Override
         public ContainerArchive getContainerArchive() throws Exception {
 
-            List<URL> urlList = filterUrls(Constants.ARK_CONTAINER_MARK_ENTRY);
+            ContainerArchive archive = getJarContainerArchive();
 
-            if (urlList.isEmpty()) {
-                return null;
+            if (archive == null) {
+                archive = createDirectoryContainerArchive();
             }
 
-            if (urlList.size() > 1) {
-                throw new ArkRuntimeException("Duplicate Container Jar File Found.");
+            if (archive == null) {
+                throw new ArkRuntimeException("No Ark Container Jar File Found.");
             }
 
-            return new JarContainerArchive(new JarFileArchive(new File(urlList.get(0).getFile())));
+            return archive;
         }
 
         protected ContainerArchive getJarContainerArchive() throws Exception {
@@ -168,7 +168,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
         }
 
-        protected File deduceArkConfBaseDir() {
+        private File deduceArkConfBaseDir() {
             File arkConfDir = null;
             try {
                 URLClassLoader tempClassLoader = new URLClassLoader(urls);

@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
@@ -53,7 +54,7 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
             throw new ArkRuntimeException("Duplicate Container Jar File Found.");
         }
 
-        return new JarContainerArchive(new JarFileArchive(getUrlFile(urlList.get(0))));
+        return new JarContainerArchive(getUrlJarFileArchive(urlList.get(0)));
     }
 
     @Override
@@ -67,22 +68,27 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
 
         List<PluginArchive> pluginArchives = new ArrayList<>();
         for (URL url : urlList) {
-            pluginArchives.add(new JarPluginArchive(new JarFileArchive(getUrlFile(url))));
+            pluginArchives.add(new JarPluginArchive(getUrlJarFileArchive(url)));
         }
         return pluginArchives;
     }
 
-    protected File getUrlFile(URL url) throws IOException {
+    protected JarFileArchive getUrlJarFileArchive(URL url) throws IOException {
         String file = url.getFile();
         if (file.contains(FILE_IN_JAR)) {
             int pos = file.indexOf("!/");
             File fatJarFile = new File(file.substring(0, pos));
-            String containerLib = file.substring(file.lastIndexOf("/") + 1);
-            String unpackDir = System.getProperty(Constants.EMBED_UNPACK_DIR,
-                fatJarFile.getParent() + "/sofa-ark");
-            return FileUtils.unzipEntry(fatJarFile, unpackDir, containerLib);
+            String nestedJar = file.substring(file.lastIndexOf("/") + 1);
+            JarFileArchive fatJarFileArchive = new JarFileArchive(fatJarFile);
+            List<Archive> matched = fatJarFileArchive.getNestedArchives(entry ->{
+                if(entry.getName().contains(nestedJar)){
+                    return true;
+                }
+                return false;
+            });
+           return (JarFileArchive) matched.get(0);
         } else {
-            return new File(file);
+            return new JarFileArchive(new File(file));
         }
     }
 }
