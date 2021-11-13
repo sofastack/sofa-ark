@@ -60,7 +60,7 @@ public class ClasspathLauncher extends ArkLauncher {
 
         private final URLClassLoader urlClassLoader;
 
-        protected File               arkConfBaseDir;
+        private File                 arkConfBaseDir;
 
         public ClassPathArchive(String className, String methodName, URL[] urls) throws IOException {
             AssertUtils.isFalse(StringUtils.isEmpty(className),
