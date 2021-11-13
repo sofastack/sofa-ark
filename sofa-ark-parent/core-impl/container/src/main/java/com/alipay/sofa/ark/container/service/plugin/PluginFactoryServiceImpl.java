@@ -128,9 +128,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             for (String dependency : dependencies) {
                 String artifactId = dependency.split(STRING_COLON)[0];
                 String version = dependency.split(STRING_COLON)[1];
-                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")
-                    || (url.getPath().endsWith(artifactId + "-" + version + ".jar") && "true"
-                        .equals(System.getProperty(EXPLODED_ENABLE)))) {
+                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
                     preRemoveList.add(url);
                     break;
                 }
@@ -159,8 +157,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
     }
 
     @Override
-    public Plugin mockEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
-                                                                                             throws IOException {
+    public Plugin createEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
+                                                                                               throws IOException {
         AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();

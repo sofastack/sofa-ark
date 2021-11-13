@@ -29,21 +29,16 @@ import java.net.URL;
 import java.util.Enumeration;
 
 /**
- * @author bingjie.lbj
+ * A default hook for biz classloader. Trying to load class by master biz if not found
  *
- * @version : DelegateMasterBizClassLoaderHook.java, v 0.1
+ * @author bingjie.lbj
  */
 @Extension("biz-classloader-hook")
 public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
 
-    public static String[] _UNPROXY_PACKAGE_ROOT = new String[] { "Class.class", "Object.class",
+    private static String[] UNPROXY_PACKAGE_ROOT = new String[] { "Class.class", "Object.class",
             "com.class", "java/lang/com.class", "com/alipay.class", "Throwable.class",
-            "String.class", "Boolean.class", "config/application.properties",
-            "config/application.xml", "application.xml", "application.yml", "application.yaml",
-            "config/application-default.properties", "config/application-default.xml",
-            "config/application-default.yml", "config/application-default.yaml",
-            "application-default.properties", "application-default.xml", "application-default.yml",
-            "log4j2"                            };
+            "String.class", "Boolean.class"     };
 
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
@@ -84,7 +79,6 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
     @Override
     public Enumeration<URL> preFindResources(String name, ClassLoaderService classLoaderService,
                                              Biz biz) throws IOException {
-
         return null;
 
     }
@@ -105,7 +99,7 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
 
     private boolean inUnProxyPackage(String packageName) {
         if (StringUtil.isNotBlank(packageName)) {
-            for (String packageRoot : _UNPROXY_PACKAGE_ROOT) {
+            for (String packageRoot : UNPROXY_PACKAGE_ROOT) {
                 if (packageName.startsWith(packageRoot)) {
                     return true;
                 }
@@ -119,12 +113,12 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
             return true;
         }
         if (StringUtil.isNotBlank(resourceName)) {
-            for (String packageRoot : _UNPROXY_PACKAGE_ROOT) {
+            for (String packageRoot : UNPROXY_PACKAGE_ROOT) {
                 if (resourceName.startsWith(packageRoot)) {
                     return true;
                 }
             }
-            for (String packageRoot : _UNPROXY_PACKAGE_ROOT) {
+            for (String packageRoot : UNPROXY_PACKAGE_ROOT) {
                 String packageRootUri = packageRoot.replaceAll("\\.", "\\/");
                 if (resourceName.startsWith(packageRootUri)) {
                     return true;

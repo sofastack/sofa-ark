@@ -33,28 +33,26 @@ import java.util.Enumeration;
 public class ContainerClassLoader extends URLClassLoader {
     private static final String ARK_SPI_PACKAGES       = "com.alipay.sofa.ark.spi";
     private static final String ARK_API_PACKAGES       = "com.alipay.sofa.ark.api";
-    private static final String ARK_LOG_PACKAGES       = "com.alipay.sofa.ark.common.log";
     private static final String ARK_EXCEPTION_PACKAGES = "com.alipay.sofa.ark.exception";
-    private ClassLoader         arkExportClassLoader;
+
+    private ClassLoader         exportClassLoader;
 
     public ContainerClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 
-    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader arkExportClassLoader) {
+    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader exportClassLoader) {
         super(urls, parent);
-        this.arkExportClassLoader = arkExportClassLoader;
+        this.exportClassLoader = exportClassLoader;
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
-                Class<?> clazz = resolveArkExportClass(name);
-                if (clazz != null) {
-                    return clazz;
-                }
+            Class<?> clazz = resolveArkExportClass(name);
+            if (clazz != null) {
+                return clazz;
             }
             return super.loadClass(name, resolve);
         } finally {
@@ -69,9 +67,9 @@ public class ContainerClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveArkExportClass(String name) {
-        if (isArkExportClass(name) && arkExportClassLoader != null) {
+        if (exportClassLoader != null && isArkExportClass(name)) {
             try {
-                return arkExportClassLoader.loadClass(name);
+                return exportClassLoader.loadClass(name);
             } catch (ClassNotFoundException e) {
                 // ignore
             }
@@ -81,7 +79,6 @@ public class ContainerClassLoader extends URLClassLoader {
 
     public boolean isArkExportClass(String className) {
         return className.startsWith(ARK_SPI_PACKAGES) || className.startsWith(ARK_API_PACKAGES)
-        //               || className.startsWith(ARK_LOG_PACKAGES)
                || className.startsWith(ARK_EXCEPTION_PACKAGES);
     }
 

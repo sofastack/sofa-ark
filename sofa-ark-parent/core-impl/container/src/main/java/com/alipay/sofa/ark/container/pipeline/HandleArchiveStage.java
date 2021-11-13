@@ -35,7 +35,6 @@ import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
@@ -77,9 +76,6 @@ public class HandleArchiveStage implements PipelineStage {
 
     @Inject
     private BizFactoryService      bizFactoryService;
-
-    @Inject
-    private ClassLoaderService     classLoaderService;
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
@@ -185,7 +181,7 @@ public class HandleArchiveStage implements PipelineStage {
         ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
         List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
         for (PluginArchive pluginArchive : pluginArchives) {
-            Plugin plugin = pluginFactoryService.mockEmbedPlugin(pluginArchive,
+            Plugin plugin = pluginFactoryService.createEmbedPlugin(pluginArchive,
                 masterBizClassLoader);
             if (!isPluginExcluded(plugin)) {
                 pluginManagerService.registerPlugin(plugin);

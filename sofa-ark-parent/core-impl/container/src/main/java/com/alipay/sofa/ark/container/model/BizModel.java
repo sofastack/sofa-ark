@@ -366,6 +366,9 @@ public class BizModel implements Biz {
 
     private void resetProperties() {
         System.getProperties().remove("logging.path");
+        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+            System.getProperties().remove("spring.application.admin.enabled");
+        }
     }
 
     public File getBizTempWorkDir() {

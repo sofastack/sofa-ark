@@ -16,11 +16,10 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
-import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
-
 import java.io.*;
 import java.net.*;
 import java.security.Permission;
+import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
 
 /**
  * {@link java.net.JarURLConnection} used to support {@link JarFile#getUrl()}.

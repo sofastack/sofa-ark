@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.loader.jar;
 import com.alipay.sofa.ark.loader.data.RandomAccessData;
 import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
-import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.File;
 import java.io.IOException;

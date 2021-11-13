@@ -18,13 +18,11 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.archive.ExplodedDirectoryArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
@@ -88,15 +86,9 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     @Override
     public Biz createBiz(File file) throws IOException {
-        JarBizArchive bizArchive;
-        if ("true".equals(System.getProperty(Constants.EXPLODED_ENABLE))) {
-            File unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "unpack");
-            bizArchive = new JarBizArchive(new ExplodedDirectoryArchive(unpackFile));
-        } else {
-            JarFile bizFile = new JarFile(file);
-            JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
-            bizArchive = new JarBizArchive(jarFileArchive);
-        }
+        JarFile bizFile = new JarFile(file);
+        JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
+        JarBizArchive bizArchive = new JarBizArchive(jarFileArchive);
         BizModel biz = (BizModel) createBiz(bizArchive);
         biz.setBizTempWorkDir(file);
         return biz;
@@ -125,11 +117,6 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
-        if ("true".equals(System.getProperty(Constants.EXPLODED_ENABLE))) {
-            if (bizArchive instanceof JarBizArchive) {
-                return true;
-            }
-        }
         return bizArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
             public boolean matches(Archive.Entry entry) {

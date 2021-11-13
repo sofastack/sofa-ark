@@ -57,14 +57,11 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                                                                          .getContainer()
                                                                          .getService(
                                                                              ClassLoaderService.class);
-
     protected Cache<String, LoadClassResult>   classCache;
 
     protected Cache<String, Optional<Package>> packageCache;
 
-    protected Cache<String, Optional<URL>>     urlResourceCache      = newBuilder()
-                                                                         .expireAfterWrite(10,
-                                                                             SECONDS).build();
+    protected Cache<String, Optional<URL>>     urlResourceCache;
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -89,6 +86,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             .concurrencyLevel(
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL, 16))
             .expireAfterWrite(30, SECONDS).recordStats().build();
+
+        urlResourceCache = newBuilder().expireAfterWrite(10, SECONDS).build();
     }
 
     @Override
@@ -159,7 +158,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                             // Ignore
                         }
                     }
-
                     return null;
                 }
             }, AccessController.getContext());
@@ -393,7 +391,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         } catch (ClassNotFoundException e) {
             // ignore
         }
-
         return null;
     }
 
@@ -409,7 +406,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         } catch (ClassNotFoundException e) {
             // ignore
         }
-
         return null;
     }
 

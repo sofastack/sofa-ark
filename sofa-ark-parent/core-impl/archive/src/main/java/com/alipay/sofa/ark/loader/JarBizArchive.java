@@ -45,9 +45,6 @@ public class JarBizArchive extends AbstractArchive implements BizArchive {
 
     private final String SOFA_ARK_BIZ_LIB_EXPORT = "lib/export";
 
-    private URL[]        urls;
-    private URL[]        exportUrls;
-
     public JarBizArchive(Archive archive) {
         this.archive = archive;
     }

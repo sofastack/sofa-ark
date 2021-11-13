@@ -64,6 +64,6 @@ public interface PluginFactoryService {
      * Mock Plugin Model according to master biz
      * @return
      */
-    Plugin mockEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
-                                                                                      throws IOException;
+    Plugin createEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
+                                                                                        throws IOException;
 }

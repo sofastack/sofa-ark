@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sofa-ark-core-impl</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.1.7.4-SNAPSHOT</version>
+        <version>1.1.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>sofa-ark-archive</artifactId>
@@ -37,6 +37,11 @@
         <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
+            <version>2.1.0.RELEASE</version>
         </dependency>
 
     </dependencies>

@@ -22,7 +22,6 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.util.ClassUtils;
 
 /**
  * @author qilong.zql
@@ -30,9 +29,12 @@ import org.springframework.util.ClassUtils;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 public class OnArkEnabled extends SpringBootCondition {
-    private static final String ARK_TEST_CLASSLOADER_NAME   = "com.alipay.sofa.ark.container.test.TestClassLoader";
-    private static final String ARK_BIZ_CLASSLOADER_NAME    = "com.alipay.sofa.ark.container.service.classloader.BizClassLoader";
-    private static final String ARK_PLUGIN_CLASSLOADER_NAME = "com.alipay.sofa.ark.container.service.classloader.PluginClassLoader";
+    private static final String  ARK_TEST_CLASSLOADER_NAME   = "com.alipay.sofa.ark.container.test.TestClassLoader";
+    private static final String  ARK_BIZ_CLASSLOADER_NAME    = "com.alipay.sofa.ark.container.service.classloader.BizClassLoader";
+    private static final String  ARK_PLUGIN_CLASSLOADER_NAME = "com.alipay.sofa.ark.container.service.classloader.PluginClassLoader";
+    private static final boolean EMBED_ENABLE                = "true"
+                                                                 .equals(System
+                                                                     .getProperty("sofa.ark.embed.enable"));
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -41,30 +43,10 @@ public class OnArkEnabled extends SpringBootCondition {
             || ARK_BIZ_CLASSLOADER_NAME.equals(currentClassLoader)
             || ARK_PLUGIN_CLASSLOADER_NAME.equals(currentClassLoader)) {
             return new ConditionOutcome(true, "SOFAArk has started.");
-        } else if ("true".equals(context.getEnvironment().getProperty("sofa.ark.embed.enable"))) {
+        } else if ("true".equals(EMBED_ENABLE)) {
             return new ConditionOutcome(true, "Embed SOFAArk has started.");
         } else {
             return new ConditionOutcome(false, "SOFAArk has not started.");
         }
-    }
-
-    public static boolean isPresent(String className, ClassLoader classLoader) {
-        if (classLoader == null) {
-            classLoader = ClassUtils.getDefaultClassLoader();
-        }
-        try {
-            forName(className, classLoader);
-            return true;
-        } catch (Throwable ex) {
-            return false;
-        }
-    }
-
-    private static Class<?> forName(String className, ClassLoader classLoader)
-                                                                              throws ClassNotFoundException {
-        if (classLoader != null) {
-            return classLoader.loadClass(className);
-        }
-        return Class.forName(className);
     }
 }

@@ -106,29 +106,6 @@ public class FileUtils {
         return path;
     }
 
-    public static File unzip(File root, String targetPath) throws IOException {
-        ZipFile zipFile = null;
-        try {
-            zipFile = new ZipFile(root);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entry.isDirectory()) {
-                    String dirPath = targetPath + File.separator + entry.getName();
-                    File dir = new File(dirPath);
-                    dir.mkdirs();
-                } else {
-                    unzipEntry(zipFile,entry,targetPath + File.separator + entry.getName());
-                }
-            }
-            return new File(targetPath);
-        } finally {
-            if (zipFile != null) {
-                zipFile.close();
-            }
-        }
-    }
-
     public static File unzipEntry(File root, String targetPath, String entryName)
                                                                                  throws IOException {
         ZipFile zipFile = null;
@@ -149,7 +126,8 @@ public class FileUtils {
         }
     }
 
-    private static  File unzipEntry(ZipFile zipFile, ZipEntry entry, String targetEntryPath) throws IOException {
+    private static File unzipEntry(ZipFile zipFile, ZipEntry entry, String targetEntryPath)
+                                                                                           throws IOException {
         InputStream inputStream = null;
         FileOutputStream fileOutputStream = null;
         try {

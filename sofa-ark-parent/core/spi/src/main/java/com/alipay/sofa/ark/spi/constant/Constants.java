@@ -59,10 +59,7 @@ public class Constants {
      */
     public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL      = "ark.classloader.cache.class.size.initial";
     public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX          = "ark.classloader.cache.class.size.max";
-    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_INITIAL        = "ark.classloader.cache.pkg.size.initial";
-    public final static String       ARK_CLASSLOADER_CACHE_PKG_SIZE_MAX            = "ark.classloader.cache.pkg.size.max";
     public final static String       ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL       = "ark.classloader.cache.concurrencylevel";
-
     /**
      * plugin conf, multi value is split by comma.
      */
@@ -164,7 +161,7 @@ public class Constants {
     public final static String       RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY     = "hessian.parent.context.create";
     public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
     public final static String       EMBED_UNPACK_DIR                              = "sofa.ark.embed.unpack.dir";
-    public final static String       EXPLODED_ENABLE                               = "sofa.ark.exploded.enable";
+    public final static String       URL_PROTOCOL_DISABLE                          = "sofa.ark.url.protocol.disable";
     public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
 
     /**

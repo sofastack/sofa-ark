@@ -215,7 +215,7 @@ public class Handler extends URLStreamHandler {
     }
 
     private String replaceCurrentDir(String file) {
-        return StringUtils.replace(file, "/./", "/");
+        return file.replace("/./", "/");
     }
 
     @Override
