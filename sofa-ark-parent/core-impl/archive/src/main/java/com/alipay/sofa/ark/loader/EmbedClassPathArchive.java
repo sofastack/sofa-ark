@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
-import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
@@ -80,13 +79,13 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
             File fatJarFile = new File(file.substring(0, pos));
             String nestedJar = file.substring(file.lastIndexOf("/") + 1);
             JarFileArchive fatJarFileArchive = new JarFileArchive(fatJarFile);
-            List<Archive> matched = fatJarFileArchive.getNestedArchives(entry ->{
-                if(entry.getName().contains(nestedJar)){
+            List<Archive> matched = fatJarFileArchive.getNestedArchives(entry -> {
+                if (entry.getName().contains(nestedJar)) {
                     return true;
                 }
                 return false;
             });
-           return (JarFileArchive) matched.get(0);
+            return (JarFileArchive) matched.get(0);
         } else {
             return new JarFileArchive(new File(file));
         }

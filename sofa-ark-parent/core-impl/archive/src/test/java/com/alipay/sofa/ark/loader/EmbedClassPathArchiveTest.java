@@ -52,12 +52,11 @@ public class EmbedClassPathArchiveTest extends TestCase {
 
         URLClassLoader classLoader = new URLClassLoader(archive.getContainerArchive().getUrls());
         try {
-           Class clazz = classLoader.loadClass("com.alipay.sofa.ark.container.ArkContainer");
-           assertTrue(clazz != null);
-        } catch (Exception e){
-            assertTrue("loadClass class failed ",false);
+            Class clazz = classLoader.loadClass("com.alipay.sofa.ark.container.ArkContainer");
+            assertTrue(clazz != null);
+        } catch (Exception e) {
+            assertTrue("loadClass class failed ", false);
         }
-
     }
 
     protected boolean isNestedArchive(Archive.Entry entry) {
