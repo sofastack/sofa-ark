@@ -53,7 +53,7 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
             return null;
         }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if(biz.getBizClassLoader() == bizClassLoader){
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         return bizClassLoader.loadClass(name);
@@ -72,7 +72,7 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
         }
 
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if(biz.getBizClassLoader() == bizClassLoader){
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
@@ -96,7 +96,7 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
             return null;
         }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if(biz.getBizClassLoader() == bizClassLoader){
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {

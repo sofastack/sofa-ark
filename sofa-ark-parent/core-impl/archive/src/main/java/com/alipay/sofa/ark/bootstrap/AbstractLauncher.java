@@ -41,7 +41,7 @@ public abstract class AbstractLauncher {
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args) throws Exception {
-        if(embedEnable) {
+        if (embedEnable) {
             JarFile.registerUrlProtocolHandler();
         }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
@@ -60,7 +60,7 @@ public abstract class AbstractLauncher {
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args, String classpath, Method method) throws Exception {
-        if(embedEnable) {
+        if (embedEnable) {
             JarFile.registerUrlProtocolHandler();
         }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());

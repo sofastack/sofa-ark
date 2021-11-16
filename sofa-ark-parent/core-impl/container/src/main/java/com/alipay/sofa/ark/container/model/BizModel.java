@@ -366,7 +366,8 @@ public class BizModel implements Biz {
 
     private void resetProperties() {
         System.getProperties().remove("logging.path");
-        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE)) && this != ArkClient.getMasterBiz()) {
+        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))
+            && this != ArkClient.getMasterBiz()) {
             System.getProperties().remove("spring.application.admin.enabled");
         }
     }
