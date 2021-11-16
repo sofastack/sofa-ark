@@ -36,17 +36,21 @@ import org.springframework.context.ApplicationListener;
 public class ArkApplicationStartListener implements ApplicationListener<SpringApplicationEvent> {
 
     private static final String LAUNCH_CLASSLOADER_NAME    = "sun.misc.Launcher$AppClassLoader";
+    private static final String SPRING_BOOT_LOADER         = "org.springframework.boot.loader.LaunchedURLClassLoader";
     private static final String APPLICATION_STARTED_EVENT  = "org.springframework.boot.context.event.ApplicationStartedEvent";
     private static final String APPLICATION_STARTING_EVENT = "org.springframework.boot.context.event.ApplicationStartingEvent";
 
-    private final boolean       embedEnable                = "true"
+    private static boolean      embedEnable                = "true"
                                                                .equals(System
                                                                    .getProperty(Constants.EMBED_ENABLE));
 
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
-            if (embedEnable) {
+            if (embedEnable
+                || SPRING_BOOT_LOADER.equals(this.getClass().getClassLoader().getClass().getName())) {
+                embedEnable = true;
+                System.setProperty(Constants.EMBED_ENABLE, "true");
                 startUpArkEmbed(event);
                 return;
             }

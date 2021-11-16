@@ -16,12 +16,10 @@
  */
 package com.alipay.sofa.ark.springboot.loader;
 
-import com.alipay.sofa.ark.spi.constant.Constants;
 import org.springframework.boot.loader.JarLauncher;
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.ExplodedArchive;
 import org.springframework.boot.loader.archive.JarFileArchive;
-import org.springframework.boot.loader.jar.JarFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +35,6 @@ import java.util.jar.Manifest;
 
 public class ExplodedLauncher extends JarLauncher {
     private Archive archive;
-    private boolean urlProtocolDisable = "true".equals(System
-                                           .getProperty(Constants.URL_PROTOCOL_DISABLE));
 
     protected ExplodedLauncher() throws Exception {
         this.archive = createArchive0();
@@ -49,9 +45,6 @@ public class ExplodedLauncher extends JarLauncher {
     }
 
     protected void launch(String[] args) throws Exception {
-        if (!urlProtocolDisable) {
-            JarFile.registerUrlProtocolHandler();
-        }
         ClassLoader classLoader = createClassLoader(getClassPathArchives());
         launch(args, getMainClass(), classLoader);
     }
