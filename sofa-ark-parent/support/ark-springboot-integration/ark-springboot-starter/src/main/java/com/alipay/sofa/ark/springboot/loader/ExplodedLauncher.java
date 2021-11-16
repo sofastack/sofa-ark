@@ -33,6 +33,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Manifest;
 
+/**
+ * A faster exploded archive launcher
+ *
+ * @author bingjie.lbj
+ */
 public class ExplodedLauncher extends JarLauncher {
     private Archive archive;
 

@@ -29,7 +29,7 @@ import java.net.URL;
 import java.util.Enumeration;
 
 /**
- * A default hook for biz classloader. Trying to load class by master biz if not found
+ * A default hook for biz classloader. Trying to post load class by master biz if not found
  *
  * @author bingjie.lbj
  */
@@ -53,6 +53,9 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
             return null;
         }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        if(biz.getBizClassLoader() == bizClassLoader){
+            return null;
+        }
         return bizClassLoader.loadClass(name);
     }
 
@@ -69,6 +72,9 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
         }
 
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        if(biz.getBizClassLoader() == bizClassLoader){
+            return null;
+        }
         try {
             return bizClassLoader.getResource(name);
         } catch (Exception e) {
@@ -90,6 +96,9 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
             return null;
         }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        if(biz.getBizClassLoader() == bizClassLoader){
+            return null;
+        }
         try {
             return bizClassLoader.getResources(name);
         } catch (Exception e) {

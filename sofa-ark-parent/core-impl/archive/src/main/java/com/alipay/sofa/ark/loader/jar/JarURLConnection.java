@@ -91,7 +91,7 @@ final public class JarURLConnection extends java.net.JarURLConnection {
         if (!this.jarEntryName.isEmpty() && this.jarEntry == null) {
             this.jarEntry = this.jarFile.getJarEntry(getEntryName());
             if (this.jarEntry == null) {
-                throw FILE_NOT_FOUND_EXCEPTION;
+                throwFileNotFound(this.jarEntryName, this.jarFile);
             }
         }
         this.connected = true;
@@ -158,9 +158,16 @@ final public class JarURLConnection extends java.net.JarURLConnection {
         InputStream inputStream = (this.jarEntryName.isEmpty() ? this.jarFile.getData()
             .getInputStream(ResourceAccess.ONCE) : this.jarFile.getInputStream(this.jarEntry));
         if (inputStream == null) {
-            throw FILE_NOT_FOUND_EXCEPTION;
+            throwFileNotFound(this.jarEntryName, this.jarFile);
         }
         return inputStream;
+    }
+
+    private void throwFileNotFound(Object entry, JarFile jarFile) throws FileNotFoundException {
+        if (Boolean.TRUE.equals(useFastExceptions.get())) {
+            throw FILE_NOT_FOUND_EXCEPTION;
+        }
+        throw new FileNotFoundException("JAR entry " + entry + " not found in " + jarFile.getName());
     }
 
     @Override

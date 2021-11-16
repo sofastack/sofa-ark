@@ -29,12 +29,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 public class OnArkEnabled extends SpringBootCondition {
-    private static final String  ARK_TEST_CLASSLOADER_NAME   = "com.alipay.sofa.ark.container.test.TestClassLoader";
-    private static final String  ARK_BIZ_CLASSLOADER_NAME    = "com.alipay.sofa.ark.container.service.classloader.BizClassLoader";
-    private static final String  ARK_PLUGIN_CLASSLOADER_NAME = "com.alipay.sofa.ark.container.service.classloader.PluginClassLoader";
-    private static final boolean EMBED_ENABLE                = "true"
-                                                                 .equals(System
-                                                                     .getProperty("sofa.ark.embed.enable"));
+    private static final String ARK_TEST_CLASSLOADER_NAME   = "com.alipay.sofa.ark.container.test.TestClassLoader";
+    private static final String ARK_BIZ_CLASSLOADER_NAME    = "com.alipay.sofa.ark.container.service.classloader.BizClassLoader";
+    private static final String ARK_PLUGIN_CLASSLOADER_NAME = "com.alipay.sofa.ark.container.service.classloader.PluginClassLoader";
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -43,7 +40,7 @@ public class OnArkEnabled extends SpringBootCondition {
             || ARK_BIZ_CLASSLOADER_NAME.equals(currentClassLoader)
             || ARK_PLUGIN_CLASSLOADER_NAME.equals(currentClassLoader)) {
             return new ConditionOutcome(true, "SOFAArk has started.");
-        } else if ("true".equals(EMBED_ENABLE)) {
+        } else if ("true".equals(System.getProperty("sofa.ark.embed.enable"))) {
             return new ConditionOutcome(true, "Embed SOFAArk has started.");
         } else {
             return new ConditionOutcome(false, "SOFAArk has not started.");

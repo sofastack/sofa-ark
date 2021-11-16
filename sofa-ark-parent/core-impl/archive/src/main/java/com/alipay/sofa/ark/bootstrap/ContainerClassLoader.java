@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.loader.jar.Handler;
-import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.io.IOException;
 import java.net.URL;

@@ -132,7 +132,6 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                     preRemoveList.add(url);
                     break;
                 }
-
             }
         }
         urlList.removeAll(preRemoveList);
@@ -188,9 +187,6 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
     }
 
     private boolean isArkPlugin(PluginArchive pluginArchive) {
-        if (pluginArchive instanceof JarPluginArchive) {
-            return true;
-        }
         return pluginArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
             public boolean matches(Archive.Entry entry) {

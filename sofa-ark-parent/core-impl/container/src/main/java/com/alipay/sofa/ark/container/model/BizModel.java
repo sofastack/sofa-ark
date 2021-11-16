@@ -274,7 +274,7 @@ public class BizModel implements Biz {
                 mainMethodRunner.run();
                 // this can trigger health checker handler
                 eventAdminService.sendEvent(new AfterBizStartupEvent(this));
-                System.out.println("Ark biz [" + getIdentity() + "] started cost  "
+                System.out.println("Ark biz [" + getIdentity() + "] started in  "
                                    + (System.currentTimeMillis() - start) + " ms");
             }
 
@@ -366,7 +366,7 @@ public class BizModel implements Biz {
 
     private void resetProperties() {
         System.getProperties().remove("logging.path");
-        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE)) && this != ArkClient.getMasterBiz()) {
             System.getProperties().remove("spring.application.admin.enabled");
         }
     }

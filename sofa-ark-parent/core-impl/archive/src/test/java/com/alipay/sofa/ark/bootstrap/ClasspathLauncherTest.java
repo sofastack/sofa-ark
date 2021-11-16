@@ -18,13 +18,13 @@ package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
+import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import mockit.Mock;
 import mockit.MockUp;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.boot.loader.archive.Archive;
-import org.springframework.boot.loader.archive.JarFileArchive;
 
 import java.io.File;
 import java.io.IOException;

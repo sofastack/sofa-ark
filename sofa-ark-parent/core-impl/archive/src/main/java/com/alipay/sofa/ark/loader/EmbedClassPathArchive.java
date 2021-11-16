@@ -33,6 +33,7 @@ import java.util.List;
 
 /**
  * A embed classpath archive base on an application fat jar
+ *
  * @author bingjie.lbj
  */
 public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {

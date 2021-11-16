@@ -181,8 +181,7 @@ public class HandleArchiveStage implements PipelineStage {
         ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
         List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
         for (PluginArchive pluginArchive : pluginArchives) {
-            Plugin plugin = pluginFactoryService.createEmbedPlugin(pluginArchive,
-                masterBizClassLoader);
+            Plugin plugin = pluginFactoryService.createEmbedPlugin(pluginArchive, masterBizClassLoader);
             if (!isPluginExcluded(plugin)) {
                 pluginManagerService.registerPlugin(plugin);
             } else {
