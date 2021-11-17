@@ -27,22 +27,29 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+/**
+ *
+ * @author bingjie.lbj
+ */
 public class ExplodedBizArchiveTest extends TestCase {
 
     public void testCreate() throws IOException {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL arkBizJar = cl.getResource("sample-biz-withjar.jar");
-        File unpack = FileUtils.unzip(new File(arkBizJar.getFile()),arkBizJar.getFile() + "-unpack");
+        File unpack = FileUtils.unzip(new File(arkBizJar.getFile()), arkBizJar.getFile()
+                                                                     + "-unpack");
         ExplodedBizArchive archive = new ExplodedBizArchive(unpack);
         Assert.assertNotNull(archive.getManifest());
-        Assert.assertEquals(archive.getManifest().getMainAttributes().getValue("Ark-Biz-Name"),"sofa-ark-sample-springboot-ark");
-        Assert.assertEquals(archive.getUrls().length,3);
+        Assert.assertEquals(archive.getManifest().getMainAttributes().getValue("Ark-Biz-Name"),
+            "sofa-ark-sample-springboot-ark");
+        Assert.assertEquals(archive.getUrls().length, 3);
 
         ClassLoader bizClassLoader = new URLClassLoader(archive.getUrls());
         Class mainClass = null;
         Class logger = null;
         try {
-            mainClass = bizClassLoader.loadClass("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication");
+            mainClass = bizClassLoader
+                .loadClass("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication");
             logger = bizClassLoader.loadClass("org.slf4j.Logger");
         } catch (ClassNotFoundException exception) {
 

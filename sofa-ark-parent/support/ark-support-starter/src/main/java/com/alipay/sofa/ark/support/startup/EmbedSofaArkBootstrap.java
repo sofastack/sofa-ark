@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
- * Launch a embed ark container
+ * Launch an embed ark container
  *
  * @author bingjie.lbj
  */

@@ -26,10 +26,14 @@ import java.util.*;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+/**
+ * Ark  Biz Module exploded directory archive
+ *
+ * @author bingjie.lbj
+ */
 public class ExplodedBizArchive implements BizArchive {
     private static final String SOFA_ARK_BIZ_LIB = "lib/";
     private static final String MANIFEST_NAME    = "META-INF/MANIFEST.MF";
-
     private File                file;
     private URL[]               urls;
     private Manifest            manifest;
