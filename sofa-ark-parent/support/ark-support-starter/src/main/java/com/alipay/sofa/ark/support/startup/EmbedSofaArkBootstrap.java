@@ -39,9 +39,14 @@ public class EmbedSofaArkBootstrap {
 
     public static void launch(Class mainClass, Environment environment) {
         if (started.compareAndSet(false, true)) {
-            getOrSetDefault(MASTER_BIZ, environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
-            getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR, environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
-            getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE, environment.getProperty(PLUGIN_EXPORT_CLASS_ENABLE, "false"));
+            getOrSetDefault(
+                MASTER_BIZ,
+                environment.getProperty(MASTER_BIZ,
+                    environment.getProperty("spring.application.name")));
+            getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
+                environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
+            getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE,
+                environment.getProperty(PLUGIN_EXPORT_CLASS_ENABLE, "false"));
             getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR, DEFAULT_BIZ_CLASS_LOADER_HOOK_DIR);
             try {
                 URL[] urls = getURLClassPath();
