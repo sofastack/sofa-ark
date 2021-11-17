@@ -123,7 +123,6 @@ public class FileUtils {
                     try {
                         inputStream = zipFile.getInputStream(entry);
                         File file = new File(targetPath + File.separator + entry.getName());
-                        //文件名
                         if (!file.exists()) {
                             File fileParent = file.getParentFile();
                             if (!fileParent.exists()) {

@@ -17,10 +17,8 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.common.util.FileUtils;
-import com.alipay.sofa.ark.spi.model.Biz;
 import junit.framework.TestCase;
 import org.junit.Assert;
-import org.springframework.boot.loader.archive.JarFileArchive;
 
 import java.io.File;
 import java.io.IOException;
