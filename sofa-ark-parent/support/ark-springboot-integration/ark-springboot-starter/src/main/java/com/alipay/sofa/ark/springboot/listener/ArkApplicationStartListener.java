@@ -88,8 +88,7 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         }
         if (event instanceof ApplicationEnvironmentPreparedEvent) {
             ApplicationEnvironmentPreparedEvent preparedEvent = (ApplicationEnvironmentPreparedEvent) event;
-            EmbedSofaArkBootstrap.launch(preparedEvent.getSpringApplication()
-                .getMainApplicationClass(), preparedEvent.getEnvironment());
+            EmbedSofaArkBootstrap.launch(preparedEvent.getEnvironment());
         }
         if (event instanceof ApplicationReadyEvent) {
             if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {

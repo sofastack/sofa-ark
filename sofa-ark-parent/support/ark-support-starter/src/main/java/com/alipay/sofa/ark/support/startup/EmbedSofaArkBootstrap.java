@@ -37,12 +37,11 @@ public class EmbedSofaArkBootstrap {
     private static final String  DEFAULT_BIZ_CLASS_LOADER_HOOK_DIR = "com.alipay.sofa.ark.container.service.classloader.MasterBizClassLoaderHookAll";
     private static AtomicBoolean started                           = new AtomicBoolean(false);
 
-    public static void launch(Class mainClass, Environment environment) {
+    public static void launch(Environment environment) {
         if (started.compareAndSet(false, true)) {
-            getOrSetDefault(
-                MASTER_BIZ,
-                environment.getProperty(MASTER_BIZ,
-                    environment.getProperty("spring.application.name")));
+            EntryMethod entryMethod = new EntryMethod(Thread.currentThread());
+
+            getOrSetDefault(MASTER_BIZ, environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
             getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
                 environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
             getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE,
@@ -51,22 +50,12 @@ public class EmbedSofaArkBootstrap {
             try {
                 URL[] urls = getURLClassPath();
                 ClasspathLauncher launcher = new ClasspathLauncher(new EmbedClassPathArchive(
-                    mainClass.getName(), "main", urls));
-                launcher.launch(new String[] {}, getClasspath(urls), getMainMethod(mainClass));
+                    entryMethod.getDeclaringClassName(), "main", urls));
+                launcher.launch(new String[] {}, getClasspath(urls), entryMethod.getMethod());
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    private static Method getMainMethod(Class mainClass) throws NoSuchMethodException {
-        Method entryMethod;
-        try {
-            entryMethod = mainClass.getMethod("main", String[].class);
-        } catch (NoSuchMethodException ex) {
-            entryMethod = mainClass.getDeclaredMethod("main", String[].class);
-        }
-        return entryMethod;
     }
 
     private static void getOrSetDefault(String key, String value) {
