@@ -309,6 +309,11 @@ public class BizModel implements Biz {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
+        if (this == ArkClient.getMasterBiz()
+            && "true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+            // skip stop when embed mode
+            return;
+        }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         bizState = BizState.DEACTIVATED;
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(

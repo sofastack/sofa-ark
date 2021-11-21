@@ -16,11 +16,13 @@
  */
 package com.alipay.sofa.ark.container.service.extension;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -130,7 +132,19 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                     extensionClass.setDefinedLocation(location);
                     extensionClass.setExtensible(extensible);
                     extensionClass.setInterfaceClass(interfaceType);
-                    Class<?> implementClass = resourceLoader.loadClass(line.trim());
+                    Class<?> implementClass = null;
+                    String clazzName = line.trim();
+                    try {
+                        implementClass = resourceLoader.loadClass(clazzName);
+                    } catch (Exception e) {
+                        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))
+                            && resourceLoader != ArkClient.getMasterBiz().getBizClassLoader()) {
+                            implementClass = ArkClient.getMasterBiz().getBizClassLoader()
+                                .loadClass(clazzName);
+                        } else {
+                            throw e;
+                        }
+                    }
                     if (!interfaceType.isAssignableFrom(implementClass)) {
                         throw new ArkRuntimeException(String.format(
                             "Extension implementation class %s is not type of %s.",

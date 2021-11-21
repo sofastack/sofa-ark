@@ -41,7 +41,10 @@ public class EmbedSofaArkBootstrap {
         if (started.compareAndSet(false, true)) {
             EntryMethod entryMethod = new EntryMethod(Thread.currentThread());
 
-            getOrSetDefault(MASTER_BIZ, environment.getProperty(MASTER_BIZ, environment.getProperty("spring.application.name")));
+            getOrSetDefault(
+                MASTER_BIZ,
+                environment.getProperty(MASTER_BIZ,
+                    environment.getProperty("spring.application.name")));
             getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
                 environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
             getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE,
