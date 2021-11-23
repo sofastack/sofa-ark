@@ -521,6 +521,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         urlResourceCache.cleanUp();
     }
 
+    public void invalidAllCache() {
+        classCache.invalidateAll();
+        packageCache.invalidateAll();
+        urlResourceCache.invalidateAll();
+    }
+
     /**
      * invoked before {@link #loadClass(String, boolean)}
      *

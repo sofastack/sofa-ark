@@ -201,20 +201,20 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
             "pluginA_export_resource2.xml"));
         bizModel.setDenyImportResources("pluginA_export_resource2.xml");
-        Cache<String, Optional<URL>> urlResourceCache = getUrlResourceCache(bizModel
-            .getBizClassLoader());
-        urlResourceCache.invalidateAll();
+        invalidClassLoaderCache(bizModel.getBizClassLoader());
         Assert.assertNull(bizModel.getBizClassLoader().getResource("pluginA_export_resource2.xml"));
 
         Assert.assertTrue(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
         bizModel.setDenyImportPackages("com.alipay.sofa.ark.container.testdata");
+        invalidClassLoaderCache(bizModel.getBizClassLoader());
         Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(ITest.class.getCanonicalName());
+        invalidClassLoaderCache(bizModel.getBizClassLoader());
         Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
@@ -330,5 +330,11 @@ public class BizClassLoaderTest extends BaseTest {
         Field field = AbstractClasspathClassLoader.class.getDeclaredField("urlResourceCache");
         field.setAccessible(true);
         return (Cache<String, Optional<URL>>) field.get(classloader);
+    }
+
+    private void invalidClassLoaderCache(ClassLoader classloader) {
+        if (classloader instanceof AbstractClasspathClassLoader) {
+            ((AbstractClasspathClassLoader) classloader).invalidAllCache();
+        }
     }
 }

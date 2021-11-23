@@ -35,7 +35,7 @@ import com.alipay.sofa.ark.spi.constant.Constants;
  * @author bingjie.lbj
  */
 public class EmbedSofaArkBootstrap {
-    private static AtomicBoolean started                           = new AtomicBoolean(false);
+    private static AtomicBoolean started = new AtomicBoolean(false);
 
     public static void launch(Environment environment) {
         if (started.compareAndSet(false, true)) {
@@ -49,8 +49,8 @@ public class EmbedSofaArkBootstrap {
                 environment.getProperty(Constants.BIZ_CLASS_LOADER_HOOK_DIR));
             getOrSetDefault(Constants.PLUGIN_EXPORT_CLASS_ENABLE,
                 environment.getProperty(Constants.PLUGIN_EXPORT_CLASS_ENABLE, "false"));
-            getOrSetDefault(Constants.BIZ_CLASS_LOADER_HOOK_DIR, DelegateToMasterBizClassLoaderHook.class
-                    .getName());
+            getOrSetDefault(Constants.BIZ_CLASS_LOADER_HOOK_DIR,
+                DelegateToMasterBizClassLoaderHook.class.getName());
             try {
                 URL[] urls = getURLClassPath();
                 ClasspathLauncher launcher = new ClasspathLauncher(new EmbedClassPathArchive(
