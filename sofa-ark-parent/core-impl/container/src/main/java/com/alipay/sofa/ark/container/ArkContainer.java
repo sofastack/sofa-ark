@@ -100,7 +100,7 @@ public class ArkContainer {
                 return new ArkContainer(executableArchive, launchCommand).start();
             } else {
                 ClassPathArchive classPathArchive;
-                if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+                if (ArkConfigs.isEmbedEnable()) {
                     classPathArchive = new EmbedClassPathArchive(launchCommand.getEntryClassName(),
                         launchCommand.getEntryMethodName(), launchCommand.getClasspath());
                 } else {

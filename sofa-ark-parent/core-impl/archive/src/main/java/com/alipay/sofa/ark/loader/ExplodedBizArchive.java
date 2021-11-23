@@ -19,10 +19,15 @@ package com.alipay.sofa.ark.loader;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
@@ -66,7 +71,7 @@ public class ExplodedBizArchive implements BizArchive {
 
     @Override
     public boolean isEntryExist(EntryFilter filter) {
-        throw new RuntimeException("unreachable invocation.");
+        throw new UnsupportedOperationException("unreachable invocation.");
     }
 
     @Override
@@ -81,21 +86,21 @@ public class ExplodedBizArchive implements BizArchive {
 
     @Override
     public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
-        throw new RuntimeException("unreachable invocation.");
+        throw new UnsupportedOperationException("unreachable invocation.");
     }
 
     @Override
     public Archive getNestedArchive(Entry entry) throws IOException {
-        throw new RuntimeException("unreachable invocation.");
+        throw new UnsupportedOperationException("unreachable invocation.");
     }
 
     @Override
     public InputStream getInputStream(ZipEntry zipEntry) throws IOException {
-        throw new RuntimeException("unreachable invocation.");
+        throw new UnsupportedOperationException("unreachable invocation.");
     }
 
     @Override
     public Iterator<Entry> iterator() {
-        throw new RuntimeException("unreachable invocation.");
+        throw new UnsupportedOperationException("unreachable invocation.");
     }
 }

@@ -33,6 +33,7 @@ public class ContainerClassLoader extends URLClassLoader {
     private static final String ARK_SPI_PACKAGES       = "com.alipay.sofa.ark.spi";
     private static final String ARK_API_PACKAGES       = "com.alipay.sofa.ark.api";
     private static final String ARK_EXCEPTION_PACKAGES = "com.alipay.sofa.ark.exception";
+    private static final String ARK_LOG_PACKAGES       = "com.alipay.sofa.ark.common.log";
 
     private ClassLoader         exportClassLoader;
 
@@ -78,7 +79,8 @@ public class ContainerClassLoader extends URLClassLoader {
 
     public boolean isArkExportClass(String className) {
         return className.startsWith(ARK_SPI_PACKAGES) || className.startsWith(ARK_API_PACKAGES)
-               || className.startsWith(ARK_EXCEPTION_PACKAGES);
+               || className.startsWith(ARK_EXCEPTION_PACKAGES)
+               || className.endsWith(ARK_LOG_PACKAGES);
     }
 
     @Override

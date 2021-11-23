@@ -80,7 +80,7 @@ public class HandleArchiveStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
-            if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+            if (ArkConfigs.isEmbedEnable()) {
                 processEmbed(pipelineContext);
                 return;
             }

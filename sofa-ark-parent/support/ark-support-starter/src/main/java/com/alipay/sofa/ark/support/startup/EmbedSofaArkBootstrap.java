@@ -16,17 +16,18 @@
  */
 package com.alipay.sofa.ark.support.startup;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
+import com.alipay.sofa.ark.support.common.DelegateToMasterBizClassLoaderHook;
 import org.springframework.core.env.Environment;
 
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import com.alipay.sofa.ark.spi.constant.Constants;
 
 /**
  * Launch an embed ark container
@@ -34,7 +35,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
  * @author bingjie.lbj
  */
 public class EmbedSofaArkBootstrap {
-    private static final String  DEFAULT_BIZ_CLASS_LOADER_HOOK_DIR = "com.alipay.sofa.ark.container.service.classloader.MasterBizClassLoaderHookAll";
     private static AtomicBoolean started                           = new AtomicBoolean(false);
 
     public static void launch(Environment environment) {
@@ -42,18 +42,19 @@ public class EmbedSofaArkBootstrap {
             EntryMethod entryMethod = new EntryMethod(Thread.currentThread());
 
             getOrSetDefault(
-                MASTER_BIZ,
-                environment.getProperty(MASTER_BIZ,
+                Constants.MASTER_BIZ,
+                environment.getProperty(Constants.MASTER_BIZ,
                     environment.getProperty("spring.application.name")));
-            getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR,
-                environment.getProperty(BIZ_CLASS_LOADER_HOOK_DIR));
-            getOrSetDefault(PLUGIN_EXPORT_CLASS_ENABLE,
-                environment.getProperty(PLUGIN_EXPORT_CLASS_ENABLE, "false"));
-            getOrSetDefault(BIZ_CLASS_LOADER_HOOK_DIR, DEFAULT_BIZ_CLASS_LOADER_HOOK_DIR);
+            getOrSetDefault(Constants.BIZ_CLASS_LOADER_HOOK_DIR,
+                environment.getProperty(Constants.BIZ_CLASS_LOADER_HOOK_DIR));
+            getOrSetDefault(Constants.PLUGIN_EXPORT_CLASS_ENABLE,
+                environment.getProperty(Constants.PLUGIN_EXPORT_CLASS_ENABLE, "false"));
+            getOrSetDefault(Constants.BIZ_CLASS_LOADER_HOOK_DIR, DelegateToMasterBizClassLoaderHook.class
+                    .getName());
             try {
                 URL[] urls = getURLClassPath();
                 ClasspathLauncher launcher = new ClasspathLauncher(new EmbedClassPathArchive(
-                    entryMethod.getDeclaringClassName(), "main", urls));
+                    entryMethod.getDeclaringClassName(), entryMethod.getMethod().getName(), urls));
                 launcher.launch(new String[] {}, getClasspath(urls), entryMethod.getMethod());
             } catch (Throwable e) {
                 throw new RuntimeException(e);
@@ -61,14 +62,11 @@ public class EmbedSofaArkBootstrap {
         }
     }
 
-    private static void getOrSetDefault(String key, String value) {
-        if (System.getProperty(key) == null && value != null) {
-            System.setProperty(key, value);
+    private static void getOrSetDefault(String key, String defaultValue) {
+        String value = ArkConfigs.getStringValue(key);
+        if (value == null && defaultValue != null) {
+            ArkConfigs.setSystemProperty(key, defaultValue);
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 
     private static String getClasspath(URL[] urls) {

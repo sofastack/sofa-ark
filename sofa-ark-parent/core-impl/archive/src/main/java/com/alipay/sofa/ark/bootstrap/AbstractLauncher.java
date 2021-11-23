@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
@@ -34,14 +35,12 @@ import java.util.List;
  */
 public abstract class AbstractLauncher {
 
-    private boolean embedEnable = "true".equals(System.getProperty(Constants.EMBED_ENABLE));
-
     /**
      * Launch the ark container. This method is the initial entry point when execute an fat jar.
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args) throws Exception {
-        if (!embedEnable) {
+        if (!ArkConfigs.isEmbedEnable()) {
             JarFile.registerUrlProtocolHandler();
         }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
@@ -60,7 +59,7 @@ public abstract class AbstractLauncher {
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args, String classpath, Method method) throws Exception {
-        if (!embedEnable) {
+        if (!ArkConfigs.isEmbedEnable()) {
             JarFile.registerUrlProtocolHandler();
         }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
@@ -85,7 +84,7 @@ public abstract class AbstractLauncher {
      * @throws Exception
      */
     public Object launch(String classpath, Class testClass) throws Exception {
-        if (!embedEnable) {
+        if (!ArkConfigs.isEmbedEnable()) {
             JarFile.registerUrlProtocolHandler();
         }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
@@ -149,10 +148,8 @@ public abstract class AbstractLauncher {
      * @return the classloader load ark container
      */
     protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent) {
-        if (embedEnable) {
-            return new ContainerClassLoader(urls, parent, this.getClass().getClassLoader());
-        }
-        return new ContainerClassLoader(urls, parent);
+        return ArkConfigs.isEmbedEnable() ? new ContainerClassLoader(urls, parent, this.getClass()
+            .getClassLoader()) : new ContainerClassLoader(urls, parent);
     }
 
     /**

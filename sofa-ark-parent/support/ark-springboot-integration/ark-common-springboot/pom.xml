@@ -30,6 +30,10 @@
             <version>${spring.boot.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-api</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

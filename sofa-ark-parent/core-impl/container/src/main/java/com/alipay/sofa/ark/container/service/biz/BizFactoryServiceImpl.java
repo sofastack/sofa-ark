@@ -85,7 +85,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createBiz(File file) throws IOException {
         BizArchive bizArchive;
-        if ("true".equals(System.getProperty(EMBED_ENABLE))) {
+        if (ArkConfigs.isEmbedEnable()) {
             File unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
             bizArchive = new ExplodedBizArchive(unpackFile);
         } else {
@@ -121,8 +121,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
-        if ("true".equals(System.getProperty(EMBED_ENABLE))
-            && bizArchive instanceof ExplodedBizArchive) {
+        if (ArkConfigs.isEmbedEnable() && bizArchive instanceof ExplodedBizArchive) {
             return true;
         }
         return bizArchive.isEntryExist(new Archive.EntryFilter() {

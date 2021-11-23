@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
@@ -266,8 +267,7 @@ public class BizModel implements Biz {
         try {
             eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
-            if (this == ArkClient.getMasterBiz()
-                && "true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+            if (this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable()) {
             } else {
                 long start = System.currentTimeMillis();
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
@@ -309,8 +309,7 @@ public class BizModel implements Biz {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
-        if (this == ArkClient.getMasterBiz()
-            && "true".equals(System.getProperty(Constants.EMBED_ENABLE))) {
+        if (this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable()) {
             // skip stop when embed mode
             return;
         }
@@ -371,8 +370,7 @@ public class BizModel implements Biz {
 
     private void resetProperties() {
         System.getProperties().remove("logging.path");
-        if ("true".equals(System.getProperty(Constants.EMBED_ENABLE))
-            && this != ArkClient.getMasterBiz()) {
+        if (ArkConfigs.isEmbedEnable() && this != ArkClient.getMasterBiz()) {
             System.getProperties().remove("spring.application.admin.enabled");
         }
     }

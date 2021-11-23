@@ -1,4 +1,4 @@
-package com.alipay.sofa.ark.container.service.classloader;
+package com.alipay.sofa.ark.support.common;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -22,7 +22,6 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
-import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,11 +33,7 @@ import java.util.Enumeration;
  * @author bingjie.lbj
  */
 @Extension("biz-classloader-hook")
-public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
-
-    private static String[] UNPROXY_PACKAGE_ROOT = new String[] { "Class.class", "Object.class",
-            "com.class", "java/lang/com.class", "com/alipay.class", "Throwable.class",
-            "String.class", "Boolean.class"     };
+public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> {
 
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
@@ -49,9 +44,6 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
     @Override
     public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
                                                                                               throws ClassNotFoundException {
-        if (inUnProxyPackage(name)) {
-            return null;
-        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
@@ -67,10 +59,6 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
 
     @Override
     public URL postFindResource(String name, ClassLoaderService classLoaderService, Biz biz) {
-        if (inUnProxyResource(name)) {
-            return null;
-        }
-
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
@@ -86,15 +74,11 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
     public Enumeration<URL> preFindResources(String name, ClassLoaderService classLoaderService,
                                              Biz biz) throws IOException {
         return null;
-
     }
 
     @Override
     public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService,
                                               Biz biz) throws IOException {
-        if (inUnProxyResource(name)) {
-            return null;
-        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
@@ -104,36 +88,5 @@ public class MasterBizClassLoaderHookAll implements ClassLoaderHook<Biz> {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private boolean inUnProxyPackage(String packageName) {
-        if (StringUtil.isNotBlank(packageName)) {
-            for (String packageRoot : UNPROXY_PACKAGE_ROOT) {
-                if (packageName.startsWith(packageRoot)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean inUnProxyResource(String resourceName) {
-        if (!resourceName.endsWith(".class")) {
-            return true;
-        }
-        if (StringUtil.isNotBlank(resourceName)) {
-            for (String packageRoot : UNPROXY_PACKAGE_ROOT) {
-                if (resourceName.startsWith(packageRoot)) {
-                    return true;
-                }
-            }
-            for (String packageRoot : UNPROXY_PACKAGE_ROOT) {
-                String packageRootUri = packageRoot.replaceAll("\\.", "\\/");
-                if (resourceName.startsWith(packageRootUri)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
