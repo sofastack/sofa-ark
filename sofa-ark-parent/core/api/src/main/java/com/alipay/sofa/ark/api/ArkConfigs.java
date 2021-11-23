@@ -152,6 +152,6 @@ public class ArkConfigs {
     }
 
     public static void setEmbedEnable(boolean enable) {
-        System.getProperty(Constants.EMBED_ENABLE, enable ? "true" : "false");
+        System.setProperty(Constants.EMBED_ENABLE, enable ? "true" : "false");
     }
 }
