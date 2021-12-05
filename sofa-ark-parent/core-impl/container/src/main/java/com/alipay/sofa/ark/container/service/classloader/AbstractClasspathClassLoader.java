@@ -98,7 +98,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         }
         Handler.setUseFastConnectionExceptions(true);
         try {
-            definePackageIfNecessary(name);
+            if (!ArkConfigs.isEmbedEnable()) {
+                definePackageIfNecessary(name);
+            }
             return loadClassWithCache(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);

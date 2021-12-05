@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.1.7-SNAPSHOT</version>
+        <version>1.1.7.5-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader</artifactId>
-            <version>${spring.boot.version}</version>
+            <version>2.5.6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
