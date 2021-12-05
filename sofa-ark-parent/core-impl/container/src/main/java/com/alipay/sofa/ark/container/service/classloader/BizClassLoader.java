@@ -58,6 +58,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         this.bizIdentity = bizIdentity;
     }
 
+    public BizClassLoader(String bizIdentity, URL[] urls ,boolean exploded) {
+        this(bizIdentity,urls);
+        this.exploded = exploded;
+    }
+
     @Override
     protected Class<?> loadClassInternal(String name, boolean resolve) throws ArkLoaderException {
         Class<?> clazz = null;

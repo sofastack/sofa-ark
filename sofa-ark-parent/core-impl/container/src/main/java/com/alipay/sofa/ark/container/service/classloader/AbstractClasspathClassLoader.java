@@ -65,6 +65,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     protected Cache<String, Optional<URL>>     urlResourceCache      = newBuilder()
                                                                          .expireAfterWrite(10,
                                                                              SECONDS).build();
+    protected boolean                          exploded              = false;
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -91,6 +92,11 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             .expireAfterWrite(30, SECONDS).recordStats().build();
     }
 
+    public AbstractClasspathClassLoader(URL[] urls,boolean exploded) {
+        this(urls);
+        this.exploded = exploded;
+    }
+
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         if (StringUtils.isEmpty(name)) {
@@ -98,7 +104,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         }
         Handler.setUseFastConnectionExceptions(true);
         try {
-            if (!ArkConfigs.isEmbedEnable()) {
+            if (!exploded) {
                 definePackageIfNecessary(name);
             }
             return loadClassWithCache(name, resolve);

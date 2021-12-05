@@ -63,6 +63,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
         BizModel bizModel = new BizModel();
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();
+        boolean exploded = bizArchive instanceof ExplodedBizArchive;
         bizModel
             .setBizState(BizState.RESOLVED)
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
@@ -78,7 +79,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(
-                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath())));
+                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()), exploded));
         return bizModel;
     }
 
