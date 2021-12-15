@@ -18,10 +18,13 @@ package com.alipay.sofa.ark.support.common;
  */
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
+import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,6 +37,7 @@ import java.util.Enumeration;
  */
 @Extension("biz-classloader-hook")
 public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> {
+
 
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
@@ -59,6 +63,9 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
 
     @Override
     public URL postFindResource(String name, ClassLoaderService classLoaderService, Biz biz) {
+        if (!shouldHook(name)) {
+            return null;
+        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
@@ -79,6 +86,9 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
     @Override
     public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService,
                                               Biz biz) throws IOException {
+        if (!shouldHook(name)) {
+            return null;
+        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
         if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
@@ -88,5 +98,13 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * 判断类或者资源是否在名单的包里面
+     */
+    private boolean shouldHook(String resourceName) {
+        //资源类文件过滤掉
+        return !resourceName.endsWith(".class");
     }
 }
