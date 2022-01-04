@@ -18,11 +18,15 @@ package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
+import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -87,8 +91,9 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         }
         if (event instanceof ApplicationReadyEvent) {
             if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
-                ArkClient.getEventAdminService().sendEvent(
-                    new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+                ArkClient.getEventAdminService().sendEvent(new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+                ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
+                ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
             }
         }
     }
