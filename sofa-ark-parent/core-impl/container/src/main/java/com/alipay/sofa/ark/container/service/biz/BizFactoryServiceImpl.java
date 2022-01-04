@@ -88,6 +88,10 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         BizArchive bizArchive;
         if (ArkConfigs.isEmbedEnable()) {
             File unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
+            if(file.exists()) {
+                file.delete();
+            }
+            file = unpackFile;
             bizArchive = new ExplodedBizArchive(unpackFile);
         } else {
             JarFile bizFile = new JarFile(file);
