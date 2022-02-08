@@ -33,11 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
     private final Map<String, LoadClassResult>            classCache        = new ConcurrentHashMap<>(
-            3000);
+                                                                                3000);
     private final Map<String, Optional<URL>>              resourceUrlCache  = new ConcurrentHashMap<>(
-            3000);
+                                                                                3000);
     private final Map<String, Optional<Enumeration<URL>>> resourcesUrlCache = new ConcurrentHashMap<>(
-            300);
+                                                                                300);
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -49,8 +49,7 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve)
-            throws ClassNotFoundException {
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         return loadClassWithCache(name, resolve);
     }
 
@@ -79,7 +78,7 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
     }
 
     protected Class<?> loadClassWithCache(String name, boolean resolve)
-            throws ClassNotFoundException {
+                                                                       throws ClassNotFoundException {
         LoadClassResult resultInCache = classCache.get(name);
         if (resultInCache != null) {
             if (resultInCache.getEx() != null) {
@@ -92,7 +91,7 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
             if (clazz == null) {
                 clazz = super.loadClass(name, resolve);
             }
-            if(clazz == null) {
+            if (clazz == null) {
                 classCache.put(name, LoadClassResult.NOT_FOUND);
             }
             return clazz;
@@ -103,8 +102,8 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
     }
 
     protected static class LoadClassResult {
-        private Class<?>               clazz;
-        private ClassNotFoundException ex;
+        private Class<?>                 clazz;
+        private ClassNotFoundException   ex;
         protected static LoadClassResult NOT_FOUND = new LoadClassResult();
 
         public LoadClassResult() {

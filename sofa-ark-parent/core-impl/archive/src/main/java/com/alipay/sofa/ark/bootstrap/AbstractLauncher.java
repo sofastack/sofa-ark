@@ -21,7 +21,6 @@ import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
-import com.alipay.sofa.ark.spi.constant.Constants;
 
 import java.lang.reflect.Method;
 import java.net.URL;

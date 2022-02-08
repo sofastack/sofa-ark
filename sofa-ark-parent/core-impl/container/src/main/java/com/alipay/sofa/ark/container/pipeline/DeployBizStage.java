@@ -45,7 +45,7 @@ public class DeployBizStage implements PipelineStage {
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
         bizDeployService.deploy(args);
-        if(ArkConfigs.isEmbedEnable()){
+        if (ArkConfigs.isEmbedEnable()) {
             return;
         }
         eventAdminService.sendEvent(new AfterFinishDeployEvent());

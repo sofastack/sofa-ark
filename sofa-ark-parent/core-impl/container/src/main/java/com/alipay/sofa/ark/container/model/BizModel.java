@@ -19,6 +19,8 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
+import com.alipay.sofa.ark.common.log.ArkLogger;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
@@ -52,43 +54,45 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
+    private final static ArkLogger LOGGER                        = ArkLoggerFactory
+                                                                     .getDefaultLogger();
 
-    private String              bizName;
+    private String                 bizName;
 
-    private String              bizVersion;
+    private String                 bizVersion;
 
-    private BizState            bizState;
+    private BizState               bizState;
 
-    private String              mainClass;
+    private String                 mainClass;
 
-    private String              webContextPath;
+    private String                 webContextPath;
 
-    private URL[]               urls;
+    private URL[]                  urls;
 
-    private ClassLoader         classLoader;
+    private ClassLoader            classLoader;
 
-    private Map<String, String> attributes                    = new ConcurrentHashMap<>();
+    private Map<String, String>    attributes                    = new ConcurrentHashMap<>();
 
-    private int                 priority                      = DEFAULT_PRECEDENCE;
+    private int                    priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>         denyImportPackages;
+    private Set<String>            denyImportPackages;
 
-    private Set<String>         denyImportPackageNodes        = new HashSet<>();
+    private Set<String>            denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>         denyImportPackageStems        = new HashSet<>();
+    private Set<String>            denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>         denyImportClasses;
+    private Set<String>            denyImportClasses;
 
-    private Set<String>         denyImportResources           = new HashSet<>();
+    private Set<String>            denyImportResources           = new HashSet<>();
 
-    private Set<String>         injectPluginDependencies      = new HashSet<>();
-    private Set<String>         injectExportPackages          = new HashSet<>();
+    private Set<String>            injectPluginDependencies      = new HashSet<>();
+    private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
-    private Set<String>         denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>            denySuffixImportResourceStems = new HashSet<>();
 
-    private File                bizTempWorkDir;
+    private File                   bizTempWorkDir;
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -274,10 +278,9 @@ public class BizModel implements Biz {
                 mainMethodRunner.run();
                 // this can trigger health checker handler
                 eventAdminService.sendEvent(new AfterBizStartupEvent(this));
-                System.out.println("Ark biz [" + getIdentity() + "] started in  "
-                                   + (System.currentTimeMillis() - start) + " ms");
+                LOGGER.info("Ark biz {} started in {} ms", getIdentity(),
+                    (System.currentTimeMillis() - start));
             }
-
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
@@ -287,7 +290,7 @@ public class BizModel implements Biz {
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
 
-        if (Boolean.valueOf(System.getProperty("activate.new.module"))) {
+        if (Boolean.getBoolean(System.getProperty(Constants.ACTIVATE_NEW_MODULE))) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
                 bizState = BizState.ACTIVATED;

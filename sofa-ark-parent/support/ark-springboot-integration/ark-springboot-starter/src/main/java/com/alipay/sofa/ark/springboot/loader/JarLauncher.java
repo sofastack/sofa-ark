@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.springboot.loader;
 
 import java.net.URL;
 
-
 /**
  * A JarLauncher to load classes with CachedLaunchedURLClassLoader
  *

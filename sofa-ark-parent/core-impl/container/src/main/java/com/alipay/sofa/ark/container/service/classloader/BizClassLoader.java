@@ -58,8 +58,8 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         this.bizIdentity = bizIdentity;
     }
 
-    public BizClassLoader(String bizIdentity, URL[] urls ,boolean exploded) {
-        this(bizIdentity,urls);
+    public BizClassLoader(String bizIdentity, URL[] urls, boolean exploded) {
+        this(bizIdentity, urls);
         this.exploded = exploded;
     }
 

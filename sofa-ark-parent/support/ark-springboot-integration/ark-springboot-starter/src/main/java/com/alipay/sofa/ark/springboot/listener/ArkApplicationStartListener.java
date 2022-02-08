@@ -91,7 +91,8 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         }
         if (event instanceof ApplicationReadyEvent) {
             if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
-                ArkClient.getEventAdminService().sendEvent(new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+                ArkClient.getEventAdminService().sendEvent(
+                    new AfterBizStartupEvent(ArkClient.getMasterBiz()));
                 ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
                 ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
             }

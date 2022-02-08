@@ -41,10 +41,25 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_CLASSES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_RESOURCES;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_PLUGIN_DEPENDENCIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
 
 /**
  * {@link BizFactoryService}
@@ -63,7 +78,6 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
         BizModel bizModel = new BizModel();
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();
-        boolean exploded = bizArchive instanceof ExplodedBizArchive;
         bizModel
             .setBizState(BizState.RESOLVED)
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
@@ -79,7 +93,8 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(
-                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()), exploded));
+                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()),
+                    bizArchive instanceof ExplodedBizArchive));
         return bizModel;
     }
 
@@ -88,7 +103,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         BizArchive bizArchive;
         if (ArkConfigs.isEmbedEnable()) {
             File unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
-            if(file.exists()) {
+            if (file.exists()) {
                 file.delete();
             }
             file = unpackFile;

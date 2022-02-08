@@ -35,7 +35,6 @@ import java.util.Enumeration;
 @Extension("biz-classloader-hook")
 public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> {
 
-
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
                                                                                              throws ClassNotFoundException {
