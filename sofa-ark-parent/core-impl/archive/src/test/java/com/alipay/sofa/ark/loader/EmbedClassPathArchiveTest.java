@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -36,10 +37,10 @@ public class EmbedClassPathArchiveTest extends TestCase {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("sample-springboot-fat-biz.jar");
         JarFileArchive jarFileArchive = new JarFileArchive(new File(springbootFatJar.getFile()));
-        List<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive);
-        List<URL> urls = new ArrayList<>(archives.size());
-        for (Archive archive : archives) {
-            urls.add(archive.getUrl());
+        Iterator<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
+        List<URL> urls = new ArrayList<>();
+        while (archives.hasNext()){
+            urls.add(archives.next().getUrl());
         }
 
         EmbedClassPathArchive archive = new EmbedClassPathArchive(

@@ -37,7 +37,7 @@ public class FinishStartupStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
-        if(ArkConfigs.isEmbedEnable()){
+        if (ArkConfigs.isEmbedEnable()) {
             return;
         }
         eventAdminService.sendEvent(new AfterFinishStartupEvent());

@@ -106,7 +106,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             if (!unpackFile.exists()) {
                 unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
             }
-            if(file.exists()) {
+            if (file.exists()) {
                 file.delete();
             }
             file = unpackFile;
