@@ -271,8 +271,7 @@ public class BizModel implements Biz {
         try {
             eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
-            if (this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable()) {
-            } else {
+            if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
@@ -312,7 +311,7 @@ public class BizModel implements Biz {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
-        if (this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable()) {
+        if (isMasterBizAndEmbedEnable()) {
             // skip stop when embed mode
             return;
         }
@@ -385,5 +384,9 @@ public class BizModel implements Biz {
     public BizModel setBizTempWorkDir(File bizTempWorkDir) {
         this.bizTempWorkDir = bizTempWorkDir;
         return this;
+    }
+
+    private boolean isMasterBizAndEmbedEnable() {
+        return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
     }
 }

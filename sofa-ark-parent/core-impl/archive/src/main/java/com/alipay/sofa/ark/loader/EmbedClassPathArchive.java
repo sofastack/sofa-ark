@@ -76,16 +76,11 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
     protected JarFileArchive getUrlJarFileArchive(URL url) throws IOException {
         String file = url.getFile();
         if (file.contains(FILE_IN_JAR)) {
-            int pos = file.indexOf("!/");
+            int pos = file.indexOf(FILE_IN_JAR);
             File fatJarFile = new File(file.substring(0, pos));
             String nestedJar = file.substring(file.lastIndexOf("/") + 1);
             JarFileArchive fatJarFileArchive = new JarFileArchive(fatJarFile);
-            List<Archive> matched = fatJarFileArchive.getNestedArchives(entry -> {
-                if (entry.getName().contains(nestedJar)) {
-                    return true;
-                }
-                return false;
-            });
+            List<Archive> matched = fatJarFileArchive.getNestedArchives(entry -> entry.getName().contains(nestedJar));
             return (JarFileArchive) matched.get(0);
         } else {
             return new JarFileArchive(new File(file));
