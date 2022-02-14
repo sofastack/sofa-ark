@@ -289,7 +289,7 @@ public class BizModel implements Biz {
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
 
-        if (Boolean.getBoolean(System.getProperty(Constants.ACTIVATE_NEW_MODULE))) {
+        if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
                 bizState = BizState.ACTIVATED;
