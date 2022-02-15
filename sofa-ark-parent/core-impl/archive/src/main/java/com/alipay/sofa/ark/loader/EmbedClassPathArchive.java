@@ -47,7 +47,7 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
         List<URL> urlList = filterUrls(Constants.ARK_CONTAINER_MARK_ENTRY);
 
         if (urlList.isEmpty()) {
-            return null;
+            return createDirectoryContainerArchive();
         }
 
         if (urlList.size() > 1) {
