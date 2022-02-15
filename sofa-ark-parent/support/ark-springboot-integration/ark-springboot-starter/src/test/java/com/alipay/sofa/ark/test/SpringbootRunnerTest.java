@@ -38,6 +38,9 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author bingjie.lbj
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = BaseSpringApplication.class)
 public class SpringbootRunnerTest {
