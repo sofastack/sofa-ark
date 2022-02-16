@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.api.ResponseCode;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizState;
@@ -95,6 +96,18 @@ public class ArkClientTest extends BaseTest {
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
+
+        // test install biz with same bizName and different bizVersion and active latest
+        System.setProperty(Constants.ACTIVATE_NEW_MODULE, "true");
+        System.setProperty(Constants.EMBED_ENABLE, "true");
+        File bizFile3 = ArkClient.createBizSaveFile("biz-demo", "3.0.0");
+        FileUtils.copyInputStreamToFile(bizUrl3.openStream(), bizFile3);
+        response = ArkClient.installBiz(bizFile3);
+        System.setProperty(Constants.ACTIVATE_NEW_MODULE, "");
+        System.setProperty(Constants.EMBED_ENABLE, "");
+        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        bizInfo = response.getBizInfos().iterator().next();
+        Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
     }
 
     @Test
@@ -139,18 +152,22 @@ public class ArkClientTest extends BaseTest {
         // test check all biz
         ClientResponse response = ArkClient.checkBiz();
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(2, response.getBizInfos().size());
+        Assert.assertEquals(3, response.getBizInfos().size());
 
         // test check specified bizName
         response = ArkClient.checkBiz("biz-demo");
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(2, response.getBizInfos().size());
+        Assert.assertEquals(3, response.getBizInfos().size());
 
         // test check specified bizName and version
         response = ArkClient.checkBiz("biz-demo", "2.0.0");
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         Assert.assertEquals(1, response.getBizInfos().size());
         response = ArkClient.checkBiz("biz-demo", "3.0.0");
+        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        Assert.assertEquals(1, response.getBizInfos().size());
+
+        response = ArkClient.checkBiz("biz-demo", "4.0.0");
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         Assert.assertEquals(0, response.getBizInfos().size());
     }
@@ -165,7 +182,7 @@ public class ArkClientTest extends BaseTest {
         // test check all biz
         response = ArkClient.checkBiz();
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(1, response.getBizInfos().size());
+        Assert.assertEquals(2, response.getBizInfos().size());
     }
 
     public void testSwitchBiz() throws Throwable {

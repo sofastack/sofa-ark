@@ -39,6 +39,38 @@ public class ExplodedBizArchiveTest {
                                                                      + "-unpack");
         ExplodedBizArchive archive = new ExplodedBizArchive(unpack);
         Assert.assertNotNull(archive.getManifest());
+        Assert.assertNotNull(archive.getUrl());
+
+        try {
+            archive.getInputStream(null);
+            Assert.assertTrue(false);
+        } catch (UnsupportedOperationException e){
+            Assert.assertTrue(true);
+        }
+        try {
+            archive.isEntryExist(entry -> true);
+            Assert.assertTrue(false);
+        } catch (UnsupportedOperationException e){
+            Assert.assertTrue(true);
+        }
+        try {
+            archive.getNestedArchive(null);
+            Assert.assertTrue(false);
+        } catch (UnsupportedOperationException e){
+            Assert.assertTrue(true);
+        }
+        try {
+            archive.getNestedArchives(null);
+            Assert.assertTrue(false);
+        } catch (UnsupportedOperationException e){
+            Assert.assertTrue(true);
+        }
+        try {
+            archive.iterator();
+            Assert.assertTrue(false);
+        } catch (UnsupportedOperationException e){
+            Assert.assertTrue(true);
+        }
         Assert.assertEquals(archive.getManifest().getMainAttributes().getValue("Ark-Biz-Name"),
             "sofa-ark-sample-springboot-ark");
         Assert.assertEquals(archive.getUrls().length, 3);

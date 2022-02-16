@@ -21,12 +21,14 @@ import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.loader.JarPluginArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
+import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -76,5 +78,16 @@ public class PluginFactoryServiceTest extends BaseTest {
         Assert.assertNotNull(plugin);
         Assert.assertEquals(plugin.getExportPackages().size(), 2);
         Assert.assertTrue(Arrays.asList(plugin.getClassPath()).contains(bizFile.getUrl()));
+    }
+
+    @Test
+    public void testCreateEmbedPlugin() throws IOException {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL samplePlugin = cl.getResource("sample-plugin.jar");
+        PluginArchive archive = new JarPluginArchive(new JarFileArchive(new File(
+            samplePlugin.getFile())));
+        Plugin plugin = pluginFactoryService.createEmbedPlugin(archive, this.getClass()
+            .getClassLoader());
+        Assert.assertNotNull(plugin);
     }
 }
