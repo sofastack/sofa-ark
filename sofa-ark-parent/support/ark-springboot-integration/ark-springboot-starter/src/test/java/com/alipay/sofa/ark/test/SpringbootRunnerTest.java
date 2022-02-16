@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.test;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
@@ -26,12 +27,15 @@ import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.test.springboot.TestValueHolder;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
@@ -41,56 +45,36 @@ import java.lang.reflect.Field;
 /**
  * @author bingjie.lbj
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = BaseSpringApplication.class)
+@Service
 public class SpringbootRunnerTest {
-    static {
-        System.setProperty(Constants.EMBED_ENABLE, "true");
-    }
     @Autowired
     public SampleService        sampleService;
 
     @ArkInject
-    public PluginManagerService pluginManagerService;
+    PluginManagerService pluginManagerService;
 
     @ArkInject
-    public EventAdminService    eventAdminService;
+    EventAdminService eventAdminService;
+
+    @BeforeClass
+    public static void before(){
+        System.setProperty(Constants.EMBED_ENABLE, "true");
+    }
+
+    @AfterClass
+    public static void after(){
+        System.setProperty(Constants.EMBED_ENABLE, "");
+    }
 
     @Test
     public void test() {
-
-        Assert.assertNotNull(sampleService);
+        BaseSpringApplication.main(new String[] {});
+        ArkClient.getInjectionService().inject(this);
         Assert.assertNotNull(pluginManagerService);
-        Assert.assertTrue("SampleService".equals(sampleService.say()));
-
-        ArkBootRunner runner = new ArkBootRunner(ArkBootRunnerTest.class);
-        Field field = ReflectionUtils.findField(ArkBootRunner.class, "runner");
-        Assert.assertNotNull(field);
-
-        ReflectionUtils.makeAccessible(field);
-        BlockJUnit4ClassRunner springRunner = (BlockJUnit4ClassRunner) ReflectionUtils.getField(
-            field, runner);
-        Assert.assertTrue(springRunner.getClass().getCanonicalName()
-            .equals(SpringRunner.class.getCanonicalName()));
-
-        ClassLoader loader = springRunner.getTestClass().getJavaClass().getClassLoader();
-        Assert.assertTrue(loader.getClass().getCanonicalName()
-            .equals(TestClassLoader.class.getCanonicalName()));
-
         Assert.assertEquals(0, TestValueHolder.getTestValue());
-        eventAdminService.sendEvent(new ArkEvent() {
-            @Override
-            public String getTopic() {
-                return "test-event-A";
-            }
-        });
+        eventAdminService.sendEvent(() -> "test-event-A");
         Assert.assertEquals(10, TestValueHolder.getTestValue());
-        eventAdminService.sendEvent(new ArkEvent() {
-            @Override
-            public String getTopic() {
-                return "test-event-B";
-            }
-        });
+        eventAdminService.sendEvent(() -> "test-event-B");
         Assert.assertEquals(20, TestValueHolder.getTestValue());
     }
 }
