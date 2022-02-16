@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.loader;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.JarFileArchive;
 
@@ -27,12 +27,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author bingjie.lbj
  * @since 0.1.0
  */
-public class EmbedClassPathArchiveTest extends TestCase {
+public class EmbedClassPathArchiveTest {
 
+    @Test
     public void testGetContainerArchive() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("sample-springboot-fat-biz.jar");

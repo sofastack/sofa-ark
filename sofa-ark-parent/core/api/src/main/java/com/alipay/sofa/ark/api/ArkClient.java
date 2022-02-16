@@ -174,14 +174,16 @@ public class ArkClient {
             response
                 .setCode(ResponseCode.SUCCESS)
                 .setMessage(
-                    String.format("Install Biz: %s success, cost: %sms, started at: %s",
+                    String.format("Install Biz: %s success, cost: %s ms, started at: %s",
                         biz.getIdentity(), end - start, startDate))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
             LOGGER.info(response.getMessage());
             return response;
         } catch (Throwable throwable) {
+            long end = System.currentTimeMillis();
             response.setCode(ResponseCode.FAILED).setMessage(
-                String.format("Install Biz: %s fail.", biz.getIdentity()));
+                String.format("Install Biz: %s fail,cost: %s ms, started at: %s",
+                    biz.getIdentity(), end - start, startDate));
             LOGGER.error(response.getMessage(), throwable);
             try {
                 biz.stop();

@@ -17,13 +17,10 @@
 package com.alipay.sofa.ark.test;
 
 import com.alipay.sofa.ark.api.ArkClient;
-import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.test.springboot.TestValueHolder;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
@@ -31,38 +28,28 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Service;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
 
 /**
  * @author bingjie.lbj
  */
-@Service
 public class SpringbootRunnerTest {
     @Autowired
-    public SampleService        sampleService;
+    public SampleService sampleService;
 
     @ArkInject
     PluginManagerService pluginManagerService;
 
     @ArkInject
-    EventAdminService eventAdminService;
+    EventAdminService    eventAdminService;
 
     @BeforeClass
-    public static void before(){
+    public static void before() {
         System.setProperty(Constants.EMBED_ENABLE, "true");
     }
 
     @AfterClass
-    public static void after(){
+    public static void after() {
         System.setProperty(Constants.EMBED_ENABLE, "");
     }
 

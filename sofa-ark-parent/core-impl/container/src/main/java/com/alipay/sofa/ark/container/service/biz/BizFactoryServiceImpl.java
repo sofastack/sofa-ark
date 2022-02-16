@@ -125,7 +125,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
         BizModel bizModel = new BizModel();
         bizModel.setBizState(BizState.RESOLVED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
-            .setBizVersion("1.0.0").setMainClass("mock main").setPriority("100")
+            .setBizVersion("1.0.0").setMainClass("embed main").setPriority("100")
             .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
             .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
             .setInjectExportPackages(null)

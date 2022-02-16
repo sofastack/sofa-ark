@@ -17,8 +17,8 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.common.util.FileUtils;
-import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +29,9 @@ import java.net.URLClassLoader;
  *
  * @author bingjie.lbj
  */
-public class ExplodedBizArchiveTest extends TestCase {
+public class ExplodedBizArchiveTest {
 
+    @Test
     public void testCreate() throws IOException {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL arkBizJar = cl.getResource("sample-biz-withjar.jar");
