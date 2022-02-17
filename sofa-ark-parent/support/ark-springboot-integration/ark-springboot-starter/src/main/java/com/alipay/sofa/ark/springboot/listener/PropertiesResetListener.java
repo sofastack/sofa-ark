@@ -24,8 +24,7 @@ import org.springframework.core.Ordered;
 /**
  *  Listener to reset system properties
  *
- * @author ruoshan
- * @since 0.1.0
+ * @author bingjie.lbj
  */
 public class PropertiesResetListener implements
                                     ApplicationListener<ApplicationEnvironmentPreparedEvent>,
