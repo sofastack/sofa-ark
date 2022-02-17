@@ -45,7 +45,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
     public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
                                                                                               throws ClassNotFoundException {
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz.getBizClassLoader() == bizClassLoader) {
+        if (biz != null && biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         return bizClassLoader.loadClass(name);
@@ -63,7 +63,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             return null;
         }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz.getBizClassLoader() == bizClassLoader) {
+        if (biz != null && biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
@@ -86,7 +86,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             return null;
         }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz.getBizClassLoader() == bizClassLoader) {
+        if (biz != null && biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
