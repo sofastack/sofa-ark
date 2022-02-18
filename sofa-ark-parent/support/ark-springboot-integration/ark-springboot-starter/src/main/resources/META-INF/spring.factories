@@ -1,4 +1,5 @@
 org.springframework.context.ApplicationListener=\
-com.alipay.sofa.ark.springboot.listener.ArkApplicationStartListener
+com.alipay.sofa.ark.springboot.listener.ArkApplicationStartListener,\
+com.alipay.sofa.ark.springboot.listener.PropertiesResetListener
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.alipay.sofa.ark.springboot.ArkAutoConfiguration

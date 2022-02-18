@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
@@ -98,9 +99,14 @@ public class ArkContainer {
                 }
                 return new ArkContainer(executableArchive, launchCommand).start();
             } else {
-                ClassPathArchive classPathArchive = new ClassPathArchive(
-                    launchCommand.getEntryClassName(), launchCommand.getEntryMethodName(),
-                    launchCommand.getClasspath());
+                ClassPathArchive classPathArchive;
+                if (ArkConfigs.isEmbedEnable()) {
+                    classPathArchive = new EmbedClassPathArchive(launchCommand.getEntryClassName(),
+                        launchCommand.getEntryMethodName(), launchCommand.getClasspath());
+                } else {
+                    classPathArchive = new ClassPathArchive(launchCommand.getEntryClassName(),
+                        launchCommand.getEntryMethodName(), launchCommand.getClasspath());
+                }
                 return new ArkContainer(classPathArchive, launchCommand).start();
             }
         } catch (IOException e) {

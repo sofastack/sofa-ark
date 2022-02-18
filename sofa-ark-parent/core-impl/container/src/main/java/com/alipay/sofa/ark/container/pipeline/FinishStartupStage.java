@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
@@ -36,6 +37,9 @@ public class FinishStartupStage implements PipelineStage {
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
+        if (ArkConfigs.isEmbedEnable()) {
+            return;
+        }
         eventAdminService.sendEvent(new AfterFinishStartupEvent());
     }
 }

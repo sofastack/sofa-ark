@@ -30,19 +30,57 @@ import java.util.Enumeration;
  * @since 0.1.0
  */
 public class ContainerClassLoader extends URLClassLoader {
+    private static final String ARK_SPI_PACKAGES       = "com.alipay.sofa.ark.spi";
+    private static final String ARK_API_PACKAGES       = "com.alipay.sofa.ark.api";
+    private static final String ARK_EXCEPTION_PACKAGES = "com.alipay.sofa.ark.exception";
+    private static final String ARK_LOG_PACKAGES       = "com.alipay.sofa.ark.common.log";
+
+    private ClassLoader         exportClassLoader;
 
     public ContainerClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+    }
+
+    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader exportClassLoader) {
+        super(urls, parent);
+        this.exportClassLoader = exportClassLoader;
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Handler.setUseFastConnectionExceptions(true);
         try {
+            Class<?> clazz = resolveArkExportClass(name);
+            if (clazz != null) {
+                return clazz;
+            }
             return super.loadClass(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    /**
+     * Load ark spi class
+     *
+     * @param name
+     * @return
+     */
+    protected Class<?> resolveArkExportClass(String name) {
+        if (exportClassLoader != null && isArkExportClass(name)) {
+            try {
+                return exportClassLoader.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                // ignore
+            }
+        }
+        return null;
+    }
+
+    public boolean isArkExportClass(String className) {
+        return className.startsWith(ARK_SPI_PACKAGES) || className.startsWith(ARK_API_PACKAGES)
+               || className.startsWith(ARK_EXCEPTION_PACKAGES)
+               || className.endsWith(ARK_LOG_PACKAGES);
     }
 
     @Override
