@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>sofa-ark-bom</artifactId>
+        <groupId>com.alipay.sofa</groupId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../../sofa-ark-bom</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sofaboot-ark-plugin</artifactId>
+
+    <properties>
+        <sofa.boot.version>3.11.0</sofa.boot.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-spi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>runtime-sofa-boot</artifactId>
+            <version>${sofa.boot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-plugin-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <goals>
+                            <goal>ark-plugin</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <activator>com.alipay.sofa.boot.ark.activator.SOFABootRuntimeActivator</activator>
+                    <!-- 配置导出类、资源 -->
+                    <exported>
+                        <!-- 配置 ark plugin 对外导出的资源 -->
+                        <resources>
+                            <resource>META-INF/spring.*</resource>
+                            <resource>META-INF/services/*</resource>
+                            <resource>META-INF/com/alipay/boot/middleware/service/config/*</resource>
+                            <resource>org/springframework/boot/logging/*</resource>
+                            <resource>*.xsd</resource>
+                            <resource>*/sql-map-2.dtd</resource>
+                            <resource>*/sql-map-config-2.dtd</resource>
+                            <resource>*/mybatis-3-config.dtd</resource>
+                            <resource>*/mybatis-3-mapper.dtd</resource>
+                        </resources>
+                    </exported>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
