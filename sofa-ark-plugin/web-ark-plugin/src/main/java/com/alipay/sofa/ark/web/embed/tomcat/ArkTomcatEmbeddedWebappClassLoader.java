@@ -31,6 +31,34 @@ import java.util.Enumeration;
  * ensure that any custom context class loader is always used (as is the case with some
  * executable archives).
  *
+ * There are two case to initialize tomcat for multi biz model:
+ *
+ * 1. When included this Tomcat ClassLoader by
+ * {@link com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader},
+ * this will ensure there should always be one tomcat instance with only one port.
+ * In this case, each module use same web port, must define different web context path.
+ *
+ *   --------------
+ *  │ Biz Module A │\
+ *   --------------  \
+ *                    \----→ Tomcat 1: Port 1
+ *   --------------   /
+ *  │ Biz Module B │/
+ *   --------------
+ *
+ * 2. If not included, then each biz module with mvc will create a tomcat,
+ * In this case, each module can define any web context path, but must define different web server port.
+ *
+ *   --------------
+ *  │ Biz Module A │ ----→ Tomcat 1: Port 1
+ *   --------------
+ *
+ *   --------------
+ *  │ Biz Module B │ ----→ Tomcat 2: Port2
+ *   --------------
+ *
+ * Actually, the mostly used in prod env is the first case, so we need to include a web plugin.
+ *
  * @author qilong.zql
  * @author Phillip Webb
  * @since 0.6.0
