@@ -44,8 +44,10 @@ import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * Ark Biz Standard Model
@@ -87,6 +89,8 @@ public class BizModel implements Biz {
 
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
+
+    private Set<String>            providedLibraries             = new HashSet<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
@@ -389,5 +393,39 @@ public class BizModel implements Biz {
 
     private boolean isMasterBizAndEmbedEnable() {
         return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
+    }
+
+    public Set<String> getProvidedLibraries() {
+        return providedLibraries;
+    }
+
+    public BizModel setProvidedLibraries(String providedLibraries) {
+        this.providedLibraries = StringUtils.strToSet(providedLibraries,
+            Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    /**
+     * check if the class or resource is defined in classloader
+     * @param url
+     * @return
+     */
+    public boolean isProvided(URL url) {
+        if (url != null) {
+            if ("jar".equals(url.getProtocol())) {
+                String libraryFile = url.getFile();
+                Optional<String> fileNameOp = Stream.of(libraryFile.split("/")).filter(a -> a.contains("jar!")).findFirst();
+                if (fileNameOp.isPresent()) {
+                    String packageName = fileNameOp.get().substring(0, fileNameOp.get().length() - 1);
+                    if (providedLibraries.contains(packageName)) {
+                        return true;
+                    }
+                }
+            } else if ("file".equals(url.getProtocol())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

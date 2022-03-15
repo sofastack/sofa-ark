@@ -72,6 +72,7 @@ public class Repackager {
 
     private LinkedHashSet<ArtifactItem>           injectPluginDependencies           = new LinkedHashSet<>();
     private LinkedHashSet<String>                 injectPluginExportPackages         = new LinkedHashSet<>();
+    private LinkedHashSet<String>                 providedLibraries                  = new LinkedHashSet<>();
 
     private final File                            source;
 
@@ -215,6 +216,7 @@ public class Repackager {
             public void library(Library library) throws IOException {
 
                 if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
+                    providedLibraries.add(library.getName());
                     return;
                 }
 
@@ -428,6 +430,8 @@ public class Repackager {
             setToStr(injectPluginDependencies, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(INJECT_EXPORT_PACKAGES,
             StringUtils.setToStr(injectPluginExportPackages, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(PROVIDED_LIBRARIES,
+            StringUtils.setToStr(providedLibraries, MANIFEST_VALUE_SPLIT));
         return manifest;
     }
 

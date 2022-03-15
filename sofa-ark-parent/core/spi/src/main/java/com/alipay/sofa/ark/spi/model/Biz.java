@@ -18,6 +18,8 @@ package com.alipay.sofa.ark.spi.model;
 
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
+import java.net.URL;
+
 /**
  * Ark Biz Model Interface
  *
@@ -37,6 +39,12 @@ public interface Biz extends BizInfo, PriorityOrdered {
      * @throws Throwable
      */
     void stop() throws Throwable;
+
+    /**
+     * check class or resource whether declared in this biz classLoader.
+     * @param url
+     */
+    boolean isProvided(URL url);
 
     /**
      * allow to dynamic update biz name
