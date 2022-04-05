@@ -395,10 +395,6 @@ public class BizModel implements Biz {
         return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
     }
 
-    public Set<String> getProvidedLibraries() {
-        return providedLibraries;
-    }
-
     public BizModel setProvidedLibraries(String providedLibraries) {
         this.providedLibraries = StringUtils.strToSet(providedLibraries,
             Constants.MANIFEST_VALUE_SPLIT);
@@ -417,12 +413,10 @@ public class BizModel implements Biz {
                 Optional<String> fileNameOp = Stream.of(libraryFile.split("/")).filter(a -> a.contains("jar!")).findFirst();
                 if (fileNameOp.isPresent()) {
                     String packageName = fileNameOp.get().substring(0, fileNameOp.get().length() - 1);
-                    if (providedLibraries.contains(packageName)) {
-                        return true;
-                    }
+                    return providedLibraries.contains(packageName);
                 }
-            } else if ("file".equals(url.getProtocol())) {
-                return true;
+            } else {
+                return "file".equals(url.getProtocol());
             }
         }
 

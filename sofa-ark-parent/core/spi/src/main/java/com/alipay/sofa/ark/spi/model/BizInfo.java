@@ -61,12 +61,6 @@ public interface BizInfo {
     Set<String> getDenyImportPackages();
 
     /**
-     * get provided packages defined in pom
-     * @return
-     */
-    Set<String> getProvidedLibraries();
-
-    /**
      * get biz deny import package which is exactly matched
      * @return
      */
