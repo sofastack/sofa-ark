@@ -16,8 +16,18 @@
  */
 package com.alipay.sofa.ark.springboot.listener;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
+import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
+import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.event.ApplicationFailedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -30,12 +40,19 @@ import org.springframework.context.ApplicationListener;
 public class ArkApplicationStartListener implements ApplicationListener<SpringApplicationEvent> {
 
     private static final String LAUNCH_CLASSLOADER_NAME    = "sun.misc.Launcher$AppClassLoader";
+    private static final String SPRING_BOOT_LOADER         = "org.springframework.boot.loader.LaunchedURLClassLoader";
     private static final String APPLICATION_STARTED_EVENT  = "org.springframework.boot.context.event.ApplicationStartedEvent";
     private static final String APPLICATION_STARTING_EVENT = "org.springframework.boot.context.event.ApplicationStartingEvent";
 
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
+            if (ArkConfigs.isEmbedEnable()
+                || SPRING_BOOT_LOADER.equals(this.getClass().getClassLoader().getClass().getName())) {
+                ArkConfigs.setEmbedEnable(true);
+                startUpArkEmbed(event);
+                return;
+            }
             if (isSpringBoot2()
                 && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
                 startUpArk(event);
@@ -62,5 +79,23 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
 
     public boolean isSpringBoot2() {
         return SpringBootVersion.getVersion().startsWith("2");
+    }
+
+    protected void startUpArkEmbed(SpringApplicationEvent event) {
+        if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
+            return;
+        }
+        if (event instanceof ApplicationEnvironmentPreparedEvent) {
+            ApplicationEnvironmentPreparedEvent preparedEvent = (ApplicationEnvironmentPreparedEvent) event;
+            EmbedSofaArkBootstrap.launch(preparedEvent.getEnvironment());
+        }
+        if (event instanceof ApplicationReadyEvent) {
+            if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
+                ArkClient.getEventAdminService().sendEvent(
+                    new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+                ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
+                ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
+            }
+        }
     }
 }

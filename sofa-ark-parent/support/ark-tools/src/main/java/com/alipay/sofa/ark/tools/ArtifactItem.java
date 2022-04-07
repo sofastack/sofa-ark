@@ -93,9 +93,16 @@ public class ArtifactItem {
             return false;
         }
 
-        return StringUtils.isSameStr(this.getGroupId(), that.getGroupId())
-               && StringUtils.isSameStr(this.getArtifactId(), that.getArtifactId())
-               && StringUtils.isSameStr(this.getClassifier(), that.getClassifier());
+        return isSameStr(this.getGroupId(), that.getGroupId())
+               && isSameStr(this.getArtifactId(), that.getArtifactId())
+               && isSameStr(this.getClassifier(), that.getClassifier());
+    }
+
+    protected boolean isSameStr(String left, String right) {
+        if ("*".equals(left) || "*".equals(right)) {
+            return true;
+        }
+        return StringUtils.isSameStr(left, right);
     }
 
     /**
@@ -118,7 +125,7 @@ public class ArtifactItem {
         item.setGroupId(arr[0]);
         item.setArtifactId(arr[1]);
         if (arr.length == 3) {
-            item.setClassifier(arr[3]);
+            item.setClassifier(arr[2]);
         }
         return item;
     }

@@ -20,11 +20,15 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Utilities for manipulating files and directories in ark tooling.
@@ -104,5 +108,55 @@ public class FileUtils {
             return path.replace("\\", "/");
         }
         return path;
+    }
+
+    public static File unzip(File root, String targetPath) throws IOException {
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(root);
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    String dirPath = targetPath + File.separator + entry.getName();
+                    File dir = new File(dirPath);
+                    dir.mkdirs();
+                } else {
+                    InputStream inputStream = null;
+                    FileOutputStream fileOutputStream = null;
+                    try {
+                        inputStream = zipFile.getInputStream(entry);
+                        File file = new File(targetPath + File.separator + entry.getName());
+                        if (!file.exists()) {
+                            File fileParent = file.getParentFile();
+                            if (!fileParent.exists()) {
+                                fileParent.mkdirs();
+                            }
+                        }
+                        file.createNewFile();
+                        fileOutputStream = new FileOutputStream(file);
+                        int count;
+                        byte[] buf = new byte[8192];
+                        while ((count = inputStream.read(buf)) != -1) {
+                            fileOutputStream.write(buf, 0, count);
+                        }
+
+                    } finally {
+                        if (fileOutputStream != null) {
+                            fileOutputStream.flush();
+                            fileOutputStream.close();
+                        }
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                    }
+                }
+            }
+            return new File(targetPath);
+        } finally {
+            if (zipFile != null) {
+                zipFile.close();
+            }
+        }
     }
 }

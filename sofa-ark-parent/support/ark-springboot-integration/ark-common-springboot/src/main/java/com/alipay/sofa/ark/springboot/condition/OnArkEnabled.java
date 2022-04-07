@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.condition;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.context.annotation.ConditionContext;
@@ -40,6 +41,8 @@ public class OnArkEnabled extends SpringBootCondition {
             || ARK_BIZ_CLASSLOADER_NAME.equals(currentClassLoader)
             || ARK_PLUGIN_CLASSLOADER_NAME.equals(currentClassLoader)) {
             return new ConditionOutcome(true, "SOFAArk has started.");
+        } else if (ArkConfigs.isEmbedEnable()) {
+            return new ConditionOutcome(true, "Embed SOFAArk has started.");
         } else {
             return new ConditionOutcome(false, "SOFAArk has not started.");
         }

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
@@ -38,7 +39,9 @@ public abstract class AbstractLauncher {
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args) throws Exception {
-        JarFile.registerUrlProtocolHandler();
+        if (!ArkConfigs.isEmbedEnable()) {
+            JarFile.registerUrlProtocolHandler();
+        }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
         List<String> attachArgs = new ArrayList<>();
         attachArgs
@@ -55,7 +58,9 @@ public abstract class AbstractLauncher {
      * @throws Exception if the ark container fails to launch.
      */
     public Object launch(String[] args, String classpath, Method method) throws Exception {
-        JarFile.registerUrlProtocolHandler();
+        if (!ArkConfigs.isEmbedEnable()) {
+            JarFile.registerUrlProtocolHandler();
+        }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
         List<String> attachArgs = new ArrayList<>();
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
@@ -78,7 +83,9 @@ public abstract class AbstractLauncher {
      * @throws Exception
      */
     public Object launch(String classpath, Class testClass) throws Exception {
-        JarFile.registerUrlProtocolHandler();
+        if (!ArkConfigs.isEmbedEnable()) {
+            JarFile.registerUrlProtocolHandler();
+        }
         ClassLoader classLoader = createContainerClassLoader(getContainerArchive());
         List<String> attachArgs = new ArrayList<>();
         attachArgs.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
@@ -140,7 +147,8 @@ public abstract class AbstractLauncher {
      * @return the classloader load ark container
      */
     protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent) {
-        return new ContainerClassLoader(urls, parent);
+        return ArkConfigs.isEmbedEnable() ? new ContainerClassLoader(urls, parent, this.getClass()
+            .getClassLoader()) : new ContainerClassLoader(urls, parent);
     }
 
     /**

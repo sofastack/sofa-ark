@@ -16,13 +16,18 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
+import com.alipay.sofa.ark.common.log.ArkLogger;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
@@ -49,43 +54,45 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
+    private final static ArkLogger LOGGER                        = ArkLoggerFactory
+                                                                     .getDefaultLogger();
 
-    private String              bizName;
+    private String                 bizName;
 
-    private String              bizVersion;
+    private String                 bizVersion;
 
-    private BizState            bizState;
+    private BizState               bizState;
 
-    private String              mainClass;
+    private String                 mainClass;
 
-    private String              webContextPath;
+    private String                 webContextPath;
 
-    private URL[]               urls;
+    private URL[]                  urls;
 
-    private ClassLoader         classLoader;
+    private ClassLoader            classLoader;
 
-    private Map<String, String> attributes                    = new ConcurrentHashMap<>();
+    private Map<String, String>    attributes                    = new ConcurrentHashMap<>();
 
-    private int                 priority                      = DEFAULT_PRECEDENCE;
+    private int                    priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>         denyImportPackages;
+    private Set<String>            denyImportPackages;
 
-    private Set<String>         denyImportPackageNodes        = new HashSet<>();
+    private Set<String>            denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>         denyImportPackageStems        = new HashSet<>();
+    private Set<String>            denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>         denyImportClasses;
+    private Set<String>            denyImportClasses;
 
-    private Set<String>         denyImportResources           = new HashSet<>();
+    private Set<String>            denyImportResources           = new HashSet<>();
 
-    private Set<String>         injectPluginDependencies      = new HashSet<>();
-    private Set<String>         injectExportPackages          = new HashSet<>();
+    private Set<String>            injectPluginDependencies      = new HashSet<>();
+    private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
-    private Set<String>         denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>            denySuffixImportResourceStems = new HashSet<>();
 
-    private File                bizTempWorkDir;
+    private File                   bizTempWorkDir;
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -264,10 +271,15 @@ public class BizModel implements Biz {
         try {
             eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
-            MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
-            mainMethodRunner.run();
-            // this can trigger health checker handler
-            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
+            if (!isMasterBizAndEmbedEnable()) {
+                long start = System.currentTimeMillis();
+                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
+                mainMethodRunner.run();
+                // this can trigger health checker handler
+                eventAdminService.sendEvent(new AfterBizStartupEvent(this));
+                LOGGER.info("Ark biz {} started in {} ms", getIdentity(),
+                    (System.currentTimeMillis() - start));
+            }
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
@@ -276,10 +288,21 @@ public class BizModel implements Biz {
         }
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
-        if (bizManagerService.getActiveBiz(bizName) == null) {
-            bizState = BizState.ACTIVATED;
+
+        if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
+            Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
+            if (currentActiveBiz == null) {
+                bizState = BizState.ACTIVATED;
+            } else {
+                ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED);
+                bizState = BizState.ACTIVATED;
+            }
         } else {
-            bizState = BizState.DEACTIVATED;
+            if (bizManagerService.getActiveBiz(bizName) == null) {
+                bizState = BizState.ACTIVATED;
+            } else {
+                bizState = BizState.DEACTIVATED;
+            }
         }
     }
 
@@ -288,6 +311,10 @@ public class BizModel implements Biz {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
+        if (isMasterBizAndEmbedEnable()) {
+            // skip stop when embed mode
+            return;
+        }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         bizState = BizState.DEACTIVATED;
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
@@ -309,6 +336,9 @@ public class BizModel implements Biz {
                 bizTempWorkDir.delete();
             }
             bizTempWorkDir = null;
+            if (classLoader instanceof AbstractClasspathClassLoader) {
+                ((AbstractClasspathClassLoader) classLoader).clearCache();
+            }
             classLoader = null;
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
@@ -341,7 +371,11 @@ public class BizModel implements Biz {
     }
 
     private void resetProperties() {
-        System.getProperties().remove("logging.path");
+        if (!ArkConfigs.isEmbedEnable()) {
+            System.getProperties().remove("logging.path");
+        } else if (this != ArkClient.getMasterBiz()) {
+            System.getProperties().remove("spring.application.admin.enabled");
+        }
     }
 
     public File getBizTempWorkDir() {
@@ -351,5 +385,9 @@ public class BizModel implements Biz {
     public BizModel setBizTempWorkDir(File bizTempWorkDir) {
         this.bizTempWorkDir = bizTempWorkDir;
         return this;
+    }
+
+    private boolean isMasterBizAndEmbedEnable() {
+        return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
     }
 }

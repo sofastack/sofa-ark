@@ -17,6 +17,8 @@
 package com.alipay.sofa.ark.api;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.spi.constant.Constants;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -143,5 +145,13 @@ public class ArkConfigs {
      */
     public static void putStringValue(String key, String value) {
         CFG.put(key, value);
+    }
+
+    public static boolean isEmbedEnable() {
+        return Boolean.getBoolean(Constants.EMBED_ENABLE);
+    }
+
+    public static void setEmbedEnable(boolean enable) {
+        System.setProperty(Constants.EMBED_ENABLE, enable ? "true" : "false");
     }
 }

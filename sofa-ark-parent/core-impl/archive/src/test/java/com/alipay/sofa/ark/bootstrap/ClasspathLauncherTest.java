@@ -17,6 +17,9 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
+import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import mockit.Mock;
 import mockit.MockUp;
@@ -73,6 +76,43 @@ public class ClasspathLauncherTest {
         List<BizArchive> bizArchives = classPathArchive.getBizArchives();
         Assert.assertEquals(1, bizArchives.size());
         Assert.assertEquals(2, urls.size());
+    }
+
+    @Test
+    public void testSpringBootFatJar() throws Exception {
+        URL url = this.getClass().getClassLoader().getResource("sample-springboot-fat-biz.jar");
+        URL[] agentUrl = ClassLoaderUtils.getAgentClassPath();
+        Assert.assertEquals(1, agentUrl.length);
+
+        List<URL> urls = new ArrayList<>();
+        JarFileArchive jarFileArchive = new JarFileArchive(new File(url.getFile()));
+        List<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive);
+        for (Archive archive : archives) {
+            urls.add(archive.getUrl());
+        }
+        urls.addAll(Arrays.asList(agentUrl));
+
+
+        EmbedClassPathArchive classPathArchive = new EmbedClassPathArchive(
+                this.getClass().getCanonicalName(), null, urls.toArray(new URL[] {}));
+        List<BizArchive> bizArchives = classPathArchive.getBizArchives();
+        Assert.assertEquals(0, bizArchives.size());
+        Assert.assertNotNull(classPathArchive.getContainerArchive());
+        Assert.assertEquals(1, classPathArchive.getPluginArchives().size());
+        Assert.assertEquals(archives.size() + 1, urls.size());
+        Assert.assertEquals(3, classPathArchive.getConfClasspath().size());
+        URLClassLoader classLoader = new URLClassLoader(classPathArchive.getContainerArchive().getUrls());
+        try {
+            Class clazz = classLoader.loadClass("com.alipay.sofa.ark.bootstrap.ArkLauncher");
+            Assert.assertTrue(clazz != null);
+        } catch (Exception e){
+            Assert.assertTrue("loadClass class failed ",false);
+        }
+    }
+
+    protected boolean isNestedArchive(Archive.Entry entry) {
+        return entry.isDirectory() ? entry.getName().equals("BOOT-INF/classes/") : entry.getName()
+            .startsWith("BOOT-INF/lib/");
     }
 
     @Test

@@ -35,13 +35,29 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATOR_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARTIFACT_ID_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_CLASSES_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_PACKAGES_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_RESOURCES_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.GROUP_ID_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_CLASSES_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_PACKAGES_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_RESOURCES_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXPORT_CLASS_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXTENSION_FORMAT;
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_NAME_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_VERSION_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_SEMICOLON;
 
 /**
  * {@link PluginFactoryService}
@@ -155,6 +171,37 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         JarFileArchive jarFileArchive = new JarFileArchive(pluginFile);
         JarPluginArchive jarPluginArchive = new JarPluginArchive(jarFileArchive);
         return createPlugin(jarPluginArchive);
+    }
+
+    @Override
+    public Plugin createEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
+                                                                                               throws IOException {
+        AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
+        PluginModel plugin = new PluginModel();
+        Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
+        boolean enableExportClass = "true".equals(System.getProperty(PLUGIN_EXPORT_CLASS_ENABLE));
+        plugin
+            .setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
+            .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
+            .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
+            .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
+            .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
+            .setClassPath(((URLClassLoader) masterClassLoader).getURLs())
+            .setPluginUrl(pluginArchive.getUrl())
+            .setExportClasses(
+                enableExportClass ? manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)
+                    : null)
+            .setExportPackages(
+                enableExportClass ? manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE)
+                    : null)
+            .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
+            .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
+            .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
+            .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
+            .setPluginClassLoader(masterClassLoader)
+            .setPluginContext(new PluginContextImpl(plugin));
+        return plugin;
     }
 
     private boolean isArkPlugin(PluginArchive pluginArchive) {
