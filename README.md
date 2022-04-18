@@ -70,6 +70,8 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
 
 ## 文档
 * [SOFAArk 用户手册(中文)](http://www.sofastack.tech/sofa-boot/docs/sofa-ark-readme) : SOFAArk 用户手册及功能特性详细说明
+* [SOFAArk2.0 升级](https://www.sofastack.tech/projects/sofa-boot/sofa-ark-migration-guide/) : SOFAArk1.0升级到2.0 操作详细说明
+
 
 ## 致谢
 SOFAArk 类隔离框架设计实现主要基于 OSGi 规范及蚂蚁金服的 CloudEngine 容器；同时也参考了 Spring Boot 及阿里的 PandoraBoot，感谢以上产品工作者的辛勤付出。
