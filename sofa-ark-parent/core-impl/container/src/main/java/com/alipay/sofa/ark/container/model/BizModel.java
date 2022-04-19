@@ -44,10 +44,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 /**
  * Ark Biz Standard Model
@@ -402,7 +400,36 @@ public class BizModel implements Biz {
     }
 
     /**
-     * check if the class or resource is defined in classloader
+     * check if the class is defined in classloader
+     * @param classLocation
+     * @return
+     */
+    public boolean isProvided(String classLocation) {
+        if (!StringUtils.isEmpty(classLocation)) {
+
+            int index = classLocation.indexOf(".jar");
+            if (index == -1) {
+                return false;
+            }
+            String subClassLocation = classLocation.substring(0, index);
+            String[] pathInfo = subClassLocation.split("/");
+
+            if (pathInfo.length >= 2) {
+                String packageName = pathInfo[pathInfo.length - 1];
+                String packageVersion = "-" + pathInfo[pathInfo.length - 2];
+                String artifactId = packageName.replace(packageVersion, "");
+                return providedLibraries.contains(artifactId);
+            }
+
+            // class not in jar
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * check if the resource is defined in classloader
      * @param url
      * @return
      */
@@ -410,10 +437,17 @@ public class BizModel implements Biz {
         if (url != null) {
             if ("jar".equals(url.getProtocol())) {
                 String libraryFile = url.getFile();
-                Optional<String> fileNameOp = Stream.of(libraryFile.split("/")).filter(a -> a.contains("jar!")).findFirst();
-                if (fileNameOp.isPresent()) {
-                    String packageName = fileNameOp.get().substring(0, fileNameOp.get().length() - 1);
-                    return providedLibraries.contains(packageName);
+                int index = libraryFile.indexOf(".jar!");
+                if (index == -1) {
+                    return false;
+                }
+                String subLibraryFile = libraryFile.substring(0, index);
+                String[] pathInfo = subLibraryFile.split("/");
+                if (pathInfo.length >= 2) {
+                    String packageName = pathInfo[pathInfo.length - 1];
+                    String packageVersion = "-" + pathInfo[pathInfo.length - 2];
+                    String artifactId = packageName.replace(packageVersion, "");
+                    return providedLibraries.contains(artifactId);
                 }
             } else {
                 return "file".equals(url.getProtocol());

@@ -50,8 +50,9 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         }
         Class<?> c = bizClassLoader.loadClass(name);
         if (c != null) {
-            URL libraryUrl = c.getResource("");
-            if (biz.isProvided(libraryUrl)) {
+            String location = c.getProtectionDomain().getCodeSource().getLocation().getFile();
+
+            if (biz.isProvided(location)) {
                 return c;
             }
         }

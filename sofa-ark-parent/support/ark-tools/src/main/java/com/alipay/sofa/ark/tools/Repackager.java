@@ -21,10 +21,7 @@ import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
@@ -216,7 +213,7 @@ public class Repackager {
             public void library(Library library) throws IOException {
 
                 if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
-                    providedLibraries.add(library.getName());
+                    providedLibraries.add(library.getArtifactId());
                     return;
                 }
 
