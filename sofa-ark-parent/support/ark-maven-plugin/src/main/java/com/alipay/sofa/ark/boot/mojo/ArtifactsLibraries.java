@@ -74,10 +74,7 @@ public class ArtifactsLibraries implements Libraries {
                 }
                 Library library = new Library(name, artifact.getFile(), scope,
                     isUnpackRequired(artifact));
-                if (LibraryScope.PROVIDED.equals(library.getScope())) {
-                    library.setGroupId(artifact.getGroupId().replace(".", "/"));
-                    library.setArtifactId(artifact.getArtifactId());
-                }
+                library.setArtifactId(artifact.getArtifactId());
                 callback.library(library);
             }
         }

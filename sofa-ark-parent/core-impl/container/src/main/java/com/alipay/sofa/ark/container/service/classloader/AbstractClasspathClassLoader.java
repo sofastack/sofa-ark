@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -27,6 +28,7 @@ import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
+import org.springframework.util.ClassUtils;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -358,19 +360,17 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
             if (importClassLoader != null) {
                 try {
-                    Class clazz = importClassLoader.loadClass(name);
-                    if (clazz != null && this instanceof BizClassLoader) {
-                        String location = clazz.getProtectionDomain().getCodeSource().getLocation()
-                            .getFile();
-                        if (((BizClassLoader) this).getBizModel().isProvided(location)) {
-                            return clazz;
-                        } else {
-                            throw new ClassNotFoundException("Not set provided in biz model.");
+                    if (this instanceof BizClassLoader) {
+                        Enumeration<URL> urls = importClassLoader.getResources(ClassUtils.convertClassNameToResourcePath(name) + ".class");
+                        BizModel bizModel = ((BizClassLoader) this).getBizModel();
+                        while (urls.hasMoreElements()) {
+                            URL resourceUrl = urls.nextElement();
+                            if (bizModel.isProvided(resourceUrl)) {
+                                return importClassLoader.loadClass(name);
+                            }
                         }
-                    } else {
-                        return clazz;
                     }
-                } catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException | IOException e) {
                     // just log when debug level
                     if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
                         // log debug message

@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
+import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -48,13 +49,17 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
             return null;
         }
-        Class<?> c = bizClassLoader.loadClass(name);
-        if (c != null) {
-            String location = c.getProtectionDomain().getCodeSource().getLocation().getFile();
-
-            if (biz.isProvided(location)) {
-                return c;
+        // if Master Biz contains same class in multi jar, need to check each whether is provided
+        try {
+            Enumeration<URL> urls = bizClassLoader.getResources(ClassUtils.convertClassNameToResourcePath(name) + ".class");
+            while (urls.hasMoreElements()) {
+                URL resourceUrl = urls.nextElement();
+                if (biz.isProvided(resourceUrl)) {
+                    return bizClassLoader.loadClass(name);
+                }
             }
+        } catch (IOException e) {
+            return null;
         }
         return null;
     }

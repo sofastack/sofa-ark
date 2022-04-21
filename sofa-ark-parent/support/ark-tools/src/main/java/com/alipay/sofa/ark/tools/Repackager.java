@@ -211,9 +211,11 @@ public class Repackager {
         libraries.doWithLibraries(new LibraryCallback() {
             @Override
             public void library(Library library) throws IOException {
+                if (library != null && library.getArtifactId() != null) {
+                    providedLibraries.add(library.getArtifactId());
+                }
 
                 if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
-                    providedLibraries.add(library.getArtifactId());
                     return;
                 }
 

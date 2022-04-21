@@ -429,7 +429,7 @@ public class BizModel implements Biz {
     }
 
     /**
-     * check if the resource is defined in classloader
+     * check if the resource is defined in classloader, ignore jar version
      * @param url
      * @return
      */
