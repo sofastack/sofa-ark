@@ -59,7 +59,8 @@ public class BaseTest {
         new PluginServiceProvider(new PluginModel());
     }
 
-    public static BizModel createTestBizModel(String bizName, String bizVersion, BizState bizState, URL[] urls) {
+    public static BizModel createTestBizModel(String bizName, String bizVersion, BizState bizState,
+                                              URL[] urls) {
         BizModel bizModel = new BizModel().setBizState(bizState);
         bizModel.setBizName(bizName).setBizVersion(bizVersion);
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(), urls);

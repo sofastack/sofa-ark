@@ -93,7 +93,8 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {classPathURL});
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
+            new URL[] { classPathURL });
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -106,7 +107,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testAgentClass() throws ClassNotFoundException {
-        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[]{});
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizModel.setDenyImportResources("").setDenyImportClasses("");
         bizManagerService.registerBiz(bizModel);
         Class clazz = bizModel.getBizClassLoader().loadClass("SampleClass");
@@ -146,7 +147,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
-        BizModel bizModel = createTestBizModel("MockBiz", "1.0.0", BizState.RESOLVED, new URL[]{});
+        BizModel bizModel = createTestBizModel("MockBiz", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -262,7 +263,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testGetJdkResource() throws IOException {
-        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[]{});
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();

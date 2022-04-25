@@ -50,16 +50,25 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             return null;
         }
         // if Master Biz contains same class in multi jar, need to check each whether is provided
-        try {
-            Enumeration<URL> urls = bizClassLoader.getResources(ClassUtils.convertClassNameToResourcePath(name) + ".class");
-            while (urls.hasMoreElements()) {
-                URL resourceUrl = urls.nextElement();
-                if (biz.isProvided(resourceUrl)) {
-                    return bizClassLoader.loadClass(name);
-                }
+        Class clazz = bizClassLoader.loadClass(name);
+        if (clazz != null) {
+            String location = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
+            if (biz.isProvided(location)) {
+                return clazz;
             }
-        } catch (IOException e) {
-            return null;
+
+            try {
+                Enumeration<URL> urls = bizClassLoader.getResources(ClassUtils
+                    .convertClassNameToResourcePath(name) + ".class");
+                while (urls.hasMoreElements()) {
+                    URL resourceUrl = urls.nextElement();
+                    if (biz.isProvided(resourceUrl)) {
+                        return clazz;
+                    }
+                }
+            } catch (IOException e) {
+                return null;
+            }
         }
         return null;
     }

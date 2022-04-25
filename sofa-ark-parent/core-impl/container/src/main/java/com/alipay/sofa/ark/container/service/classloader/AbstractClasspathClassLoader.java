@@ -360,17 +360,28 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
             if (importClassLoader != null) {
                 try {
-                    if (this instanceof BizClassLoader) {
-                        Enumeration<URL> urls = importClassLoader.getResources(ClassUtils.convertClassNameToResourcePath(name) + ".class");
+                    Class clazz = importClassLoader.loadClass(name);
+                    if (this instanceof BizClassLoader
+                        && ((BizClassLoader) this).getBizModel() != null) {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
-                        while (urls.hasMoreElements()) {
-                            URL resourceUrl = urls.nextElement();
-                            if (bizModel.isProvided(resourceUrl)) {
-                                return importClassLoader.loadClass(name);
+
+                        if (clazz != null) {
+                            String location = clazz.getProtectionDomain().getCodeSource()
+                                .getLocation().getFile();
+                            if (bizModel.isProvided(location)) {
+                                return clazz;
+                            }
+                            Enumeration<URL> urls = importClassLoader.getResources(ClassUtils
+                                .convertClassNameToResourcePath(name) + ".class");
+                            while (urls.hasMoreElements()) {
+                                URL resourceUrl = urls.nextElement();
+                                if (bizModel.isProvided(resourceUrl)) {
+                                    return clazz;
+                                }
                             }
                         }
                     } else {
-                        return importClassLoader.loadClass(name);
+                        return clazz;
                     }
                 } catch (ClassNotFoundException | IOException e) {
                     // just log when debug level
