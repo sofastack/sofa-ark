@@ -93,10 +93,7 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0")
-            .setClassPath(new URL[] { classPathURL })
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {classPathURL});
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -109,10 +106,8 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testAgentClass() throws ClassNotFoundException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()))
-            .setDenyImportResources("").setDenyImportClasses("");
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[]{});
+        bizModel.setDenyImportResources("").setDenyImportClasses("");
         bizManagerService.registerBiz(bizModel);
         Class clazz = bizModel.getBizClassLoader().loadClass("SampleClass");
         Assert.assertFalse(clazz.getClassLoader() instanceof AgentClassLoader);
@@ -139,13 +134,10 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[0])
-            .setDenyImportClasses(StringUtils.EMPTY_STRING)
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[0]);
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING)
             .setDenyImportResources(StringUtils.EMPTY_STRING)
-            .setDenyImportPackages(StringUtils.EMPTY_STRING)
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
-
+            .setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizManagerService.registerBiz(bizModel);
 
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
@@ -154,9 +146,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("MockBiz").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("MockBiz", "1.0.0", BizState.RESOLVED, new URL[]{});
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -187,9 +177,7 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("bizA", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
@@ -238,9 +226,7 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[0])
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("bizA", "1.0.0", BizState.RESOLVED, new URL[0]);
         bizModel.setDenyImportResources("export/folderA/*,export/folderB/test3.xml");
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
@@ -276,9 +262,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testGetJdkResource() throws IOException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[]{});
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
@@ -301,9 +285,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testCacheResource() throws NoSuchFieldException, IllegalAccessException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();

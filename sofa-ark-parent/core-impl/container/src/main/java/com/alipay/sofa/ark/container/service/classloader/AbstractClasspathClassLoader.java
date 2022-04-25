@@ -369,6 +369,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                                 return importClassLoader.loadClass(name);
                             }
                         }
+                    } else {
+                        return importClassLoader.loadClass(name);
                     }
                 } catch (ClassNotFoundException | IOException e) {
                     // just log when debug level

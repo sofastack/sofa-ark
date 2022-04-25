@@ -97,6 +97,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
             getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive);
+        bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
         bizClassLoader.setBizModel(bizModel);
 
