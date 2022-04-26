@@ -406,10 +406,9 @@ public class BizModel implements Biz {
      */
     public boolean isProvided(String classLocation) {
         if (!StringUtils.isEmpty(classLocation)) {
-
             int index = classLocation.indexOf(".jar");
             if (index == -1) {
-                return false;
+                return true;
             }
             String subClassLocation = classLocation.substring(0, index);
             String[] pathInfo = subClassLocation.split("/");
@@ -439,7 +438,7 @@ public class BizModel implements Biz {
                 String libraryFile = url.getFile();
                 int index = libraryFile.indexOf(".jar!");
                 if (index == -1) {
-                    return false;
+                    return true;
                 }
                 String subLibraryFile = libraryFile.substring(0, index);
                 String[] pathInfo = subLibraryFile.split("/");

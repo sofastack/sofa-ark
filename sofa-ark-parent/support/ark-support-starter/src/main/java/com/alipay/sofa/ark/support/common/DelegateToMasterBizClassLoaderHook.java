@@ -50,7 +50,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             return null;
         }
         // if Master Biz contains same class in multi jar, need to check each whether is provided
-        Class clazz = bizClassLoader.loadClass(name);
+        Class<?> clazz = bizClassLoader.loadClass(name);
         if (clazz != null) {
             String location = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
             if (biz.isProvided(location)) {

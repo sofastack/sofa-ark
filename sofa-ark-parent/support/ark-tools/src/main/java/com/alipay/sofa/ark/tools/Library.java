@@ -26,26 +26,9 @@ import java.io.File;
  */
 public class Library {
 
-    private final String name;
-
-    public String getArtifactId() {
-        return artifactId;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setArtifactId(String artifactId) {
-        this.artifactId = artifactId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
+    private final String  name;
 
     private String        artifactId;
-    private String        groupId;
 
     private final File    file;
 
@@ -93,6 +76,22 @@ public class Library {
      */
     public String getName() {
         return this.name;
+    }
+
+    /**
+     * return the artifact id
+     * @return the artifactId
+     */
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    /**
+     * set artifactId
+     * @param artifactId
+     */
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
     }
 
     /**

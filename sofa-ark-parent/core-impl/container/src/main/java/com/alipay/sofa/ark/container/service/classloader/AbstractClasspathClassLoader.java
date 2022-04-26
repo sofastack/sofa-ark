@@ -360,24 +360,25 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
             if (importClassLoader != null) {
                 try {
-                    Class clazz = importClassLoader.loadClass(name);
+                    Class<?> clazz = importClassLoader.loadClass(name);
+                    if (clazz == null) {
+                        return null;
+                    }
+                    URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
                     if (this instanceof BizClassLoader
                         && ((BizClassLoader) this).getBizModel() != null) {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
 
-                        if (clazz != null) {
-                            String location = clazz.getProtectionDomain().getCodeSource()
-                                .getLocation().getFile();
-                            if (bizModel.isProvided(location)) {
+                        String location = url.getFile();
+                        if (bizModel.isProvided(location)) {
+                            return clazz;
+                        }
+                        Enumeration<URL> urls = importClassLoader.getResources(ClassUtils
+                            .convertClassNameToResourcePath(name) + ".class");
+                        while (urls.hasMoreElements()) {
+                            URL resourceUrl = urls.nextElement();
+                            if (bizModel.isProvided(resourceUrl)) {
                                 return clazz;
-                            }
-                            Enumeration<URL> urls = importClassLoader.getResources(ClassUtils
-                                .convertClassNameToResourcePath(name) + ".class");
-                            while (urls.hasMoreElements()) {
-                                URL resourceUrl = urls.nextElement();
-                                if (bizModel.isProvided(resourceUrl)) {
-                                    return clazz;
-                                }
                             }
                         }
                     } else {

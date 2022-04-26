@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.testdata.ITest;
+import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
@@ -114,6 +115,93 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertFalse(clazz.getClassLoader() instanceof AgentClassLoader);
         Assert.assertTrue(clazz.getClassLoader().getClass().getCanonicalName()
             .contains("Launcher.AppClassLoader"));
+    }
+
+    @Test
+    public void testLoadClassFromPluginClassLoader() throws Exception {
+        URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
+        URL pluginUrl1 = this.getClass().getClassLoader().getResource("sample-ark-plugin.jar");
+        URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz.jar");
+
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
+            new URL[] { bizUrl });
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizModel.setProvidedLibraries("sample-ark-plugin");
+
+        PluginModel pluginA = new PluginModel();
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportClasses("")
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getName()))
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+
+        PluginModel pluginB = new PluginModel();
+        pluginB
+            .setPluginName("plugin B")
+            .setClassPath(new URL[] { pluginUrl1, pluginUrl2 })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportClasses("com.alipay.sofa.ark.sample.common.SampleClassExported,com.alipay.sofa.ark.sample.facade.SampleService")
+            .setExportPackages("")
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("Sample_Resource_Exported, META-INF/spring/service.xml")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+
+        pluginManagerService.registerPlugin(pluginA);
+        pluginManagerService.registerPlugin(pluginB);
+        pluginDeployService.deploy();
+        classloaderService.prepareExportClassAndResourceCache();
+
+        bizManagerService.registerBiz(bizModel);
+
+        // case 1: find class from plugin but not set provided in biz model
+        Assert.assertThrows(ArkLoaderException.class, () -> bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.facade.SampleService"));
+
+        // case 2: find class from plugin in classpath
+        Class<?> itest = bizModel.getBizClassLoader().loadClass(ITest.class.getName());
+        Assert.assertEquals(itest.getClassLoader(), pluginA.getPluginClassLoader());
+
+        // case 3: find class from plugin in jar
+        Class<?> sampleClassExported = bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.common.SampleClassExported");
+        Assert.assertEquals(sampleClassExported.getClassLoader(), pluginB.getPluginClassLoader());
+
+        // case 4: find class but not exported
+        Assert.assertThrows(ArkLoaderException.class, () -> bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.common.SampleClassNotExported"));
+
+        // case 5: find resources from plugin but not set provided in biz model
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("META-INF/spring/service.xml"));
+
+        // case 6: find resource from plugin in classpath
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB"));
+
+
+        // case 7: find resource from plugin in jar
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Exported"));
+
+        // case 8: find resource but not exproted
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Not_Exported"));
+
+        // case 9: find resources from plugin but not set provided in biz model
+        Assert.assertFalse(bizModel.getBizClassLoader().getResources("META-INF/spring/service.xml").hasMoreElements());
+
+        // case 10: find resource from plugin in classpath
+        Assert.assertTrue(bizModel.getBizClassLoader().getResources("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB").hasMoreElements());
+
+
+        // case 11: find resource from plugin in jar
+        Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported").hasMoreElements());
+
+        // case 12: find resource but not exproted
+        Assert.assertFalse(bizModel.getBizClassLoader().getResources("Sample_Resource_Not_Exported").hasMoreElements());
     }
 
     @Test
