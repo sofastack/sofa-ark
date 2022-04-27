@@ -107,7 +107,7 @@ public class Constants {
     public final static String       DENY_IMPORT_RESOURCES                         = "deny-import-resources";
     public final static String       INJECT_PLUGIN_DEPENDENCIES                    = "inject-plugin-dependencies";
     public final static String       INJECT_EXPORT_PACKAGES                        = "inject-export-packages";
-    public final static String       PROVIDED_LIBRARIES                            = "provided-libraries";
+    public final static String       DECLARED_LIBRARIES                            = "declared-libraries";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
     public final static String       DEFAULT_PACKAGE                               = ".";

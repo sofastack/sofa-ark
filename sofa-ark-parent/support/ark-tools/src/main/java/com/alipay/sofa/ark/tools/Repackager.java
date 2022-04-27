@@ -429,7 +429,7 @@ public class Repackager {
             setToStr(injectPluginDependencies, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(INJECT_EXPORT_PACKAGES,
             StringUtils.setToStr(injectPluginExportPackages, MANIFEST_VALUE_SPLIT));
-        manifest.getMainAttributes().putValue(PROVIDED_LIBRARIES,
+        manifest.getMainAttributes().putValue(DECLARED_LIBRARIES,
             StringUtils.setToStr(declaredLibraries, MANIFEST_VALUE_SPLIT));
         return manifest;
     }

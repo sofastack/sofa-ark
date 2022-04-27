@@ -60,7 +60,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
-import static com.alipay.sofa.ark.spi.constant.Constants.PROVIDED_LIBRARIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
 
 /**
  * {@link BizFactoryService}
@@ -92,7 +92,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectPluginDependencies(
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
-            .setProvidedLibraries(manifestMainAttributes.getValue(PROVIDED_LIBRARIES))
+            .setProvidedLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
             .setClassPath(bizArchive.getUrls());
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
