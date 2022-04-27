@@ -58,8 +58,8 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             }
 
             try {
-                Enumeration<URL> urls = bizClassLoader.getResources(ClassUtils
-                    .convertClassNameToResourcePath(name) + ".class");
+                Enumeration<URL> urls = bizClassLoader.getResources(name.replace('.', '/')
+                                                                    + ".class");
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
                     if (biz.isProvided(resourceUrl)) {

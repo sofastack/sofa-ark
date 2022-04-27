@@ -373,8 +373,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         if (bizModel.isProvided(location)) {
                             return clazz;
                         }
-                        Enumeration<URL> urls = importClassLoader.getResources(ClassUtils
-                            .convertClassNameToResourcePath(name) + ".class");
+                        Enumeration<URL> urls = importClassLoader.getResources(name.replace('/',
+                            '.') + ".class");
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
                             if (bizModel.isProvided(resourceUrl)) {
