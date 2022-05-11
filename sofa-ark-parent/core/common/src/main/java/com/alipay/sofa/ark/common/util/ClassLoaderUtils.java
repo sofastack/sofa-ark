@@ -17,10 +17,13 @@
 package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import sun.misc.Unsafe;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ public class ClassLoaderUtils {
 
     /**
      * push ContextClassLoader
+     *
      * @param newClassLoader new classLoader
      * @return old classloader
      */
@@ -51,6 +55,7 @@ public class ClassLoaderUtils {
 
     /**
      * set ContextClassLoader back
+     *
      * @param oldClassLoader old classLoader
      */
     public static void popContextClassLoader(ClassLoader oldClassLoader) {
@@ -81,6 +86,38 @@ public class ClassLoaderUtils {
             }
         }
         return agentPaths.toArray(new URL[] {});
+    }
+
+    @SuppressWarnings({ "restriction", "unchecked" })
+    public static URL[] getURLs(ClassLoader classLoader) {
+        // https://stackoverflow.com/questions/46519092/how-to-get-all-jars-loaded-by-a-java-application-in-java9
+        if (classLoader instanceof URLClassLoader) {
+            return ((URLClassLoader) classLoader).getURLs();
+        }
+
+        // support jdk9+
+
+        try {
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Unsafe unsafe = (Unsafe) field.get(null);
+
+            // jdk.internal.loader.ClassLoaders.AppClassLoader.ucp
+            Field ucpField = classLoader.getClass().getDeclaredField("ucp");
+            long ucpFieldOffset = unsafe.objectFieldOffset(ucpField);
+            Object ucpObject = unsafe.getObject(classLoader, ucpFieldOffset);
+
+            // jdk.internal.loader.URLClassPath.path
+            Field pathField = ucpField.getType().getDeclaredField("path");
+            long pathFieldOffset = unsafe.objectFieldOffset(pathField);
+            ArrayList<URL> path = (ArrayList<URL>) unsafe.getObject(ucpObject, pathFieldOffset);
+
+            return path.toArray(new URL[path.size()]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 }
