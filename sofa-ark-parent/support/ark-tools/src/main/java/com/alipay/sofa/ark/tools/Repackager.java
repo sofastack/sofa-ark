@@ -182,6 +182,17 @@ public class Repackager {
         }
     }
 
+    public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
+        if (artifactItems == null) {
+            return;
+        }
+        for (ArtifactItem artifactItem : artifactItems) {
+            if (artifactItem != null && artifactItem.getArtifactId() != null) {
+                declaredLibraries.add(artifactItem.getArtifactId());
+            }
+        }
+    }
+
     /**
      * Repackage to the given destination so that it can be launched using '
      * {@literal java -jar}'.
@@ -211,10 +222,6 @@ public class Repackager {
         libraries.doWithLibraries(new LibraryCallback() {
             @Override
             public void library(Library library) throws IOException {
-                if (library != null && library.getArtifactId() != null) {
-                    declaredLibraries.add(library.getArtifactId());
-                }
-
                 if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
                     return;
                 }

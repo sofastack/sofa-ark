@@ -22,6 +22,7 @@
         <commons.io.version>2.5</commons.io.version>
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
+        <maven.invoker.version>3.1.0</maven.invoker.version>
         <maven.core.version>2.2.1</maven.core.version>
         <maven.artifact.version>2.2.1</maven.artifact.version>
         <maven.archiver.version>2.5</maven.archiver.version>
@@ -235,6 +236,11 @@
             </dependency>
 
             <!-- maven -->
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-invoker</artifactId>
+                <version>${maven.invoker.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
