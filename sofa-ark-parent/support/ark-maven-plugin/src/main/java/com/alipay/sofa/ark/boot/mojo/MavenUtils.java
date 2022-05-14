@@ -20,7 +20,9 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.project.MavenProject;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class MavenUtils {
@@ -45,7 +47,9 @@ public class MavenUtils {
 
         for (String content : contents) {
             ArtifactItem artifactItem = getArtifactItem(content);
-            artifactItems.add(artifactItem);
+            if (artifactItem != null) {
+                artifactItems.add(artifactItem);
+            }
         }
 
         return artifactItems;
@@ -55,12 +59,15 @@ public class MavenUtils {
         if (StringUtils.isEmpty(lineContent)) {
             return null;
         }
-        String[] contentInfo = lineContent.split(" ");
-        if (contentInfo.length == 0) {
+        String[] contentInfos = lineContent.split(" ");
+        if (contentInfos.length == 0) {
             return null;
         }
-        String artifactStr = contentInfo[contentInfo.length - 1];
-        String[] artifactInfos = artifactStr.split(":");
+        Optional<String> artifactStrOp = Arrays.stream(contentInfos).filter(c -> c.contains(":")).findFirst();
+        if (!artifactStrOp.isPresent()) {
+            return null;
+        }
+        String[] artifactInfos = artifactStrOp.get().split(":");
 
         ArtifactItem artifactItem = new ArtifactItem();
         if (artifactInfos.length == 5) {

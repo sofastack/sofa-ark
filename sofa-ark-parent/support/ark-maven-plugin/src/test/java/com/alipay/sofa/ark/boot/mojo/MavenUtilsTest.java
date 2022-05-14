@@ -34,11 +34,20 @@ public class MavenUtilsTest {
 
     @Test
     public void parseDependencyTree() throws IOException {
-        String content = IOUtils.toString(
-            Objects.requireNonNull(this.getClass().getResourceAsStream("/deps.txt")),
-            Charset.defaultCharset());
+        String content = "com.alipay.bgrowth:bgrowthcomplete-parent:pom:1.0.0-SNAPSHOT\n" +
+                "+- io.sofastack:dynamic-stock-mng:jar:ark-biz:1.0.0:compile (optional) \n" +
+                "+- com.alipay.sofa:healthcheck-sofa-boot-starter:jar:3.11.1:provided (optional)\n" +
+                "|  +- com.alipay.sofa:healthcheck-sofa-boot:jar:3.11.1:provided\n" +
+                "|  |  +- com.alipay.sofa:sofa-boot:jar:3.11.1:provided\n" +
+                "|  |  |  \\- com.alipay.sofa:log-sofa-boot-starter:jar:3.11.1:provided\n" +
+                "|  |  |     \\- com.alipay.sofa:log-sofa-boot:jar:3.11.1:provided\n" +
+                "|  |  \\- com.alipay.sofa:runtime-sofa-boot:jar:3.11.1:provided\n" +
+                "|  |     \\- com.alipay.sofa:sofa-ark-spi:jar:2.0.2:provided\n" +
+                "|  |        \\- com.alipay.sofa:sofa-ark-exception:jar:2.0.2:provided\n" +
+                "|  +- com.alipay.sofa:sofa-boot-autoconfigure:jar:3.11.1:provided\n" +
+                "|  |  \\- org.springframework.boot:spring-boot-autoconfigure:jar:2.3.12.RELEASE:provided\n";
 
         Set<ArtifactItem> artifactItemSet = MavenUtils.convert(content);
-        Assert.assertEquals(354, artifactItemSet.size());
+        Assert.assertEquals(11, artifactItemSet.size());
     }
 }
