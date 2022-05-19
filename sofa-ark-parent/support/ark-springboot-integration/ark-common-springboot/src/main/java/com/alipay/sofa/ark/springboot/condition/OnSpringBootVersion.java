@@ -44,13 +44,15 @@ public class OnSpringBootVersion extends SpringBootCondition {
         if (ConditionalOnSpringBootVersion.Version.ANY.equals(version)) {
             return new ConditionOutcome(true, "Conditional on Any Spring Boot.");
         } else if (ConditionalOnSpringBootVersion.Version.OneX.equals(version)) {
-            if (SpringBootVersion.getVersion().startsWith("1")) {
+            String bootVersion = SpringBootVersion.getVersion();
+            if (null != bootVersion && bootVersion.startsWith("1")) {
                 return new ConditionOutcome(true, "Conditional on OneX Spring Boot.");
             } else {
                 return new ConditionOutcome(false, "Conditional on OneX Spring Boot.");
             }
         } else if (ConditionalOnSpringBootVersion.Version.TwoX.equals(version)) {
-            if (SpringBootVersion.getVersion().startsWith("2")) {
+            String bootVersion = SpringBootVersion.getVersion();
+            if (null != bootVersion && bootVersion.startsWith("2")) {
                 return new ConditionOutcome(true, "Conditional on TwoX Spring Boot.");
             } else {
                 return new ConditionOutcome(false, "Conditional on TwoX Spring Boot.");
