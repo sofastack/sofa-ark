@@ -89,7 +89,7 @@ public class DefaultClassLoaderHookTest {
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
-        bizModel.setProvidedLibraries("sample-ark-plugin");
+        bizModel.setDeclaredLibraries("sample-ark-plugin");
 
         List<URL> masterUrls = new ArrayList<>();
         Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");

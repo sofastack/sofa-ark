@@ -45,13 +45,13 @@ public interface Biz extends BizInfo, PriorityOrdered {
      * @param classLocation
      * @return
      */
-    boolean isProvided(String classLocation);
+    boolean isDeclared(String classLocation);
 
     /**
      * check resource whether declared in this biz classLoader.
      * @param url
      */
-    boolean isProvided(URL url);
+    boolean isDeclared(URL url);
 
     /**
      * allow to dynamic update biz name

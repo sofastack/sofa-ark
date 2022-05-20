@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -28,7 +27,6 @@ import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
-import org.springframework.util.ClassUtils;
 import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
@@ -370,14 +368,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
 
                         String location = url.getFile();
-                        if (bizModel.isProvided(location)) {
+                        if (bizModel.isDeclared(location)) {
                             return clazz;
                         }
                         Enumeration<URL> urls = importClassLoader.getResources(name.replace('/',
                             '.') + ".class");
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
-                            if (bizModel.isProvided(resourceUrl)) {
+                            if (bizModel.isDeclared(resourceUrl)) {
                                 return clazz;
                             }
                         }
@@ -458,7 +456,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null && this instanceof BizClassLoader) {
-                        if (((BizClassLoader) (this)).getBizModel().isProvided(url)) {
+                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url)) {
                             return url;
                         } else {
                             return null;
@@ -547,7 +545,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     while (urls.hasMoreElements()) {
                         URL resourceUrl = urls.nextElement();
 
-                        if (bizModel.isProvided(resourceUrl)) {
+                        if (bizModel.isDeclared(resourceUrl)) {
                             matchedResourceUrls.add(resourceUrl);
                         }
                     }

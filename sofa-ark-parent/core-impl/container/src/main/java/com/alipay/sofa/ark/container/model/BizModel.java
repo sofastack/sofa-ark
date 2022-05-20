@@ -88,7 +88,7 @@ public class BizModel implements Biz {
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String>            providedLibraries             = new HashSet<>();
+    private Set<String> declaredLibraries = new HashSet<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
@@ -393,8 +393,8 @@ public class BizModel implements Biz {
         return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
     }
 
-    public BizModel setProvidedLibraries(String providedLibraries) {
-        this.providedLibraries = StringUtils.strToSet(providedLibraries,
+    public BizModel setDeclaredLibraries(String declaredLibraries) {
+        this.declaredLibraries = StringUtils.strToSet(declaredLibraries,
             Constants.MANIFEST_VALUE_SPLIT);
         return this;
     }
@@ -404,7 +404,7 @@ public class BizModel implements Biz {
      * @param classLocation
      * @return
      */
-    public boolean isProvided(String classLocation) {
+    public boolean isDeclared(String classLocation) {
         if (!StringUtils.isEmpty(classLocation)) {
             int index = classLocation.indexOf(".jar");
             if (index == -1) {
@@ -417,7 +417,7 @@ public class BizModel implements Biz {
                 String packageName = pathInfo[pathInfo.length - 1];
                 String packageVersion = "-" + pathInfo[pathInfo.length - 2];
                 String artifactId = packageName.replace(packageVersion, "");
-                return providedLibraries.contains(artifactId);
+                return declaredLibraries.contains(artifactId);
             }
 
             // class not in jar
@@ -432,7 +432,11 @@ public class BizModel implements Biz {
      * @param url
      * @return
      */
-    public boolean isProvided(URL url) {
+    public boolean isDeclared(URL url) {
+        // compatibility when no declared parse in biz, then just not filter by return true.
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return true;
+        }
         if (url != null) {
             if ("jar".equals(url.getProtocol())) {
                 String libraryFile = url.getFile();
@@ -446,7 +450,7 @@ public class BizModel implements Biz {
                     String packageName = pathInfo[pathInfo.length - 1];
                     String packageVersion = "-" + pathInfo[pathInfo.length - 2];
                     String artifactId = packageName.replace(packageVersion, "");
-                    return providedLibraries.contains(artifactId);
+                    return declaredLibraries.contains(artifactId);
                 }
             } else {
                 return "file".equals(url.getProtocol());

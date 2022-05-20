@@ -128,7 +128,7 @@ public class BizClassLoaderTest extends BaseTest {
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
-        bizModel.setProvidedLibraries("sample-ark-plugin");
+        bizModel.setDeclaredLibraries("sample-ark-plugin");
 
         PluginModel pluginA = new PluginModel();
         pluginA

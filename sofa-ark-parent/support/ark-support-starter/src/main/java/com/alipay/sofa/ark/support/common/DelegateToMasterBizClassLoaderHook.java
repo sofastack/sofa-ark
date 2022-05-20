@@ -22,7 +22,6 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
-import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -53,7 +52,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         Class<?> clazz = bizClassLoader.loadClass(name);
         if (clazz != null) {
             String location = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
-            if (biz.isProvided(location)) {
+            if (biz.isDeclared(location)) {
                 return clazz;
             }
 
@@ -62,7 +61,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
                                                                     + ".class");
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
-                    if (biz.isProvided(resourceUrl)) {
+                    if (biz.isDeclared(resourceUrl)) {
                         return clazz;
                     }
                 }
@@ -87,7 +86,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         }
         try {
             URL resourceUrl = bizClassLoader.getResource(name);
-            if (biz.isProvided(resourceUrl)) {
+            if (biz.isDeclared(resourceUrl)) {
                 return resourceUrl;
             }
             return null;
@@ -115,7 +114,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             while (resourceUrls.hasMoreElements()) {
                 URL resourceUrl = resourceUrls.nextElement();
 
-                if (biz.isProvided(resourceUrl)) {
+                if (biz.isDeclared(resourceUrl)) {
                     matchedResourceUrls.add(resourceUrl);
                 }
             }
