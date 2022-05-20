@@ -17,13 +17,14 @@
 package com.alipay.sofa.ark.support;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * TestNGCommonTest
  * @author qilong.zql 18/4/26-上午8:58
  */
 public class TestNGCommonTest {
-    //    @Test
+    @Test
     public void test() {
         ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader thisClassLoader = this.getClass().getClassLoader();
