@@ -88,7 +88,7 @@ public class BizModel implements Biz {
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String> declaredLibraries = new HashSet<>();
+    private Set<String>            declaredLibraries             = new HashSet<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
