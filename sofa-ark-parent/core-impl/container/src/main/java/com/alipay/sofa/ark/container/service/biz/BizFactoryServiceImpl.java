@@ -94,7 +94,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(
                 new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()),
-                    bizArchive instanceof ExplodedBizArchive));
+                    bizArchive instanceof ExplodedBizArchive || bizArchive instanceof DirectoryBizArchive));
         return bizModel;
     }
 
