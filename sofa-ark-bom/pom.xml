@@ -15,11 +15,11 @@
     <properties>
         <log4j.version>1.7.21</log4j.version>
         <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
-        <logback.version>1.1.11</logback.version>
+        <logback.version>1.2.9</logback.version>
 
         <guice.version>4.0</guice.version>
-        <asm.version>7.0</asm.version>
-        <commons.io.version>2.5</commons.io.version>
+        <asm.version>5.0.3</asm.version>
+        <commons.io.version>2.7</commons.io.version>
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
         <maven.core.version>2.2.1</maven.core.version>
@@ -40,7 +40,7 @@
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
-        <maven.plugin.plugin>3.5</maven.plugin.plugin>
+        <maven.plugin.plugin>3.4</maven.plugin.plugin>
         <surefire.version>2.20</surefire.version>
         <netty.version>4.1.42.Final</netty.version>
         <spring.loader.version>2.5.6</spring.loader.version>
