@@ -88,6 +88,8 @@ public class BizModel implements Biz {
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
 
+    private Set<String>            declaredLibraries             = new HashSet<>();
+
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
     private Set<String>            denySuffixImportResourceStems = new HashSet<>();
@@ -389,5 +391,72 @@ public class BizModel implements Biz {
 
     private boolean isMasterBizAndEmbedEnable() {
         return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
+    }
+
+    public BizModel setDeclaredLibraries(String declaredLibraries) {
+        this.declaredLibraries = StringUtils.strToSet(declaredLibraries,
+            Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    /**
+     * check if the class is defined in classloader
+     * @param classLocation
+     * @return
+     */
+    public boolean isDeclared(String classLocation) {
+        if (!StringUtils.isEmpty(classLocation)) {
+            int index = classLocation.indexOf(".jar");
+            if (index == -1) {
+                return true;
+            }
+            String subClassLocation = classLocation.substring(0, index);
+            String[] pathInfo = subClassLocation.split("/");
+
+            if (pathInfo.length >= 2) {
+                String packageName = pathInfo[pathInfo.length - 1];
+                String packageVersion = "-" + pathInfo[pathInfo.length - 2];
+                String artifactId = packageName.replace(packageVersion, "");
+                return declaredLibraries.contains(artifactId);
+            }
+
+            // class not in jar
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * check if the resource is defined in classloader, ignore jar version
+     * @param url
+     * @return
+     */
+    public boolean isDeclared(URL url) {
+        // compatibility when no declared parse in biz, then just not filter by return true.
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return true;
+        }
+        if (url != null) {
+            if ("jar".equals(url.getProtocol())) {
+                String libraryFile = url.getFile();
+                int index = libraryFile.indexOf(".jar!");
+                if (index == -1) {
+                    return true;
+                }
+                String subLibraryFile = libraryFile.substring(0, index);
+                String[] pathInfo = subLibraryFile.split("/");
+                if (pathInfo.length >= 2) {
+                    String packageName = pathInfo[pathInfo.length - 1];
+                    String packageVersion = "-" + pathInfo[pathInfo.length - 2];
+                    String artifactId = packageName.replace(packageVersion, "");
+                    return declaredLibraries.contains(artifactId);
+                }
+            } else {
+                return "file".equals(url.getProtocol());
+            }
+        }
+
+        return false;
     }
 }

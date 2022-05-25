@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -48,6 +49,16 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     private AtomicBoolean        isHookLoaded      = new AtomicBoolean(false);
     private AtomicBoolean        skipLoadHook      = new AtomicBoolean(false);
     private final Object         lock              = new Object();
+
+    private BizModel             bizModel;
+
+    public void setBizModel(BizModel bizModel) {
+        this.bizModel = bizModel;
+    }
+
+    public BizModel getBizModel() {
+        return this.bizModel;
+    }
 
     static {
         ClassLoader.registerAsParallelCapable();
