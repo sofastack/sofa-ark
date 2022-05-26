@@ -25,7 +25,7 @@ import com.alipay.sofa.ark.spi.service.extension.Extension;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * A default hook for biz classloader. Trying to post load class by master biz if not found
@@ -45,10 +45,31 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
     public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
                                                                                               throws ClassNotFoundException {
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz != null && biz.getBizClassLoader() == bizClassLoader) {
+        if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
             return null;
         }
-        return bizClassLoader.loadClass(name);
+        // if Master Biz contains same class in multi jar, need to check each whether is provided
+        Class<?> clazz = bizClassLoader.loadClass(name);
+        if (clazz != null) {
+            String location = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
+            if (biz.isDeclared(location)) {
+                return clazz;
+            }
+
+            try {
+                Enumeration<URL> urls = bizClassLoader.getResources(name.replace('.', '/')
+                                                                    + ".class");
+                while (urls.hasMoreElements()) {
+                    URL resourceUrl = urls.nextElement();
+                    if (biz.isDeclared(resourceUrl)) {
+                        return clazz;
+                    }
+                }
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -59,15 +80,16 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
 
     @Override
     public URL postFindResource(String name, ClassLoaderService classLoaderService, Biz biz) {
-        if (shouldSkip(name)) {
-            return null;
-        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz != null && biz.getBizClassLoader() == bizClassLoader) {
+        if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
             return null;
         }
         try {
-            return bizClassLoader.getResource(name);
+            URL resourceUrl = bizClassLoader.getResource(name);
+            if (biz.isDeclared(resourceUrl)) {
+                return resourceUrl;
+            }
+            return null;
         } catch (Exception e) {
             return null;
         }
@@ -82,21 +104,23 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
     @Override
     public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService,
                                               Biz biz) throws IOException {
-        if (shouldSkip(name)) {
-            return null;
-        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz != null && biz.getBizClassLoader() == bizClassLoader) {
+        if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
             return null;
         }
         try {
-            return bizClassLoader.getResources(name);
+            Enumeration<URL> resourceUrls = bizClassLoader.getResources(name);
+            List<URL> matchedResourceUrls = new ArrayList<>();
+            while (resourceUrls.hasMoreElements()) {
+                URL resourceUrl = resourceUrls.nextElement();
+
+                if (biz.isDeclared(resourceUrl)) {
+                    matchedResourceUrls.add(resourceUrl);
+                }
+            }
+            return Collections.enumeration(matchedResourceUrls);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private boolean shouldSkip(String resourceName) {
-        return !resourceName.endsWith(".class");
     }
 }
