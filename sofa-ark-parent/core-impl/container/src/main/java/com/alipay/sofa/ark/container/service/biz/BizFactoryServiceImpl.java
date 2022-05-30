@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.loader.ExplodedBizArchive;
+import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
@@ -94,7 +95,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(
                 new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()),
-                    bizArchive instanceof ExplodedBizArchive));
+                    bizArchive instanceof ExplodedBizArchive || bizArchive instanceof DirectoryBizArchive));
         return bizModel;
     }
 
