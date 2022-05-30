@@ -20,6 +20,8 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import org.apache.maven.artifact.Artifact;
 
+import java.util.Objects;
+
 /**
  * @author qilong.zql
  * @since 0.1.0
@@ -166,4 +168,26 @@ public class ArtifactItem {
         return artifactItem;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ArtifactItem artifactItem = (ArtifactItem) o;
+        return Objects.equals(this.groupId, artifactItem.getGroupId())
+               && Objects.equals(this.artifactId, artifactItem.getArtifactId())
+               && Objects.equals(this.type, artifactItem.getType())
+               && Objects.equals(this.version, artifactItem.getVersion())
+               && Objects.equals(this.classifier, artifactItem.getClassifier());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects
+            .hash(this.groupId, this.artifactId, this.type, this.version, this.classifier);
+    }
 }

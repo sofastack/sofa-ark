@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.springboot2;
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnSpringBootVersion;
 import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
-import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +35,7 @@ public class CompatibleSpringBoot2AutoConfiguration {
     @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.annotation.Endpoint")
     public static class ConditionIntrospectEndpointConfiguration {
         @Bean
-        @ConditionalOnEnabledEndpoint
+        @ConditionalOnAvailableEndpoint
         public IntrospectBizEndpoint introspectBizEndpoint() {
             return new IntrospectBizEndpoint();
         }

@@ -28,6 +28,8 @@ public class Library {
 
     private final String  name;
 
+    private String        artifactId;
+
     private final File    file;
 
     private LibraryScope  scope;
@@ -74,6 +76,22 @@ public class Library {
      */
     public String getName() {
         return this.name;
+    }
+
+    /**
+     * return the artifact id
+     * @return the artifactId
+     */
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    /**
+     * set artifactId
+     * @param artifactId
+     */
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
     }
 
     /**
