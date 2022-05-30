@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -56,6 +57,16 @@ public class BaseTest {
     static {
         // fix cobertura bug
         new PluginServiceProvider(new PluginModel());
+    }
+
+    public static BizModel createTestBizModel(String bizName, String bizVersion, BizState bizState,
+                                              URL[] urls) {
+        BizModel bizModel = new BizModel().setBizState(bizState);
+        bizModel.setBizName(bizName).setBizVersion(bizVersion);
+        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(), urls);
+        bizClassLoader.setBizModel(bizModel);
+        bizModel.setClassPath(urls).setClassLoader(bizClassLoader);
+        return bizModel;
     }
 
     @Before

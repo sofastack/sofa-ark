@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
@@ -35,11 +36,7 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.jar.JarFile;
 
@@ -361,8 +358,31 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
             if (importClassLoader != null) {
                 try {
-                    return importClassLoader.loadClass(name);
-                } catch (ClassNotFoundException e) {
+                    Class<?> clazz = importClassLoader.loadClass(name);
+                    if (clazz == null) {
+                        return null;
+                    }
+                    URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
+                    if (this instanceof BizClassLoader
+                        && ((BizClassLoader) this).getBizModel() != null) {
+                        BizModel bizModel = ((BizClassLoader) this).getBizModel();
+
+                        String location = url.getFile();
+                        if (bizModel.isDeclared(location)) {
+                            return clazz;
+                        }
+                        Enumeration<URL> urls = importClassLoader.getResources(name.replace('/',
+                            '.') + ".class");
+                        while (urls.hasMoreElements()) {
+                            URL resourceUrl = urls.nextElement();
+                            if (bizModel.isDeclared(resourceUrl)) {
+                                return clazz;
+                            }
+                        }
+                    } else {
+                        return clazz;
+                    }
+                } catch (ClassNotFoundException | IOException e) {
                     // just log when debug level
                     if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
                         // log debug message
@@ -435,9 +455,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             if (exportResourceClassLoadersInOrder != null) {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
-                    if (url != null) {
-                        return url;
+                    if (url != null && this instanceof BizClassLoader) {
+                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url)) {
+                            return url;
+                        } else {
+                            return null;
+                        }
                     }
+                    return url;
                 }
             }
 
@@ -511,8 +536,22 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         enumerationList.add(exportResourceClassLoader.getResources(resourceName));
                     }
                 }
-                return new CompoundEnumeration<>(
+
+                Enumeration<URL> urls = new CompoundEnumeration<>(
                     enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+                if (this instanceof BizClassLoader) {
+                    BizModel bizModel = ((BizClassLoader) this).getBizModel();
+                    List<URL> matchedResourceUrls = new ArrayList<>();
+                    while (urls.hasMoreElements()) {
+                        URL resourceUrl = urls.nextElement();
+
+                        if (bizModel.isDeclared(resourceUrl)) {
+                            matchedResourceUrls.add(resourceUrl);
+                        }
+                    }
+                    return Collections.enumeration(matchedResourceUrls);
+                }
+                return urls;
             }
         }
         return Collections.emptyEnumeration();

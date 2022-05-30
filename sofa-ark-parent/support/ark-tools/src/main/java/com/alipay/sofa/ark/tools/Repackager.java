@@ -21,10 +21,7 @@ import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
@@ -72,6 +69,7 @@ public class Repackager {
 
     private LinkedHashSet<ArtifactItem>           injectPluginDependencies           = new LinkedHashSet<>();
     private LinkedHashSet<String>                 injectPluginExportPackages         = new LinkedHashSet<>();
+    private LinkedHashSet<String>                 declaredLibraries                  = new LinkedHashSet<>();
 
     private final File                            source;
 
@@ -184,6 +182,17 @@ public class Repackager {
         }
     }
 
+    public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
+        if (artifactItems == null) {
+            return;
+        }
+        for (ArtifactItem artifactItem : artifactItems) {
+            if (artifactItem != null && artifactItem.getArtifactId() != null) {
+                declaredLibraries.add(artifactItem.getArtifactId());
+            }
+        }
+    }
+
     /**
      * Repackage to the given destination so that it can be launched using '
      * {@literal java -jar}'.
@@ -213,7 +222,6 @@ public class Repackager {
         libraries.doWithLibraries(new LibraryCallback() {
             @Override
             public void library(Library library) throws IOException {
-
                 if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
                     return;
                 }
@@ -428,6 +436,8 @@ public class Repackager {
             setToStr(injectPluginDependencies, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(INJECT_EXPORT_PACKAGES,
             StringUtils.setToStr(injectPluginExportPackages, MANIFEST_VALUE_SPLIT));
+        manifest.getMainAttributes().putValue(DECLARED_LIBRARIES,
+            StringUtils.setToStr(declaredLibraries, MANIFEST_VALUE_SPLIT));
         return manifest;
     }
 
