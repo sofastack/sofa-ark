@@ -72,8 +72,10 @@ public class ArtifactsLibraries implements Libraries {
                     name = artifact.getGroupId() + "-" + name;
                     this.log.debug(String.format("Renamed to: %s", name));
                 }
-                callback.library(new Library(name, artifact.getFile(), scope,
-                    isUnpackRequired(artifact)));
+                Library library = new Library(name, artifact.getFile(), scope,
+                    isUnpackRequired(artifact));
+                library.setArtifactId(artifact.getArtifactId());
+                callback.library(library);
             }
         }
     }

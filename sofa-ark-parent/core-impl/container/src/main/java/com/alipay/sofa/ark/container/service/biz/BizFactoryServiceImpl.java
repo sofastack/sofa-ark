@@ -61,6 +61,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
 
 /**
  * {@link BizFactoryService}
@@ -92,11 +93,22 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectPluginDependencies(
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
+<<<<<<< HEAD
             .setClassPath(bizArchive.getUrls())
             .setClassLoader(
                 new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()),
                     bizArchive instanceof ExplodedBizArchive
                             || bizArchive instanceof DirectoryBizArchive));
+=======
+                      .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
+            .setClassPath(bizArchive.getUrls());
+
+        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
+            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive || bizArchive instanceof DirectoryBizArchive);
+        bizClassLoader.setBizModel(bizModel);
+        bizModel.setClassLoader(bizClassLoader);
+        bizClassLoader.setBizModel(bizModel);
+>>>>>>> 96e66ea4b90e49c7b1034d9fcb31ce9230a00b1f
         return bizModel;
     }
 
