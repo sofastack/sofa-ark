@@ -93,11 +93,12 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectPluginDependencies(
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
-                      .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
+            .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
             .setClassPath(bizArchive.getUrls());
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
-            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive || bizArchive instanceof DirectoryBizArchive);
+            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
+                                                || bizArchive instanceof DirectoryBizArchive);
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
         bizClassLoader.setBizModel(bizModel);
