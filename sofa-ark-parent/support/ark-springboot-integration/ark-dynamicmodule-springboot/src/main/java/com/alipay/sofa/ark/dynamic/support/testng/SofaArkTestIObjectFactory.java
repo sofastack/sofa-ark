@@ -51,6 +51,6 @@ public class SofaArkTestIObjectFactory extends ObjectFactoryImpl {
     }
 
     private boolean supports(Object instance) {
-        return instance instanceof AbstractTestNGSofaArkContextTests || ArkConfigs.isEmbedEnable();
+        return instance instanceof AbstractTestNGSofaArkContextTests && ArkConfigs.isEmbedEnable();
     }
 }
