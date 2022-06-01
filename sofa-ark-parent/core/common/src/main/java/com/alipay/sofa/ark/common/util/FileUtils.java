@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.google.common.base.Strings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -157,6 +158,14 @@ public class FileUtils {
             if (zipFile != null) {
                 zipFile.close();
             }
+        }
+    }
+
+    public static String removeEnd(String str, String remove) {
+        if (!Strings.isNullOrEmpty(str) && !Strings.isNullOrEmpty(remove)) {
+            return str.endsWith(remove) ? str.substring(0, str.length() - remove.length()) : str;
+        } else {
+            return str;
         }
     }
 }

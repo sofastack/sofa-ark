@@ -156,11 +156,17 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
 
+        Biz biz = bizFactoryService.createBiz(bizFile);
+        return installBiz(biz, args);
+    }
+
+    public static ClientResponse installBiz(Biz biz, String[] args) throws Throwable {
+        AssertUtils.assertNotNull(biz, "biz must not be null!");
+
         long start = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
-        Biz biz = bizFactoryService.createBiz(bizFile);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
             || !bizManagerService.registerBiz(biz)) {

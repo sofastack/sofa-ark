@@ -21,6 +21,7 @@
         <module>ark-springboot-integration/ark-compatible-springboot1</module>
         <module>ark-springboot-integration/ark-compatible-springboot2</module>
         <module>ark-springboot-integration/ark-common-springboot</module>
+        <module>ark-springboot-integration/ark-dynamicmodule-springboot</module>
     </modules>
 
 </project>

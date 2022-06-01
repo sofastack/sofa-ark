@@ -19,8 +19,10 @@ package com.alipay.sofa.ark.common.util;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
@@ -61,6 +63,18 @@ public class ReflectionUtils {
              || !Modifier.isPublic(field.getDeclaringClass().getModifiers()) || Modifier
             .isFinal(field.getModifiers())) && !field.isAccessible()) {
             field.setAccessible(true);
+        }
+    }
+
+    public static void addURL(ClassLoader classLoader, URL url) {
+        try {
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            if (!method.isAccessible()) {
+                method.setAccessible(true);
+            }
+            method.invoke(classLoader, url);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
