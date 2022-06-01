@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import com.alipay.sofa.ark.common.util.ClassUtils;
@@ -27,6 +28,7 @@ import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
@@ -41,6 +43,7 @@ import org.apache.maven.project.MavenProjectHelper;
 
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
+import org.apache.maven.shared.invoker.*;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
@@ -279,11 +282,46 @@ public class RepackageMojo extends AbstractMojo {
         Libraries libraries = new ArtifactsLibraries(getAdditionalArtifact(), this.requiresUnpack,
             getLog());
         try {
+            MavenProject rootProject = MavenUtils.getRootProject(this.project);
+            Set<ArtifactItem> artifactItems = getAllArtifact(rootProject);
+            repackager.prepareDeclaredLibraries(artifactItems);
             repackager.repackage(appTarget, moduleTarget, libraries);
         } catch (IOException ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
         updateArtifact(appTarget, repackager.getModuleTargetFile());
+    }
+
+    private Set<ArtifactItem> getAllArtifact(MavenProject rootProject)
+                                                                      throws MojoExecutionException {
+        File baseDir = rootProject.getBasedir();
+        getLog().info("root project path: " + baseDir.getAbsolutePath());
+
+        // dependency:tree
+        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
+        request.setGoals(Arrays.asList("dependency:tree", "-Dscope=compile", "-DappendOutput=true",
+            "-DoutputFile=" + outputPath));
+        Invoker invoker = new DefaultInvoker();
+        try {
+            InvocationResult result = invoker.execute(request);
+            if (result.getExitCode() != 0) {
+                throw new MojoExecutionException("execute dependency:tree failed",
+                    result.getExecutionException());
+            }
+
+            String depTreeStr = FileUtils.readFileToString(FileUtils.getFile(outputPath),
+                Charset.defaultCharset());
+            return MavenUtils.convert(depTreeStr);
+        } catch (MavenInvocationException | IOException e) {
+            throw new MojoExecutionException("execute dependency:tree failed", e);
+        } finally {
+            File outputFile = new File(outputPath);
+            if (outputFile.exists()) {
+                outputFile.delete();
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

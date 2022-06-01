@@ -57,9 +57,10 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
 
 
 ## 快速开始
-* [样例工程](https://github.com/sofastack-guides/sofa-ark-samples)
-  * [基于普通的 Maven 应用构建 Ark Plugin](https://github.com/sofastack-guides/sofa-ark-samples/tree/master/sample-ark-plugin)
-  * [基于 SpringBoot 应用使用 SOFAArk](https://github.com/sofastack-guides/sofa-ark-samples/tree/master/sample-ark-springboot)
+* [基于多 Ark Plugin 解决类冲突](https://github.com/sofastack-guides/sofa-ark-class-isolation)
+* [SpringBoot 应用基于 SOFAArk 的动态热部署](https://github.com/sofastack-guides/sofa-ark-spring-guides.git)
+* [SOFABoot 应用基于 SOFAArk 的动态模块](https://github.com/sofastack-guides/sofa-ark-dynamic-guides)
+* [基于普通的 Maven 应用构建 Ark Plugin](https://github.com/sofastack-guides/sofa-ark-samples/tree/master/sample-ark-plugin)
  
 ## 社区
 * [Gitter channel](https://gitter.im/sofa-ark/Lobby) 
@@ -70,6 +71,8 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
 
 ## 文档
 * [SOFAArk 用户手册(中文)](http://www.sofastack.tech/sofa-boot/docs/sofa-ark-readme) : SOFAArk 用户手册及功能特性详细说明
+* [SOFAArk2.0 升级](https://www.sofastack.tech/projects/sofa-boot/sofa-ark-migration-guide/) : SOFAArk1.0升级到2.0 操作详细说明
+
 
 ## 致谢
 SOFAArk 类隔离框架设计实现主要基于 OSGi 规范及蚂蚁金服的 CloudEngine 容器；同时也参考了 Spring Boot 及阿里的 PandoraBoot，感谢以上产品工作者的辛勤付出。
