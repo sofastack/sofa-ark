@@ -156,40 +156,34 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
 
-        Biz biz = bizFactoryService.createBiz(bizFile);
-        return installBiz(biz, args);
-    }
-
-    public static ClientResponse installBiz(Biz biz, String[] args) throws Throwable {
-        AssertUtils.assertNotNull(biz, "biz must not be null!");
-
         long start = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
+        Biz biz = bizFactoryService.createBiz(bizFile);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
-            || !bizManagerService.registerBiz(biz)) {
+                || !bizManagerService.registerBiz(biz)) {
             return response.setCode(ResponseCode.REPEAT_BIZ).setMessage(
-                String.format("Biz: %s has been installed or registered.", biz.getIdentity()));
+                    String.format("Biz: %s has been installed or registered.", biz.getIdentity()));
         }
 
         try {
             biz.start(args);
             long end = System.currentTimeMillis();
             response
-                .setCode(ResponseCode.SUCCESS)
-                .setMessage(
-                    String.format("Install Biz: %s success, cost: %s ms, started at: %s",
-                        biz.getIdentity(), end - start, startDate))
-                .setBizInfos(Collections.<BizInfo> singleton(biz));
+                    .setCode(ResponseCode.SUCCESS)
+                    .setMessage(
+                            String.format("Install Biz: %s success, cost: %s ms, started at: %s",
+                                    biz.getIdentity(), end - start, startDate))
+                    .setBizInfos(Collections.<BizInfo> singleton(biz));
             LOGGER.info(response.getMessage());
             return response;
         } catch (Throwable throwable) {
             long end = System.currentTimeMillis();
             response.setCode(ResponseCode.FAILED).setMessage(
-                String.format("Install Biz: %s fail,cost: %s ms, started at: %s",
-                    biz.getIdentity(), end - start, startDate));
+                    String.format("Install Biz: %s fail,cost: %s ms, started at: %s",
+                            biz.getIdentity(), end - start, startDate));
             LOGGER.error(response.getMessage(), throwable);
             try {
                 biz.stop();
@@ -220,26 +214,26 @@ public class ArkClient {
         // ignore when uninstall master biz
         if (bizName.equals(ArkConfigs.getStringValue(Constants.MASTER_BIZ))) {
             return new ClientResponse().setCode(ResponseCode.FAILED).setMessage(
-                "Master biz must not be uninstalled.");
+                    "Master biz must not be uninstalled.");
         }
 
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
-            .setMessage(
-                String.format("Uninstall biz: %s not found.",
-                    BizIdentityUtils.generateBizIdentity(bizName, bizVersion)));
+                .setMessage(
+                        String.format("Uninstall biz: %s not found.",
+                                BizIdentityUtils.generateBizIdentity(bizName, bizVersion)));
         if (biz != null) {
             try {
                 biz.stop();
             } catch (Throwable throwable) {
                 LOGGER
-                    .error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), throwable);
+                        .error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), throwable);
                 throw throwable;
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             }
             response.setCode(ResponseCode.SUCCESS).setMessage(
-                String.format("Uninstall biz: %s success.", biz.getIdentity()));
+                    String.format("Uninstall biz: %s success.", biz.getIdentity()));
         }
         LOGGER.info(response.getMessage());
         return response;
@@ -292,8 +286,8 @@ public class ArkClient {
         sb.append(String.format("Biz count=%d", bizInfoSet.size())).append("\n");
         for (BizInfo bizInfo : bizInfoSet) {
             sb.append(
-                String.format("bizName=%s, bizVersion=%s, bizState=%s", bizInfo.getBizName(),
-                    bizInfo.getBizVersion(), bizInfo.getBizState())).append("\n");
+                    String.format("bizName=%s, bizVersion=%s, bizState=%s", bizInfo.getBizName(),
+                            bizInfo.getBizVersion(), bizInfo.getBizState())).append("\n");
         }
         response.setCode(ResponseCode.SUCCESS).setBizInfos(bizInfoSet).setMessage(sb.toString());
         LOGGER.info(String.format("Check Biz: %s", response.getMessage()));
@@ -314,21 +308,21 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
         ClientResponse response = new ClientResponse().setCode(ResponseCode.NOT_FOUND_BIZ)
-            .setMessage(
-                String.format("Switch biz: %s not found.",
-                    BizIdentityUtils.generateBizIdentity(bizName, bizVersion)));
+                .setMessage(
+                        String.format("Switch biz: %s not found.",
+                                BizIdentityUtils.generateBizIdentity(bizName, bizVersion)));
         if (biz != null) {
             if (biz.getBizState() != BizState.ACTIVATED
-                && biz.getBizState() != BizState.DEACTIVATED) {
+                    && biz.getBizState() != BizState.DEACTIVATED) {
                 response.setCode(ResponseCode.ILLEGAL_STATE_BIZ).setMessage(
-                    String.format("Switch Biz: %s's state must not be %s.", biz.getIdentity(),
-                        biz.getBizState()));
+                        String.format("Switch Biz: %s's state must not be %s.", biz.getIdentity(),
+                                biz.getBizState()));
             } else {
                 eventAdminService.sendEvent(new BeforeBizSwitchEvent(biz));
                 bizManagerService.activeBiz(bizName, bizVersion);
                 eventAdminService.sendEvent(new AfterBizSwitchEvent(biz));
                 response.setCode(ResponseCode.SUCCESS).setMessage(
-                    String.format("Switch biz: %s is activated.", biz.getIdentity()));
+                        String.format("Switch biz: %s is activated.", biz.getIdentity()));
             }
         }
         LOGGER.info(response.getMessage());
@@ -340,15 +334,15 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
-                                                                                           throws Throwable {
+            throws Throwable {
         AssertUtils.isTrue(
-            BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
-            "Operation type must be install");
+                BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
+                "Operation type must be install");
         File bizFile = null;
         if (bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL) != null) {
             URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
             bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
-                bizOperation.getBizVersion());
+                    bizOperation.getBizVersion());
             FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
         }
         return installBiz(bizFile, args);
@@ -356,22 +350,22 @@ public class ArkClient {
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
         AssertUtils.isTrue(
-            BizOperation.OperationType.UNINSTALL.equals(bizOperation.getOperationType()),
-            "Operation type must be uninstall");
+                BizOperation.OperationType.UNINSTALL.equals(bizOperation.getOperationType()),
+                "Operation type must be uninstall");
         return uninstallBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 
     public static ClientResponse switchOperation(BizOperation bizOperation) {
         AssertUtils.isTrue(
-            BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
-            "Operation type must be switch");
+                BizOperation.OperationType.SWITCH.equals(bizOperation.getOperationType()),
+                "Operation type must be switch");
         return switchBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 
     public static ClientResponse checkOperation(BizOperation bizOperation) {
         AssertUtils.isTrue(
-            BizOperation.OperationType.CHECK.equals(bizOperation.getOperationType()),
-            "Operation type must be check");
+                BizOperation.OperationType.CHECK.equals(bizOperation.getOperationType()),
+                "Operation type must be check");
         return checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
     }
 
