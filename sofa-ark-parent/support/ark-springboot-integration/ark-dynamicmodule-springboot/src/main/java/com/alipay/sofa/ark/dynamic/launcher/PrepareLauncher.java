@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 import static com.alipay.sofa.ark.dynamic.common.SofaArkTestConstants.WORKSPACE;
 
 /**
+ * The type Prepare launcher.
+ *
  * @author hanyue
  * @version : PrepareLauncher.java, v 0.1 2022年05月28日 上午6:09 hanyue Exp $
  */
@@ -60,6 +62,11 @@ public class PrepareLauncher {
     private static final String    BIZ_DIR                  = "target";
     public static final String     DEFAULT_BIZ_NAME         = "testBiz-ark-biz.jar";
 
+    /**
+     * Check.
+     *
+     * @throws Exception the exception
+     */
     public static void check() throws Exception {
         // Make sure the script can be executed
         checkAndCopySh();
@@ -71,6 +78,11 @@ public class PrepareLauncher {
         checkBizFatJar();
     }
 
+    /**
+     * Check and copy sh.
+     *
+     * @throws IOException the io exception
+     */
     public static void checkAndCopySh() throws IOException {
         InputStream masterfatJar_inputStream = PrepareLauncher.class.getResource(SOURCE_MASTER_PACKAGE_SH).openStream();
         OutputStream masterfatJar_outputStream = new FileOutputStream(TARGET_MASTER_PACKAGE_SH);
@@ -86,6 +98,11 @@ public class PrepareLauncher {
         }));
     }
 
+    /**
+     * Check master fat j ar.
+     *
+     * @throws Exception the exception
+     */
     public static void checkMasterFatJAr() throws Exception {
         String projectBaseDir = CommonUtils.getProjectBaseDir();
 
@@ -160,6 +177,11 @@ public class PrepareLauncher {
         }
     }
 
+    /**
+     * Check biz fat jar.
+     *
+     * @throws Exception the exception
+     */
     public static void checkBizFatJar() throws Exception {
         String projectBaseDir = CommonUtils.getProjectBaseDir();
         File bizDir = new File(projectBaseDir, BIZ_DIR);
@@ -215,10 +237,22 @@ public class PrepareLauncher {
             TimeUnit.MINUTES);
     }
 
+    /**
+     * Maven options string.
+     *
+     * @return the string
+     */
     public static String mavenOptions() {
         return EnvironmentUtils.getProperty(SofaArkTestConstants.MAVEN_OPTIONS, "");
     }
 
+    /**
+     * Download from url.
+     *
+     * @param url    the url
+     * @param target the target
+     * @throws Exception the exception
+     */
     public static void downloadFromURL(URL url, File target) throws Exception {
         long start = System.currentTimeMillis();
         LOGGER.info("Start from url={} download resource", url);
@@ -227,6 +261,12 @@ public class PrepareLauncher {
             System.currentTimeMillis() - start, target);
     }
 
+    /**
+     * Gets name from git address.
+     *
+     * @param git the git
+     * @return the name from git address
+     */
     public static String getNameFromGitAddress(String git) {
         if (Strings.isNullOrEmpty(git)) {
             return null;

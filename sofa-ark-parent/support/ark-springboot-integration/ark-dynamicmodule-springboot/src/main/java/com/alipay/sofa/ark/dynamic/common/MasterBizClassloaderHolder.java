@@ -17,16 +17,28 @@
 package com.alipay.sofa.ark.dynamic.common;
 
 /**
+ * The type Master biz classloader holder.
+ *
  * @author hanyue
  * @version : MasterBizClassloaderHolder.java, v 0.1 2022年05月20日 下午1:43 hanyue Exp $
  */
 public class MasterBizClassloaderHolder {
     private static ClassLoader classLoader;
 
+    /**
+     * Gets class loader.
+     *
+     * @return the class loader
+     */
     public static ClassLoader getClassLoader() {
         return classLoader;
     }
 
+    /**
+     * Sets class loader.
+     *
+     * @param classLoader the class loader
+     */
     public static void setClassLoader(ClassLoader classLoader) {
         MasterBizClassloaderHolder.classLoader = classLoader;
     }

@@ -43,17 +43,20 @@ public class TestSofaArkTestExecutionListener implements SofaArkTestExecutionLis
     }
 
     @Override
-    public void beforeInstallBiz(SofaArkTestContext testContext, ClassLoader masterClassLoader) {
-        Object attribute = testContext.getAttribute(SofaArkTestConstants.BIZ_FAT_JAR);
-        Assert.assertTrue(attribute instanceof File);
-        File fIle = (File) attribute;
-        Assert.assertTrue(fIle.exists());
-
+    public void afterInstallMaster(SofaArkTestContext testContext, ClassLoader masterClassLoader) {
         ApplicationContext applicationContext = testContext.getApplicationContext();
         Object sofaArkTestBean = applicationContext.getBean("sofaArkTestBean");
         Assert.assertNotNull(sofaArkTestBean);
 
         Assert.assertEquals(getClass().getClassLoader(), masterClassLoader);
+    }
+
+    @Override
+    public void beforeInstallBiz(SofaArkTestContext testContext, ClassLoader masterClassLoader) throws Exception {
+        Object attribute = testContext.getAttribute(SofaArkTestConstants.BIZ_FAT_JAR);
+        Assert.assertTrue(attribute instanceof File);
+        File file = (File) attribute;
+        Assert.assertTrue(file.exists());
     }
 
     @Override

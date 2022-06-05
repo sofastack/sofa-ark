@@ -37,10 +37,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 import org.springframework.context.annotation.ScopeMetadata;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.core.Ordered;
 
 import java.util.ServiceLoader;
 
 /**
+ * The type Dependency injection test execution listener.
+ *
  * @author hanyue
  * @version : DependencyInjectionTestExecutionListener.java, v 0.1 2022年05月26日 下午1:54 hanyue Exp $
  * @see MasterConfigurationHook
@@ -51,16 +54,21 @@ public class DependencyInjectionTestExecutionListener implements SofaArkTestExec
     private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
     @Override
-    public void beforeInstallBiz(SofaArkTestContext testContext, ClassLoader testClassLoader) {
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    @Override
+    public void afterInstallMaster(SofaArkTestContext testContext, ClassLoader testClassLoader) {
         BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
         ApplicationContext applicationContext = testContext.getApplicationContext();
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext
-            .getAutowireCapableBeanFactory();
+                .getAutowireCapableBeanFactory();
 
         for (MasterConfigurationHook configurationHook : ServiceLoader.load(
-            MasterConfigurationHook.class, testClassLoader)) {
+                MasterConfigurationHook.class, testClassLoader)) {
             Class<? extends MasterConfigurationHook> configurationHookClass = configurationHook
-                .getClass();
+                    .getClass();
             registryConfiguration(configurationHookClass, beanFactory, registry);
         }
     }
@@ -70,25 +78,32 @@ public class DependencyInjectionTestExecutionListener implements SofaArkTestExec
         BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
         ApplicationContext applicationContext = testContext.getApplicationContext();
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext
-            .getAutowireCapableBeanFactory();
+                .getAutowireCapableBeanFactory();
 
         for (BizConfigurationHook configurationHook : ServiceLoader.load(
-            BizConfigurationHook.class, bizClassLoader)) {
+                BizConfigurationHook.class, bizClassLoader)) {
             Class<? extends BizConfigurationHook> configurationHookClass = configurationHook
-                .getClass();
+                    .getClass();
             registryConfiguration(configurationHookClass, beanFactory, registry);
         }
     }
 
+    /**
+     * Registry configuration.
+     *
+     * @param configurationHookClass the configuration hook class
+     * @param beanFactory            the bean factory
+     * @param registry               the registry
+     */
     public void registryConfiguration(Class<?> configurationHookClass,
                                       DefaultListableBeanFactory beanFactory,
                                       BeanDefinitionRegistry registry) {
         if (configurationHookClass.isAnnotationPresent(Configuration.class)) {
             AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(
-                configurationHookClass);
+                    configurationHookClass);
 
             ScopeMetadata scopeMetadata = new AnnotationScopeMetadataResolver()
-                .resolveScopeMetadata(abd);
+                    .resolveScopeMetadata(abd);
             abd.setScope(scopeMetadata.getScopeName());
             String beanName = AnnotationBeanNameGenerator.INSTANCE.generateBeanName(abd, registry);
 
@@ -112,6 +127,14 @@ public class DependencyInjectionTestExecutionListener implements SofaArkTestExec
         }
     }
 
+    /**
+     * Apply scoped proxy mode bean definition holder.
+     *
+     * @param metadata   the metadata
+     * @param definition the definition
+     * @param registry   the registry
+     * @return the bean definition holder
+     */
     static BeanDefinitionHolder applyScopedProxyMode(ScopeMetadata metadata,
                                                      BeanDefinitionHolder definition,
                                                      BeanDefinitionRegistry registry) {
@@ -124,11 +147,22 @@ public class DependencyInjectionTestExecutionListener implements SofaArkTestExec
         return ScopedProxyCreator.createScopedProxy(definition, registry, proxyTargetClass);
     }
 
+    /**
+     * The type Scoped proxy creator.
+     */
     static class ScopedProxyCreator {
 
         private ScopedProxyCreator() {
         }
 
+        /**
+         * Create scoped proxy bean definition holder.
+         *
+         * @param definitionHolder the definition holder
+         * @param registry         the registry
+         * @param proxyTargetClass the proxy target class
+         * @return the bean definition holder
+         */
         public static BeanDefinitionHolder createScopedProxy(BeanDefinitionHolder definitionHolder,
                                                              BeanDefinitionRegistry registry,
                                                              boolean proxyTargetClass) {

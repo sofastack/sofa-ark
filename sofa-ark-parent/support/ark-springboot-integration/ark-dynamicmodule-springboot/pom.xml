@@ -18,9 +18,17 @@
 
         <spring.boot.version>2.3.9.RELEASE</spring.boot.version>
         <spring.test.version>5.2.13.RELEASE</spring.test.version>
+        <guava.version>16.0.1</guava.version>
     </properties>
 
     <dependencies>
+        <!-- sub project -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sofa-ark-transloader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--SOFAArk modules-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>

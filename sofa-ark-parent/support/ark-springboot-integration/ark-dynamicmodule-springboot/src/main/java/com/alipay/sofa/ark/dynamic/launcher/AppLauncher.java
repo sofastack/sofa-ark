@@ -33,6 +33,8 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * The type App launcher.
+ *
  * @author hanyue
  * @version : AppLauncher.java, v 0.1 2022年05月26日 下午11:35 hanyue Exp $
  */
@@ -40,6 +42,11 @@ public class AppLauncher {
     private static final AtomicBoolean STARTED = new AtomicBoolean(false);
     private static final ArkLogger     LOGGER  = ArkLoggerFactory.getDefaultLogger();
 
+    /**
+     * Start ark container and master biz.
+     *
+     * @param sofaArkTestContextManager the sofa ark test context manager
+     */
     public static void startArkContainerAndMasterBiz(SofaArkTestContextManager sofaArkTestContextManager) {
         if (STARTED.compareAndSet(false, true)) {
             StopWatch stopWatch = new StopWatch(AppLauncher.class.getSimpleName());
@@ -68,8 +75,7 @@ public class AppLauncher {
                     System.out.println(stopWatch.prettyPrint());
                     LOGGER.info(stopWatch.prettyPrint());
 
-                    ClassLoader appClassLoader = AppLauncher.class.getClassLoader();
-                    ClassLoaderUtils.pushContextClassLoader(appClassLoader);
+                    ClassLoaderUtils.pushContextClassLoader(AppLauncher.class.getClassLoader());
                 }
             } catch (Throwable ex) {
                 throw new AppLauncherException(ex);

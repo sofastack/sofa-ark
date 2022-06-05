@@ -166,6 +166,11 @@ public class AbstractTestNGSofaArkContextTests implements IHookable, Application
      */
     @Override
     public void run(IHookCallBack callBack, ITestResult testResult) {
+        if (callBack.getParameters().length > 0) {
+            callBack = IHookCallBackFactory.create(getClass().getClassLoader(), callBack,
+                getTestContextManager().getTestContext());
+        }
+
         Method testMethod = testResult.getMethod().getConstructorOrMethod().getMethod();
         boolean beforeCallbacksExecuted = false;
 

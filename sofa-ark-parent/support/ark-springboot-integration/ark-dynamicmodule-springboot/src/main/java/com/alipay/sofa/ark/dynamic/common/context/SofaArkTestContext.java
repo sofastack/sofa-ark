@@ -29,6 +29,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
+ * The type Sofa ark test context.
+ *
  * @author hanyue
  * @version : SofaArkTestContext.java, v 0.1 2022年05月08日 上午7:29 hanyue Exp $
  */
@@ -47,10 +49,20 @@ public class SofaArkTestContext extends AttributeAccessorSupport implements Test
     @Nullable
     private volatile Throwable testException;
 
+    /**
+     * Instantiates a new Sofa ark test context.
+     *
+     * @param testClass the test class
+     */
     public SofaArkTestContext(Class<?> testClass) {
         this.testClass = testClass;
     }
 
+    /**
+     * Instantiates a new Sofa ark test context.
+     *
+     * @param defaultTestContext the default test context
+     */
     public SofaArkTestContext(SofaArkTestContext defaultTestContext) {
         this.applicationContext = defaultTestContext.getApplicationContext();
         this.testClass = defaultTestContext.getTestClass();
@@ -61,6 +73,11 @@ public class SofaArkTestContext extends AttributeAccessorSupport implements Test
         return applicationContext;
     }
 
+    /**
+     * Sets application context.
+     *
+     * @param applicationContext the application context
+     */
     public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
@@ -105,15 +122,16 @@ public class SofaArkTestContext extends AttributeAccessorSupport implements Test
     /**
      * Generate TestContextManager By testContext
      *
-     * @param testContext
-     * @return
+     * @param testContext the test context
+     * @return test context manager
      */
     public TestContextManager testContextManager(TestContext testContext) {
         try {
             TestContextManager testContextManager = new TestContextManager(getTestClass());
             copyAttributesFrom(testContext);
 
-            Field testContextField = TestContextManager.class.getDeclaredField("testContext");
+            Field testContextField = ReflectionUtils.findField(TestContextManager.class,
+                "testContext");
             ReflectionUtils.makeAccessible(testContextField);
             ReflectionUtils.setField(testContextField, testContextManager, this);
 

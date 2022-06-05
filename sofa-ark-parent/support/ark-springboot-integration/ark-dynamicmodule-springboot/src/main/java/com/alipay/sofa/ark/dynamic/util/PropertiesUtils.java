@@ -40,14 +40,27 @@ public class PropertiesUtils {
             properties = PropertiesLoaderUtils
                 .loadAllProperties(SofaArkTestConstants.SOFAARK_CONFIG_PROPERTIES);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Gets property.
+     *
+     * @param key the key
+     * @return the property
+     */
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }
 
+    /**
+     * Gets property.
+     *
+     * @param key the key
+     * @param def the def
+     * @return the property
+     */
     public static String getProperty(String key, String def) {
         return properties.getProperty(key, def);
     }

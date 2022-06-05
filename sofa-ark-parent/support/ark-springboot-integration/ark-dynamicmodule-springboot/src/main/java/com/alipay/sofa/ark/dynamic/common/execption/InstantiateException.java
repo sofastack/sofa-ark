@@ -17,11 +17,18 @@
 package com.alipay.sofa.ark.dynamic.common.execption;
 
 /**
+ * The type Instantiate exception.
+ *
  * @author hanyue
  * @version : InstantiateException.java, v 0.1 2022年05月10日 上午11:20 hanyue Exp $
  */
 public class InstantiateException extends RuntimeException {
 
+    /**
+     * Instantiates a new Instantiate exception.
+     *
+     * @param cause the cause
+     */
     public InstantiateException(Throwable cause) {
         super(cause);
     }

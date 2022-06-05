@@ -17,49 +17,72 @@
 package com.alipay.sofa.ark.dynamic.launcher;
 
 import com.alipay.sofa.ark.api.ArkClient;
-import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.api.ResponseCode;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.ReflectionUtils;
+import com.alipay.sofa.ark.dynamic.common.MasterBizClassloaderHolder;
 import com.alipay.sofa.ark.dynamic.common.SofaArkTestConstants;
+import com.alipay.sofa.ark.dynamic.common.context.SofaArkTestContext;
 import com.alipay.sofa.ark.dynamic.common.context.SofaArkTestContextManager;
 import com.alipay.sofa.ark.dynamic.common.execption.BizLauncherException;
-import com.alipay.sofa.ark.dynamic.support.testng.AbstractTestNGSofaArkContextTests;
 import com.alipay.sofa.ark.dynamic.util.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.transloader.ClassWrapper;
+import com.alipay.sofa.ark.transloader.Transloader;
+import com.alipay.sofa.ark.transloader.invoke.InvocationFieldDescription;
+import com.alipay.sofa.ark.transloader.invoke.InvocationMethodDescription;
 import org.springframework.util.StopWatch;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
 /**
+ * The type Biz launcher.
+ *
  * @author hanyue
  * @version : BizLauncher.java, v 0.1 2022年05月26日 下午11:36 hanyue Exp $
  */
 public class BizLauncher {
-    public static final String               START_METHOD = "startBizAndInjectTestClasss";
-    private static final ArkLogger           LOGGER       = ArkLoggerFactory.getDefaultLogger();
+    private static final ArkLogger   LOGGER      = ArkLoggerFactory.getDefaultLogger();
+    private static final Transloader TRANSLOADER = Transloader.DEFAULT;
 
-    private static SofaArkTestContextManager sofaArkTestContextManager;
-
-    private Object startBizAndInjectTestClasss(Class<?> testClass) {
+    /**
+     * Start biz and inject test classs object.
+     *
+     * @param sofaArkTestContextManager the sofa ark test context manager
+     * @return the object
+     */
+    public static Object startBizAndInjectTestClasss(SofaArkTestContextManager sofaArkTestContextManager) {
         StopWatch stopWatch = new StopWatch(BizLauncher.class.getSimpleName());
         try {
-            sofaArkTestContextManager = getSofaArkTestContextManager(testClass);
+            SofaArkTestContext sofaArkTestContext = sofaArkTestContextManager
+                    .getSofaArkTestContext();
+            ClassLoader classLoader = MasterBizClassloaderHolder.getClassLoader();
+            ClassWrapper arkClientWrapper = TRANSLOADER.wrap(classLoader.loadClass(ArkClient.class
+                    .getName()));
 
             File bizJarFile = JarUtils.getBizFatJar();
 
             Attributes mainAttributes = new JarFile(bizJarFile).getManifest().getMainAttributes();
             String arkBizName = mainAttributes.getValue(Constants.ARK_BIZ_NAME);
             String arkBizVersion = mainAttributes.getValue(Constants.ARK_BIZ_VERSION);
-            Biz existBiz = ArkClient.getBizManagerService().getBiz(arkBizName, arkBizVersion);
+
+            Object bizManagerService = arkClientWrapper.invoke(new InvocationFieldDescription(
+                    "bizManagerService"));
+
+            Object existBiz = TRANSLOADER.wrap(bizManagerService).invoke(
+                    new InvocationMethodDescription("getBiz",
+                            new Object[] {arkBizName, arkBizVersion}));
             if (existBiz != null) {
-                return getTestInstanceFromBizClassLoader(testClass, existBiz.getBizClassLoader());
+                ClassLoader bizClassLoader = (ClassLoader) TRANSLOADER.wrap(existBiz).invoke(
+                        new InvocationMethodDescription("getBizClassLoader"));
+                return bizClassLoader.loadClass(sofaArkTestContext.getTestClass().getName()).newInstance();
             }
 
             File unpackFile = new File(bizJarFile.getAbsolutePath() + "-unpack");
@@ -67,28 +90,29 @@ public class BizLauncher {
                 unpackFile = FileUtils.unzip(bizJarFile, bizJarFile.getAbsolutePath() + "-unpack");
             }
 
-            stopWatch.start("beforeInstallBiz");
             sofaArkTestContextManager.getSofaArkTestContext().setAttribute(
-                SofaArkTestConstants.BIZ_FAT_JAR, unpackFile);
+                    SofaArkTestConstants.BIZ_FAT_JAR, unpackFile);
             sofaArkTestContextManager.beforeInstallBiz();
-            stopWatch.stop();
 
             stopWatch.start("startBizAndInjectTestClasss");
-            Biz biz = ArkClient.getBizFactoryService().createBiz(bizJarFile);
+            Object clientResponse = arkClientWrapper.invoke(new InvocationMethodDescription(
+                    "installBiz", new Object[] {bizJarFile}));
 
-            ClientResponse clientResponse = ArkClient.installBiz(biz, new String[] {});
-            if (clientResponse.getCode() != ResponseCode.SUCCESS) {
-                throw new RuntimeException(clientResponse.getMessage());
+            ResponseCode responseCode = (ResponseCode) TRANSLOADER.wrap(clientResponse)
+                    .invokeCastable(new InvocationMethodDescription("getCode"));
+            if (!Objects.equals(responseCode.name(), ResponseCode.SUCCESS.name())) {
+                throw new RuntimeException((String) TRANSLOADER.wrap(clientResponse).invoke(
+                        new InvocationMethodDescription("getMessage")));
             }
-            Biz bizInstalled = ArkClient.getBizManagerService().getBizByIdentity(biz.getIdentity());
-            Object testInstance = getTestInstanceFromBizClassLoader(testClass,
-                bizInstalled.getBizClassLoader());
+
+            existBiz = TRANSLOADER.wrap(bizManagerService).invoke(
+                    new InvocationMethodDescription("getBiz",
+                            new Object[] {arkBizName, arkBizVersion}));
+            ClassLoader bizClassLoader = (ClassLoader) TRANSLOADER.wrap(existBiz).invoke(
+                    new InvocationMethodDescription("getBizClassLoader"));
             stopWatch.stop();
 
-            ((AbstractTestNGSofaArkContextTests) testInstance).getSofaArkTestContextManager()
-                .afterInstallBiz();
-
-            return testInstance;
+            return refreshInstance(sofaArkTestContext.getTestClass(), bizClassLoader);
         } catch (Throwable ex) {
             throw new BizLauncherException(ex);
         } finally {
@@ -97,25 +121,32 @@ public class BizLauncher {
         }
     }
 
-    private SofaArkTestContextManager getSofaArkTestContextManager(Class<?> testClass)
-                                                                                      throws Throwable {
-        if (sofaArkTestContextManager == null) {
-            Object testInstance = getTestInstanceFromTestClassLoader(testClass);
-            sofaArkTestContextManager = ((AbstractTestNGSofaArkContextTests) testInstance)
-                .getSofaArkTestContextManager();
-            sofaArkTestContextManager.getSofaArkTestContext().updateState(testInstance, null, null);
-        }
-        return sofaArkTestContextManager;
-    }
+    private static Object refreshInstance(Class<?> testClass, ClassLoader bizClassLoader)
+            throws Throwable {
+        ClassLoader testClassLoader = MasterBizClassloaderHolder.getClassLoader();
 
-    private Object getTestInstanceFromTestClassLoader(Class<?> testestClass) throws Throwable {
-        return testestClass.newInstance();
-    }
+        // Gets All urls
+        URL[] urls = ((URLClassLoader) BizLauncher.class.getClassLoader()).getURLs();
 
-    private Object getTestInstanceFromBizClassLoader(Class<?> testClass, ClassLoader bizClassLoader)
-                                                                                                    throws Throwable {
         // Gets the test directory of the current class
         URL testTarget = testClass.getClass().getResource(File.separator);
+
+        // MastBizClassLoader add testTarget
+        for (URL url : urls) {
+            if (Objects.equals(testTarget, url)) {
+                continue;
+            }
+            ReflectionUtils.addURL(testClassLoader, url);
+        }
+
+        Object newInstance = refreshBizInstance(testClass, bizClassLoader, testTarget);
+        refreshMasterInstance(testClass, testClassLoader, testTarget);
+
+        return newInstance;
+    }
+
+    private static Object refreshBizInstance(Class<?> testClass, ClassLoader bizClassLoader,
+                                             URL testTarget) throws Throwable {
 
         // BizClassLoader add testTarget
         ReflectionUtils.addURL(bizClassLoader, testTarget);
@@ -123,6 +154,35 @@ public class BizLauncher {
         // Refresh testClass
         Class<?> newTestClass = bizClassLoader.loadClass(testClass.getName());
 
-        return newTestClass.newInstance();
+        // instance
+        Object newInstance = newTestClass.newInstance();
+
+        // Broadcast by SofaArkTestExecutionListener
+        Object getSofaArkTestContextManager = TRANSLOADER.wrap(newInstance).invoke(
+                new InvocationMethodDescription("getSofaArkTestContextManager"));
+        Transloader.DEFAULT.wrap(getSofaArkTestContextManager).invoke(
+                new InvocationMethodDescription("afterInstallBiz"));
+
+        return newInstance;
+    }
+
+    private static Object refreshMasterInstance(Class<?> testClass, ClassLoader testClassLoader,
+                                                URL testTarget) throws Throwable {
+        // TestClassLoader add testTarget
+        ReflectionUtils.addURL(testClassLoader, testTarget);
+
+        // Refresh testClass
+        Class<?> newTestClass = testClassLoader.loadClass(testClass.getName());
+
+        // instance
+        Object newInstance = newTestClass.newInstance();
+
+        // Broadcast by SofaArkTestExecutionListener
+        Object getSofaArkTestContextManager = TRANSLOADER.wrap(newInstance).invoke(
+                new InvocationMethodDescription("getSofaArkTestContextManager"));
+        Transloader.DEFAULT.wrap(getSofaArkTestContextManager).invoke(
+                new InvocationMethodDescription("afterInstallMaster"));
+
+        return newInstance;
     }
 }

@@ -17,11 +17,18 @@
 package com.alipay.sofa.ark.dynamic.common.execption;
 
 /**
+ * The type Biz launcher exception.
+ *
  * @author hanyue
  * @version : BizLauncherException.java, v 0.1 2022年05月25日 上午10:32 hanyue Exp $
  */
 public class BizLauncherException extends RuntimeException {
 
+    /**
+     * Instantiates a new Biz launcher exception.
+     *
+     * @param cause the cause
+     */
     public BizLauncherException(Throwable cause) {
         super(cause);
     }

@@ -28,12 +28,19 @@ import java.util.Iterator;
 import static com.alipay.sofa.ark.dynamic.common.SofaArkTestConstants.WORKSPACE;
 
 /**
+ * The type Common utils.
+ *
  * @author hanyue
  * @version : CommonUtils.java, v 0.1 2022年05月30日 1:08 PM hanyue Exp $
  */
 public class CommonUtils {
     private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
+    /**
+     * Gets project base dir.
+     *
+     * @return the project base dir
+     */
     public static String getProjectBaseDir() {
         String projectBaseDir = PropertiesUtils.getProperty(SofaArkTestConstants.PROJECT_BASE_DIR);
 
@@ -48,6 +55,13 @@ public class CommonUtils {
         return projectBaseDir;
     }
 
+    /**
+     * New array list array list.
+     *
+     * @param <E>      the type parameter
+     * @param elements the elements
+     * @return the array list
+     */
     public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
         if (elements == null) {
             throw new NullPointerException();

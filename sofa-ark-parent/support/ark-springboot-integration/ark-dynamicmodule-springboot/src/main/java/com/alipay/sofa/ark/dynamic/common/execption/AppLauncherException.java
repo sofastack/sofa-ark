@@ -17,11 +17,18 @@
 package com.alipay.sofa.ark.dynamic.common.execption;
 
 /**
+ * The type App launcher exception.
+ *
  * @author hanyue
  * @version : AppLauncherException.java, v 0.1 2022年05月25日 上午10:31 hanyue Exp $
  */
 public class AppLauncherException extends RuntimeException {
 
+    /**
+     * Instantiates a new App launcher exception.
+     *
+     * @param cause the cause
+     */
     public AppLauncherException(Throwable cause) {
         super(cause);
     }

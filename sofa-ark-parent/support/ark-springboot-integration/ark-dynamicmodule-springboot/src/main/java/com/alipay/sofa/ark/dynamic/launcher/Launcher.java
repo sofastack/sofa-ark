@@ -18,14 +18,22 @@ package com.alipay.sofa.ark.dynamic.launcher;
 
 import com.alipay.sofa.ark.dynamic.common.context.SofaArkTestContextManager;
 import com.alipay.sofa.ark.dynamic.support.testng.AbstractTestNGSofaArkContextTests;
-import com.alipay.sofa.ark.dynamic.util.TestClassloaderUtils;
 
 /**
+ * The type Launcher.
+ *
  * @author hanyue
  * @version : Launcher.java, v 0.1 2022年05月28日 上午6:05 hanyue Exp $
  */
 public class Launcher {
 
+    /**
+     * Run object.
+     *
+     * @param testInstance the test instance
+     * @return the object
+     * @throws Throwable the throwable
+     */
     public Object run(Object testInstance) throws Throwable {
         SofaArkTestContextManager serverlessTestContextManager = ((AbstractTestNGSofaArkContextTests) testInstance)
             .getSofaArkTestContextManager();
@@ -33,6 +41,6 @@ public class Launcher {
 
         PrepareLauncher.check();
         AppLauncher.startArkContainerAndMasterBiz(serverlessTestContextManager);
-        return TestClassloaderUtils.startBizAndInjectTestClasss(testInstance.getClass());
+        return BizLauncher.startBizAndInjectTestClasss(serverlessTestContextManager);
     }
 }

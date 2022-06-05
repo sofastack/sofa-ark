@@ -25,6 +25,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
+ * The type Test jar lanucher.
+ *
  * @author hanyue
  * @version : TestJarLanucher.java, v 0.1 2022年05月19日 下午1:01 hanyue Exp $
  */
@@ -32,6 +34,12 @@ public class TestJarLanucher extends JarLauncher {
 
     private final File root;
 
+    /**
+     * Instantiates a new Test jar lanucher.
+     *
+     * @param archive the archive
+     * @param root    the root
+     */
     public TestJarLanucher(Archive archive, File root) {
         super(archive);
         this.root = root;
@@ -45,6 +53,12 @@ public class TestJarLanucher extends JarLauncher {
         return testClassloader;
     }
 
+    /**
+     * Run.
+     *
+     * @param args the args
+     * @throws Exception the exception
+     */
     public void run(String[] args) throws Exception {
         super.launch(args);
     }

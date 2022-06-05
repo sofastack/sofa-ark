@@ -28,7 +28,7 @@ import java.net.URL;
  * @author hanyue
  * @version : FileUtilsTest.java, v 0.1 2022年05月31日 3:33 PM hanyue Exp $
  */
-public class FileUtilTest extends BaseTest  {
+public class FileUtilTest extends BaseTest {
 
     @Test
     public void testToFile() {

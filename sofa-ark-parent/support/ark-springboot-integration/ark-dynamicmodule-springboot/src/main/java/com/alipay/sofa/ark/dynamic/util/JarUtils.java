@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * The type Jar utils.
+ *
  * @author hanyue
  * @version : JarUtils.java, v 0.1 2022年05月30日 1:05 PM hanyue Exp $
  */
@@ -36,6 +38,12 @@ public class JarUtils {
     private static final String    MASTER_BIZ_DIR = "masterbiz";
     private static final String    BIZ_DIR        = "target";
 
+    /**
+     * Gets master biz fat jar.
+     *
+     * @return the master biz fat jar
+     * @throws Exception the exception
+     */
     public static File getMasterBizFatJar() throws Exception {
         String projectBaseDir = CommonUtils.getProjectBaseDir();
         File masterBizDir = new File(projectBaseDir, MASTER_BIZ_DIR);
@@ -44,6 +52,12 @@ public class JarUtils {
         return new File(FileUtil.getPathBasedOn(masterBizDir.getAbsolutePath(), arkFileName));
     }
 
+    /**
+     * Gets biz fat jar.
+     *
+     * @return the biz fat jar
+     * @throws Exception the exception
+     */
     public static File getBizFatJar() throws Exception {
         String projectBaseDir = CommonUtils.getProjectBaseDir();
         File bizDir = new File(projectBaseDir, BIZ_DIR);
@@ -61,6 +75,13 @@ public class JarUtils {
         return bizJar;
     }
 
+    /**
+     * Find ark jars list.
+     *
+     * @param arkJarDir the ark jar dir
+     * @param suffix    the suffix
+     * @return the list
+     */
     public static List<String> findArkJars(File arkJarDir, String suffix) {
         if (!arkJarDir.exists() || arkJarDir.list() == null) {
             return null;
@@ -99,11 +120,21 @@ public class JarUtils {
         }
     }
 
+    /**
+     * Master jar suffix string.
+     *
+     * @return the string
+     */
     public static String masterJarSuffix() {
         return PropertiesUtils.getProperty(SofaArkTestConstants.SUFFIX_SOFA_ARK_MASTER_JAR,
             SofaArkTestConstants.DEFAULT_SUFFIX_SOFA_ARK_JAR);
     }
 
+    /**
+     * Biz jar suffix string.
+     *
+     * @return the string
+     */
     public static String bizJarSuffix() {
         return PropertiesUtils.getProperty(SofaArkTestConstants.SUFFIX_SOFA_ARK_BIZ_JAR,
             SofaArkTestConstants.DEFAULT_SUFFIX_SOFA_ARK_JAR);

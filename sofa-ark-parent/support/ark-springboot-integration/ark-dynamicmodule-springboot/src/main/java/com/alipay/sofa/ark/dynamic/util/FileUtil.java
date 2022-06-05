@@ -23,15 +23,30 @@ import java.net.URL;
 import java.util.StringTokenizer;
 
 /**
+ * The type File util.
+ *
  * @author hanyue
  * @version : FileUtils.java, v 0.1 2022年05月31日 1:13 PM hanyue Exp $
  */
 public class FileUtil {
 
+    /**
+     * Gets path based on.
+     *
+     * @param basedir the basedir
+     * @param path    the path
+     * @return the path based on
+     */
     public static String getPathBasedOn(String basedir, String path) {
         return getPathBasedOn(basedir, path, isOsWindows());
     }
 
+    /**
+     * To file file.
+     *
+     * @param url the url
+     * @return the file
+     */
     public static File toFile(URL url) {
         if (url == null) {
             return null;

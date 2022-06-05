@@ -57,6 +57,17 @@ public class TestClassloader extends LaunchedURLClassLoader {
 
     private final URLClassLoader  rootClassLoader;
 
+    /**
+     * Instantiates a new Test classloader.
+     *
+     * @param exploded            the exploded
+     * @param rootArchive         the root archive
+     * @param urls                the urls
+     * @param parent              the parent
+     * @param delegateClassLoader the delegate class loader
+     * @param root                the root
+     * @throws MalformedURLException the malformed url exception
+     */
     public TestClassloader(boolean exploded, Archive rootArchive, URL[] urls, ClassLoader parent,
                            ClassLoader delegateClassLoader, File root) throws MalformedURLException {
         super(exploded, rootArchive, urls, parent);
