@@ -159,7 +159,7 @@ public class PrepareLauncher {
                     String arkFileName = allArkJars.stream().findFirst().get();
                     org.apache.commons.io.FileUtils.copyFile(
                             new File(projectTargetDir, arkFileName),
-                            new File(masterBizDir, DEFAULT_MASTERT_BIZ_NAME));
+                            new File(masterBizDir, arkFileName));
                 }
 
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
