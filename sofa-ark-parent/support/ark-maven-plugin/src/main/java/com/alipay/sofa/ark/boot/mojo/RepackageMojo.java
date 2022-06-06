@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
@@ -313,7 +314,18 @@ public class RepackageMojo extends AbstractMojo {
 
             String depTreeStr = FileUtils.readFileToString(FileUtils.getFile(outputPath),
                 Charset.defaultCharset());
-            return MavenUtils.convert(depTreeStr);
+            Set<ArtifactItem> allArtifacts = MavenUtils.convert(depTreeStr);
+            Set<ArtifactItem> additionalArtifacts = getAdditionalArtifact().stream().map(a -> {
+                ArtifactItem artifactItem = new ArtifactItem();
+                artifactItem.setArtifactId(a.getArtifactId());
+                artifactItem.setGroupId(a.getGroupId());
+                artifactItem.setVersion(a.getVersion());
+                artifactItem.setType(a.getType());
+                artifactItem.setClassifier(a.getClassifier());
+                return artifactItem;
+            }).collect(Collectors.toSet());
+            allArtifacts.addAll(additionalArtifacts);
+            return allArtifacts;
         } catch (MavenInvocationException | IOException e) {
             throw new MojoExecutionException("execute dependency:tree failed", e);
         } finally {
