@@ -74,11 +74,13 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     public boolean isSpringBoot1() {
-        return SpringBootVersion.getVersion().startsWith("1");
+        String version = SpringBootVersion.getVersion();
+        return null == version ? false : version.startsWith("1");
     }
 
     public boolean isSpringBoot2() {
-        return SpringBootVersion.getVersion().startsWith("2");
+        String version = SpringBootVersion.getVersion();
+        return null == version ? false : version.startsWith("2");
     }
 
     protected void startUpArkEmbed(SpringApplicationEvent event) {
