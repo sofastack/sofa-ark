@@ -120,8 +120,8 @@ public class BizClassLoaderTest extends BaseTest {
     @Test
     public void testLoadClassFromPluginClassLoader() throws Exception {
         URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
-        URL pluginUrl1 = this.getClass().getClassLoader().getResource("sample-ark-plugin.jar");
-        URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz.jar");
+        URL pluginUrl1 = this.getClass().getClassLoader().getResource("sample-ark-plugin-0.5.0.jar");
+        URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz-0.3.0.jar");
 
         BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
             new URL[] { bizUrl });
