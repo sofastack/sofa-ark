@@ -19,6 +19,8 @@ package com.alipay.sofa.ark.spi.service.extension;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
+import java.util.Objects;
+
 /**
  * @author qilong.zql
  * @since 0.6.0
@@ -124,5 +126,15 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
     @Override
     public int getPriority() {
         return extension.order();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(interfaceClass, implementClass, extensible, extension, definedLocation, singleton);
     }
 }
