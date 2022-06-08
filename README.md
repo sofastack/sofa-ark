@@ -30,7 +30,7 @@ SOFAArk 是一款基于 Java 实现的动态热部署和轻量级类隔离框架
 
 通过借助 SOFAArk 框架将应用拆分成基座和模块，同时将应用里的接口按场景维度做分组，使得业务可以按一组接口的粒度进行极速发布运维以及资源按需隔离。
 
-![image](https://user-images.githubusercontent.com/101314559/172529536-f536cb7e-d9c6-4935-a2c7-32b6cec2a97a.png)
+![image](https://user-images.githubusercontent.com/101314559/172529808-e09349c2-ff07-4431-8f5b-a1786cd0cfe5.png)
 
 从这张图里可以看到 Serverless 应用拆分的形态，通过把一个普通的 Java 应用拆出多个模块，进一步对应用进行了拆分：基座和模块，对应的研发人员也划分为基座开发者和模块开发者。
 
