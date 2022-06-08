@@ -51,7 +51,7 @@ public class ClassWrapper implements InvokerMethod, InvokerField {
      * Constructs a new <code>ClassWrapper</code> around the given <code>Class</code>. Note that using
      * implementation of {@link Transloader} is the recommended way to produce these.
      *
-     * @param wrappedClass the <code>Class</code> to wrap
+     * @param wrappedClass    the <code>Class</code> to wrap
      * @param cloningStrategy cloningStrategy
      */
     public ClassWrapper(Class wrappedClass, CloningStrategy cloningStrategy) {
@@ -113,7 +113,7 @@ public class ClassWrapper implements InvokerMethod, InvokerField {
             return ClassUtils.getClass(classLoader, className, false);
         } catch (ClassNotFoundException e) {
             throw new TransloaderException("Unable to load Class '" + className
-                                           + "' from ClassLoader '" + classLoader + "'.", e);
+                    + "' from ClassLoader '" + classLoader + "'.", e);
         }
     }
 
@@ -218,13 +218,13 @@ public class ClassWrapper implements InvokerMethod, InvokerField {
         try {
             Class wrappedClass = getWrappedSelf();
             Field declaredField = ReflectionUtils.findField(wrappedClass,
-                description.getFiledName());
+                    description.getFiledName());
             Assert.isNotNull(declaredField);
             ReflectionUtils.makeAccessible(declaredField);
             return ReflectionUtils.getField(declaredField, wrappedClass);
         } catch (Exception e) {
             throw new TransloaderException("Unable to invoke '" + description.getFiledName()
-                                           + "' on '" + getWrappedSelf() + "'.", e);
+                    + "' on '" + getWrappedSelf() + "'.", e);
         }
     }
 
@@ -241,18 +241,18 @@ public class ClassWrapper implements InvokerMethod, InvokerField {
             Class wrappedClass = getWrappedSelf();
             ClassLoader wrappedClassLoader = wrappedClass.getClassLoader();
             Class[] parameterTypes = ClassWrapper.getClasses(description.getParameterTypeNames(),
-                wrappedClassLoader);
+                    wrappedClassLoader);
             Object[] parameters = (Object[]) this.cloningStrategy.cloneObjectUsingClassLoader(
-                description.getParameters(), wrappedClassLoader);
+                    description.getParameters(), wrappedClassLoader);
             Method method = ReflectionUtils.findMethod(wrappedClass, description.getMethodName(),
-                parameterTypes);
+                    parameterTypes);
             Assert.isNotNull(method);
             ReflectionUtils.makeAccessible(method);
             return ReflectionUtils.invokeMethod(method, null, parameters);
         } catch (Exception e) {
             throw new TransloaderException("Unable to invoke '" + description.getMethodName()
-                                           + Arrays.asList(description.getParameterTypeNames())
-                                           + "' on '" + getWrappedSelf() + "'.", e);
+                    + Arrays.asList(description.getParameterTypeNames())
+                    + "' on '" + getWrappedSelf() + "'.", e);
         }
     }
 
@@ -266,14 +266,14 @@ public class ClassWrapper implements InvokerMethod, InvokerField {
     public <T> T makeCastableTo(Class<T> targetInterface) {
         Assert.isNotNull(targetInterface);
         return (T) Proxy.newProxyInstance(getClass().getClassLoader(),
-            new Class[] { targetInterface }, new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] parameters)
-                                                                                      throws Throwable {
-                    Object invoke = ClassWrapper.this.invoke(new InvocationMethodDescription(
-                        method, parameters));
-                    return Transloader.DEFAULT.wrap(invoke).cloneWith(getClass().getClassLoader());
-                }
-            });
+                new Class[] {targetInterface}, new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] parameters)
+                            throws Throwable {
+                        Object invoke = ClassWrapper.this.invoke(new InvocationMethodDescription(
+                                method, parameters));
+                        return Transloader.DEFAULT.wrap(invoke).cloneWith(getClass().getClassLoader());
+                    }
+                });
     }
 }

@@ -38,7 +38,7 @@ public class PropertiesUtils {
     static {
         try {
             properties = PropertiesLoaderUtils
-                .loadAllProperties(SofaArkTestConstants.SOFAARK_CONFIG_PROPERTIES);
+                    .loadAllProperties(SofaArkTestConstants.SOFAARK_CONFIG_PROPERTIES);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -39,7 +39,7 @@ public class MinimalInvokingTest extends InvokingTestCase {
     public void testDoesNotCloneStrings() throws Exception {
         Object string = Triangulate.anyString();
         assertSame(string,
-            getTransloader().wrap(string).cloneWith(IndependentClassLoader.getInstance()));
+                getTransloader().wrap(string).cloneWith(IndependentClassLoader.getInstance()));
     }
 
     public void testClonesObjectsWithSetFields() throws Exception {

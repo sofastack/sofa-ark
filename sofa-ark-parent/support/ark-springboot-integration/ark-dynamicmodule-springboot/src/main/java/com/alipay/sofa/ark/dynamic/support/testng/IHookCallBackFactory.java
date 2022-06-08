@@ -48,11 +48,11 @@ public class IHookCallBackFactory {
                                        TestContext testContext) {
         Object[] parameters = callBack.getParameters();
         Object[] newParameters = (Object[]) Transloader.DEFAULT.wrap(parameters).cloneWith(
-            classLoader);
+                classLoader);
         Class<?>[] parameterTypes = ClassWrapper.getClasses(testContext.getTestMethod()
-            .getParameterTypes(), classLoader);
+                .getParameterTypes(), classLoader);
         return create(testContext.getTestMethod(), testContext.getTestInstance(), newParameters,
-            parameterTypes);
+                parameterTypes);
     }
 
     /**
@@ -97,15 +97,15 @@ public class IHookCallBackFactory {
      */
     protected static Object invokeMethod(Method testMethod, Object instance, Object[] parameters,
                                          Class<?>[] parameterTypes)
-                                                                   throws InvocationTargetException,
-                                                                   IllegalAccessException {
+            throws InvocationTargetException,
+            IllegalAccessException {
         Utils.checkInstanceOrStatic(instance, testMethod);
 
         // TESTNG-326, allow IObjectFactory to load from non-standard classloader
         // If the instance has a different classloader, its class won't match the
         // method's class
         if (instance != null
-            && !testMethod.getDeclaringClass().isAssignableFrom(instance.getClass())) {
+                && !testMethod.getDeclaringClass().isAssignableFrom(instance.getClass())) {
             // for some reason, we can't call this method on this class
             // is it static?
             boolean isStatic = Modifier.isStatic(testMethod.getModifiers());
@@ -120,7 +120,7 @@ public class IHookCallBackFactory {
                     for (; clazz != null; clazz = clazz.getSuperclass()) {
                         try {
                             testMethod = clazz.getDeclaredMethod(testMethod.getName(),
-                                testMethod.getParameterTypes());
+                                    testMethod.getParameterTypes());
                             found = true;
                             break;
                         } catch (Exception e2) {
@@ -130,11 +130,11 @@ public class IHookCallBackFactory {
                         // should we assert here? Or just allow it to fail on invocation?
                         if (testMethod.getDeclaringClass().equals(instance.getClass())) {
                             throw new RuntimeException("Can't invoke method " + testMethod
-                                                       + ", probably due to classloader mismatch");
+                                    + ", probably due to classloader mismatch");
                         }
                         throw new RuntimeException("Can't invoke method " + testMethod
-                                                   + " on this instance of " + instance.getClass()
-                                                   + " due to class mismatch");
+                                + " on this instance of " + instance.getClass()
+                                + " due to class mismatch");
                     }
                 }
             }

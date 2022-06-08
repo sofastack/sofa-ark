@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.dynamic.testng;
 
 import com.alipay.sofa.ark.dynamic.BaseTest;
-import com.alipay.sofa.ark.dynamic.support.testng.AbstractTestNGSofaArkContextTests;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterTest;

@@ -32,7 +32,7 @@ public class MasterConfigurationHookTest extends BaseTest {
     @Test
     public void test() {
         ApplicationContext applicationContext = RootApplicationContextUtils
-            .getApplicationContext(ArkClient.getMasterBiz());
+                .getApplicationContext(ArkClient.getMasterBiz());
         Assert.assertNotNull(applicationContext);
         Object sofaArkTestBean = applicationContext.getBean("sofaArkTestBean");
         Assert.assertNotNull(sofaArkTestBean);

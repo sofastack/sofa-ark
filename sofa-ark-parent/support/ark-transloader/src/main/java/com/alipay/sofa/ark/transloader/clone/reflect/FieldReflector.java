@@ -37,9 +37,9 @@ public class FieldReflector {
     /**
      * The list of primitive wrapper <code>Class</code>es.
      */
-    public static final List  PRIMITIVE_WRAPPERS = Arrays.asList(new Class[] { Boolean.class,
+    public static final List PRIMITIVE_WRAPPERS = Arrays.asList(new Class[] {Boolean.class,
             Byte.class, Character.class, Short.class, Integer.class, Long.class, Float.class,
-            Double.class                        });
+            Double.class});
 
     private final Object      wrappedObject;
     private final ClassLoader classLoader;
@@ -57,9 +57,9 @@ public class FieldReflector {
     /**
      * Wraps the given object in a new <code>FieldReflector</code>.
      *
-     * @param objectToWrap the object whose fields you want to expose.
+     * @param objectToWrap     the object whose fields you want to expose.
      * @param classLoaderToUse the <code>ClassLoader</code> to use for loading <code>Class</code>es from
-     *            {@link FieldDescription#getDeclaringClassName()}
+     *                         {@link FieldDescription#getDeclaringClassName()}
      */
     public FieldReflector(Object objectToWrap, ClassLoader classLoaderToUse) {
         Assert.areNotNull(objectToWrap, classLoaderToUse);
@@ -71,8 +71,8 @@ public class FieldReflector {
      * Gets all the instance fields in the entire class hierarchy extended by the wrapped object.
      *
      * @return a description of each instance field in the class hierarchy extended by the wrapped object (<code>final</code>
-     *         fields are not excluded, even though {@link #setValue(FieldDescription, Object)} can be attempted with
-     *         such descriptions)
+     * fields are not excluded, even though {@link #setValue(FieldDescription, Object)} can be attempted with
+     * such descriptions)
      */
     public FieldDescription[] getAllInstanceFieldDescriptions() {
         return getAllInstanceFieldDescriptions(wrappedObject.getClass());
@@ -105,38 +105,38 @@ public class FieldReflector {
      * @param description the description of the field
      * @return the value of the field from the wrapped object
      * @throws NoSuchFieldException if the field named by {@link FieldDescription#getFieldName()} does not exist on the
-     *             <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} or the
-     *             <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} is not in the wrapped
-     *             object's class hierarchy
+     * <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} or the
+     * <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} is not in the wrapped
+     * object's class hierarchy
      */
     public Object getValue(FieldDescription description) throws NoSuchFieldException {
         Assert.isNotNull(description);
         return ReflectionUtils.getField(getFieldHavingMadeItAccessible(description, classLoader),
-            wrappedObject);
+                wrappedObject);
     }
 
     /**
      * Sets the value of the field matching the given description on the wrapped object.
      *
      * @param description the description of the field to set
-     * @param fieldValue the value to set
+     * @param fieldValue  the value to set
      * @throws NoSuchFieldException if the field named by {@link FieldDescription#getFieldName()} does not exist on the
-     *             <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} or the
-     *             <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} is not in the wrapped
-     *             object's class hierarchy
+     * <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} or the
+     * <code>Class</code> named by {@link FieldDescription#getDeclaringClassName()} is not in the wrapped
+     * object's class hierarchy
      */
     public void setValue(FieldDescription description, Object fieldValue)
-                                                                         throws NoSuchFieldException {
+            throws NoSuchFieldException {
         Assert.isNotNull(description);
         ReflectionUtils.setField(getFieldHavingMadeItAccessible(description, classLoader),
-            wrappedObject, fieldValue);
+                wrappedObject, fieldValue);
     }
 
     private static Field getFieldHavingMadeItAccessible(FieldDescription description,
                                                         ClassLoader classLoader)
-                                                                                throws NoSuchFieldException {
+            throws NoSuchFieldException {
         Class declaringClass = ClassWrapper.getClass(description.getDeclaringClassName(),
-            classLoader);
+                classLoader);
         Field field = declaringClass.getDeclaredField(description.getFieldName());
         field.setAccessible(true);
         return field;

@@ -30,7 +30,7 @@ import java.util.Set;
 public class ClassLoaderAndFieldsStringBuilder {
     private static final String                       FIELD_SEPERATOR            = " ";
     private static final String                       OPEN_BRACKET               = "["
-                                                                                   + FIELD_SEPERATOR;
+            + FIELD_SEPERATOR;
     private static final String                       CLOSE_BRACKET              = "]";
     private static final CyclicReferenceSafeTraverser CYCLIC_REFERENCE_TRAVERSER = new CyclicReferenceSafeTraverser();
 
@@ -98,7 +98,7 @@ public class ClassLoaderAndFieldsStringBuilder {
 
     private static boolean fieldBasedStringIsNotDeterministic(Object fieldValue) {
         return fieldValue instanceof String || fieldValue instanceof Map
-               || fieldValue instanceof Set;
+                || fieldValue instanceof Set;
     }
 
     private static void appendArray(StringBuffer buffer, Object array) {
@@ -114,6 +114,6 @@ public class ClassLoaderAndFieldsStringBuilder {
 
     private static void appendClassAndClassLoader(StringBuffer toStringBuffer, Class clazz) {
         toStringBuffer.append(getName(clazz)).append("(").append(clazz.getClassLoader())
-            .append(")");
+                .append(")");
     }
 }

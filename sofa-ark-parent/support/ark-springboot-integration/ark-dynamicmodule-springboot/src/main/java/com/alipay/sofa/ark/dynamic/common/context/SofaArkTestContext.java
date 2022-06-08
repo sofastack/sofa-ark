@@ -38,13 +38,13 @@ public class SofaArkTestContext extends AttributeAccessorSupport implements Test
 
     private ApplicationContext applicationContext;
 
-    private final Class<?>     testClass;
+    private final Class<?> testClass;
 
     @Nullable
-    private volatile Object    testInstance;
+    private volatile Object testInstance;
 
     @Nullable
-    private volatile Method    testMethod;
+    private volatile Method testMethod;
 
     @Nullable
     private volatile Throwable testException;
@@ -131,7 +131,7 @@ public class SofaArkTestContext extends AttributeAccessorSupport implements Test
             copyAttributesFrom(testContext);
 
             Field testContextField = ReflectionUtils.findField(TestContextManager.class,
-                "testContext");
+                    "testContext");
             ReflectionUtils.makeAccessible(testContextField);
             ReflectionUtils.setField(testContextField, testContextManager, this);
 

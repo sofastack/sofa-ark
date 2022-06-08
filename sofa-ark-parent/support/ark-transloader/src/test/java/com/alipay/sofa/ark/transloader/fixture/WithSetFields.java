@@ -36,14 +36,16 @@ import java.util.TreeSet;
  */
 public class WithSetFields extends NonCommonJavaObject {
 
-    private Set set             = new TreeSet(new ToStringComparator());
+    private Set set = new TreeSet(new ToStringComparator());
+
     {
         set.add(Triangulate.anyInteger());
         set.add(Triangulate.anyString());
         set.add(Triangulate.anyInteger());
     }
 
-    private Set customSet       = new OrderedToStringHashSet();
+    private Set customSet = new OrderedToStringHashSet();
+
     {
         customSet.add(Triangulate.anyString());
         customSet.add(Triangulate.anyInteger());

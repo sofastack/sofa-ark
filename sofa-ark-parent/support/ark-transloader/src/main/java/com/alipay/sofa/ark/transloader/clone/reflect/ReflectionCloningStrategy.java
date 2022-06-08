@@ -34,20 +34,20 @@ import java.util.Map;
 public final class ReflectionCloningStrategy implements CloningStrategy {
     private final CyclicReferenceSafeTraverser cyclicReferenceSafeTraverser = new CyclicReferenceSafeTraverser();
 
-    private final CloningDecisionStrategy      decider;
-    private final InnerCloner                  arrayCloner;
-    private final InnerCloner                  normalObjectCloner;
-    private final CloningStrategy              fallbackCloner;
+    private final CloningDecisionStrategy decider;
+    private final InnerCloner             arrayCloner;
+    private final InnerCloner             normalObjectCloner;
+    private final CloningStrategy         fallbackCloner;
 
     /**
      * Contructs a new <code>ReflectionCloningStrategy</code> with its dependencies injected.
      *
-     * @param decider the strategy by which the decision to clone or not to clone a particular given
-     *            object is made
-     * @param instantiator the strategy by which to use instantiate normal objects (as opposed to arrays, for which
-     *            standard reflection is always adequate)
+     * @param decider        the strategy by which the decision to clone or not to clone a particular given
+     *                       object is made
+     * @param instantiator   the strategy by which to use instantiate normal objects (as opposed to arrays, for which
+     *                       standard reflection is always adequate)
      * @param fallbackCloner the <code>CloningStrategy</code> to fall back to when <code>this</code>
-     *            strategy fails
+     *                       strategy fails
      */
     public ReflectionCloningStrategy(CloningDecisionStrategy decider,
                                      InstantiationStrategy instantiator,
@@ -67,14 +67,14 @@ public final class ReflectionCloningStrategy implements CloningStrategy {
      * </p>
      *
      * @return a completely or partially cloned object graph, depending on the <code>CloningDecisionStrategy</code>
-     *         injected in
-     *         {@link #ReflectionCloningStrategy(CloningDecisionStrategy, InstantiationStrategy, CloningStrategy)},
-     *         with potentially the <code>original</code> itself being the top-level object in the graph returned if
-     *         it was not cloned
+     * injected in
+     * {@link #ReflectionCloningStrategy(CloningDecisionStrategy, InstantiationStrategy, CloningStrategy)},
+     * with potentially the <code>original</code> itself being the top-level object in the graph returned if
+     * it was not cloned
      */
     @Override
     public Object cloneObjectUsingClassLoader(Object original, ClassLoader targetClassLoader)
-                                                                                             throws Exception {
+            throws Exception {
         if (original == null) {
             return null;
         }
@@ -82,11 +82,11 @@ public final class ReflectionCloningStrategy implements CloningStrategy {
         Traversal cloningTraversal = new Traversal() {
             public Object traverse(Object currentObject, Map referenceHistory) throws Exception {
                 return ReflectionCloningStrategy.this.clone(currentObject, targetClassLoader,
-                    referenceHistory);
+                        referenceHistory);
             }
         };
         return cyclicReferenceSafeTraverser.performWithoutFollowingCircles(cloningTraversal,
-            original);
+                original);
     }
 
     private Object clone(Object original, ClassLoader targetClassLoader, Map cloneHistory) throws Exception {
@@ -119,7 +119,7 @@ public final class ReflectionCloningStrategy implements CloningStrategy {
     }
 
     private Object performFallbackCloning(Object original, ClassLoader targetClassLoader)
-                                                                                         throws Exception {
+            throws Exception {
         return fallbackCloner.cloneObjectUsingClassLoader(original, targetClassLoader);
     }
 }

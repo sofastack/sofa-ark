@@ -43,5 +43,5 @@ public interface InnerCloner {
      * @throws Exception the exception
      */
     void cloneContent(Object original, Object clone, ClassLoader targetClassLoader)
-                                                                                   throws Exception;
+            throws Exception;
 }

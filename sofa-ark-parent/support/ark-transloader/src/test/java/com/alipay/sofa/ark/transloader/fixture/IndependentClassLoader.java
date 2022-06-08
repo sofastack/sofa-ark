@@ -32,7 +32,7 @@ public final class IndependentClassLoader extends URLClassLoader {
 
     private static URL[] getAppClassLoaderUrls() {
         URLClassLoader appClassLoader = (URLClassLoader) IndependentClassLoader.class
-            .getClassLoader();
+                .getClassLoader();
         return appClassLoader.getURLs();
     }
 }

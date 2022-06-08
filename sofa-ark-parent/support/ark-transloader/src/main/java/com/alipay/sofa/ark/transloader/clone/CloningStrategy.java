@@ -54,8 +54,8 @@ public interface CloningStrategy {
      * @see MinimalCloningDecisionStrategy
      */
     CloningStrategy MINIMAL = new ReflectionCloningStrategy(new MinimalCloningDecisionStrategy(),
-                                new ObjenesisInstantiationStrategy(),
-                                new SerializationCloningStrategy());
+            new ObjenesisInstantiationStrategy(),
+            new SerializationCloningStrategy());
 
     /**
      * The implementation which clones every <code>Object</code> in the given object graph. The given object graph is
@@ -70,8 +70,8 @@ public interface CloningStrategy {
      * @see MaximalCloningDecisionStrategy
      */
     CloningStrategy MAXIMAL = new ReflectionCloningStrategy(new MaximalCloningDecisionStrategy(),
-                                new ObjenesisInstantiationStrategy(),
-                                new SerializationCloningStrategy());
+            new ObjenesisInstantiationStrategy(),
+            new SerializationCloningStrategy());
 
     /**
      * Clones the given object using the given <code>ClassLoader</code>.
@@ -82,5 +82,5 @@ public interface CloningStrategy {
      * @throws Exception can throw any <code>Exception</code> depending on the implementation
      */
     Object cloneObjectUsingClassLoader(Object original, ClassLoader targetClassLoader)
-                                                                                      throws Exception;
+            throws Exception;
 }

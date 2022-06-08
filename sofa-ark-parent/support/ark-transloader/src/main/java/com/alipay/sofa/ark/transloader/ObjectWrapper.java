@@ -126,18 +126,18 @@ public class ObjectWrapper implements InvokerMethod, InvokerField {
             Class wrappedClass = getWrappedSelf().getClass();
             ClassLoader wrappedClassLoader = wrappedClass.getClassLoader();
             Class[] parameterTypes = ClassWrapper.getClasses(description.getParameterTypeNames(),
-                wrappedClassLoader);
+                    wrappedClassLoader);
             Object[] parameters = (Object[]) this.cloningStrategy.cloneObjectUsingClassLoader(
-                description.getParameters(), wrappedClassLoader);
+                    description.getParameters(), wrappedClassLoader);
             Method method = ReflectionUtils.findMethod(wrappedClass, description.getMethodName(),
-                parameterTypes);
+                    parameterTypes);
             Assert.isNotNull(method);
             ReflectionUtils.makeAccessible(method);
             return ReflectionUtils.invokeMethod(method, getWrappedSelf(), parameters);
         } catch (Exception e) {
             throw new TransloaderException("Unable to invoke '" + description.getMethodName()
-                                           + Arrays.asList(description.getParameterTypeNames())
-                                           + "' on '" + getWrappedSelf() + "'.", e);
+                    + Arrays.asList(description.getParameterTypeNames())
+                    + "' on '" + getWrappedSelf() + "'.", e);
         }
     }
 
@@ -147,13 +147,13 @@ public class ObjectWrapper implements InvokerMethod, InvokerField {
         try {
             Class wrappedClass = getWrappedSelf().getClass();
             Field declaredField = ReflectionUtils.findField(wrappedClass,
-                description.getFiledName());
+                    description.getFiledName());
             Assert.isNotNull(declaredField);
             ReflectionUtils.makeAccessible(declaredField);
             return ReflectionUtils.getField(declaredField, getWrappedSelf());
         } catch (Exception e) {
             throw new TransloaderException("Unable to invoke '" + description.getFiledName()
-                                           + "' on '" + getWrappedSelf() + "'.", e);
+                    + "' on '" + getWrappedSelf() + "'.", e);
         }
     }
 
@@ -173,14 +173,14 @@ public class ObjectWrapper implements InvokerMethod, InvokerField {
     public <T> T makeCastableTo(Class<T> targetInterface) {
         Assert.isNotNull(targetInterface);
         return (T) Proxy.newProxyInstance(getClass().getClassLoader(),
-            new Class[] { targetInterface }, new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] parameters)
-                                                                                      throws Throwable {
-                    Object invoke = ObjectWrapper.this.invoke(new InvocationMethodDescription(
-                        method, parameters));
-                    return Transloader.DEFAULT.wrap(invoke).cloneWith(getClass().getClassLoader());
-                }
-            });
+                new Class[] {targetInterface}, new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] parameters)
+                            throws Throwable {
+                        Object invoke = ObjectWrapper.this.invoke(new InvocationMethodDescription(
+                                method, parameters));
+                        return Transloader.DEFAULT.wrap(invoke).cloneWith(getClass().getClassLoader());
+                    }
+                });
     }
 }

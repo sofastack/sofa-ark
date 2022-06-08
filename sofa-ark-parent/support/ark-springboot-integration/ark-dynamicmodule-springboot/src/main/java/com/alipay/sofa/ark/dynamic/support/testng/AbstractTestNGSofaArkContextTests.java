@@ -46,24 +46,24 @@ import java.lang.reflect.Method;
  * @author hanyue
  * @version : AbstractTestNGSpringContextTests.java, v 0.1 2022年05月02日 上午10:21 hanyue Exp $
  */
-@TestExecutionListeners({ DirtiesContextBeforeModesTestExecutionListener.class,
-                         DependencyInjectionTestExecutionListener.class,
-                         DirtiesContextTestExecutionListener.class })
+@TestExecutionListeners({DirtiesContextBeforeModesTestExecutionListener.class,
+        DependencyInjectionTestExecutionListener.class,
+        DirtiesContextTestExecutionListener.class})
 public class AbstractTestNGSofaArkContextTests implements IHookable, ApplicationContextAware {
 
     /**
      * Logger available to subclasses.
      */
-    protected final Log                     logger = LogFactory.getLog(getClass());
+    protected final Log logger = LogFactory.getLog(getClass());
 
     /**
      * The {@link ApplicationContext} that was injected into this test instance
      * via {@link #setApplicationContext(ApplicationContext)}.
      */
     @Nullable
-    protected ApplicationContext            applicationContext;
+    protected ApplicationContext applicationContext;
 
-    private TestContextManager              testContextManager;
+    private TestContextManager testContextManager;
 
     /**
      * Manager SofaArk test framework all Listener and testContext
@@ -71,7 +71,7 @@ public class AbstractTestNGSofaArkContextTests implements IHookable, Application
     private final SofaArkTestContextManager sofaArkTestContextManager;
 
     @Nullable
-    private Throwable                       testException;
+    private Throwable testException;
 
     /**
      * Construct a new {@code AbstractTestNGSpringContextTests} instance and initialize
@@ -87,15 +87,15 @@ public class AbstractTestNGSofaArkContextTests implements IHookable, Application
     private void reloadBuildTestContextManager() {
         if (ArkClient.getBizManagerService() != null) {
             Biz biz = ArkClient.getBizManagerService().getBizByClassLoader(
-                getClass().getClassLoader());
+                    getClass().getClassLoader());
             if (biz != null) {
                 ApplicationContext applicationContext = RootApplicationContextUtils
-                    .getApplicationContext(biz.getBizClassLoader());
+                        .getApplicationContext(biz.getBizClassLoader());
                 SofaArkTestContext serverlessTestContext = getSofaArkTestContextManager()
-                    .getSofaArkTestContext();
+                        .getSofaArkTestContext();
                 serverlessTestContext.setApplicationContext(applicationContext);
                 this.testContextManager = serverlessTestContext
-                    .testContextManager(this.testContextManager.getTestContext());
+                        .testContextManager(this.testContextManager.getTestContext());
             }
         }
     }
@@ -168,7 +168,7 @@ public class AbstractTestNGSofaArkContextTests implements IHookable, Application
     public void run(IHookCallBack callBack, ITestResult testResult) {
         if (callBack.getParameters().length > 0) {
             callBack = IHookCallBackFactory.create(getClass().getClassLoader(), callBack,
-                getTestContextManager().getTestContext());
+                    getTestContextManager().getTestContext());
         }
 
         Method testMethod = testResult.getMethod().getConstructorOrMethod().getMethod();

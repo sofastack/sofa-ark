@@ -19,18 +19,20 @@ package com.alipay.sofa.ark.transloader.fixture;
 import com.alipay.sofa.ark.transloader.Triangulate;
 
 public class SerializableWithAnonymousClassFields extends SerializableWithFinalFields {
-    private java.io.Serializable anonymousClassField           = new Serializable() {
-                                                                   private NonCommonJavaType instanceInitializerField;
-                                                                   {
-                                                                       instanceInitializerField = new SerializableWithFinalFields(
-                                                                           Triangulate.anyInteger());
-                                                                   }
-                                                                   private int               enclosingInstanceReliantField = SerializableWithAnonymousClassFields.this
-                                                                                                                               .hashCode();
-                                                               };
+    private java.io.Serializable anonymousClassField = new Serializable() {
+        private NonCommonJavaType instanceInitializerField;
+
+        {
+            instanceInitializerField = new SerializableWithFinalFields(
+                    Triangulate.anyInteger());
+        }
+
+        private int enclosingInstanceReliantField = SerializableWithAnonymousClassFields.this
+                .hashCode();
+    };
 
     private java.io.Serializable anonymousClassFromMethodField = getAnonymousClassInstance(Triangulate
-                                                                   .anyString());
+            .anyString());
 
     public SerializableWithAnonymousClassFields(Integer integer) {
         super(integer);
@@ -39,7 +41,7 @@ public class SerializableWithAnonymousClassFields extends SerializableWithFinalF
     private Serializable getAnonymousClassInstance(final String string) {
         return new Serializable() {
             private String setFromExternalVariableField = string;
-            private String normalStringField            = Triangulate.anyString();
+            private String normalStringField = Triangulate.anyString();
         };
     }
 }

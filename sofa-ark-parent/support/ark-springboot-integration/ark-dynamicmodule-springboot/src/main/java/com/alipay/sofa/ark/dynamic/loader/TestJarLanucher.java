@@ -48,7 +48,7 @@ public class TestJarLanucher extends JarLauncher {
     @Override
     protected ClassLoader createClassLoader(URL[] urls) throws MalformedURLException {
         TestClassloader testClassloader = new TestClassloader(isExploded(), getArchive(), urls,
-            null, getClass().getClassLoader(), root);
+                null, getClass().getClassLoader(), root);
         MasterBizClassloaderHolder.setClassLoader(testClassloader);
         return testClassloader;
     }

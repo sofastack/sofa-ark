@@ -37,10 +37,10 @@ import com.alipay.sofa.ark.transloader.fixture.WithStringField;
 public abstract class CloningTestCase extends BaseTestCase {
 
     protected Object assertDeeplyClonedToOtherClassLoader(NonCommonJavaType original)
-                                                                                     throws Exception {
+            throws Exception {
         String originalString = original.toString();
         Object clone = getTransloader().wrap(original).cloneWith(
-            IndependentClassLoader.getInstance());
+                IndependentClassLoader.getInstance());
         assertNotSame(original, clone);
         assertEqualExceptForClassLoader(originalString, clone);
         return clone;
@@ -62,7 +62,7 @@ public abstract class CloningTestCase extends BaseTestCase {
 
     public void testClonesObjectsWithFieldsNotOfCommonJavaTypes() throws Exception {
         assertDeeplyClonedToOtherClassLoader(new WithNonCommonJavaFields(new WithStringField(
-            Triangulate.anyString())));
+                Triangulate.anyString())));
     }
 
     public void testClonesObjectsWithArrayFields() throws Exception {
@@ -71,13 +71,13 @@ public abstract class CloningTestCase extends BaseTestCase {
 
     public void testClonesFieldsThroughoutHierarchies() throws Exception {
         assertDeeplyClonedToOtherClassLoader(new HiearchyWithFieldsBottom(
-            new NonCommonJavaObject(), Triangulate.anyInt(), Triangulate.anyString(),
-            Triangulate.eitherBoolean()));
+                new NonCommonJavaObject(), Triangulate.anyInt(), Triangulate.anyString(),
+                Triangulate.eitherBoolean()));
     }
 
     public void testClonesObjectsOfSerializableAnonymousClasses() throws Exception {
         assertDeeplyClonedToOtherClassLoader(new SerializableWithAnonymousClassFields(
-            Triangulate.anyInteger()));
+                Triangulate.anyInteger()));
     }
 
     public void testClonesObjectsWithListFields() throws Exception {
@@ -106,6 +106,6 @@ public abstract class CloningTestCase extends BaseTestCase {
 
     private void cloneWithCircularReferences() throws Exception {
         assertDeeplyClonedToOtherClassLoader(new SelfAndParentReferencingChild(
-            Triangulate.anyString(), new SelfAndChildReferencingParent(Triangulate.anyString())));
+                Triangulate.anyString(), new SelfAndChildReferencingParent(Triangulate.anyString())));
     }
 }

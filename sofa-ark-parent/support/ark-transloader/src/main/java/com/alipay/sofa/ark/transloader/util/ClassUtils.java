@@ -50,7 +50,7 @@ public class ClassUtils {
      * @throws ClassNotFoundException if the class is not found
      */
     public static Class getClass(ClassLoader classLoader, String className, boolean initialize)
-                                                                                               throws ClassNotFoundException {
+            throws ClassNotFoundException {
         Assert.areNotNull(classLoader, classLoader);
         Class clazz;
         if (abbreviationMap.containsKey(className)) {

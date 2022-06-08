@@ -42,7 +42,7 @@ public class MaximalInvokingTest extends InvokingTestCase {
     }
 
     protected Object assertDeeplyClonedToOtherClassLoader(NonCommonJavaType original)
-                                                                                     throws Exception {
+            throws Exception {
         Object clone = super.assertDeeplyClonedToOtherClassLoader(original);
         assertDeeplyNotTheSame(original, clone);
         return clone;
@@ -52,17 +52,18 @@ public class MaximalInvokingTest extends InvokingTestCase {
         // TODO there's a pattern here and elsewhere of safely traversing fields, so abstract it if possible
         Traversal notSameTraversal = new Traversal() {
             public Object traverse(Object currentObjectInGraph, Map referenceHistory)
-                                                                                     throws Exception {
+                    throws Exception {
                 assertNotSame(original, clone);
                 FieldReflector originalReflector = new FieldReflector(original);
                 FieldReflector cloneReflector = new FieldReflector(clone);
                 FieldDescription[] fieldDescriptions = originalReflector
-                    .getAllInstanceFieldDescriptions();
+                        .getAllInstanceFieldDescriptions();
                 for (int i = 0; i < fieldDescriptions.length; i++) {
                     FieldDescription description = fieldDescriptions[i];
-                    if (!description.isPrimitive())
+                    if (!description.isPrimitive()) {
                         assertDeeplyNotTheSame(originalReflector.getValue(description),
-                            cloneReflector.getValue(description));
+                                cloneReflector.getValue(description));
+                    }
                 }
                 return null;
             }

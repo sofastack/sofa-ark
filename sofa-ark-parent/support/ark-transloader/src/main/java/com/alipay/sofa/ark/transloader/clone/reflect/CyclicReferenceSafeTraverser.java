@@ -35,13 +35,13 @@ public class CyclicReferenceSafeTraverser {
      * Executes the given the traversal over the current location in the object graph if it has not already been
      * traversed in the current journey through the graph.
      *
-     * @param traversal the traversal to execute
+     * @param traversal            the traversal to execute
      * @param currentObjectInGraph the location in the object graph over which to perform the traversal
      * @return the result of performing the traversal
      * @throws Exception can throw any <code>Exception</code> from the traversal itself
      */
     public Object performWithoutFollowingCircles(Traversal traversal, Object currentObjectInGraph)
-                                                                                                  throws Exception {
+            throws Exception {
         Assert.areNotNull(traversal, currentObjectInGraph);
         Map referenceHistory = getReferenceHistory();
         if (referenceHistory.containsKey(currentObjectInGraph)) {

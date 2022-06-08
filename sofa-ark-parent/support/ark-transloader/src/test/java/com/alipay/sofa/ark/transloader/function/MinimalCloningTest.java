@@ -34,7 +34,7 @@ public class MinimalCloningTest extends CloningTestCase {
     public void testDoesNotCloneStrings() throws Exception {
         Object string = Triangulate.anyString();
         assertSame(string,
-            getTransloader().wrap(string).cloneWith(IndependentClassLoader.getInstance()));
+                getTransloader().wrap(string).cloneWith(IndependentClassLoader.getInstance()));
     }
 
     public void testClonesObjectsWithSetFields() throws Exception {

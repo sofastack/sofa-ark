@@ -19,9 +19,6 @@ package com.alipay.sofa.ark.dynamic.support.testng.data;
 import com.alipay.sofa.ark.transloader.Transloader;
 import com.alipay.sofa.ark.transloader.invoke.InvocationMethodDescription;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 /**
  * The type Data provider factory.
  *

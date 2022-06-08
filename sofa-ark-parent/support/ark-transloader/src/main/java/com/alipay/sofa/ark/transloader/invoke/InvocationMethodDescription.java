@@ -24,14 +24,14 @@ import java.lang.reflect.Method;
  * Describes a method invocation by method name, parameter type names and parameters.
  *
  * @author hanyue
- * @version : InvocationDescription.java, v 0.1 2022年06月03日 2:55 PM hanyue Exp $
+ * @version : InvocationMethodDescription.java, v 0.1 2022年06月03日 2:55 PM hanyue Exp $
  */
 public class InvocationMethodDescription {
     private static final String[] NO_PARAMS = new String[] {};
 
-    private final String          methodName;
-    private final String[]        parameterTypeNames;
-    private final Object[]        parameters;
+    private final String   methodName;
+    private final String[] parameterTypeNames;
+    private final Object[] parameters;
 
     /**
      * Constructs an <code>InvocationDescription</code> with the given method name.
@@ -50,7 +50,7 @@ public class InvocationMethodDescription {
      *                   declared in the targeted method (therefore cannot be <code>null</code>)
      */
     public InvocationMethodDescription(String methodName, Object parameter) {
-        this(methodName, new Object[] { parameter });
+        this(methodName, new Object[] {parameter});
     }
 
     /**
@@ -72,15 +72,15 @@ public class InvocationMethodDescription {
      * @param parameter     the parameter to the method invocation (can be <code>null</code>)
      */
     public InvocationMethodDescription(String methodName, Class parameterType, Object parameter) {
-        this(methodName, new Class[] { parameterType }, new Object[] { parameter });
+        this(methodName, new Class[] {parameterType}, new Object[] {parameter});
     }
 
     /**
      * Constructs an <code>InvocationDescription</code> with the given method name, parameter type name and parameter.
      *
-     * @param methodName        the name of a single-parameter method
+     * @param methodName     the name of a single-parameter method
      * @param parameterTypes the name of the parameter type declared in the method
-     * @param parameters         the parameter to the method invocation (can be <code>null</code>)
+     * @param parameters     the parameter to the method invocation (can be <code>null</code>)
      */
     public InvocationMethodDescription(String methodName, Class[] parameterTypes,
                                        Object[] parameters) {
@@ -90,13 +90,13 @@ public class InvocationMethodDescription {
     /**
      * Constructs an <code>InvocationDescription</code> with the given method name, parameter types and parameters.
      *
-     * @param methodName     the name of a multi-parameter method
+     * @param methodName        the name of a multi-parameter method
      * @param parameterTypeName some <code>Class</code>es whose names are the same as the parameter types declared in
-     *                       the targeted method
-     * @param parameter     the parameters to the method invocation (cannot be but can <i>contain</i> <code>null</code>)
+     *                          the targeted method
+     * @param parameter         the parameters to the method invocation (cannot be but can <i>contain</i> <code>null</code>)
      */
     public InvocationMethodDescription(String methodName, String parameterTypeName, Object parameter) {
-        this(methodName, new String[] { parameterTypeName }, new Object[] { parameter });
+        this(methodName, new String[] {parameterTypeName}, new Object[] {parameter});
     }
 
     /**
@@ -127,7 +127,7 @@ public class InvocationMethodDescription {
      */
     public InvocationMethodDescription(Method method, Object[] parameters) {
         this(((Method) Assert.isNotNull(method)).getName(), method.getParameterTypes(),
-            parameters == null ? NO_PARAMS : parameters);
+                parameters == null ? NO_PARAMS : parameters);
     }
 
     private static Class[] getClasses(Object[] objects) {

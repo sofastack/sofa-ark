@@ -39,9 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class ReflectionUtils {
 
-    private static final Method[]                EMPTY_METHOD_ARRAY   = new Method[0];
+    private static final Method[] EMPTY_METHOD_ARRAY = new Method[0];
 
-    private static final Field[]                 EMPTY_FIELD_ARRAY    = new Field[0];
+    private static final Field[] EMPTY_FIELD_ARRAY = new Field[0];
 
     /**
      * Cache for {@link Class#getDeclaredMethods()} plus equivalent default methods
@@ -52,7 +52,7 @@ public abstract class ReflectionUtils {
     /**
      * Cache for {@link Class#getDeclaredFields()}, allowing for fast iteration.
      */
-    private static final Map<Class<?>, Field[]>  declaredFieldsCache  = new ConcurrentHashMap<>(256);
+    private static final Map<Class<?>, Field[]> declaredFieldsCache = new ConcurrentHashMap<>(256);
 
     // Exception handling
 
@@ -133,10 +133,10 @@ public abstract class ReflectionUtils {
         Class<?> searchType = clazz;
         while (searchType != null) {
             Method[] methods = (searchType.isInterface() ? searchType.getMethods()
-                : getDeclaredMethods(searchType, false));
+                    : getDeclaredMethods(searchType, false));
             for (Method method : methods) {
                 if (name.equals(method.getName())
-                    && (paramTypes == null || hasSameParams(method, paramTypes))) {
+                        && (paramTypes == null || hasSameParams(method, paramTypes))) {
                     return method;
                 }
             }
@@ -147,7 +147,7 @@ public abstract class ReflectionUtils {
 
     private static boolean hasSameParams(Method method, Class<?>[] paramTypes) {
         return (paramTypes.length == method.getParameterCount() && Arrays.equals(paramTypes,
-            method.getParameterTypes()));
+                method.getParameterTypes()));
     }
 
     /**
@@ -191,8 +191,8 @@ public abstract class ReflectionUtils {
                 declaredMethodsCache.put(clazz, (result.length == 0 ? EMPTY_METHOD_ARRAY : result));
             } catch (Throwable ex) {
                 throw new IllegalStateException("Failed to introspect Class [" + clazz.getName()
-                                                + "] from ClassLoader [" + clazz.getClassLoader()
-                                                + "]", ex);
+                        + "] from ClassLoader [" + clazz.getClassLoader()
+                        + "]", ex);
             }
         }
         return (result.length == 0 || !defensive) ? result : result.clone();
@@ -226,7 +226,7 @@ public abstract class ReflectionUtils {
     // on JDK 9
     public static void makeAccessible(Method method) {
         if ((!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method
-            .getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+                .getDeclaringClass().getModifiers())) && !method.isAccessible()) {
             method.setAccessible(true);
         }
     }
@@ -262,7 +262,7 @@ public abstract class ReflectionUtils {
             Field[] fields = getDeclaredFields(searchType);
             for (Field field : fields) {
                 if ((name == null || name.equals(field.getName()))
-                    && (type == null || type.equals(field.getType()))) {
+                        && (type == null || type.equals(field.getType()))) {
                     return field;
                 }
             }
@@ -329,8 +329,8 @@ public abstract class ReflectionUtils {
                 declaredFieldsCache.put(clazz, (result.length == 0 ? EMPTY_FIELD_ARRAY : result));
             } catch (Throwable ex) {
                 throw new IllegalStateException("Failed to introspect Class [" + clazz.getName()
-                                                + "] from ClassLoader [" + clazz.getClassLoader()
-                                                + "]", ex);
+                        + "] from ClassLoader [" + clazz.getClassLoader()
+                        + "]", ex);
             }
         }
         return result;
@@ -349,8 +349,8 @@ public abstract class ReflectionUtils {
     // on JDK 9
     public static void makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers())
-             || !Modifier.isPublic(field.getDeclaringClass().getModifiers()) || Modifier
-            .isFinal(field.getModifiers())) && !field.isAccessible()) {
+                || !Modifier.isPublic(field.getDeclaringClass().getModifiers()) || Modifier
+                .isFinal(field.getModifiers())) && !field.isAccessible()) {
             field.setAccessible(true);
         }
     }

@@ -55,14 +55,14 @@ public class TestClassLoader2Test {
 
         ExplodedArchive explodedArchive = new ExplodedArchive(unpackFile);
         testClassloader = new TestClassloader(true, explodedArchive,
-            new URL[] { unpackFile.toURL() }, null, appClassLoader, unpackFile);
+                new URL[] {unpackFile.toURL()}, null, appClassLoader, unpackFile);
 
         Assert.assertNotNull(testJarLanucher);
         Assert.assertNotNull(testClassloader);
 
         EnvironmentUtils.setProperty(Constants.FORCE_DELEGATE_TO_TEST_CLASSLOADER, "org.testng");
         EnvironmentUtils.setProperty(Constants.FORCE_DELEGATE_TO_APP_CLASSLOADER,
-            "org.springframework");
+                "org.springframework");
     }
 
     @Test(expectedExceptions = ClassNotFoundException.class)

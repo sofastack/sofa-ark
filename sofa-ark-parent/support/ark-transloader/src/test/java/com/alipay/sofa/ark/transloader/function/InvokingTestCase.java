@@ -53,10 +53,10 @@ public abstract class InvokingTestCase extends BaseTestCase {
     private final PodamFactory factory = new PodamFactoryImpl();
 
     protected Object assertDeeplyClonedToOtherClassLoader(NonCommonJavaType original)
-                                                                                     throws Exception {
+            throws Exception {
         String originalString = original.toString();
         Object clone = getTransloader().wrap(original).cloneWith(
-            IndependentClassLoader.getInstance());
+                IndependentClassLoader.getInstance());
         assertNotSame(original, clone);
         assertEqualExceptForClassLoader(originalString, clone);
         return clone;
@@ -70,7 +70,7 @@ public abstract class InvokingTestCase extends BaseTestCase {
     protected void assertInvokeFieldToOtherClassLoader(Object original, Object clone) {
         for (Field field : clone.getClass().getDeclaredFields()) {
             InvocationFieldDescription fieldDescription = new InvocationFieldDescription(
-                field.getName());
+                    field.getName());
             Object target = getTransloader().wrap(clone).invoke(fieldDescription);
             Object source = getTransloader().wrap(original).invoke(fieldDescription);
 
@@ -86,7 +86,7 @@ public abstract class InvokingTestCase extends BaseTestCase {
                 parameters[i] = factory.manufacturePojo(parameterTypes[i]);
             }
             InvocationMethodDescription methodDescription = new InvocationMethodDescription(method,
-                parameters);
+                    parameters);
 
             Object target = getTransloader().wrap(clone).invoke(methodDescription);
             Object source = getTransloader().wrap(original).invoke(methodDescription);
@@ -133,7 +133,7 @@ public abstract class InvokingTestCase extends BaseTestCase {
 
     public void testClonesObjectsWithFieldsNotOfCommonJavaTypes() throws Exception {
         WithNonCommonJavaFields withNonCommonJavaFields = new WithNonCommonJavaFields(
-            new WithStringField(Triangulate.anyString()));
+                new WithStringField(Triangulate.anyString()));
         Object clone = assertDeeplyClonedToOtherClassLoader(withNonCommonJavaFields);
         assertInvokeToOtherClassLoader(withNonCommonJavaFields, clone);
     }
@@ -146,15 +146,15 @@ public abstract class InvokingTestCase extends BaseTestCase {
 
     public void testClonesFieldsThroughoutHierarchies() throws Exception {
         HiearchyWithFieldsBottom hiearchyWithFieldsBottom = new HiearchyWithFieldsBottom(
-            new NonCommonJavaObject(), Triangulate.anyInt(), Triangulate.anyString(),
-            Triangulate.eitherBoolean());
+                new NonCommonJavaObject(), Triangulate.anyInt(), Triangulate.anyString(),
+                Triangulate.eitherBoolean());
         Object clone = assertDeeplyClonedToOtherClassLoader(hiearchyWithFieldsBottom);
         assertInvokeToOtherClassLoader(hiearchyWithFieldsBottom, clone);
     }
 
     public void testClonesObjectsOfSerializableAnonymousClasses() throws Exception {
         SerializableWithAnonymousClassFields serializableWithAnonymousClassFields = new SerializableWithAnonymousClassFields(
-            Triangulate.anyInteger());
+                Triangulate.anyInteger());
         Object clone = assertDeeplyClonedToOtherClassLoader(serializableWithAnonymousClassFields);
         assertInvokeToOtherClassLoader(serializableWithAnonymousClassFields, clone);
     }
@@ -174,7 +174,7 @@ public abstract class InvokingTestCase extends BaseTestCase {
     public void testClonesObjectsWithSetFields() throws Exception {
         WithSetFields withSetFields = new WithSetFields();
         Object clone = getTransloader().wrap(withSetFields).cloneWith(
-            IndependentClassLoader.getInstance());
+                IndependentClassLoader.getInstance());
         assertNotSame(withSetFields, clone);
         assertInvokeToOtherClassLoader(withSetFields, clone);
     }
@@ -182,7 +182,7 @@ public abstract class InvokingTestCase extends BaseTestCase {
     public void testClonesObjectsWithMapFields() throws Exception {
         WithMapFields withMapFields = new WithMapFields();
         Object clone = getTransloader().wrap(withMapFields).cloneWith(
-            IndependentClassLoader.getInstance());
+                IndependentClassLoader.getInstance());
         assertNotSame(withMapFields, clone);
         assertInvokeToOtherClassLoader(withMapFields, clone);
     }
@@ -193,13 +193,13 @@ public abstract class InvokingTestCase extends BaseTestCase {
         assertInvokeToOtherClassLoader(withStaticFinalFields, clone);
 
         Class<?> aClass = IndependentClassLoader.getInstance().loadClass(
-            WithStaticFinalFields.class.getName());
+                WithStaticFinalFields.class.getName());
         for (Field field : aClass.getDeclaredFields()) {
             InvocationFieldDescription invocationFieldDescription = new InvocationFieldDescription(
-                field.getName());
+                    field.getName());
 
             Object source = getTransloader().wrap(WithStaticFinalFields.class).invoke(
-                invocationFieldDescription);
+                    invocationFieldDescription);
             Object target = getTransloader().wrap(aClass).invoke(invocationFieldDescription);
             assertInvokeResult(source, target);
         }
@@ -211,10 +211,10 @@ public abstract class InvokingTestCase extends BaseTestCase {
                 parameters[i] = factory.manufacturePojo(parameterTypes[i]);
             }
             InvocationMethodDescription methodDescription = new InvocationMethodDescription(method,
-                parameters);
+                    parameters);
 
             Object target = getTransloader().wrap(WithStaticFinalFields.class).invoke(
-                methodDescription);
+                    methodDescription);
             Object source = getTransloader().wrap(aClass).invoke(methodDescription);
 
             assertInvokeResult(source, target);
@@ -235,7 +235,7 @@ public abstract class InvokingTestCase extends BaseTestCase {
 
     private void cloneWithCircularReferences() throws Exception {
         SelfAndParentReferencingChild selfAndParentReferencingChild = new SelfAndParentReferencingChild(
-            Triangulate.anyString(), new SelfAndChildReferencingParent(Triangulate.anyString()));
+                Triangulate.anyString(), new SelfAndChildReferencingParent(Triangulate.anyString()));
         Object clone = assertDeeplyClonedToOtherClassLoader(selfAndParentReferencingChild);
         assertInvokeToOtherClassLoader(selfAndParentReferencingChild, clone);
     }

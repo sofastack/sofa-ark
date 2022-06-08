@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.dynamic.hook;
 
 import com.alipay.sofa.ark.dynamic.BaseTest;
-import com.alipay.sofa.ark.dynamic.support.testng.AbstractTestNGSofaArkContextTests;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;

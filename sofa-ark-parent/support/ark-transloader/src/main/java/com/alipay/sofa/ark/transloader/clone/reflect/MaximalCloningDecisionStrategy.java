@@ -30,13 +30,13 @@ public final class MaximalCloningDecisionStrategy implements CloningDecisionStra
     /**
      * Decides that all objects should be shallow copied.
      *
-     * @param original ignored; returns <code>true</code> regardless
+     * @param original          ignored; returns <code>true</code> regardless
      * @param targetClassLoader ignored; returns <code>true</code> regardless
      * @return <code>true</code> always
      */
     @Override
     public boolean shouldCloneObjectItself(Object original, ClassLoader targetClassLoader)
-                                                                                          throws ClassNotFoundException {
+            throws ClassNotFoundException {
         Assert.areNotNull(original, targetClassLoader);
         return true;
     }
@@ -44,13 +44,13 @@ public final class MaximalCloningDecisionStrategy implements CloningDecisionStra
     /**
      * Decides that all objects have their references copied.
      *
-     * @param original ignored; returns <code>true</code> regardless
+     * @param original          ignored; returns <code>true</code> regardless
      * @param targetClassLoader ignored; returns <code>true</code> regardless
      * @return <code>true</code> always
      */
     @Override
     public boolean shouldCloneObjectContent(Object original, ClassLoader targetClassLoader)
-                                                                                           throws ClassNotFoundException {
+            throws ClassNotFoundException {
         Assert.areNotNull(original, targetClassLoader);
         return true;
     }

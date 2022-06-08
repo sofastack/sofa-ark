@@ -33,10 +33,10 @@ import java.util.stream.Stream;
  * @version : JarUtils.java, v 0.1 2022年05月30日 1:05 PM hanyue Exp $
  */
 public class JarUtils {
-    private static final ArkLogger LOGGER         = ArkLoggerFactory.getDefaultLogger();
+    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
-    private static final String    MASTER_BIZ_DIR = "masterbiz";
-    private static final String    BIZ_DIR        = "target";
+    private static final String MASTER_BIZ_DIR = "masterbiz";
+    private static final String BIZ_DIR        = "target";
 
     /**
      * Gets master biz fat jar.
@@ -113,7 +113,7 @@ public class JarUtils {
             String targetBizJarName = $v + version + "-" + sourceBizJarName;
 
             File targetBizJar = new File(FileUtil.getPathBasedOn(baseDirFile.getAbsolutePath(),
-                targetBizJarName));
+                    targetBizJarName));
             org.apache.commons.io.FileUtils.copyFile(sourceBizJar, targetBizJar);
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -127,7 +127,7 @@ public class JarUtils {
      */
     public static String masterJarSuffix() {
         return PropertiesUtils.getProperty(SofaArkTestConstants.SUFFIX_SOFA_ARK_MASTER_JAR,
-            SofaArkTestConstants.DEFAULT_SUFFIX_SOFA_ARK_JAR);
+                SofaArkTestConstants.DEFAULT_SUFFIX_SOFA_ARK_JAR);
     }
 
     /**
@@ -137,6 +137,6 @@ public class JarUtils {
      */
     public static String bizJarSuffix() {
         return PropertiesUtils.getProperty(SofaArkTestConstants.SUFFIX_SOFA_ARK_BIZ_JAR,
-            SofaArkTestConstants.DEFAULT_SUFFIX_SOFA_ARK_JAR);
+                SofaArkTestConstants.DEFAULT_SUFFIX_SOFA_ARK_JAR);
     }
 }

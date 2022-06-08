@@ -97,18 +97,15 @@ public final class Triangulate {
 
     public static Object anyInstanceOf(Class type) {
         try {
-            if (type == null || type == void.class)
-                return null;
-            if (type.isArray())
-                return anyArrayOf(type.getComponentType());
+            if (type == null || type == void.class) {return null;}
+            if (type.isArray()) {return anyArrayOf(type.getComponentType());}
             Object triangulatedInstance = tryToTriangulateFromThisClass(type);
-            if (triangulatedInstance != null)
-                return triangulatedInstance;
-            if (type.isInterface())
+            if (triangulatedInstance != null) {return triangulatedInstance;}
+            if (type.isInterface()) {
                 return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                    new Class[] { type }, new TriangulatingInvocationHandler());
-            if (Modifier.isAbstract(type.getModifiers()))
-                return Enhancer.create(type, new TriangulatingInvocationHandler());
+                        new Class[] {type}, new TriangulatingInvocationHandler());
+            }
+            if (Modifier.isAbstract(type.getModifiers())) {return Enhancer.create(type, new TriangulatingInvocationHandler());}
             return ObjenesisHelper.newInstance(type);
         } catch (Exception e) {
             throw new NestableRuntimeException(e);
@@ -129,7 +126,7 @@ public final class Triangulate {
             Method method = MY_METHODS[i];
             Class returnType = method.getReturnType();
             boolean hasNoParameters = method.getParameterTypes() == null
-                                      || method.getParameterTypes().length == 0;
+                    || method.getParameterTypes().length == 0;
             if (returnType == type && hasNoParameters) {
                 return method.invoke(null, new Object[0]);
             }
@@ -138,18 +135,18 @@ public final class Triangulate {
     }
 
     private static class TriangulatingInvocationHandler implements InvocationHandler,
-                                                       net.sf.cglib.proxy.InvocationHandler {
+            net.sf.cglib.proxy.InvocationHandler {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (method.getReturnType() == Void.class)
-                return null;
+            if (method.getReturnType() == Void.class) {return null;}
             if (method.getName().equals("equals") && method.getParameterTypes().length == 1
-                && method.getParameterTypes()[0] == Object.class)
-                return new Boolean(proxy == args[0]);
-            if (method.getName().equals("hashCode") && method.getParameterTypes().length == 0)
+                    && method.getParameterTypes()[0] == Object.class) {return new Boolean(proxy == args[0]);}
+            if (method.getName().equals("hashCode") && method.getParameterTypes().length == 0) {
                 return new Integer(System.identityHashCode(proxy));
-            if (method.getName().equals("toString") && method.getParameterTypes().length == 0)
+            }
+            if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
                 return TriangulatingInvocationHandler.class.getName() + '#'
-                       + System.identityHashCode(proxy);
+                        + System.identityHashCode(proxy);
+            }
             return anyInstanceOf(method.getReturnType());
         }
     }

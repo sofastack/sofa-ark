@@ -84,7 +84,7 @@ public class SerializationUtils {
         final ByteArrayInputStream bais = new ByteArrayInputStream(objectData);
 
         try (final ClassLoaderAwareObjectInputStream in = new ClassLoaderAwareObjectInputStream(
-            bais, object.getClass().getClassLoader())) {
+                bais, object.getClass().getClassLoader())) {
             /*
              * when we serialize and deserialize an object,
              * it is reasonable to assume the deserialized object
@@ -97,10 +97,10 @@ public class SerializationUtils {
 
         } catch (final ClassNotFoundException ex) {
             throw new SerializationException(
-                "ClassNotFoundException while reading cloned object data", ex);
+                    "ClassNotFoundException while reading cloned object data", ex);
         } catch (final IOException ex) {
             throw new SerializationException(
-                "IOException while reading or closing cloned object data", ex);
+                    "IOException while reading or closing cloned object data", ex);
         }
     }
 
@@ -174,7 +174,7 @@ public class SerializationUtils {
             primitiveTypes.put("void", void.class);
         }
 
-        private final ClassLoader                  classLoader;
+        private final ClassLoader classLoader;
 
         /**
          * Constructor.
@@ -185,7 +185,7 @@ public class SerializationUtils {
          * @see ObjectInputStream
          */
         ClassLoaderAwareObjectInputStream(final InputStream in, final ClassLoader classLoader)
-                                                                                              throws IOException {
+                throws IOException {
             super(in);
             this.classLoader = classLoader;
         }
@@ -201,14 +201,14 @@ public class SerializationUtils {
          */
         @Override
         protected Class<?> resolveClass(final ObjectStreamClass desc) throws IOException,
-                                                                     ClassNotFoundException {
+                ClassNotFoundException {
             final String name = desc.getName();
             try {
                 return Class.forName(name, false, classLoader);
             } catch (final ClassNotFoundException ex) {
                 try {
                     return Class.forName(name, false, Thread.currentThread()
-                        .getContextClassLoader());
+                            .getContextClassLoader());
                 } catch (final ClassNotFoundException cnfe) {
                     final Class<?> cls = primitiveTypes.get(name);
                     if (cls != null) {

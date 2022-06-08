@@ -42,13 +42,12 @@ public class ProductionClassFinder {
         try {
             File rootDirectory = getRootDirectoryOf(exampleProductionClass);
             List classes = new ArrayList();
-            Collection classFiles = FileUtils.listFiles(rootDirectory, new String[] { "class" },
-                true);
-            for (Iterator iterator = classFiles.iterator(); iterator.hasNext();) {
+            Collection classFiles = FileUtils.listFiles(rootDirectory, new String[] {"class"},
+                    true);
+            for (Iterator iterator = classFiles.iterator(); iterator.hasNext(); ) {
                 File classFile = (File) iterator.next();
                 String className = getClassName(rootDirectory, classFile);
-                if (!className.startsWith(nonProductionRootPackageName))
-                    classes.add(ClassUtils.getClass(className));
+                if (!className.startsWith(nonProductionRootPackageName)) {classes.add(ClassUtils.getClass(className));}
             }
             return (Class[]) classes.toArray(new Class[classes.size()]);
         } catch (Exception e) {
@@ -58,9 +57,9 @@ public class ProductionClassFinder {
 
     private static File getRootDirectoryOf(Class clazz) throws MalformedURLException {
         String classResourceName = DIRECTORY_SEPERATOR
-                                   + clazz.getName()
-                                       .replace(PACKAGE_SEPERATOR, DIRECTORY_SEPERATOR)
-                                   + CLASS_EXTENSION;
+                + clazz.getName()
+                .replace(PACKAGE_SEPERATOR, DIRECTORY_SEPERATOR)
+                + CLASS_EXTENSION;
         String classUrlString = clazz.getResource(classResourceName).toExternalForm();
         String rootDirUrlString = StringUtils.removeEnd(classUrlString, classResourceName);
         return new File(new URL(rootDirUrlString).getFile());
@@ -68,11 +67,11 @@ public class ProductionClassFinder {
 
     private static String getClassName(File rootDir, File classFile) {
         return StringUtils.removeEnd(getRelativePath(rootDir, classFile), CLASS_EXTENSION).replace(
-            DIRECTORY_SEPERATOR, PACKAGE_SEPERATOR);
+                DIRECTORY_SEPERATOR, PACKAGE_SEPERATOR);
     }
 
     private static String getRelativePath(File rootDirectory, File file) {
         return file.getAbsolutePath().substring(rootDirectory.getAbsolutePath().length() + 1)
-            .replace('\\', DIRECTORY_SEPERATOR);
+                .replace('\\', DIRECTORY_SEPERATOR);
     }
 }

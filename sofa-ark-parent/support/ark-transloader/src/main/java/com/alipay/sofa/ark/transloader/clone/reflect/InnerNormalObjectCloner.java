@@ -52,7 +52,7 @@ public class InnerNormalObjectCloner implements InnerCloner {
 
     @Override
     public void cloneContent(Object original, Object clone, ClassLoader targetClassLoader)
-                                                                                          throws Exception {
+            throws Exception {
         FieldReflector originalReflector = new FieldReflector(original);
         FieldReflector cloneReflector = new FieldReflector(clone, targetClassLoader);
         FieldDescription[] fieldDescriptions = originalReflector.getAllInstanceFieldDescriptions();
@@ -63,12 +63,12 @@ public class InnerNormalObjectCloner implements InnerCloner {
 
     private void cloneField(FieldDescription description, FieldReflector originalReflector,
                             FieldReflector cloneReflector, ClassLoader targetClassLoader)
-                                                                                         throws Exception {
+            throws Exception {
         Object originalFieldValue = originalReflector.getValue(description);
         Object cloneFieldValue = originalFieldValue;
         if (!description.isPrimitive()) {
             cloneFieldValue = parent.cloneObjectUsingClassLoader(originalFieldValue,
-                targetClassLoader);
+                    targetClassLoader);
         }
         cloneReflector.setValue(description, cloneFieldValue);
     }

@@ -41,12 +41,12 @@ import java.util.Objects;
 public class NullParameterRejectionTest extends BaseTestCase {
     private static final Class   PRODUCTION_ASSERT_CLASS = Assert.class;
     private static final String  PRODUCTION_PACKAGE_NAME = PRODUCTION_ASSERT_CLASS.getPackage()
-                                                             .getName();
+            .getName();
     private static final String  TEST_PACKAGE_NAME       = "com.googlecode.transloader.test";
     private static final Class[] ALL_PRODUCTION_CLASSES  = ProductionClassFinder
-                                                             .getAllProductionClasses(
-                                                                 PRODUCTION_ASSERT_CLASS,
-                                                                 TEST_PACKAGE_NAME);
+            .getAllProductionClasses(
+                    PRODUCTION_ASSERT_CLASS,
+                    TEST_PACKAGE_NAME);
 
     private static class ExemptParam {
         String methodDescription;
@@ -60,7 +60,7 @@ public class NullParameterRejectionTest extends BaseTestCase {
         public boolean equals(Object obj) {
             ExemptParam other = (ExemptParam) obj;
             return StringUtils.contains(methodDescription, other.methodDescription)
-                   && paramNumber == other.paramNumber;
+                    && paramNumber == other.paramNumber;
         }
     }
 
@@ -81,14 +81,14 @@ public class NullParameterRejectionTest extends BaseTestCase {
     private static final List EXEMPT_PARAMS = Arrays.asList(new ExemptParam[] {
             new ExemptParam("DefaultTransloader.wrap(java.lang.Class)", 0),
             new ExemptParam(
-                "InvocationMethodDescription(java.lang.reflect.Method,java.lang.Object[])", 1),
-            new ExemptParam("FieldDescription(java.lang.Class,java.lang.reflect.Field)", 0), });
+                    "InvocationMethodDescription(java.lang.reflect.Method,java.lang.Object[])", 1),
+            new ExemptParam("FieldDescription(java.lang.Class,java.lang.reflect.Field)", 0),});
 
-    private static final List EXEMPT_CLASS  = Arrays.asList(new ExemptClass[] {
+    private static final List EXEMPT_CLASS = Arrays.asList(new ExemptClass[] {
             new ExemptClass(ReflectionUtils.class), new ExemptClass(ObjectWrapper.class),
             new ExemptClass(ClassWrapper.class), new ExemptClass(ClassUtils.class),
             new ExemptClass(com.alipay.sofa.ark.transloader.util.StringUtils.class),
-            new ExemptClass(SerializationUtils.class), });
+            new ExemptClass(SerializationUtils.class),});
 
     public static Test suite() throws Exception {
         return new ActiveTestSuite(NullParameterRejectionTest.class);
@@ -114,8 +114,8 @@ public class NullParameterRejectionTest extends BaseTestCase {
 
     private boolean isPublicConcreteClassOtherThanAssert(Class productionClass) {
         return !productionClass.isInterface() && Modifier.isPublic(productionClass.getModifiers())
-               && productionClass != PRODUCTION_ASSERT_CLASS
-               && !EXEMPT_CLASS.contains(new ExemptClass(productionClass));
+                && productionClass != PRODUCTION_ASSERT_CLASS
+                && !EXEMPT_CLASS.contains(new ExemptClass(productionClass));
     }
 
     private void assertPublicMethodsRejectNullParameters(Class productionClass) throws Exception {
@@ -124,14 +124,14 @@ public class NullParameterRejectionTest extends BaseTestCase {
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             if (method.getDeclaringClass().getPackage().getName()
-                .startsWith(PRODUCTION_PACKAGE_NAME)) {
+                    .startsWith(PRODUCTION_PACKAGE_NAME)) {
                 assertRejectsNullParameters(instance, methods[i]);
             }
         }
     }
 
     private void assertRejectsNullParameters(final Object instance, final Method method)
-                                                                                        throws Exception {
+            throws Exception {
         Class[] parameterTypes = method.getParameterTypes();
         List nonNullParameters = getNonNullParameters(parameterTypes);
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -152,7 +152,7 @@ public class NullParameterRejectionTest extends BaseTestCase {
             }
         };
         assertThrows(thrower, new InvocationTargetException(new IllegalArgumentException(
-            "Expecting no null parameters but received " + parameters + ".")));
+                "Expecting no null parameters but received " + parameters + ".")));
     }
 
     private void assertPublicConstuctorsRejectNullParameters(Class productionClass) {
@@ -183,7 +183,7 @@ public class NullParameterRejectionTest extends BaseTestCase {
             }
         };
         assertThrows(thrower, new InvocationTargetException(new IllegalArgumentException(
-            "Expecting no null parameters but received ")));
+                "Expecting no null parameters but received ")));
     }
 
     private List getNonNullParameters(Class[] parameterTypes) {
@@ -198,6 +198,6 @@ public class NullParameterRejectionTest extends BaseTestCase {
     private boolean shouldTestNullRejectionForParameter(Object methodOrConstructor,
                                                         Class[] parameterTypes, int i) {
         return !(parameterTypes[i].isPrimitive() || EXEMPT_PARAMS.contains(new ExemptParam(
-            methodOrConstructor.toString(), i)));
+                methodOrConstructor.toString(), i)));
     }
 }

@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.dynamic.testng;
 
 import com.alipay.sofa.ark.dynamic.BaseTest;
-import com.alipay.sofa.ark.dynamic.support.testng.AbstractTestNGSofaArkContextTests;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.testng.Assert;
@@ -36,7 +35,7 @@ public class TestNgSpringTest extends BaseTest {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private static int         i;
+    private static int i;
 
     @BeforeTest
     public void beforeTest() {

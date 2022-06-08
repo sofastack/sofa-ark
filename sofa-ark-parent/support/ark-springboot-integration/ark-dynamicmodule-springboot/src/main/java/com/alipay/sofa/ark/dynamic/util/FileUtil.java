@@ -73,7 +73,7 @@ public class FileUtil {
             if (prefix == null) {
                 return null;
             } else if (prefix.length() > 0 || path.length() > prefix.length()
-                       && path.charAt(prefix.length()) == '/') {
+                    && path.charAt(prefix.length()) == '/') {
                 return normalizePath(path, isWindows);
             } else if (basedir == null) {
                 return null;
@@ -81,7 +81,7 @@ public class FileUtil {
                 StringBuffer buffer = new StringBuffer();
                 buffer.append(basedir.trim());
                 if (basedir.length() > 0 && path.length() > 0
-                    && basedir.charAt(basedir.length() - 1) != '/') {
+                        && basedir.charAt(basedir.length() - 1) != '/') {
                     buffer.append('/');
                 }
 
@@ -123,7 +123,7 @@ public class FileUtil {
                                     }
 
                                     if (!endsWithSlash && buffer.length() > prefix.length()
-                                        && buffer.charAt(buffer.length() - 1) == '/') {
+                                            && buffer.charAt(buffer.length() - 1) == '/') {
                                         buffer.setLength(buffer.length() - 1);
                                     }
 

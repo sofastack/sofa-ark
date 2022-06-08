@@ -42,20 +42,20 @@ import java.util.List;
 public class TestClassloader extends LaunchedURLClassLoader {
 
     private final static String[] packageForTest = {
-                                                 // Junit
+            // Junit
             "org.junit", "junit", "org.hamcrest",
             // TestNG
             "org.testng", "com.beust.jcommander", "bsh",
             // mockito
-            "org.mockito", "org.jmockit"        };
+            "org.mockito", "org.jmockit"};
 
-    private final ClassLoader     delegateClassLoader;
+    private final ClassLoader delegateClassLoader;
 
-    private List<String>          delegateClassToAppClassLoader;
+    private List<String> delegateClassToAppClassLoader;
 
-    private List<String>          delegateClassToTestClassLoader;
+    private List<String> delegateClassToTestClassLoader;
 
-    private final URLClassLoader  rootClassLoader;
+    private final URLClassLoader rootClassLoader;
 
     /**
      * Instantiates a new Test classloader.
@@ -72,7 +72,7 @@ public class TestClassloader extends LaunchedURLClassLoader {
                            ClassLoader delegateClassLoader, File root) throws MalformedURLException {
         super(exploded, rootArchive, urls, parent);
         this.delegateClassLoader = delegateClassLoader;
-        rootClassLoader = new URLClassLoader(new URL[] { root.toURL() }, null);
+        rootClassLoader = new URLClassLoader(new URL[] {root.toURL()}, null);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class TestClassloader extends LaunchedURLClassLoader {
                 return delegateClassLoader.loadClass(name);
             } catch (ClassNotFoundException e) {
                 throw new ArkLoaderException(String.format(
-                    "[TestClass Loader]: can not load class: %s", name));
+                        "[TestClass Loader]: can not load class: %s", name));
             }
         } else {
             return super.loadClass(name, resolve);
@@ -136,12 +136,12 @@ public class TestClassloader extends LaunchedURLClassLoader {
     private boolean isDelegateToAppClassLoader(String name) {
         if (delegateClassToAppClassLoader == null) {
             String classes = EnvironmentUtils.getProperty(
-                Constants.FORCE_DELEGATE_TO_APP_CLASSLOADER, Constants.EMPTY_STR);
+                    Constants.FORCE_DELEGATE_TO_APP_CLASSLOADER, Constants.EMPTY_STR);
             delegateClassToAppClassLoader = Arrays.asList(classes.split(Constants.COMMA_SPLIT));
         }
         if (delegateClassToTestClassLoader == null) {
             String classes = EnvironmentUtils.getProperty(
-                Constants.FORCE_DELEGATE_TO_TEST_CLASSLOADER, Constants.EMPTY_STR);
+                    Constants.FORCE_DELEGATE_TO_TEST_CLASSLOADER, Constants.EMPTY_STR);
             delegateClassToTestClassLoader = Arrays.asList(classes.split(Constants.COMMA_SPLIT));
         }
 

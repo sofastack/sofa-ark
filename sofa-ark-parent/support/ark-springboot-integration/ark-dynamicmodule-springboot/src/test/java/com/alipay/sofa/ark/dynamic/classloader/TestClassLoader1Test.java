@@ -53,7 +53,7 @@ public class TestClassLoader1Test {
 
         ExplodedArchive explodedArchive = new ExplodedArchive(unpackFile);
         testClassloader = new TestClassloader(true, explodedArchive,
-            new URL[] { unpackFile.toURL() }, null, appClassLoader, unpackFile);
+                new URL[] {unpackFile.toURL()}, null, appClassLoader, unpackFile);
 
         Assert.assertNotNull(testJarLanucher);
         Assert.assertNotNull(testClassloader);

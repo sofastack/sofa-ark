@@ -43,20 +43,20 @@ public class InnerArrayCloner implements InnerCloner {
 
     @Override
     public Object instantiateClone(Object originalArray, ClassLoader targetClassLoader)
-                                                                                       throws Exception {
+            throws Exception {
         Class originalComponentType = originalArray.getClass().getComponentType();
         Class cloneComponentType = ClassWrapper.getClass(originalComponentType.getName(),
-            targetClassLoader);
+                targetClassLoader);
         return Array.newInstance(cloneComponentType, Array.getLength(originalArray));
     }
 
     @Override
     public void cloneContent(Object original, Object clone, ClassLoader targetClassLoader)
-                                                                                          throws Exception {
+            throws Exception {
         for (int i = 0; i < Array.getLength(original); i++) {
             Object originalComponent = Array.get(original, i);
             Object cloneComponent = parent.cloneObjectUsingClassLoader(originalComponent,
-                targetClassLoader);
+                    targetClassLoader);
             Array.set(clone, i, cloneComponent);
         }
     }

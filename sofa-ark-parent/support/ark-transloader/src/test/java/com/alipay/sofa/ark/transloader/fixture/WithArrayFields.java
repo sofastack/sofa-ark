@@ -19,12 +19,12 @@ package com.alipay.sofa.ark.transloader.fixture;
 import com.alipay.sofa.ark.transloader.Triangulate;
 
 public class WithArrayFields extends NonCommonJavaObject {
-    private int[]                 ints                 = { Triangulate.anyInt(),
-            Triangulate.anyInt()                      };
-    private Object[]              objects              = { Triangulate.anyString(),
-            new WithPrimitiveFields(), Triangulate.anyString() };
+    private int[]                 ints                 = {Triangulate.anyInt(),
+            Triangulate.anyInt()};
+    private Object[]              objects              = {Triangulate.anyString(),
+            new WithPrimitiveFields(), Triangulate.anyString()};
     private boolean[]             noBooleans           = {};
-    private NonCommonJavaObject[] nonCommonJavaObjects = { new WithStringField(
-                                                           Triangulate.anyString()) };
-    private NonCommonJavaType[]   nonCommonJavaTypes   = { new WithPrimitiveFields() };
+    private NonCommonJavaObject[] nonCommonJavaObjects = {new WithStringField(
+            Triangulate.anyString())};
+    private NonCommonJavaType[]   nonCommonJavaTypes   = {new WithPrimitiveFields()};
 }

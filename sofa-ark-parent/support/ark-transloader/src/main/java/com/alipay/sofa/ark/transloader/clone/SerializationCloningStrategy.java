@@ -45,24 +45,24 @@ public final class SerializationCloningStrategy implements CloningStrategy {
      */
     @Override
     public Object cloneObjectUsingClassLoader(Object original, ClassLoader targetClassLoader)
-                                                                                             throws Exception {
+            throws Exception {
         Assert.areNotNull(original, targetClassLoader);
         byte[] serializedOriginal = SerializationUtils.serialize((Serializable) original);
         return new ClassLoaderObjectInputStream(targetClassLoader, new ByteArrayInputStream(
-            serializedOriginal)).readObject();
+                serializedOriginal)).readObject();
     }
 
     class ClassLoaderObjectInputStream extends ObjectInputStream {
         private final ClassLoader classLoader;
 
         public ClassLoaderObjectInputStream(ClassLoader classLoader, InputStream inputStream)
-                                                                                             throws IOException {
+                throws IOException {
             super(inputStream);
             this.classLoader = classLoader;
         }
 
         protected Class<?> resolveClass(ObjectStreamClass objectStreamClass) throws IOException,
-                                                                            ClassNotFoundException {
+                ClassNotFoundException {
             try {
                 return Class.forName(objectStreamClass.getName(), false, this.classLoader);
             } catch (ClassNotFoundException var3) {
@@ -71,7 +71,7 @@ public final class SerializationCloningStrategy implements CloningStrategy {
         }
 
         protected Class<?> resolveProxyClass(String[] interfaces) throws IOException,
-                                                                 ClassNotFoundException {
+                ClassNotFoundException {
             Class<?>[] interfaceClasses = new Class[interfaces.length];
 
             for (int i = 0; i < interfaces.length; ++i) {

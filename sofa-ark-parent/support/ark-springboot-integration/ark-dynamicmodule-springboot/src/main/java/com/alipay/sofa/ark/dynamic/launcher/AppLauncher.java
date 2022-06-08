@@ -52,7 +52,7 @@ public class AppLauncher {
             StopWatch stopWatch = new StopWatch(AppLauncher.class.getSimpleName());
             try {
                 SofaArkTestContext serverlessTestContext = sofaArkTestContextManager
-                    .getSofaArkTestContext();
+                        .getSofaArkTestContext();
 
                 File file = JarUtils.getMasterBizFatJar();
                 File unpackFile = new File(file.getAbsolutePath() + "-unpack");
@@ -68,7 +68,7 @@ public class AppLauncher {
                 try {
                     stopWatch.start("startArkContainerAndMasterBiz");
                     TestJarLanucher testJarLanucher = new TestJarLanucher(new ExplodedArchive(
-                        unpackFile), unpackFile);
+                            unpackFile), unpackFile);
                     testJarLanucher.run(new String[] {});
                     stopWatch.stop();
                 } finally {

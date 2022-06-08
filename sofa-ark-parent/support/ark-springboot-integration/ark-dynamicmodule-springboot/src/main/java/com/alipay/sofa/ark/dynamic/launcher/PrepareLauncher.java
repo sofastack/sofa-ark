@@ -48,19 +48,19 @@ import static com.alipay.sofa.ark.dynamic.common.SofaArkTestConstants.WORKSPACE;
  */
 public class PrepareLauncher {
 
-    private static final ArkLogger LOGGER                   = ArkLoggerFactory.getDefaultLogger();
+    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
-    private static final String    SOURCE_BIZ_PACKAGE_SH    = "/bin/biz_package.sh";
-    public static final String     TARGET_BIZ_PACKAGE_SH    = WORKSPACE + "/biz_package.sh";
+    private static final String SOURCE_BIZ_PACKAGE_SH = "/bin/biz_package.sh";
+    public static final  String TARGET_BIZ_PACKAGE_SH = WORKSPACE + "/biz_package.sh";
 
-    private static final String    SOURCE_MASTER_PACKAGE_SH = "/bin/master_package.sh";
-    public static final String     TARGET_MASTER_PACKAGE_SH = WORKSPACE + "/master_package.sh";
+    private static final String SOURCE_MASTER_PACKAGE_SH = "/bin/master_package.sh";
+    public static final  String TARGET_MASTER_PACKAGE_SH = WORKSPACE + "/master_package.sh";
 
-    private static final String    MASTER_BIZ_DIR           = "masterbiz";
-    public static final String     DEFAULT_MASTERT_BIZ_NAME = "testBase-ark-biz.jar";
+    private static final String MASTER_BIZ_DIR           = "masterbiz";
+    public static final  String DEFAULT_MASTERT_BIZ_NAME = "testBase-ark-biz.jar";
 
-    private static final String    BIZ_DIR                  = "target";
-    public static final String     DEFAULT_BIZ_NAME         = "testBiz-ark-biz.jar";
+    private static final String BIZ_DIR          = "target";
+    public static final  String DEFAULT_BIZ_NAME = "testBiz-ark-biz.jar";
 
     /**
      * Check.
@@ -194,7 +194,7 @@ public class PrepareLauncher {
             System.out.println("Start compile bizFatJar, please wait 1 ~ 3 minutes");
             executeShellScript("sh", TARGET_BIZ_PACKAGE_SH, projectBaseDir, mavenOptions());
             System.out.println(String.format("End compile bizFatJar, cost: %s",
-                System.currentTimeMillis() - start));
+                    System.currentTimeMillis() - start));
 
             // again find local
             allArkJars = JarUtils.findArkJars(bizDir, JarUtils.bizJarSuffix());
@@ -207,7 +207,7 @@ public class PrepareLauncher {
                     if (!Strings.isNullOrEmpty(protocol)) {
                         if (protocol.startsWith("file")) {
                             org.apache.commons.io.FileUtils.copyFile(FileUtil.toFile(url),
-                                new File(bizDir, DEFAULT_BIZ_NAME));
+                                    new File(bizDir, DEFAULT_BIZ_NAME));
                         } else if (protocol.startsWith("http")) {
                             downloadFromURL(url, new File(bizDir, DEFAULT_BIZ_NAME));
                         }
@@ -219,7 +219,7 @@ public class PrepareLauncher {
             allArkJars = JarUtils.findArkJars(bizDir, JarUtils.bizJarSuffix());
             if (CollectionUtils.isEmpty(allArkJars)) {
                 throw new UnsupportedOperationException(
-                    "The biz in the Target directory cannot be empty");
+                        "The biz in the Target directory cannot be empty");
             }
 
             if (allArkJars.size() > 1) {
@@ -229,12 +229,12 @@ public class PrepareLauncher {
     }
 
     private static void executeShellScript(String... command) throws IOException,
-                                                             InterruptedException {
+            InterruptedException {
         String schellScriptTimeout = PropertiesUtils.getProperty(
-            SofaArkTestConstants.SCHELL_SCRIPT_WAIT_TIMEOUT,
-            SofaArkTestConstants.DEFAULT_SCHELL_SCRIPT_WAIT_TIMEOUT);
+                SofaArkTestConstants.SCHELL_SCRIPT_WAIT_TIMEOUT,
+                SofaArkTestConstants.DEFAULT_SCHELL_SCRIPT_WAIT_TIMEOUT);
         new ProcessBuilder(command).start().waitFor(Integer.valueOf(schellScriptTimeout),
-            TimeUnit.MINUTES);
+                TimeUnit.MINUTES);
     }
 
     /**
@@ -258,7 +258,7 @@ public class PrepareLauncher {
         LOGGER.info("Start from url={} download resource", url);
         org.apache.commons.io.FileUtils.copyInputStreamToFile(url.openStream(), target);
         LOGGER.info("End from url={} download resource, cost={}, target={}", url,
-            System.currentTimeMillis() - start, target);
+                System.currentTimeMillis() - start, target);
     }
 
     /**
