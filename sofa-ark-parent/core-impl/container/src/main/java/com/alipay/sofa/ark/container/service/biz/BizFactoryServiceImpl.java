@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.loader.ExplodedBizArchive;
+import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
@@ -61,6 +62,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
 
 /**
  * {@link BizFactoryService}
@@ -92,10 +94,15 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectPluginDependencies(
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
-            .setClassPath(bizArchive.getUrls())
-            .setClassLoader(
-                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath()),
-                    bizArchive instanceof ExplodedBizArchive));
+            .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
+            .setClassPath(bizArchive.getUrls());
+
+        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
+            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
+                                                || bizArchive instanceof DirectoryBizArchive);
+        bizClassLoader.setBizModel(bizModel);
+        bizModel.setClassLoader(bizClassLoader);
+        bizClassLoader.setBizModel(bizModel);
         return bizModel;
     }
 
