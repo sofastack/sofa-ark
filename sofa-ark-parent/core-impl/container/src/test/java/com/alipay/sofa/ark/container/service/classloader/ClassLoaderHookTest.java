@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.model.BizModel;
@@ -55,8 +56,10 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testBizClassLoaderSPI() throws Throwable {
-        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ((URLClassLoader) this
-            .getClass().getClassLoader()).getURLs());
+        //        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ((URLClassLoader) this
+        //            .getClass().getClassLoader()).getURLs());
+        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0",
+            (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
         Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.getName().equals(
             bizClassLoader.loadClass("A.A").getName()));
         Assert.assertTrue(TestBizClassLoaderHook.ClassB.class.getName().equals(
@@ -104,7 +107,7 @@ public class ClassLoaderHookTest extends BaseTest {
             }
         };
         BizClassLoader bizClassLoader = new BizClassLoader("mock_default_classloader:1.0",
-            ((URLClassLoader) this.getClass().getClassLoader()).getURLs());
+            (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
         System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR,
             "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
         Assert.assertTrue(TestDefaultBizClassLoaderHook.ClassDefaultA.class.getName().equals(
@@ -114,8 +117,8 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testPluginClassLoaderSPI() throws Throwable {
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("mock", ((URLClassLoader) this
-            .getClass().getClassLoader()).getURLs());
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("mock",
+            (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
         Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.getName().equals(
             pluginClassLoader.loadClass("A.A").getName()));
         Assert.assertTrue(TestBizClassLoaderHook.ClassB.class.getName().equals(

@@ -117,9 +117,9 @@ public class ClasspathLauncherTest {
 
     @Test
     public void testConfClasspath() throws IOException {
-        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
+        ClassLoader classLoader = this.getClass().getClassLoader();
         ClasspathLauncher.ClassPathArchive classPathArchive = new ClasspathLauncher.ClassPathArchive(
-            this.getClass().getCanonicalName(), null, urlClassLoader.getURLs());
+            this.getClass().getCanonicalName(), null, ClassLoaderUtils.getURLs(classLoader));
         List<URL> confClasspath = classPathArchive.getConfClasspath();
         Assert.assertEquals(3, confClasspath.size());
     }

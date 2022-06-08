@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
@@ -26,7 +27,6 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,7 +57,7 @@ public class PluginCommandProviderTest {
 
     @Test
     public void testPluginCommandProcess(@Mocked final PluginManagerService pluginManagerService) {
-        URL[] urls = ((URLClassLoader) this.getClass().getClassLoader()).getURLs();
+        URL[] urls = ClassLoaderUtils.getURLs(this.getClass().getClassLoader());
         final Plugin pluginA = new PluginModel().setPluginName("pluginA")
             .setImportClasses("com.google.common.io.AppendableWriter")
             .setImportPackages(" com.google.common.cache, com.google.common.base ")
