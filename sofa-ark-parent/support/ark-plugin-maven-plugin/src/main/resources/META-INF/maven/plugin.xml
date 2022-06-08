@@ -7,7 +7,7 @@
     <description>A light-weight, java based classloader-isolated framework open-sourced by Ant Financial.</description>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-plugin-maven-plugin</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>2.0.1-SNAPSHOT</version>
     <goalPrefix>sofa-ark</goalPrefix>
     <isolatedRealm>false</isolatedRealm>
     <inheritedByDefault>true</inheritedByDefault>
@@ -188,19 +188,19 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-spi</artifactId>
             <type>jar</type>
-            <version>1.1.7-SNAPSHOT</version>
+            <version>2.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-exception</artifactId>
             <type>jar</type>
-            <version>1.1.7-SNAPSHOT</version>
+            <version>2.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-common</artifactId>
             <type>jar</type>
-            <version>1.1.7-SNAPSHOT</version>
+            <version>2.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
@@ -260,13 +260,13 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-tools</artifactId>
             <type>jar</type>
-            <version>1.1.7-SNAPSHOT</version>
+            <version>2.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <type>jar</type>
-            <version>7.0</version>
+            <version>8.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
