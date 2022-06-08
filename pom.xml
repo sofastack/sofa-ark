@@ -25,7 +25,7 @@
         <maven.javadoc.plugin>2.9.1</maven.javadoc.plugin>
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
         <maven.gpg.pluign>1.5</maven.gpg.pluign>
-        <jacoco.maven.plugin>0.7.9</jacoco.maven.plugin>
+        <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
     </properties>
 
     <name>${project.groupId}:${project.artifactId}</name>
