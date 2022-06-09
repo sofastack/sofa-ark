@@ -71,10 +71,10 @@ public class BizLauncher {
             String arkBizVersion = mainAttributes.getValue(Constants.ARK_BIZ_VERSION);
 
             // Once again access
-            ArkClientInvoker arkClientProxy = new DefaultArkClientInvoker();
-            Object existBiz = arkClientProxy.getBiz(arkBizName, arkBizVersion);
+            ArkClientInvoker arkClientInvoker = new DefaultArkClientInvoker();
+            Object existBiz = arkClientInvoker.getBiz(arkBizName, arkBizVersion);
             if (existBiz != null) {
-                ClassLoader bizClassLoader = arkClientProxy.getBizClassLoader(existBiz);
+                ClassLoader bizClassLoader = arkClientInvoker.getBizClassLoader(existBiz);
                 return bizClassLoader.loadClass(sofaArkTestContext.getTestClass().getName()).newInstance();
             }
 
@@ -88,13 +88,13 @@ public class BizLauncher {
 
             // install current module
             stopWatch.start("startBizAndInjectTestClasss");
-            ArkResponse reponse = arkClientProxy.installBiz(bizJarFile);
+            ArkResponse reponse = arkClientInvoker.installBiz(bizJarFile);
             if (!Objects.equals(reponse.responseCode.name(), ResponseCode.SUCCESS.name())) {
                 throw new RuntimeException(reponse.errMsg);
             }
 
-            existBiz = arkClientProxy.getBiz(arkBizName, arkBizVersion);
-            ClassLoader bizClassLoader = arkClientProxy.getBizClassLoader(existBiz);
+            existBiz = arkClientInvoker.getBiz(arkBizName, arkBizVersion);
+            ClassLoader bizClassLoader = arkClientInvoker.getBizClassLoader(existBiz);
             stopWatch.stop();
 
             // inject testClass
