@@ -13,7 +13,6 @@
         <module>sofa-ark-plugin/config-ark-plugin</module>
         <module>sofa-ark-plugin/web-ark-plugin</module>
         <module>sofa-ark-plugin/sofaboot-ark-plugin</module>
-        <module>sofa-ark-plugin/default-ark-plugin</module>
     </modules>
 
     <properties>
