@@ -26,8 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/23 11:18 AM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/23 11:18 AM
+ * @since
  **/
 public class ParseUtilsTest {
 

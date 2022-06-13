@@ -32,8 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 11:43 AM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 11:43 AM
+ * @since
  **/
 public class MultiEventTest extends BaseTest {
 

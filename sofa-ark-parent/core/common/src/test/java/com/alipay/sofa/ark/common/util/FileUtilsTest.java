@@ -22,8 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
+ * @since
  **/
 public class FileUtilsTest {
 
