@@ -10,7 +10,7 @@
 SOFAArk基于java类加载机制，为我们提供了一种java进程内多模块隔离的方案。每个业务模块——Ark Biz，都是一个完整的springboot项目，可独立运行；也可作为一个maven依赖或远程jar包，引入被称为master Biz的基座Biz，随着master Biz的启动合并部署运行，并由专属的BizClassLoader加载来实现隔离。  
 当多个合并部署的Biz为web应用时，则面临着更多的挑战，这里我们可以对比tomcat部署多个webapp的实现，其除了各webapp之间的隔离外，还要保证tomcat众多资源的共享和管控。SOFAArk从0.6.0开始支持基于springboot embedded tomcat的多web应用合并部署，它是如何做到的，是否可以继续扩展支持其它类型web容器应用，下文将会进行具体分析。
 ## 原生springboot-web应用部署流程
-![springboot tomcat应用启动流程](resource/springboot-embedded-tomcat.png)  
+![springboot tomcat应用启动流程](../resource/springboot-embedded-tomcat.png)  
 我们先从传统的springboot构建的基于内置tomcat的web应用说起。其在运行main函数初始化时，使用TomcatServletWebServerFactory#getWebServer这一工厂方法，创建了一个实现WebServer接口的TomcatWebServer实例，这里的TomcatWebServer实例就是内置tomcat的映射，包括启动、停止等方法。springboot自身还有jetty、netty等WebServer的实现，同样有其对应的工厂方法创建。对应的工厂bean基于springboot的自动装配机制加载。
 ## 改造支持多Web部署中的关键问题
 相较于单纯的springboot应用，一个Ark包的复杂之处在于，它可以包含多个Ark Biz，其中每个Ark Biz都是一个完整的springboot项目。因此使用内置tomat启动时会面临以下问题：
@@ -163,7 +163,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     }
 }
 ````
-![sofa-ark tomcat应用启动流程](resource/SOFA-ARK-Multi-Web.png)
+![sofa-ark tomcat应用启动流程](../resource/SOFA-ARK-Multi-Web.png)
 ## 总结
 针对合并部署这一SOFAArk主要特性，Web应用相对于普通应用，首先需要共享相同的web容器实例(tomcat、jetty、netty等)；此外需要对contextPath等Biz专属的上下文配置做好隔离；最后针对不同web容器，以插件的方式提供扩展支持。  
 随着Webflux应用越来越广泛，SOFAArk后续也会按照上述思路，对其使用的netty服务器进行合并部署支持，敬请期待。
