@@ -87,6 +87,8 @@ public class Repackager {
 
     private String                                webContextPath;
 
+    private boolean                               declaredMode;
+
     private String                                arkVersion                         = null;
 
     private Library                               arkContainerLibrary                = null;
@@ -183,6 +185,9 @@ public class Repackager {
     }
 
     public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
+        if (!this.declaredMode) {
+            return;
+        }
         if (artifactItems == null) {
             return;
         }
@@ -571,5 +576,9 @@ public class Repackager {
 
     public void setWebContextPath(String webContextPath) {
         this.webContextPath = webContextPath;
+    }
+
+    public void setDeclaredMode(boolean declaredMode) {
+        this.declaredMode = declaredMode;
     }
 }
