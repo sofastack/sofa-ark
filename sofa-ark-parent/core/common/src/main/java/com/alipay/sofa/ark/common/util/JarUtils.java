@@ -19,13 +19,14 @@ package com.alipay.sofa.ark.common.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 import static java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION;
 
@@ -33,7 +34,7 @@ public class JarUtils {
     private static final String              JAR_POM_PROPERTIES = "pom.properties";
     private static final String              JAR_VERSION        = "version";
 
-    private static final Map<String, String> jarVersionMap      = new HashMap<>();
+    private static final Map<String, String> jarVersionMap      = new ConcurrentHashMap<>();
 
     public static String getJarVersion(JarFile jarFile) throws IOException {
         return jarVersionMap.computeIfAbsent(jarFile.getName(), k -> {
@@ -56,10 +57,11 @@ public class JarUtils {
         while (entries.hasMoreElements()) {
             java.util.jar.JarEntry entry = entries.nextElement();
             if (entry.getName().endsWith(JAR_POM_PROPERTIES)) {
-                InputStream is = jarFile.getInputStream(entry);
-                Properties p = new Properties();
-                p.load(is);
-                return p.getProperty(JAR_VERSION);
+                try (InputStream is = jarFile.getInputStream(entry)) {
+                    Properties p = new Properties();
+                    p.load(is);
+                    return p.getProperty(JAR_VERSION);
+                }
             }
         }
         return null;

@@ -94,7 +94,7 @@ public class BizModel implements Biz {
     private Set<String>            injectExportPackages          = new HashSet<>();
 
     private Set<String>            declaredLibraries             = new HashSet<>();
-    private Map<String, Boolean>   declaredCacheMap              = new HashMap<>();
+    private Map<String, Boolean>   declaredCacheMap              = new ConcurrentHashMap<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
@@ -461,25 +461,23 @@ public class BizModel implements Biz {
     private boolean doCheckDeclared(String jarFilePath) {
         String[] pathInfo = jarFilePath.split("/");
         if (pathInfo.length >= 1) {
-            try {
-                String jarFileName = pathInfo[pathInfo.length - 1];
-                if (StringUtils.startWithToLowerCase(jarFileName, "sofa-ark-")) {
+            String jarFileName = pathInfo[pathInfo.length - 1];
+            if (StringUtils.startWithToLowerCase(jarFileName, "sofa-ark-")) {
+                return true;
+            }
+
+            try (JarFile jarFile = new JarFile(FileUtils.getFile(jarFilePath))) {
+                String version = JarUtils.getJarVersion(jarFile);
+                // if can't find version for jar, then just return declared for compatibility
+                if (StringUtils.isEmpty(version)) {
                     return true;
                 }
 
-                try (JarFile jarFile = new JarFile(FileUtils.getFile(jarFilePath))) {
-                    String version = JarUtils.getJarVersion(jarFile);
-                    // if can't find version for jar, then just return declared for compatibility
-                    if (StringUtils.isEmpty(version)) {
-                        return true;
-                    }
-
-                    if (jarFileName.contains("-" + version + ".jar")) {
-                        String artifactId = jarFileName.replace("-" + version + ".jar", "");
-                        return declaredLibraries.contains(artifactId);
-                    }
-                    return true;
+                if (jarFileName.contains("-" + version + ".jar")) {
+                    String artifactId = jarFileName.replace("-" + version + ".jar", "");
+                    return declaredLibraries.contains(artifactId);
                 }
+                return true;
             } catch (IOException e) {
                 LOGGER.error("Failed to get version from jar {}.jar: {}", jarFilePath,
                     e.getMessage());
