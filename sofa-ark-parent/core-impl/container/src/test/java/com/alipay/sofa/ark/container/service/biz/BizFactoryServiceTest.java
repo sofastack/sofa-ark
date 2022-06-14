@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -68,6 +69,11 @@ public class BizFactoryServiceTest extends BaseTest {
         bizManagerService.registerBiz(biz);
         Assert.assertNotNull(biz);
         Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
+
+        ArkConfigs.putStringValue(Constants.MASTER_BIZ, "master-biz");
+        Biz masterBiz = bizFactoryService.createEmbedMasterBiz(cl);
+        Assert.assertNotNull(masterBiz);
+        Assert.assertNotNull(masterBiz.getBizClassLoader().getResource("com/alipay/sofa/ark/container/service/biz/"));
     }
 
     @Test

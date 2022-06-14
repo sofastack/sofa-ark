@@ -79,7 +79,6 @@ public class EmbedSofaArkBootstrap {
 
     private static URL[] getURLClassPath() {
         ClassLoader classLoader = EmbedSofaArkBootstrap.class.getClassLoader();
-        //        return ((URLClassLoader) classLoader).getURLs();
         return ClassLoaderUtils.getURLs(classLoader);
     }
 }
