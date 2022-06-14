@@ -33,6 +33,7 @@ springboot自身还有jetty、netty等WebServer的实现，同样由其对应的
 |ArkTomcatServletWebServerFactory|TomcatServletWebServerFactory|  
 |ArkTomcatEmbeddedWebappClassLoader|TomcatEmbeddedWebappClassLoader|  
 |ArkTomcatWebServer|TomcatWebServer|  
+
 并使用其插件机制来扩展，ArkTomcatEmbeddedWebappClassLoader位于web-ark-plugin插件中，当maven依赖该插件时，springboot判断ArkTomcatEmbeddedWebappClassLoader类存在，加载ArkTomcatServletWebServerFactory，该Factory再创建ArkTomcatWebServer，由此使用单Host模式合并部署。  
 若未依赖该插件，则ArkTomcatEmbeddedWebappClassLoader不存在，springboot自动加载其原生实现，使用多Host模式合并部署。
 ### 多Biz共用tomcat实例
