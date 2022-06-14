@@ -18,9 +18,12 @@ package com.alipay.sofa.ark.common.util;
 
 import org.junit.Assert;
 import org.junit.Test;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 
 /**
  *
@@ -41,6 +44,38 @@ public class ClassLoaderUtilTest {
         ClassLoader classLoader = new URLClassLoader(new URL[] {});
         ClassLoaderUtils.popContextClassLoader(classLoader);
         Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
+    }
+
+    @Test
+    @SuppressWarnings({ "restriction", "unchecked" })
+    public void testGetURLs() throws NoSuchFieldException, IllegalAccessException {
+        ClassLoader urlClassLoader = new URLClassLoader(new URL[] {});
+        Assert.assertArrayEquals(((URLClassLoader) urlClassLoader).getURLs(),
+            ClassLoaderUtils.getURLs(urlClassLoader));
+
+        ClassLoader appClassLoader = this.getClass().getClassLoader();
+        URL[] urls = null;
+        if (appClassLoader instanceof URLClassLoader) {
+            urls = ((URLClassLoader) appClassLoader).getURLs();
+        } else {
+
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Unsafe unsafe = (Unsafe) field.get(null);
+
+            // jdk.internal.loader.ClassLoaders.AppClassLoader.ucp
+            Field ucpField = appClassLoader.getClass().getDeclaredField("ucp");
+            long ucpFieldOffset = unsafe.objectFieldOffset(ucpField);
+            Object ucpObject = unsafe.getObject(appClassLoader, ucpFieldOffset);
+
+            // jdk.internal.loader.URLClassPath.path
+            Field pathField = ucpField.getType().getDeclaredField("path");
+            long pathFieldOffset = unsafe.objectFieldOffset(pathField);
+            ArrayList<URL> path = (ArrayList<URL>) unsafe.getObject(ucpObject, pathFieldOffset);
+
+            urls = path.toArray(new URL[path.size()]);
+        }
+        Assert.assertArrayEquals(urls, ClassLoaderUtils.getURLs(appClassLoader));
     }
 
 }

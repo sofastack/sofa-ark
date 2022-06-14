@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.service.classloader.hook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.container.service.classloader.CompoundEnumeration;
-//import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
 import java.net.URL;
