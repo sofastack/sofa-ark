@@ -36,12 +36,13 @@ public class JarUtils {
     private static final Map<String, String> jarVersionMap      = new HashMap<>();
 
     public static String getJarVersion(JarFile jarFile) throws IOException {
-        if (!jarVersionMap.containsKey(jarFile.getName())) {
-            String version = doGetJarVersion(jarFile);
-            jarVersionMap.put(jarFile.getName(), version);
-        }
-
-        return jarVersionMap.get(jarFile.getName());
+        return jarVersionMap.computeIfAbsent(jarFile.getName(), k -> {
+            try {
+                return doGetJarVersion(jarFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private static String doGetJarVersion(JarFile jarFile) throws IOException {

@@ -455,12 +455,7 @@ public class BizModel implements Biz {
 
     private boolean checkDeclaredWithCache(String jarFileWithoutSuffix) {
         String jarFilePath = jarFileWithoutSuffix + ".jar";
-        if (declaredCacheMap.containsKey(jarFilePath)) {
-            return declaredCacheMap.get(jarFilePath);
-        }
-        boolean declared = doCheckDeclared(jarFilePath);
-        declaredCacheMap.put(jarFilePath, declared);
-        return declared;
+        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
@@ -472,18 +467,19 @@ public class BizModel implements Biz {
                     return true;
                 }
 
-                JarFile jarFile = new JarFile(FileUtils.getFile(jarFilePath));
-                String version = JarUtils.getJarVersion(jarFile);
-                // if can't find version for jar, then just return declared for compatibility
-                if (StringUtils.isEmpty(version)) {
+                try (JarFile jarFile = new JarFile(FileUtils.getFile(jarFilePath))) {
+                    String version = JarUtils.getJarVersion(jarFile);
+                    // if can't find version for jar, then just return declared for compatibility
+                    if (StringUtils.isEmpty(version)) {
+                        return true;
+                    }
+
+                    if (jarFileName.contains("-" + version + ".jar")) {
+                        String artifactId = jarFileName.replace("-" + version + ".jar", "");
+                        return declaredLibraries.contains(artifactId);
+                    }
                     return true;
                 }
-
-                if (jarFileName.contains("-" + version + ".jar")) {
-                    String artifactId = jarFileName.replace("-" + version + ".jar", "");
-                    return declaredLibraries.contains(artifactId);
-                }
-                return true;
             } catch (IOException e) {
                 LOGGER.error("Failed to get version from jar {}.jar: {}", jarFilePath,
                     e.getMessage());
