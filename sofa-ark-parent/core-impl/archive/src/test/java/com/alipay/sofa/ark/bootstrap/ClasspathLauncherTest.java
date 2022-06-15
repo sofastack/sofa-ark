@@ -47,7 +47,6 @@ import static org.mockito.Mockito.when;
 public class ClasspathLauncherTest {
     static MockedStatic<ManagementFactory> managementFactoryMockedStatic;
 
-
     @BeforeClass
     public static void setup(){
         List<String> mockArguments = new ArrayList<>();
