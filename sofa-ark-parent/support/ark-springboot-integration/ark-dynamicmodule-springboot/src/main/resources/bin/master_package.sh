@@ -17,4 +17,4 @@ git clone -b $branch  $gitAddress
 cd $projectName
 
 # 执行编译，生成masterFatJar
-mvn -B -U clean install  -Dmaven.test.skip=false -DskipTests=false $mvn_options > $projectBaseDir/master_log.txt
+mvn -B -U clean install  -Dmaven.test.skip=true -DskipTests=true $mvn_options > $projectBaseDir/master_log.txt
