@@ -1,6 +1,5 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
-import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -25,7 +24,7 @@ public class CompoundEnumerationTest extends BaseTest {
 
     private BizFactoryService bizFactoryService;
 
-    private BizManagerService    bizManagerService;
+    private BizManagerService bizManagerService;
 
     @Before
     public void before() {
@@ -48,7 +47,8 @@ public class CompoundEnumerationTest extends BaseTest {
         URL sampleBiz = cl.getResource("sample-biz.jar");
         Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
         bizManagerService.registerBiz(biz);
-        CompoundEnumeration<URL> e = (CompoundEnumeration<URL>) biz.getBizClassLoader().getResources(Constants.ARK_PLUGIN_MARK_ENTRY);
+        CompoundEnumeration<URL> e = (CompoundEnumeration<URL>) biz.getBizClassLoader()
+                .getResources(Constants.ARK_PLUGIN_MARK_ENTRY);
 
         Assert.assertTrue(e.hasMoreElements());
         URL url = e.nextElement();

@@ -18,12 +18,12 @@ package com.alipay.sofa.ark.plugin.mojo.test;
 
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.plugin.mojo.ArkPluginMojo;
-import mockit.Expectations;
 import org.apache.maven.artifact.Artifact;
-import mockit.Mocked;
 import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,24 +38,15 @@ import java.util.LinkedHashSet;
  */
 public class ArkPluginMojoTest {
     @Test
-    public void testArkPluginMojo(@Mocked final Artifact artifact,
-                                  @Mocked final MavenProject project) throws Exception {
-        new Expectations() {
-            {
-                artifact.getGroupId();
-                result = "invalid";
-                minTimes = 0;
-                artifact.getArtifactId();
-                result = "invalid";
-                minTimes = 0;
-                project.getArtifact();
-                result = artifact;
-                minTimes = 0;
-                artifact.getFile();
-                result = new File(Test.class.getProtectionDomain().getCodeSource().getLocation()
-                    .getPath());
-            }
-        };
+    public void testArkPluginMojo() throws Exception {
+        Artifact artifact = Mockito.mock(Artifact.class);
+        MavenProject project = Mockito.mock(MavenProject.class);
+
+        when(artifact.getGroupId()).thenReturn("invalid");
+        when(artifact.getArtifactId()).thenReturn("invalid");
+        when(project.getArtifact()).thenReturn(artifact);
+        when(artifact.getFile()).thenReturn(
+            new File(Test.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
 
         ArkPluginMojo arkPluginMojo = new ArkPluginMojo();
         arkPluginMojo.setProject(project);
@@ -83,38 +74,24 @@ public class ArkPluginMojoTest {
     }
 
     @Test
-    public void testShadeJar(@Mocked final MavenProject projectOne,
-                             @Mocked final MavenProject projectTwo, @Mocked final Artifact artifact) {
+    public void testShadeJar() {
         ArkPluginMojo arkPluginMojo = new ArkPluginMojo();
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
             .singleton("com.alipay.sofa:test-demo:1.0.0")));
 
-        new Expectations() {
-            {
-                projectOne.getGroupId();
-                result = "com.alipay.sofa";
-                minTimes = 0;
-                projectOne.getArtifactId();
-                result = "test-demo";
-                minTimes = 0;
+        MavenProject projectOne = Mockito.mock(MavenProject.class);
+        MavenProject projectTwo = Mockito.mock(MavenProject.class);
+        Artifact artifact = Mockito.mock(Artifact.class);
 
-                projectTwo.getGroupId();
-                result = "com.alipay.sofa";
-                minTimes = 0;
-                projectTwo.getArtifactId();
-                result = "";
-                minTimes = 0;
+        when(projectOne.getGroupId()).thenReturn("com.alipay.sofa");
+        when(projectOne.getArtifactId()).thenReturn("test-demo");
 
-                artifact.getGroupId();
-                result = "com.alipay.sofa";
-                minTimes = 0;
-                artifact.getArtifactId();
-                result = "test-demo";
-                artifact.getVersion();
-                result = "1.0.0";
-                minTimes = 0;
-            }
-        };
+        when(projectTwo.getGroupId()).thenReturn("com.alipay.sofa");
+        when(projectTwo.getArtifactId()).thenReturn("");
+
+        when(artifact.getGroupId()).thenReturn("com.alipay.sofa");
+        when(artifact.getArtifactId()).thenReturn("test-demo");
+        when(artifact.getVersion()).thenReturn("1.0.0");
 
         arkPluginMojo.setProject(projectOne);
         try {

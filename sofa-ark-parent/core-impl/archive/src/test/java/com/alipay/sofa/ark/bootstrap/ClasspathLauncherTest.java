@@ -21,10 +21,12 @@ import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
-import mockit.Mock;
-import mockit.MockUp;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,29 +38,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
+
 /**
  * @author qilong.zql
  * @since 0.6.0
  */
 public class ClasspathLauncherTest {
+    static MockedStatic<ManagementFactory> managementFactoryMockedStatic;
 
-    static {
-        new MockUp<ManagementFactory>() {
-            @Mock
-            public RuntimeMXBean getRuntimeMXBean() {
-                return new MockUp<RuntimeMXBean>() {
-                    @Mock
-                    List<String> getInputArguments() {
-                        List<String> mockArguments = new ArrayList<>();
-                        String filePath = this.getClass().getClassLoader()
-                            .getResource("SampleClass.class").getPath();
-                        String workingPath = new File(filePath).getParent();
-                        mockArguments.add(String.format("-javaagent:%s", workingPath));
-                        return mockArguments;
-                    }
-                }.getMockInstance();
-            }
-        };
+
+    @BeforeClass
+    public static void setup(){
+        List<String> mockArguments = new ArrayList<>();
+        String filePath = ClasspathLauncherTest.class.getClassLoader()
+            .getResource("SampleClass.class").getPath();
+        String workingPath = new File(filePath).getParent();
+        mockArguments.add(String.format("-javaagent:%s", workingPath));
+
+        RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
+        when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
+
+        managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
+
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        managementFactoryMockedStatic.close();
     }
 
     @Test

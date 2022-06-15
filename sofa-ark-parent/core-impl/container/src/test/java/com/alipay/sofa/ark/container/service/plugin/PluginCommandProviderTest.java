@@ -20,10 +20,10 @@ import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import mockit.Expectations;
-import mockit.Mocked;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -56,7 +56,8 @@ public class PluginCommandProviderTest {
     }
 
     @Test
-    public void testPluginCommandProcess(@Mocked final PluginManagerService pluginManagerService) {
+    public void testPluginCommandProcess() {
+
         URL[] urls = ClassLoaderUtils.getURLs(this.getClass().getClassLoader());
         final Plugin pluginA = new PluginModel().setPluginName("pluginA")
             .setImportClasses("com.google.common.io.AppendableWriter")
@@ -78,21 +79,10 @@ public class PluginCommandProviderTest {
         set.add("pluginA");
         set.add("pluginB");
 
-        new Expectations() {
-            {
-                pluginManagerService.getAllPluginNames();
-                result = set;
-                minTimes = 0;
-
-                pluginManagerService.getPluginByName("pluginA");
-                result = pluginA;
-                minTimes = 0;
-
-                pluginManagerService.getPluginByName("pluginB");
-                result = pluginB;
-                minTimes = 0;
-            }
-        };
+        PluginManagerService pluginManagerService = Mockito.mock(PluginManagerService.class);
+        when(pluginManagerService.getAllPluginNames()).thenReturn(set);
+        when(pluginManagerService.getPluginByName("pluginA")).thenReturn(pluginA);
+        when(pluginManagerService.getPluginByName("pluginB")).thenReturn(pluginB);
 
         PluginCommandProvider pluginCommandProvider = new PluginCommandProvider();
         try {

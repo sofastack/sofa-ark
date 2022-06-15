@@ -45,9 +45,10 @@ public class TestClassLoader extends BizClassLoader {
             // Junit
             "org.junit", "junit", "org.hamcrest",
             // TestNG
-            "org.testng", "com.beust.jcommander", "bsh",
+            "org.testng", "com.beust.jcommander",
+            "bsh",
             // mockito
-            "org.mockito", "org.jmockit",
+            "org.mockito",
             // Ark
             "com.alipay.sofa.ark.support.common",
             // tomcat

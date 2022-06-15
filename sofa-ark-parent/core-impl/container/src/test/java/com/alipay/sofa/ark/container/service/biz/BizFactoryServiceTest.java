@@ -73,7 +73,8 @@ public class BizFactoryServiceTest extends BaseTest {
         ArkConfigs.putStringValue(Constants.MASTER_BIZ, "master-biz");
         Biz masterBiz = bizFactoryService.createEmbedMasterBiz(cl);
         Assert.assertNotNull(masterBiz);
-        Assert.assertNotNull(masterBiz.getBizClassLoader().getResource("com/alipay/sofa/ark/container/service/biz/"));
+        Assert.assertNotNull(masterBiz.getBizClassLoader().getResource(
+            "com/alipay/sofa/ark/container/service/biz/"));
     }
 
     @Test

@@ -21,23 +21,15 @@ import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.model.BizModel;
-import com.alipay.sofa.ark.container.model.PluginModel;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook;
-import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizState;
-import com.alipay.sofa.ark.spi.model.Plugin;
-import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
-import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import mockit.Expectations;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Enumeration;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
@@ -56,8 +48,6 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testBizClassLoaderSPI() throws Throwable {
-        //        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ((URLClassLoader) this
-        //            .getClass().getClassLoader()).getURLs());
         BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0",
             (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
         Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.getName().equals(
@@ -92,27 +82,24 @@ public class ClassLoaderHookTest extends BaseTest {
 
     @Test
     public void testDefaultBizClassLoaderSPI() throws Throwable {
-        new Expectations(ArkServiceLoader.class) {
-            {
-                ArkServiceLoader.loadExtensionFromArkBiz(ClassLoaderHook.class,
-                    BIZ_CLASS_LOADER_HOOK, "mock_default_classloader:1.0");
-                result = null;
-            }
-        };
-        new Expectations(ArkClient.class) {
-            {
-                ArkClient.getMasterBiz();
-                result = new BizModel().setBizName("mock_master_biz").setBizVersion("1.0")
-                    .setClassLoader(this.getClass().getClassLoader());
-            }
-        };
-        BizClassLoader bizClassLoader = new BizClassLoader("mock_default_classloader:1.0",
-            (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
-        System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR,
-            "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
-        Assert.assertTrue(TestDefaultBizClassLoaderHook.ClassDefaultA.class.getName().equals(
-            bizClassLoader.loadClass("defaultA").getName()));
-        System.clearProperty(BIZ_CLASS_LOADER_HOOK_DIR);
+        try (MockedStatic<ArkServiceLoader> arkServiceLoaderMocked = Mockito.mockStatic(ArkServiceLoader.class); MockedStatic<ArkClient> arkClientMocked = Mockito.mockStatic(ArkClient.class)) {
+
+
+            arkServiceLoaderMocked.when(() -> ArkServiceLoader.loadExtensionFromArkBiz(ClassLoaderHook.class,
+                    BIZ_CLASS_LOADER_HOOK, "mock_default_classloader:1.0")).thenReturn(null);
+
+
+            arkClientMocked.when(ArkClient::getMasterBiz).thenReturn(new BizModel().setBizName("mock_master_biz").setBizVersion("1.0")
+                    .setClassLoader(this.getClass().getClassLoader()));
+
+            BizClassLoader bizClassLoader = new BizClassLoader("mock_default_classloader:1.0",
+                    (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
+            System.setProperty(BIZ_CLASS_LOADER_HOOK_DIR,
+                    "com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook");
+            Assert.assertTrue(TestDefaultBizClassLoaderHook.ClassDefaultA.class.getName().equals(
+                    bizClassLoader.loadClass("defaultA").getName()));
+            System.clearProperty(BIZ_CLASS_LOADER_HOOK_DIR);
+        }
     }
 
     @Test

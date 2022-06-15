@@ -36,8 +36,7 @@
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
-        <jmockit.version>1.35</jmockit.version>
-        <mockito.version>2.21.0</mockito.version>
+        <mockito.version>3.6.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
@@ -311,13 +310,19 @@
                 <version>${testng.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.jmockit</groupId>
-                <artifactId>jmockit</artifactId>
-                <version>${jmockit.version}</version>
-                <scope>test</scope>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.jmockit</groupId>-->
+<!--                <artifactId>jmockit</artifactId>-->
+<!--                <version>${jmockit.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
 
+<!--            <dependency>-->
+<!--                <groupId>org.mockito</groupId>-->
+<!--                <artifactId>mockito-core</artifactId>-->
+<!--                <version>${mockito.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
@@ -352,11 +357,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire.version}</version>
-                    <configuration>
-                        <argLine>
-                            -Djdk.attach.allowAttachSelf
-                        </argLine>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
