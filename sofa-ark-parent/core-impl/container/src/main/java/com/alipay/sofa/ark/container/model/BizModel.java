@@ -24,11 +24,13 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
@@ -39,9 +41,12 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +94,7 @@ public class BizModel implements Biz {
     private Set<String>            injectExportPackages          = new HashSet<>();
 
     private Set<String>            declaredLibraries             = new HashSet<>();
+    private Map<String, Boolean>   declaredCacheMap              = new ConcurrentHashMap<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
@@ -394,6 +400,9 @@ public class BizModel implements Biz {
     }
 
     public BizModel setDeclaredLibraries(String declaredLibraries) {
+        if (StringUtils.isEmpty(declaredLibraries)) {
+            return this;
+        }
         this.declaredLibraries = StringUtils.strToSet(declaredLibraries,
             Constants.MANIFEST_VALUE_SPLIT);
         return this;
@@ -411,17 +420,7 @@ public class BizModel implements Biz {
                 return true;
             }
             String subClassLocation = classLocation.substring(0, index);
-            String[] pathInfo = subClassLocation.split("/");
-
-            if (pathInfo.length >= 2) {
-                String packageName = pathInfo[pathInfo.length - 1];
-                String packageVersion = "-" + pathInfo[pathInfo.length - 2];
-                String artifactId = packageName.replace(packageVersion, "");
-                return declaredLibraries.contains(artifactId);
-            }
-
-            // class not in jar
-            return true;
+            return checkDeclaredWithCache(subClassLocation);
         }
 
         return false;
@@ -433,30 +432,59 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(URL url) {
-        // compatibility when no declared parse in biz, then just not filter by return true.
+        // compatibility when no declared parse in biz, then just no filter by return true.
         if (declaredLibraries == null || declaredLibraries.size() == 0) {
             return true;
         }
         if (url != null) {
             if ("jar".equals(url.getProtocol())) {
-                String libraryFile = url.getFile();
+                String libraryFile = url.getFile().replace("file:", "");
                 int index = libraryFile.indexOf(".jar!");
                 if (index == -1) {
                     return true;
                 }
                 String subLibraryFile = libraryFile.substring(0, index);
-                String[] pathInfo = subLibraryFile.split("/");
-                if (pathInfo.length >= 2) {
-                    String packageName = pathInfo[pathInfo.length - 1];
-                    String packageVersion = "-" + pathInfo[pathInfo.length - 2];
-                    String artifactId = packageName.replace(packageVersion, "");
-                    return declaredLibraries.contains(artifactId);
-                }
+                return checkDeclaredWithCache(subLibraryFile);
             } else {
                 return "file".equals(url.getProtocol());
             }
         }
 
         return false;
+    }
+
+    private boolean checkDeclaredWithCache(String jarFileWithoutSuffix) {
+        String jarFilePath = jarFileWithoutSuffix + ".jar";
+        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
+    }
+
+    private boolean doCheckDeclared(String jarFilePath) {
+        String[] pathInfo = jarFilePath.split("/");
+        if (pathInfo.length >= 1) {
+            String jarFileName = pathInfo[pathInfo.length - 1];
+            if (StringUtils.startWithToLowerCase(jarFileName, "sofa-ark-")) {
+                return true;
+            }
+
+            try (JarFile jarFile = new JarFile(FileUtils.getFile(jarFilePath))) {
+                String version = JarUtils.getJarVersion(jarFile);
+                // if can't find version for jar, then just return declared for compatibility
+                if (StringUtils.isEmpty(version)) {
+                    return true;
+                }
+
+                if (jarFileName.contains("-" + version + ".jar")) {
+                    String artifactId = jarFileName.replace("-" + version + ".jar", "");
+                    return declaredLibraries.contains(artifactId);
+                }
+                return true;
+            } catch (IOException e) {
+                LOGGER.error("Failed to get version from jar {}.jar: {}", jarFilePath,
+                    e.getMessage());
+                return false;
+            }
+        }
+        // path is not in jar, then just return
+        return true;
     }
 }
