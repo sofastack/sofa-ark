@@ -84,6 +84,7 @@ public class EventTest extends BaseTest {
     @After
     public void after() {
         result.clear();
+        super.after();
     }
 
     @Test

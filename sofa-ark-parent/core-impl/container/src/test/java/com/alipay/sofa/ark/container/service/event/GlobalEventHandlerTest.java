@@ -69,6 +69,7 @@ public class GlobalEventHandlerTest extends BaseTest {
         eventAdminService.unRegister(abstractArkEventHandler);
         arkEventHandler = null;
         arkEventHandler1 = null;
+        super.after();
     }
 
     @Test

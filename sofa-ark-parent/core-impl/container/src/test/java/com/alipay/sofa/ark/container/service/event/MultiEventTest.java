@@ -54,6 +54,7 @@ public class MultiEventTest extends BaseTest {
     @After
     public void after() {
         result.clear();
+        super.after();
     }
 
     @Test
