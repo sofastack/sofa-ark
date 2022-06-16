@@ -42,12 +42,11 @@ public class BizManagerServiceImpl implements BizManagerService {
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> bizRegistration = new ConcurrentHashMap<>();
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean registerBiz(Biz biz) {
         AssertUtils.assertNotNull(biz, "Biz must not be null.");
         AssertUtils.isTrue(biz.getBizState() == BizState.RESOLVED, "BizState must be RESOLVED.");
-        bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<String, Biz>(16));
-        ConcurrentHashMap bizCache = bizRegistration.get(biz.getBizName());
+        bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<>(16));
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(biz.getBizName());
         return bizCache.put(biz.getBizVersion(), biz) == null;
     }
 

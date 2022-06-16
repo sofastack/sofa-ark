@@ -246,6 +246,13 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "/", required = true)
     private String                webContextPath;
 
+    /**
+     * the biz jar will record the declared libraries if true,
+     * and will filter out only declared libraries when delegate classes and resources to ark-base
+     */
+    @Parameter(defaultValue = "false")
+    private boolean               declaredMode;
+
     @Override
     public void execute() throws MojoExecutionException {
         if ("war".equals(this.project.getPackaging())) {
@@ -391,6 +398,7 @@ public class RepackageMojo extends AbstractMojo {
         repackager.setKeepArkBizJar(keepArkBizJar);
         repackager.setBaseDir(baseDir);
         repackager.setWebContextPath(webContextPath);
+        repackager.setDeclaredMode(declaredMode);
         return repackager;
     }
 
