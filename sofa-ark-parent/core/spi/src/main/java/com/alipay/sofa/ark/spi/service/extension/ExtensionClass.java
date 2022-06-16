@@ -135,6 +135,7 @@ public class ExtensionClass<I, T> implements PriorityOrdered {
 
     @Override
     public int hashCode() {
-        return Objects.hash(interfaceClass, implementClass, extensible, extension, definedLocation, singleton);
+        return Objects.hash(interfaceClass, implementClass, extensible, extension, definedLocation,
+            singleton);
     }
 }
