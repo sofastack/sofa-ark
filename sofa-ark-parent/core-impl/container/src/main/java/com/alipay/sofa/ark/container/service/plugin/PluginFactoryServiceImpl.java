@@ -187,7 +187,9 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
-            .setClassPath(((URLClassLoader) masterClassLoader).getURLs())
+            .setClassPath(
+                enableExportClass ? getFinalPluginUrls(pluginArchive, null, plugin.getPluginName())
+                    : ((URLClassLoader) masterClassLoader).getURLs())
             .setPluginUrl(pluginArchive.getUrl())
             .setExportClasses(
                 enableExportClass ? manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)
@@ -199,7 +201,9 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
             .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
-            .setPluginClassLoader(masterClassLoader)
+            .setPluginClassLoader(
+                enableExportClass ? new PluginClassLoader(plugin.getPluginName(), plugin
+                    .getClassPath()) : masterClassLoader)
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
     }

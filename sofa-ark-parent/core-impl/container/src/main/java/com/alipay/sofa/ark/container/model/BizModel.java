@@ -459,6 +459,7 @@ public class BizModel implements Biz {
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
+        jarFilePath = jarFilePath.replace("file:", "");
         String[] pathInfo = jarFilePath.split("/");
         if (pathInfo.length >= 1) {
             String jarFileName = pathInfo[pathInfo.length - 1];
