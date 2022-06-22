@@ -466,13 +466,19 @@ public class BizModel implements Biz {
                 String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
                 String[] artifactVersionInfos = artifactVersion.split("-");
                 List<String> artifactInfos = new ArrayList<>();
-                Arrays.stream(artifactVersionInfos).forEach(s -> {
-                    if (!StringUtils.isEmpty(s) && Character.isDigit(s.charAt(0))) {
-                        return;
+                boolean getVersion = false;
+                for (String info : artifactVersionInfos) {
+                    if (!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0))) {
+                        getVersion = true;
+                        break;
                     }
-                    artifactInfos.add(s);
-                });
-                return String.join("-", artifactInfos);
+                    artifactInfos.add(info);
+                }
+                if (getVersion) {
+                    return String.join("-", artifactInfos);
+                }
+                // if can't find any version from jar name, then we just return null to paas the declared check
+                return null;
             }
         }
         return null;
