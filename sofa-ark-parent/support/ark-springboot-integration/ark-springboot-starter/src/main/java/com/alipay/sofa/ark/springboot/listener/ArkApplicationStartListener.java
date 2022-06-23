@@ -17,16 +17,14 @@
 package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.api.ArkClient;
-import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
-import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.boot.loader.LaunchedURLClassLoader;
@@ -48,10 +46,10 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
-            if (ArkConfigs.isEmbedEnable()
+            if (ArkConfigUtils.isEmbedEnable()
                 || LaunchedURLClassLoader.class.isAssignableFrom(this.getClass().getClassLoader()
                     .getClass())) {
-                ArkConfigs.setEmbedEnable(true);
+                ArkConfigUtils.setEmbedEnable(true);
                 startUpArkEmbed(event);
                 return;
             }

@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -100,7 +101,7 @@ public class ArkContainer {
                 return new ArkContainer(executableArchive, launchCommand).start();
             } else {
                 ClassPathArchive classPathArchive;
-                if (ArkConfigs.isEmbedEnable()) {
+                if (ArkConfigUtils.isEmbedEnable()) {
                     classPathArchive = new EmbedClassPathArchive(launchCommand.getEntryClassName(),
                         launchCommand.getEntryMethodName(), launchCommand.getClasspath());
                 } else {

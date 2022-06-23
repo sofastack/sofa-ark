@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.listener;
 
-import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
@@ -32,7 +32,7 @@ public class PropertiesResetListener implements
                                     Ordered {
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        if (ArkConfigs.isEmbedEnable()) {
+        if (ArkConfigUtils.isEmbedEnable()) {
             System.getProperties().remove("logging.path");
         }
     }

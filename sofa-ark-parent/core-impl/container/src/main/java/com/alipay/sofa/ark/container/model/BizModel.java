@@ -17,10 +17,10 @@
 package com.alipay.sofa.ark.container.model;
 
 import com.alipay.sofa.ark.api.ArkClient;
-import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
@@ -43,7 +43,6 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -378,7 +377,7 @@ public class BizModel implements Biz {
     }
 
     private void resetProperties() {
-        if (!ArkConfigs.isEmbedEnable()) {
+        if (!ArkConfigUtils.isEmbedEnable()) {
             System.getProperties().remove("logging.path");
         } else if (this != ArkClient.getMasterBiz()) {
             System.getProperties().remove("spring.application.admin.enabled");
@@ -395,7 +394,7 @@ public class BizModel implements Biz {
     }
 
     private boolean isMasterBizAndEmbedEnable() {
-        return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
+        return this == ArkClient.getMasterBiz() && ArkConfigUtils.isEmbedEnable();
     }
 
     public BizModel setDeclaredLibraries(String declaredLibraries) {
