@@ -237,7 +237,7 @@ public class ClasspathLauncher extends ArkLauncher {
             return filterUrls == null ? null : new DirectoryContainerArchive(filterUrls);
         }
 
-        private boolean fromSurefire(URL[] urls) {
+        protected boolean fromSurefire(URL[] urls) {
             if (urls.length <= 4) {
                 for (URL url : urls) {
                     if (url.getFile().contains(Constants.SUREFIRE_BOOT_JAR)) {

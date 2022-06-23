@@ -36,6 +36,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -129,6 +130,29 @@ public class ClasspathLauncherTest {
             this.getClass().getCanonicalName(), null, ClassLoaderUtils.getURLs(classLoader));
         List<URL> confClasspath = classPathArchive.getConfClasspath();
         Assert.assertEquals(3, confClasspath.size());
+    }
+
+    @Test
+    public void testFromSurefire() throws IOException {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        ClasspathLauncher.ClassPathArchive classPathArchive = new ClasspathLauncher.ClassPathArchive(
+            this.getClass().getCanonicalName(), null, ClassLoaderUtils.getURLs(classLoader));
+
+        URL url1 = Mockito.mock(URL.class);
+        URL url2 = Mockito.mock(URL.class);
+        URL url3 = Mockito.mock(URL.class);
+
+        when(url1.getFile()).thenReturn("surefirebooter17233117990150815938.jar");
+        when(url2.getFile()).thenReturn("org.jacoco.agent-0.8.4-runtime.jar");
+        when(url3.getFile()).thenReturn("byte-buddy-agent-1.10.15.jar");
+
+        Assert.assertTrue(classPathArchive.fromSurefire(new URL[] { url1, url2, url3 }));
+
+        List<URL> urls2 = classPathArchive.getConfClasspath();
+        urls2.add(url2);
+        urls2.add(url3);
+
+        Assert.assertFalse(classPathArchive.fromSurefire(urls2.toArray(new URL[0])));
     }
 
 }

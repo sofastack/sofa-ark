@@ -16,10 +16,13 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -32,6 +35,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.NoSuchElementException;
 
 public class CompoundEnumerationTest extends BaseTest {
     private PluginFactoryService pluginFactoryService;
@@ -52,22 +56,23 @@ public class CompoundEnumerationTest extends BaseTest {
             BizManagerService.class);
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void test() throws IOException {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL bizURL = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
+        URL pluginURL = this.getClass().getClassLoader().getResource("sample-plugin.jar");
 
-        URL samplePlugin = cl.getResource("sample-plugin.jar");
-        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
-        pluginManagerService.registerPlugin(plugin);
-
-        URL sampleBiz = cl.getResource("sample-biz.jar");
-        Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
-        bizManagerService.registerBiz(biz);
-        CompoundEnumeration<URL> e = (CompoundEnumeration<URL>) biz.getBizClassLoader()
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {
+                bizURL, pluginURL });
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizManagerService.registerBiz(bizModel);
+        CompoundEnumeration<URL> e = (CompoundEnumeration<URL>) bizModel.getBizClassLoader()
             .getResources(Constants.ARK_PLUGIN_MARK_ENTRY);
 
         Assert.assertTrue(e.hasMoreElements());
         URL url = e.nextElement();
         Assert.assertNotNull(url);
+        e.nextElement();
     }
 }
