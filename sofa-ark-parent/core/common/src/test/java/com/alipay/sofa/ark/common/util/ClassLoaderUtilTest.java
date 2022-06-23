@@ -18,12 +18,20 @@ package com.alipay.sofa.ark.common.util;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import sun.misc.Unsafe;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -78,4 +86,22 @@ public class ClassLoaderUtilTest {
         Assert.assertArrayEquals(urls, ClassLoaderUtils.getURLs(appClassLoader));
     }
 
+    @Test
+    public void testGetAgentClassPath() {
+        List<String> mockArguments = new ArrayList<>();
+        String workingPath = this.getClass().getClassLoader()
+                .getResource("").getPath();
+        mockArguments.add(String.format("-javaagent:%s", workingPath));
+
+        RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
+        when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
+
+        MockedStatic<ManagementFactory> managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
+
+        URL[] agentUrl = ClassLoaderUtils.getAgentClassPath();
+        Assert.assertEquals(1, agentUrl.length);
+
+        managementFactoryMockedStatic.close();
+    }
 }
