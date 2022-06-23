@@ -16,10 +16,11 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
+import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
+
 import java.io.*;
 import java.net.*;
 import java.security.Permission;
-import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
 
 /**
  * {@link java.net.JarURLConnection} used to support {@link JarFile#getUrl()}.
@@ -120,7 +121,7 @@ final public class JarURLConnection extends java.net.JarURLConnection {
             if (spec.endsWith(SEPARATOR)) {
                 spec = spec.substring(0, spec.length() - SEPARATOR.length());
             }
-            if (spec.indexOf(SEPARATOR) == -1) {
+            if (!spec.contains(SEPARATOR)) {
                 return new URL(spec);
             }
             return new URL("jar:" + spec);
@@ -297,7 +298,7 @@ final public class JarURLConnection extends java.net.JarURLConnection {
         }
 
         private String decode(String source) {
-            if (source.isEmpty() || (source.indexOf('%') < 0)) {
+            if (source.indexOf('%') < 0) {
                 return source;
             }
             ByteArrayOutputStream bos = new ByteArrayOutputStream(source.length());
