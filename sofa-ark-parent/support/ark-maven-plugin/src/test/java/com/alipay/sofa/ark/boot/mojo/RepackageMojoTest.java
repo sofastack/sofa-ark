@@ -26,8 +26,8 @@ import java.net.URL;
 import java.util.LinkedHashSet;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2020/12/16 2:25 下午
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2020/12/16 2:25 下午
+ * @since
  **/
 public class RepackageMojoTest {
 

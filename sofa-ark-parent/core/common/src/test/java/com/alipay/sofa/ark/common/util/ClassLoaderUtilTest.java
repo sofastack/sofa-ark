@@ -18,9 +18,21 @@ package com.alipay.sofa.ark.common.util;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import sun.misc.URLClassPath;
+import sun.misc.Unsafe;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -28,6 +40,18 @@ import java.net.URLClassLoader;
  * @since 0.1.0
  */
 public class ClassLoaderUtilTest {
+
+    private class MockClassLoader extends ClassLoader {
+        private final URLClassPath ucp;
+
+        protected MockClassLoader(URL[] urls) {
+            ucp = new URLClassPath(urls);
+        }
+
+        protected URL[] getURLs() {
+            return ucp.getURLs();
+        }
+    }
 
     @Test
     public void testPushContextClassLoader() {
@@ -43,4 +67,61 @@ public class ClassLoaderUtilTest {
         Assert.assertEquals(classLoader, Thread.currentThread().getContextClassLoader());
     }
 
+    @Test
+    @SuppressWarnings({ "restriction", "unchecked" })
+    public void testGetURLs() throws NoSuchFieldException, IllegalAccessException {
+        ClassLoader urlClassLoader = new URLClassLoader(new URL[] {});
+        Assert.assertArrayEquals(((URLClassLoader) urlClassLoader).getURLs(),
+            ClassLoaderUtils.getURLs(urlClassLoader));
+
+        ClassLoader appClassLoader = this.getClass().getClassLoader();
+        URL[] urls = null;
+        if (appClassLoader instanceof URLClassLoader) {
+            urls = ((URLClassLoader) appClassLoader).getURLs();
+        } else {
+
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Unsafe unsafe = (Unsafe) field.get(null);
+
+            // jdk.internal.loader.ClassLoaders.AppClassLoader.ucp
+            Field ucpField = appClassLoader.getClass().getDeclaredField("ucp");
+            long ucpFieldOffset = unsafe.objectFieldOffset(ucpField);
+            Object ucpObject = unsafe.getObject(appClassLoader, ucpFieldOffset);
+
+            // jdk.internal.loader.URLClassPath.path
+            Field pathField = ucpField.getType().getDeclaredField("path");
+            long pathFieldOffset = unsafe.objectFieldOffset(pathField);
+            ArrayList<URL> path = (ArrayList<URL>) unsafe.getObject(ucpObject, pathFieldOffset);
+
+            urls = path.toArray(new URL[path.size()]);
+        }
+        Assert.assertArrayEquals(urls, ClassLoaderUtils.getURLs(appClassLoader));
+
+        URL url1 = this.getClass().getResource("");
+        URL[] mockURLs = new URL[] { url1 };
+        MockClassLoader mockClassLoader = new MockClassLoader(mockURLs);
+        Assert.assertArrayEquals(mockClassLoader.getURLs(),
+            ClassLoaderUtils.getURLs(mockClassLoader));
+
+    }
+
+    @Test
+    public void testGetAgentClassPath() {
+        List<String> mockArguments = new ArrayList<>();
+        String workingPath = this.getClass().getClassLoader()
+                .getResource("").getPath();
+        mockArguments.add(String.format("-javaagent:%s", workingPath));
+
+        RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
+        when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
+
+        MockedStatic<ManagementFactory> managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
+
+        URL[] agentUrl = ClassLoaderUtils.getAgentClassPath();
+        Assert.assertEquals(1, agentUrl.length);
+
+        managementFactoryMockedStatic.close();
+    }
 }

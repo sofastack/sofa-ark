@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
@@ -35,7 +36,7 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.misc.URLClassPath;
+//import sun.misc.URLClassPath;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -113,8 +114,11 @@ public class BizClassLoaderTest extends BaseTest {
         bizManagerService.registerBiz(bizModel);
         Class clazz = bizModel.getBizClassLoader().loadClass("SampleClass");
         Assert.assertFalse(clazz.getClassLoader() instanceof AgentClassLoader);
+
         Assert.assertTrue(clazz.getClassLoader().getClass().getCanonicalName()
-            .contains("Launcher.AppClassLoader"));
+            .contains("Launcher.AppClassLoader")
+                          || clazz.getClassLoader().getClass().getCanonicalName()
+                              .contains("ClassLoaders.AppClassLoader"));
     }
 
     @Test
@@ -339,11 +343,14 @@ public class BizClassLoaderTest extends BaseTest {
     @Test
     public void testSlashResource() throws Throwable {
         registerMockBiz();
-        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
-        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
-        ucpFiled.setAccessible(true);
-        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
-        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ucp.getURLs());
+        //        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
+        //        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
+        //        ucpFiled.setAccessible(true);
+        //        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
+        //        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ucp.getURLs());
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0",
+            ClassLoaderUtils.getURLs(classLoader));
         URL url = bizClassLoader.getResource("");
         Assert.assertNotNull(url);
         Assert.assertEquals(url, this.getClass().getResource("/"));
@@ -355,7 +362,8 @@ public class BizClassLoaderTest extends BaseTest {
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
-        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        //        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        String name = "javax/lang/model/element/Modifier.class";
 
         URL res1 = cl.getResource(name);
         Assert.assertNotNull(res1);
@@ -378,7 +386,8 @@ public class BizClassLoaderTest extends BaseTest {
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
-        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        //        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        String name = "javax/lang/model/element/Modifier.class";
         URL res1 = cl.getResource(name);
         Assert.assertNotNull(res1);
         Assert.assertNotNull(cl.getResource(name));
