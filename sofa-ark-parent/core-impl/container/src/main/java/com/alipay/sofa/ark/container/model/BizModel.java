@@ -493,8 +493,8 @@ public class BizModel implements Biz {
         return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
     }
 
-    private boolean doCheckDeclared(String libraryFile) {
-        String artifactId = getArtifactId(libraryFile);
+    private boolean doCheckDeclared(String jarFilePath) {
+        String artifactId = getArtifactId(jarFilePath);
         if (artifactId == null) {
             return true;
         }
