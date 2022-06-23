@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import sun.misc.URLClassPath;
 import sun.misc.Unsafe;
 
 import java.io.File;
@@ -39,6 +40,18 @@ import static org.mockito.Mockito.when;
  * @since 0.1.0
  */
 public class ClassLoaderUtilTest {
+
+    private class MockClassLoader extends ClassLoader {
+        private final URLClassPath ucp;
+
+        protected MockClassLoader(URL[] urls) {
+            ucp = new URLClassPath(urls);
+        }
+
+        protected URL[] getURLs() {
+            return ucp.getURLs();
+        }
+    }
 
     @Test
     public void testPushContextClassLoader() {
@@ -84,6 +97,13 @@ public class ClassLoaderUtilTest {
             urls = path.toArray(new URL[path.size()]);
         }
         Assert.assertArrayEquals(urls, ClassLoaderUtils.getURLs(appClassLoader));
+
+        URL url1 = this.getClass().getResource("");
+        URL[] mockURLs = new URL[] { url1 };
+        MockClassLoader mockClassLoader = new MockClassLoader(mockURLs);
+        Assert.assertArrayEquals(mockClassLoader.getURLs(),
+            ClassLoaderUtils.getURLs(mockClassLoader));
+
     }
 
     @Test
