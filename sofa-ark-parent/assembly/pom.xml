@@ -32,6 +32,11 @@
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-archive</artifactId>
         </dependency>
 
