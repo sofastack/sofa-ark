@@ -485,10 +485,10 @@ public class BizModel implements Biz {
 
     private boolean checkDeclaredWithCache(String libraryFile) {
         int index = libraryFile.lastIndexOf("!/");
-        if (index == -1) {
-            return true;
+        String jarFilePath = libraryFile;
+        if (index != -1) {
+            jarFilePath = libraryFile.substring(0, index);
         }
-        String jarFilePath = libraryFile.substring(0, index);
         return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
     }
 
