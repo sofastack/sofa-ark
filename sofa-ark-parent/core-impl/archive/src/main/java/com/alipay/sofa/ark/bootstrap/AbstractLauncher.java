@@ -147,8 +147,8 @@ public abstract class AbstractLauncher {
      * @return the classloader load ark container
      */
     protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent) {
-        return ArkConfigUtils.isEmbedEnable() ? new ContainerClassLoader(urls, parent, this.getClass()
-            .getClassLoader()) : new ContainerClassLoader(urls, parent);
+        return ArkConfigUtils.isEmbedEnable() ? new ContainerClassLoader(urls, parent, this
+            .getClass().getClassLoader()) : new ContainerClassLoader(urls, parent);
     }
 
     /**
