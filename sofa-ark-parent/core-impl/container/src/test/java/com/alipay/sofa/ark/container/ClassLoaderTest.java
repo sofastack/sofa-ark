@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
 import com.alipay.sofa.ark.container.test.TestClassLoader;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -32,13 +33,13 @@ public class ClassLoaderTest extends BaseTest {
 
     @Test
     public void testDefaultDelegate() throws Throwable {
-        // incompatible with JDK9+
-        URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        TestClassLoader testClassLoader = new TestClassLoader("mock:1.0", urlClassLoader.getURLs(),
-            urlClassLoader);
+        // compatible with JDK9+
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        TestClassLoader testClassLoader = new TestClassLoader("mock:1.0",
+            ClassLoaderUtils.getURLs(classLoader), classLoader);
 
-        Assert.assertEquals(urlClassLoader, testClassLoader
-            .loadClass(Test.class.getCanonicalName()).getClassLoader());
+        Assert.assertEquals(classLoader, testClassLoader.loadClass(Test.class.getCanonicalName())
+            .getClassLoader());
         Assert.assertEquals(testClassLoader,
             testClassLoader.loadClass(ClassLoaderTest.class.getCanonicalName()).getClassLoader());
     }
@@ -50,14 +51,14 @@ public class ClassLoaderTest extends BaseTest {
         EnvironmentUtils.setProperty(Constants.FORCE_DELEGATE_TO_APP_CLASSLOADER,
             ClassLoaderTest.class.getPackage().getName());
 
-        // incompatible with JDK9+
-        URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        TestClassLoader testClassLoader = new TestClassLoader("mock:1.0", urlClassLoader.getURLs(),
-            urlClassLoader);
+        // compatible with JDK9+
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        TestClassLoader testClassLoader = new TestClassLoader("mock:1.0",
+            ClassLoaderUtils.getURLs(classLoader), classLoader);
 
         Assert.assertEquals(testClassLoader,
             testClassLoader.loadClass(Test.class.getCanonicalName()).getClassLoader());
-        Assert.assertEquals(urlClassLoader,
+        Assert.assertEquals(classLoader,
             testClassLoader.loadClass(ClassLoaderTest.class.getCanonicalName()).getClassLoader());
 
         EnvironmentUtils.clearProperty(Constants.FORCE_DELEGATE_TO_APP_CLASSLOADER);

@@ -24,13 +24,11 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
@@ -41,13 +39,14 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,7 +92,7 @@ public class BizModel implements Biz {
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String>            declaredLibraries             = new HashSet<>();
+    private Set<String>            declaredLibraries             = new LinkedHashSet<>();
     private Map<String, Boolean>   declaredCacheMap              = new ConcurrentHashMap<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
@@ -414,13 +413,16 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(String classLocation) {
+        // compatibility when no declared parse in biz, then just no filter by return true.
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return true;
+        }
+
         if (!StringUtils.isEmpty(classLocation)) {
-            int index = classLocation.indexOf(".jar");
-            if (index == -1) {
-                return true;
+            if (classLocation.contains(".jar")) {
+                return checkDeclaredWithCache(classLocation);
             }
-            String subClassLocation = classLocation.substring(0, index);
-            return checkDeclaredWithCache(subClassLocation);
+            return true;
         }
 
         return false;
@@ -439,12 +441,7 @@ public class BizModel implements Biz {
         if (url != null) {
             if ("jar".equals(url.getProtocol())) {
                 String libraryFile = url.getFile().replace("file:", "");
-                int index = libraryFile.indexOf(".jar!");
-                if (index == -1) {
-                    return true;
-                }
-                String subLibraryFile = libraryFile.substring(0, index);
-                return checkDeclaredWithCache(subLibraryFile);
+                return checkDeclaredWithCache(libraryFile);
             } else {
                 return "file".equals(url.getProtocol());
             }
@@ -453,39 +450,54 @@ public class BizModel implements Biz {
         return false;
     }
 
-    private boolean checkDeclaredWithCache(String jarFileWithoutSuffix) {
-        String jarFilePath = jarFileWithoutSuffix + ".jar";
-        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
-    }
+    private String getArtifactId(String jarLocation) {
+        String[] jars = jarLocation.split("!/");
+        if (jars.length == 0) {
+            return null;
+        }
 
-    private boolean doCheckDeclared(String jarFilePath) {
-        jarFilePath = jarFilePath.replace("file:", "");
-        String[] pathInfo = jarFilePath.split("/");
-        if (pathInfo.length >= 1) {
-            String jarFileName = pathInfo[pathInfo.length - 1];
-            if (StringUtils.startWithToLowerCase(jarFileName, "sofa-ark-")) {
-                return true;
-            }
-
-            try (JarFile jarFile = new JarFile(FileUtils.getFile(jarFilePath))) {
-                String version = JarUtils.getJarVersion(jarFile);
-                // if can't find version for jar, then just return declared for compatibility
-                if (StringUtils.isEmpty(version)) {
-                    return true;
+        for (int i = jars.length - 1; i >= 0; i--) {
+            String jar = jars[i];
+            if (jar.endsWith(".jar")) {
+                String[] pathInfos = jar.split("/");
+                if (pathInfos.length == 0) {
+                    return null;
                 }
-
-                if (jarFileName.contains("-" + version + ".jar")) {
-                    String artifactId = jarFileName.replace("-" + version + ".jar", "");
-                    return declaredLibraries.contains(artifactId);
+                String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
+                String[] artifactVersionInfos = artifactVersion.split("-");
+                List<String> artifactInfos = new ArrayList<>();
+                boolean getVersion = false;
+                for (String info : artifactVersionInfos) {
+                    if (!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0))) {
+                        getVersion = true;
+                        break;
+                    }
+                    artifactInfos.add(info);
                 }
-                return true;
-            } catch (IOException e) {
-                LOGGER.error("Failed to get version from jar {}.jar: {}", jarFilePath,
-                    e.getMessage());
-                return false;
+                if (getVersion) {
+                    return String.join("-", artifactInfos);
+                }
+                // if can't find any version from jar name, then we just return null to paas the declared check
+                return null;
             }
         }
-        // path is not in jar, then just return
-        return true;
+        return null;
+    }
+
+    private boolean checkDeclaredWithCache(String libraryFile) {
+        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
+    }
+
+    private boolean doCheckDeclared(String libraryFile) {
+        String artifactId = getArtifactId(libraryFile);
+        if (artifactId == null) {
+            return true;
+        }
+
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+            return true;
+        }
+
+        return declaredLibraries.contains(artifactId);
     }
 }

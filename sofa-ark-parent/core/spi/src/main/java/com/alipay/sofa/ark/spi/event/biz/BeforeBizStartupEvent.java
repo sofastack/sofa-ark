@@ -21,8 +21,8 @@ import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 10:56 AM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 10:56 AM
+ * @since
  **/
 public class BeforeBizStartupEvent extends AbstractArkEvent<Biz> {
 

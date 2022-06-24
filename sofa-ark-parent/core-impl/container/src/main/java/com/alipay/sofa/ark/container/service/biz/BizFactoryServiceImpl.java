@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
@@ -136,7 +137,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
             .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
             .setInjectExportPackages(null)
-            .setClassPath(((URLClassLoader) masterClassLoader).getURLs())
+            .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
             .setClassLoader(masterClassLoader);
         return bizModel;
     }

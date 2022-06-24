@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,10 +21,10 @@
         <maven.java.formatter.plugin>0.4</maven.java.formatter.plugin>
         <maven.compiler.plugin>3.1</maven.compiler.plugin>
         <maven.source.plugin>3.0.0</maven.source.plugin>
-        <maven.javadoc.plugin>2.9.1</maven.javadoc.plugin>
+        <maven.javadoc.plugin>3.2.0</maven.javadoc.plugin>
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
         <maven.gpg.pluign>1.5</maven.gpg.pluign>
-        <jacoco.maven.plugin>0.7.9</jacoco.maven.plugin>
+        <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
     </properties>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -140,6 +140,11 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <docencoding>UTF-8</docencoding>
+                            <charset>UTF-8</charset>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
