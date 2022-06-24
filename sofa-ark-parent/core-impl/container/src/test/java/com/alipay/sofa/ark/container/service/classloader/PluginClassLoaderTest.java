@@ -17,13 +17,13 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
@@ -31,12 +31,8 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.misc.URLClassPath;
-
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -351,12 +347,15 @@ public class PluginClassLoaderTest extends BaseTest {
         pluginManagerService.registerPlugin(mockPlugin);
 
         ClassLoader cl = mockPlugin.getPluginClassLoader();
-        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        //         String name = "META-INF/services/javax.script.ScriptEngineFactory";
+
+        String name = "javax/lang/model/element/Modifier.class";
 
         URL res1 = cl.getResource(name);
         Assert.assertNotNull(res1);
 
         URL res2 = ClassLoader.getSystemClassLoader().getResource(name);
+        Assert.assertNotNull(res2);
         Assert.assertEquals(res2, res1);
 
         Enumeration<URL> enu1 = cl.getResources(name);
@@ -369,11 +368,9 @@ public class PluginClassLoaderTest extends BaseTest {
 
     @Test
     public void testSlashResource() throws Throwable {
-        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
-        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
-        ucpFiled.setAccessible(true);
-        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("pluginName", ucp.getURLs());
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("pluginName",
+            ClassLoaderUtils.getURLs(classLoader));
         PluginModel mockPlugin = new PluginModel();
         mockPlugin.setPluginName("pluginName").setClassPath(new URL[] {})
             .setImportResources(StringUtils.EMPTY_STRING)

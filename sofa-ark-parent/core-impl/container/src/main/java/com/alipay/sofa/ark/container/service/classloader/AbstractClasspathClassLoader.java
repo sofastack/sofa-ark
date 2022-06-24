@@ -27,7 +27,6 @@ import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
-import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
 import java.net.JarURLConnection;

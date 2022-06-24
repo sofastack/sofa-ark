@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.service.plugin;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.PluginContextImpl;
 import com.alipay.sofa.ark.container.model.PluginModel;
@@ -187,7 +188,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setVersion(manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
-            .setClassPath(((URLClassLoader) masterClassLoader).getURLs())
+            .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportClasses(
                 enableExportClass ? manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)
