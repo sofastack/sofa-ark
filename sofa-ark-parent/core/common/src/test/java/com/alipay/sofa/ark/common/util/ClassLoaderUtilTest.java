@@ -20,7 +20,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import sun.misc.URLClassPath;
 import sun.misc.Unsafe;
 
 import java.io.File;
@@ -30,6 +29,8 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -42,14 +43,27 @@ import static org.mockito.Mockito.when;
 public class ClassLoaderUtilTest {
 
     private class MockClassLoader extends ClassLoader {
+
         private final URLClassPath ucp;
 
-        protected MockClassLoader(URL[] urls) {
+        private MockClassLoader(URL[] urls) {
             ucp = new URLClassPath(urls);
         }
 
-        protected URL[] getURLs() {
+        private URL[] getURLs() {
             return ucp.getURLs();
+        }
+
+        private class URLClassPath {
+            private ArrayList<URL> path = new ArrayList<>();
+
+            private URLClassPath(URL[] urls) {
+                Collections.addAll(path, urls);
+            }
+
+            private URL[] getURLs() {
+                return this.path.toArray(new URL[0]);
+            }
         }
     }
 
