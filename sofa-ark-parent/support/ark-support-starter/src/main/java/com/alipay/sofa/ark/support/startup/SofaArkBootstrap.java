@@ -89,7 +89,6 @@ public class SofaArkBootstrap {
 
     private static URL[] getURLClassPath() {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        //        return ((URLClassLoader) classLoader).getURLs();
         return ClassLoaderUtils.getURLs(classLoader);
     }
 

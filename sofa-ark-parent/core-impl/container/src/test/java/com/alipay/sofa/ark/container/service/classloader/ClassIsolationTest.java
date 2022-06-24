@@ -134,5 +134,8 @@ public class ClassIsolationTest extends BaseTest {
             bizClassLoader.loadClass("com.alipay.sofa.demo.hessian4.Hessian4Service")
                 .getClassLoader(), plugin2.getPluginClassLoader());
 
+        Assert.assertEquals(plugin0.getPluginClassLoader().getClass(), PluginClassLoader.class);
+        Assert.assertEquals(plugin1.getPluginClassLoader().getClass(), PluginClassLoader.class);
+        Assert.assertEquals(plugin2.getPluginClassLoader().getClass(), PluginClassLoader.class);
     }
 }

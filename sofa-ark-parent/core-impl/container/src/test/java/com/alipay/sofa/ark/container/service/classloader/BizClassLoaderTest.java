@@ -343,11 +343,6 @@ public class BizClassLoaderTest extends BaseTest {
     @Test
     public void testSlashResource() throws Throwable {
         registerMockBiz();
-        //        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
-        //        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
-        //        ucpFiled.setAccessible(true);
-        //        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
-        //        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ucp.getURLs());
         ClassLoader classLoader = this.getClass().getClassLoader();
         BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0",
             ClassLoaderUtils.getURLs(classLoader));
