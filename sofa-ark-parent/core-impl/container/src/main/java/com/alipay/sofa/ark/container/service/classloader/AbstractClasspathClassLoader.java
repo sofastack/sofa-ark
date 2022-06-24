@@ -291,7 +291,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             enumerationList.add(postFindResources(name));
 
             return new CompoundEnumeration<>(
-                    enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+                enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }

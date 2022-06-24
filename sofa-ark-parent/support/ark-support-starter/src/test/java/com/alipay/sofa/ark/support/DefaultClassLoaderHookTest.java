@@ -142,20 +142,18 @@ public class DefaultClassLoaderHookTest {
         Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported").hasMoreElements());
     }
 
-
     @Test
     public void getAllResources() throws IOException {
         URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
-        URL resourceUrl = this.getClass().getClassLoader().getResource("sample-ark-plugin-0.5.0.jar");
+        URL resourceUrl = this.getClass().getClassLoader()
+            .getResource("sample-ark-plugin-0.5.0.jar");
 
-        URL[] bizUrls = new URL[] { bizUrl,resourceUrl };
-        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
-                bizUrls);
+        URL[] bizUrls = new URL[] { bizUrl, resourceUrl };
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, bizUrls);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDeclaredLibraries("sample-ark-plugin");
-
 
         List<URL> masterUrls = new ArrayList<>();
         Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");
@@ -166,7 +164,7 @@ public class DefaultClassLoaderHookTest {
         masterUrls.add(resourceUrl);
 
         BizModel masterBizModel = createTestBizModel("master biz", "1.0.0", BizState.RESOLVED,
-                masterUrls.toArray(new URL[0]));
+            masterUrls.toArray(new URL[0]));
         masterBizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         masterBizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         masterBizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
@@ -176,9 +174,11 @@ public class DefaultClassLoaderHookTest {
 
         ArkClient.setMasterBiz(masterBizModel);
 
-        Assert.assertTrue(masterBizModel.getBizClassLoader().getResources("Sample_Resource_Exported").hasMoreElements());
+        Assert.assertTrue(masterBizModel.getBizClassLoader()
+            .getResources("Sample_Resource_Exported").hasMoreElements());
         // get all resources from biz and master biz
-        Enumeration<URL> resourcesFromBizAndMasterBiz = bizModel.getBizClassLoader().getResources("Sample_Resource_Exported");
+        Enumeration<URL> resourcesFromBizAndMasterBiz = bizModel.getBizClassLoader().getResources(
+            "Sample_Resource_Exported");
         Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
         Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
     }
