@@ -232,7 +232,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     }
 
     /**
-     * Getter method for property <tt>bizIdentity</tt>.
+     * Getter method for property <code>bizIdentity</code>.
      *
      * @return property value of bizIdentity
      */

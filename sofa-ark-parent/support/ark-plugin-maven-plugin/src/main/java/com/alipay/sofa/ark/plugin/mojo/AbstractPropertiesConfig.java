@@ -67,7 +67,7 @@ public abstract class AbstractPropertiesConfig {
     }
 
     /**
-     * Getter method for property <tt>resources</tt>.
+     * Getter method for property <code>resources</code>.
      *
      * @return property value of resources
      */

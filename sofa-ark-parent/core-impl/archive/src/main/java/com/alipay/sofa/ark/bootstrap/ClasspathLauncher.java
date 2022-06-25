@@ -228,13 +228,24 @@ public class ClasspathLauncher extends ArkLauncher {
 
         protected ContainerArchive createDirectoryContainerArchive() {
             URL[] candidates;
-            if (urls.length == 1 || urls.length == 2) {
+            if (fromSurefire(urls)) {
                 candidates = parseClassPathFromSurefireBoot(getSurefireBooterJar(urls));
             } else {
                 candidates = urls;
             }
             URL[] filterUrls = filterURLs(candidates);
             return filterUrls == null ? null : new DirectoryContainerArchive(filterUrls);
+        }
+
+        protected boolean fromSurefire(URL[] urls) {
+            if (urls.length <= 4) {
+                for (URL url : urls) {
+                    if (url.getFile().contains(Constants.SUREFIRE_BOOT_JAR)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private URL getSurefireBooterJar(URL[] urls) {

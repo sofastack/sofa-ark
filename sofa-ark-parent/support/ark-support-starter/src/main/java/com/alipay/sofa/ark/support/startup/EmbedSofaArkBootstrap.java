@@ -18,13 +18,13 @@ package com.alipay.sofa.ark.support.startup;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.support.common.DelegateToMasterBizClassLoaderHook;
 import org.springframework.core.env.Environment;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -79,6 +79,6 @@ public class EmbedSofaArkBootstrap {
 
     private static URL[] getURLClassPath() {
         ClassLoader classLoader = EmbedSofaArkBootstrap.class.getClassLoader();
-        return ((URLClassLoader) classLoader).getURLs();
+        return ClassLoaderUtils.getURLs(classLoader);
     }
 }
