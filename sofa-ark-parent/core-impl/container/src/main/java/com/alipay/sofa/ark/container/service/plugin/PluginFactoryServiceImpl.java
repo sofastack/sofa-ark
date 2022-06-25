@@ -52,6 +52,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_CLASSES_ATTRIBUT
 import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_PACKAGES_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_RESOURCES_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXPORT_CLASS_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_CLASSLOADER_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXTENSION_FORMAT;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_NAME_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_VERSION_ATTRIBUTE;
@@ -180,6 +181,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
         boolean enableExportClass = "true".equals(System.getProperty(PLUGIN_EXPORT_CLASS_ENABLE));
+        boolean enablePluginClassLoader = "true".equals(System
+            .getProperty(PLUGIN_CLASSLOADER_ENABLE));
         plugin
             .setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
             .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
@@ -188,8 +191,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(
-                enableExportClass ? getFinalPluginUrls(pluginArchive, null, plugin.getPluginName())
-                    : ClassLoaderUtils.getURLs(masterClassLoader))
+                enablePluginClassLoader ? getFinalPluginUrls(pluginArchive, null,
+                    plugin.getPluginName()) : ClassLoaderUtils.getURLs(masterClassLoader))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportClasses(
                 enableExportClass ? manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)
@@ -202,7 +205,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
             .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
             .setPluginClassLoader(
-                enableExportClass ? new PluginClassLoader(plugin.getPluginName(), plugin
+                enablePluginClassLoader ? new PluginClassLoader(plugin.getPluginName(), plugin
                     .getClassPath()) : masterClassLoader)
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;

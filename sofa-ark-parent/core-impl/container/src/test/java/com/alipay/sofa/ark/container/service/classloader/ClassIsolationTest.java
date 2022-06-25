@@ -45,8 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXPORT_CLASS_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 public class ClassIsolationTest extends BaseTest {
 
@@ -114,6 +113,7 @@ public class ClassIsolationTest extends BaseTest {
             pluginUrl2.getFile())));
 
         System.setProperty(PLUGIN_EXPORT_CLASS_ENABLE, "true");
+        System.setProperty(PLUGIN_CLASSLOADER_ENABLE, "true");
         Plugin plugin0 = pluginFactoryService.createEmbedPlugin(archive0, cl);
         Plugin plugin1 = pluginFactoryService.createEmbedPlugin(archive1, cl);
         Plugin plugin2 = pluginFactoryService.createEmbedPlugin(archive2, cl);

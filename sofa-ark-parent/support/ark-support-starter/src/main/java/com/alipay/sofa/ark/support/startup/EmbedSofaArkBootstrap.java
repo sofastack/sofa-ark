@@ -49,6 +49,8 @@ public class EmbedSofaArkBootstrap {
                 environment.getProperty(Constants.BIZ_CLASS_LOADER_HOOK_DIR));
             getOrSetDefault(Constants.PLUGIN_EXPORT_CLASS_ENABLE,
                 environment.getProperty(Constants.PLUGIN_EXPORT_CLASS_ENABLE, "false"));
+            getOrSetDefault(Constants.PLUGIN_CLASSLOADER_ENABLE,
+                environment.getProperty(Constants.PLUGIN_CLASSLOADER_ENABLE, "false"));
             getOrSetDefault(Constants.BIZ_CLASS_LOADER_HOOK_DIR,
                 DelegateToMasterBizClassLoaderHook.class.getName());
             try {
