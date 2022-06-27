@@ -24,7 +24,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.loader.JarPluginArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.loader.jar.JarFile;
+import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -36,16 +36,20 @@ import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class ClassIsolationTest extends BaseTest {
 
@@ -112,15 +116,37 @@ public class ClassIsolationTest extends BaseTest {
         PluginArchive archive2 = new JarPluginArchive(new JarFileArchive(new File(
             pluginUrl2.getFile())));
 
+        Attributes manifestMainAttributes = new Attributes();
+        manifestMainAttributes.putValue(PLUGIN_NAME_ATTRIBUTE, "web-ark-plugin");
+        manifestMainAttributes.putValue(GROUP_ID_ATTRIBUTE, "com.alipay.sofa");
+        manifestMainAttributes.putValue(ARTIFACT_ID_ATTRIBUTE, "web-ark-plugin");
+        manifestMainAttributes.putValue(PLUGIN_VERSION_ATTRIBUTE, "mock-version");
+        manifestMainAttributes.putValue(PRIORITY_ATTRIBUTE, "100");
+        manifestMainAttributes.putValue(ACTIVATOR_ATTRIBUTE, "");
+        manifestMainAttributes.putValue(EXPORT_CLASSES_ATTRIBUTE, "");
+        manifestMainAttributes.putValue(EXPORT_PACKAGES_ATTRIBUTE, "javax.*,org.apache.*");
+        manifestMainAttributes.putValue(EXPORT_RESOURCES_ATTRIBUTE, "");
+        manifestMainAttributes.putValue(IMPORT_CLASSES_ATTRIBUTE, "");
+        manifestMainAttributes.putValue(IMPORT_PACKAGES_ATTRIBUTE, "");
+        manifestMainAttributes.putValue(IMPORT_RESOURCES_ATTRIBUTE, "");
+
+        Manifest manifest = Mockito.mock(Manifest.class);
+        when(manifest.getMainAttributes()).thenReturn(manifestMainAttributes);
+        PluginArchive basePluginArchive = Mockito.mock(PluginArchive.class);
+        when(basePluginArchive.getManifest()).thenReturn(manifest);
+        when(basePluginArchive.isEntryExist(any(Archive.EntryFilter.class))).thenReturn(true);
+
         System.setProperty(PLUGIN_EXPORT_CLASS_ENABLE, "true");
         System.setProperty(PLUGIN_CLASSLOADER_ENABLE, "true");
         Plugin plugin0 = pluginFactoryService.createEmbedPlugin(archive0, cl);
         Plugin plugin1 = pluginFactoryService.createEmbedPlugin(archive1, cl);
         Plugin plugin2 = pluginFactoryService.createEmbedPlugin(archive2, cl);
+        Plugin basePlugin = pluginFactoryService.createEmbedPlugin(basePluginArchive, cl);
 
         pluginManagerService.registerPlugin(plugin0);
         pluginManagerService.registerPlugin(plugin1);
         pluginManagerService.registerPlugin(plugin2);
+        pluginManagerService.registerPlugin(basePlugin);
         classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
@@ -137,5 +163,6 @@ public class ClassIsolationTest extends BaseTest {
         Assert.assertEquals(plugin0.getPluginClassLoader().getClass(), PluginClassLoader.class);
         Assert.assertEquals(plugin1.getPluginClassLoader().getClass(), PluginClassLoader.class);
         Assert.assertEquals(plugin2.getPluginClassLoader().getClass(), PluginClassLoader.class);
+        Assert.assertEquals(basePlugin.getPluginClassLoader().getClass(), cl.getClass());
     }
 }

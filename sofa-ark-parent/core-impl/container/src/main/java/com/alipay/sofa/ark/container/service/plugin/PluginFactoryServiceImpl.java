@@ -183,6 +183,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         boolean enableExportClass = "true".equals(System.getProperty(PLUGIN_EXPORT_CLASS_ENABLE));
         boolean enablePluginClassLoader = "true".equals(System
             .getProperty(PLUGIN_CLASSLOADER_ENABLE));
+        boolean isNotBaseArkPlugin = !checkBaseArkPlugin(manifestMainAttributes
+            .getValue(PLUGIN_NAME_ATTRIBUTE));
         plugin
             .setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
             .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
@@ -191,8 +193,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(
-                enablePluginClassLoader ? getFinalPluginUrls(pluginArchive, null,
-                    plugin.getPluginName()) : ClassLoaderUtils.getURLs(masterClassLoader))
+                enablePluginClassLoader && isNotBaseArkPlugin ? getFinalPluginUrls(pluginArchive,
+                    null, plugin.getPluginName()) : ClassLoaderUtils.getURLs(masterClassLoader))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportClasses(
                 enableExportClass ? manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)
@@ -205,8 +207,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
             .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
             .setPluginClassLoader(
-                enablePluginClassLoader ? new PluginClassLoader(plugin.getPluginName(), plugin
-                    .getClassPath()) : masterClassLoader)
+                enablePluginClassLoader && isNotBaseArkPlugin ? new PluginClassLoader(plugin
+                    .getPluginName(), plugin.getClassPath()) : masterClassLoader)
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
     }
@@ -219,5 +221,14 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                        && entry.getName().equals(Constants.ARK_PLUGIN_MARK_ENTRY);
             }
         });
+    }
+
+    private boolean checkBaseArkPlugin(String pluginName) {
+        for (String baseName : Constants.BASE_ARK_PLUGIN) {
+            if (baseName.equals(pluginName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

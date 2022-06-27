@@ -185,6 +185,13 @@ public class Constants {
     public final static String       MASTER_BIZ                                    = "com.alipay.sofa.ark.master.biz";
 
     /**
+     * Base ark-plugin name
+     */
+    public final static String[]     BASE_ARK_PLUGIN                               = {
+            "web-ark-plugin", "config-ark-plugin", "sofaboot-ark-plugin",
+            "runtime-sofa-boot-plugin"                                            };
+
+    /**
      * Config Server
      */
     public final static String       CONFIG_SERVER_ADDRESS                         = "com.alipay.sofa.ark.config.address";
