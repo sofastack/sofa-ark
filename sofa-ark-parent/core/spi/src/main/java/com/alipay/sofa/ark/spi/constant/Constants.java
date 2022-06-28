@@ -95,6 +95,7 @@ public class Constants {
     public final static String       IMPORT_PACKAGES_ATTRIBUTE                     = "import-packages";
     public final static String       EXPORT_CLASSES_ATTRIBUTE                      = "export-classes";
     public final static String       EXPORT_PACKAGES_ATTRIBUTE                     = "export-packages";
+    public final static String       DELEGATE_TO_EMBEDBASE_ATTRIBUTE               = "delegateToEmbedBase";
 
     /**
      * Ark Biz Attribute
@@ -183,13 +184,6 @@ public class Constants {
      * Multiply biz name
      */
     public final static String       MASTER_BIZ                                    = "com.alipay.sofa.ark.master.biz";
-
-    /**
-     * Base ark-plugin name
-     */
-    public final static String[]     BASE_ARK_PLUGIN                               = {
-            "web-ark-plugin", "config-ark-plugin", "sofaboot-ark-plugin",
-            "runtime-sofa-boot-plugin"                                            };
 
     /**
      * Config Server

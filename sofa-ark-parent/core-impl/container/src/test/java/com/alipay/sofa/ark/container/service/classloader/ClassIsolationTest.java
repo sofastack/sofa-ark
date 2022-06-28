@@ -129,6 +129,7 @@ public class ClassIsolationTest extends BaseTest {
         manifestMainAttributes.putValue(IMPORT_CLASSES_ATTRIBUTE, "");
         manifestMainAttributes.putValue(IMPORT_PACKAGES_ATTRIBUTE, "");
         manifestMainAttributes.putValue(IMPORT_RESOURCES_ATTRIBUTE, "");
+        manifestMainAttributes.putValue(DELEGATE_TO_EMBEDBASE_ATTRIBUTE, "true");
 
         Manifest manifest = Mockito.mock(Manifest.class);
         when(manifest.getMainAttributes()).thenReturn(manifestMainAttributes);

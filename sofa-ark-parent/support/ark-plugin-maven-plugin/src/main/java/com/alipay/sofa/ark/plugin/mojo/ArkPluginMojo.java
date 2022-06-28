@@ -99,6 +99,13 @@ public class ArkPluginMojo extends AbstractMojo {
     @Parameter
     protected String                activator;
 
+    /**
+     * In embed mode, plugin will delegate master classloader to load class, package and resource if true,
+     *  otherwise it will use plugin classloader.
+     */
+    @Parameter(defaultValue = "false")
+    protected boolean               delegateToEmbedBase;
+
     @Parameter
     protected ExportConfig          exported;
 
@@ -419,6 +426,7 @@ public class ArkPluginMojo extends AbstractMojo {
         properties.setProperty("pluginName", pluginName);
         properties.setProperty("description", description);
         properties.setProperty("activator", activator == null ? "" : activator);
+        properties.setProperty("delegateToEmbedBase", delegateToEmbedBase ? "true" : "false");
         properties.putAll(collectArkPluginImport());
         properties.putAll(collectArkPluginExport());
 

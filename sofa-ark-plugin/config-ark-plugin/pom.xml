@@ -83,6 +83,7 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.config.zk.ZookeeperConfigActivator</activator>
+                            <delegateToEmbedBase>true</delegateToEmbedBase>
                         </configuration>
                     </execution>
                 </executions>

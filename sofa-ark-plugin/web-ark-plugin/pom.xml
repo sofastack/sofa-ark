@@ -50,6 +50,7 @@
                                     <package>org.apache.*</package>
                                 </packages>
                             </exported>
+                            <delegateToEmbedBase>true</delegateToEmbedBase>
                         </configuration>
                     </execution>
                 </executions>

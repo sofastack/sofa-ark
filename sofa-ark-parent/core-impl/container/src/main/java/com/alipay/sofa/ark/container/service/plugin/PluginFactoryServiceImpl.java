@@ -42,23 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATOR_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARTIFACT_ID_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_CLASSES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_PACKAGES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_RESOURCES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.GROUP_ID_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_CLASSES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_PACKAGES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_RESOURCES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXPORT_CLASS_ENABLE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_CLASSLOADER_ENABLE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXTENSION_FORMAT;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_NAME_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_VERSION_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_SEMICOLON;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * {@link PluginFactoryService}
@@ -180,11 +164,14 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
-        boolean enableExportClass = "true".equals(System.getProperty(PLUGIN_EXPORT_CLASS_ENABLE));
-        boolean enablePluginClassLoader = "true".equals(System
-            .getProperty(PLUGIN_CLASSLOADER_ENABLE));
-        boolean isNotBaseArkPlugin = !checkBaseArkPlugin(manifestMainAttributes
-            .getValue(PLUGIN_NAME_ATTRIBUTE));
+        boolean enableExportClass = "true".equals(ArkConfigs
+            .getSystemProperty(PLUGIN_EXPORT_CLASS_ENABLE));
+        boolean enablePluginClassLoader = "true".equals(ArkConfigs
+            .getSystemProperty(PLUGIN_CLASSLOADER_ENABLE));
+        boolean delegateToEmbedBase = "true".equals(manifestMainAttributes
+            .getValue(DELEGATE_TO_EMBEDBASE_ATTRIBUTE));
+        boolean usePluginClassLoader = enablePluginClassLoader && !delegateToEmbedBase;
+
         plugin
             .setPluginName(manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
             .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
@@ -193,8 +180,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(
-                enablePluginClassLoader && isNotBaseArkPlugin ? getFinalPluginUrls(pluginArchive,
-                    null, plugin.getPluginName()) : ClassLoaderUtils.getURLs(masterClassLoader))
+                usePluginClassLoader ? getFinalPluginUrls(pluginArchive, null,
+                    plugin.getPluginName()) : ClassLoaderUtils.getURLs(masterClassLoader))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportClasses(
                 enableExportClass ? manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE)
@@ -207,8 +194,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
             .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
             .setPluginClassLoader(
-                enablePluginClassLoader && isNotBaseArkPlugin ? new PluginClassLoader(plugin
-                    .getPluginName(), plugin.getClassPath()) : masterClassLoader)
+                usePluginClassLoader ? new PluginClassLoader(plugin.getPluginName(), plugin
+                    .getClassPath()) : masterClassLoader)
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
     }
@@ -221,14 +208,5 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
                        && entry.getName().equals(Constants.ARK_PLUGIN_MARK_ENTRY);
             }
         });
-    }
-
-    private boolean checkBaseArkPlugin(String pluginName) {
-        for (String baseName : Constants.BASE_ARK_PLUGIN) {
-            if (baseName.equals(pluginName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
