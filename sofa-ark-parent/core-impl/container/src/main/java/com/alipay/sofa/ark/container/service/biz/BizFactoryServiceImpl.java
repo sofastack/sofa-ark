@@ -32,6 +32,7 @@ import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
@@ -126,6 +127,15 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         }
         BizModel biz = (BizModel) createBiz(bizArchive);
         biz.setBizTempWorkDir(file);
+        return biz;
+    }
+
+    @Override
+    public Biz createBiz(BizOperation bizOperation, File file) throws IOException {
+        BizModel biz = (BizModel) createBiz(file);
+        if (bizOperation != null && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
+            biz.setBizVersion(bizOperation.getBizVersion());
+        }
         return biz;
     }
 
