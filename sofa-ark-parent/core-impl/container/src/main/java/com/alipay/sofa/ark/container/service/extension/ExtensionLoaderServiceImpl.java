@@ -17,8 +17,8 @@
 package com.alipay.sofa.ark.container.service.extension;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -137,7 +137,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                     try {
                         implementClass = resourceLoader.loadClass(clazzName);
                     } catch (Exception e) {
-                        if (ArkConfigUtils.isEmbedEnable()
+                        if (ArkConfigs.isEmbedEnable()
                             && resourceLoader != ArkClient.getMasterBiz().getBizClassLoader()) {
                             implementClass = ArkClient.getMasterBiz().getBizClassLoader()
                                 .loadClass(clazzName);

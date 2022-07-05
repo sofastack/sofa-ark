@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -81,7 +80,7 @@ public class HandleArchiveStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
-            if (ArkConfigUtils.isEmbedEnable()) {
+            if (ArkConfigs.isEmbedEnable()) {
                 processEmbed(pipelineContext);
                 return;
             }

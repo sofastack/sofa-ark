@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
-import com.alipay.sofa.ark.common.util.ArkConfigUtils;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
@@ -43,7 +42,6 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,7 +108,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createBiz(File file) throws IOException {
         BizArchive bizArchive;
-        if (ArkConfigUtils.isEmbedEnable()) {
+        if (ArkConfigs.isEmbedEnable()) {
             File unpackFile = new File(file.getAbsolutePath() + "-unpack");
             if (!unpackFile.exists()) {
                 unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
@@ -153,7 +151,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
-        if (ArkConfigUtils.isEmbedEnable() && bizArchive instanceof ExplodedBizArchive) {
+        if (ArkConfigs.isEmbedEnable() && bizArchive instanceof ExplodedBizArchive) {
             return true;
         }
         return bizArchive.isEntryExist(new Archive.EntryFilter() {

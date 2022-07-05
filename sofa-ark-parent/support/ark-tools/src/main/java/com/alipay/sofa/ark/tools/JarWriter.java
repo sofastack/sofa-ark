@@ -36,22 +36,21 @@ import java.util.zip.ZipEntry;
  */
 public class JarWriter implements LoaderClassesWriter {
 
-    private static final String   NESTED_ARCHIVE_LOADER_JAR                    = "sofa-ark-archive";
-    private static final String   NESTED_SPI_LOADER_JAR                        = "sofa-ark-spi";
-    private static final String   NESTED_COMMON_LOADER_JAR                     = "sofa-ark-common";
-    private static final String   NESTED_ARCHIVE_LOADER_CLASS_PREFIX           = "com/alipay/sofa/ark/bootstrap";
-    private static final String   NESTED_ARCHIVE_BOOTSTRAP_CLASS_PREFIX        = "com/alipay/sofa/ark/loader";
-    private static final String   NESTED_SPI_ARCHIVE_LOADER_CLASS_PREFIX       = "com/alipay/sofa/ark/spi/archive";
-    private static final String   NESTED_ARCHIVE_STRING_UTIL_CLASS_PREFIX      = "com/alipay/sofa/ark/common/util/StringUtils";
-    private static final String   NESTED_ARCHIVE_ASSERT_UTIL_CLASS_PREFIX      = "com/alipay/sofa/ark/common/util/AssertUtils";
-    private static final String   NESTED_ARCHIVE_ARK_CONFIGS_UTIL_CLASS_PREFIX = "com/alipay/sofa/ark/common/util/ArkConfigUtils";
-    private static final String   NESTED_SPI_CONSTANT_CLASS_PREFIX             = "com/alipay/sofa/ark/spi/constant";
+    private static final String   NESTED_ARCHIVE_LOADER_JAR               = "sofa-ark-archive";
+    private static final String   NESTED_SPI_LOADER_JAR                   = "sofa-ark-spi";
+    private static final String   NESTED_COMMON_LOADER_JAR                = "sofa-ark-common";
+    private static final String   NESTED_ARCHIVE_LOADER_CLASS_PREFIX      = "com/alipay/sofa/ark/bootstrap";
+    private static final String   NESTED_ARCHIVE_BOOTSTRAP_CLASS_PREFIX   = "com/alipay/sofa/ark/loader";
+    private static final String   NESTED_SPI_ARCHIVE_LOADER_CLASS_PREFIX  = "com/alipay/sofa/ark/spi/archive";
+    private static final String   NESTED_ARCHIVE_STRING_UTIL_CLASS_PREFIX = "com/alipay/sofa/ark/common/util/StringUtils";
+    private static final String   NESTED_ARCHIVE_ASSERT_UTIL_CLASS_PREFIX = "com/alipay/sofa/ark/common/util/AssertUtils";
+    private static final String   NESTED_SPI_CONSTANT_CLASS_PREFIX        = "com/alipay/sofa/ark/spi/constant";
 
-    private static final int      BUFFER_SIZE                                  = 32 * 1024;
+    private static final int      BUFFER_SIZE                             = 32 * 1024;
 
     private final JarOutputStream jarOutput;
 
-    private final Set<String>     writtenEntries                               = new HashSet<>();
+    private final Set<String>     writtenEntries                          = new HashSet<>();
 
     /**
      * Create a new {@link JarWriter} instance.
@@ -196,8 +195,7 @@ public class JarWriter implements LoaderClassesWriter {
                     || entry.getName().contains(NESTED_ARCHIVE_LOADER_CLASS_PREFIX)
                     || entry.getName().contains(NESTED_ARCHIVE_STRING_UTIL_CLASS_PREFIX)
                     || entry.getName().contains(NESTED_ARCHIVE_ASSERT_UTIL_CLASS_PREFIX) || entry
-                    .getName().contains(NESTED_SPI_CONSTANT_CLASS_PREFIX))
-                || entry.getName().contains(NESTED_ARCHIVE_ARK_CONFIGS_UTIL_CLASS_PREFIX)) {
+                    .getName().contains(NESTED_SPI_CONSTANT_CLASS_PREFIX))) {
                 writeEntry(entry, new InputStreamEntryWriter(jarInputStream, false));
             }
         }
