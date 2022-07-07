@@ -58,7 +58,7 @@ public class ClasspathLauncher extends ArkLauncher {
 
         private final URL[]          urls;
 
-        private final URLClassLoader urlClassLoader;
+        protected final URLClassLoader urlClassLoader;
 
         private File                 arkConfBaseDir;
 
