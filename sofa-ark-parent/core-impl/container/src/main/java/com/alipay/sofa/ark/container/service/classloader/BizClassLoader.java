@@ -149,7 +149,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     }
 
     public boolean checkDeclaredMode() {
-        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        BizModel biz = this.getBizModel();
         if (biz == null) {
             return false;
         }
