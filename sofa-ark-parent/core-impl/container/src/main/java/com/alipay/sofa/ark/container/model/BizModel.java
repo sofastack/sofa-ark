@@ -413,11 +413,7 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(String classLocation) {
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
-            return false;
-        }
-
-        if (!StringUtils.isEmpty(classLocation)) {
+        if (isDeclaredMode() && !StringUtils.isEmpty(classLocation)) {
             if (classLocation.contains(".jar")) {
                 return checkDeclaredWithCache(classLocation);
             }
@@ -433,10 +429,7 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(URL url) {
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
-            return false;
-        }
-        if (url != null) {
+        if (isDeclaredMode() && url != null) {
             if ("jar".equals(url.getProtocol())) {
                 String libraryFile = url.getFile().replace("file:", "");
                 return checkDeclaredWithCache(libraryFile);
