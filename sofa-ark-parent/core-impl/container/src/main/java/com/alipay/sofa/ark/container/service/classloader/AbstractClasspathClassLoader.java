@@ -386,14 +386,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
 
                         String location = url.getFile();
-                        if (bizModel.isDeclared(location)) {
+                        if (!bizModel.isDeclaredMode() || bizModel.isDeclared(location)) {
                             return clazz;
                         }
                         Enumeration<URL> urls = importClassLoader.getResources(name.replace('/',
                             '.') + ".class");
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
-                            if (bizModel.isDeclared(resourceUrl)) {
+                            if (!bizModel.isDeclaredMode() || bizModel.isDeclared(resourceUrl)) {
                                 return clazz;
                             }
                         }
@@ -474,7 +474,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null && this instanceof BizClassLoader) {
-                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url)) {
+                        BizModel biz = ((BizClassLoader) (this)).getBizModel();
+                        if (!biz.isDeclaredMode() || biz.isDeclared(url)) {
                             return url;
                         } else {
                             return null;
@@ -563,7 +564,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     while (urls.hasMoreElements()) {
                         URL resourceUrl = urls.nextElement();
 
-                        if (bizModel.isDeclared(resourceUrl)) {
+                        if (!bizModel.isDeclaredMode() || bizModel.isDeclared(resourceUrl)) {
                             matchedResourceUrls.add(resourceUrl);
                         }
                     }

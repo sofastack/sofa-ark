@@ -413,9 +413,8 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(String classLocation) {
-        // compatibility when no declared parse in biz, then just no filter by return true.
         if (declaredLibraries == null || declaredLibraries.size() == 0) {
-            return true;
+            return false;
         }
 
         if (!StringUtils.isEmpty(classLocation)) {
@@ -434,9 +433,8 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(URL url) {
-        // compatibility when no declared parse in biz, then just no filter by return true.
         if (declaredLibraries == null || declaredLibraries.size() == 0) {
-            return true;
+            return false;
         }
         if (url != null) {
             if ("jar".equals(url.getProtocol())) {
