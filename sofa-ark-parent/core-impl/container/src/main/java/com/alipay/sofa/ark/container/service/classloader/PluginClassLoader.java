@@ -133,11 +133,6 @@ public class PluginClassLoader extends AbstractClasspathClassLoader {
         return classloaderService.isResourceInImport(pluginName, resourceName);
     }
 
-    @Override
-    boolean isDeclaredMode() {
-        return false;
-    }
-
     private void loadPluginClassLoaderHook() {
         if (!skipLoadHook.get()) {
             synchronized (lock) {

@@ -148,8 +148,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
     }
 
-    @Override
-    boolean isDeclaredMode() {
+    public boolean checkDeclaredMode() {
         return classloaderService.isDeclaredMode(bizIdentity);
     }
 

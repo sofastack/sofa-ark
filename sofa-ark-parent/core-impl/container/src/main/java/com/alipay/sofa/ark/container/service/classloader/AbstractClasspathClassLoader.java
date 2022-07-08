@@ -347,10 +347,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      */
     abstract boolean shouldFindExportedResource(String resourceName);
 
-    /**
-     * check declaredMode for the biz.
-     */
-    abstract boolean isDeclaredMode();
+    private boolean isDeclaredMode() {
+        if (this instanceof BizClassLoader && ((BizClassLoader) this).checkDeclaredMode()) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Load JDK class
