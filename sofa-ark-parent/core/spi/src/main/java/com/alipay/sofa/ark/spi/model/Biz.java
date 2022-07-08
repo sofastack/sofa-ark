@@ -58,4 +58,9 @@ public interface Biz extends BizInfo, PriorityOrdered {
      * @param bizName
      */
     void setCustomBizName(String bizName);
+
+    /**
+     * check declaredMode for the biz.
+     */
+    boolean isDeclaredMode();
 }

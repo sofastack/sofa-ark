@@ -149,11 +149,11 @@ public class DefaultClassLoaderHookTest {
             .getResource("sample-ark-plugin-0.5.0.jar");
 
         URL[] bizUrls = new URL[] { bizUrl, resourceUrl };
-        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, bizUrls);
-        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
-        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
-        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
-        bizModel.setDeclaredLibraries("sample-ark-plugin");
+        BizModel declaredBiz = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, bizUrls);
+        declaredBiz.setDeclaredLibraries("sample-ark-plugin");
+
+        BizModel notDeclaredBiz = createTestBizModel("biz B", "1.0.0", BizState.RESOLVED, bizUrls);
+        declaredBiz.setDeclaredLibraries("");
 
         List<URL> masterUrls = new ArrayList<>();
         Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");
@@ -169,17 +169,24 @@ public class DefaultClassLoaderHookTest {
         masterBizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         masterBizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
 
-        bizManagerService.registerBiz(bizModel);
+        bizManagerService.registerBiz(declaredBiz);
+        bizManagerService.registerBiz(notDeclaredBiz);
         bizManagerService.registerBiz(masterBizModel);
 
         ArkClient.setMasterBiz(masterBizModel);
 
         Assert.assertTrue(masterBizModel.getBizClassLoader()
             .getResources("Sample_Resource_Exported").hasMoreElements());
-        // get all resources from biz and master biz
-        Enumeration<URL> resourcesFromBizAndMasterBiz = bizModel.getBizClassLoader().getResources(
+        // declaredMode: get all resources from biz and master biz
+        Enumeration<URL> resourcesFromBizAndMasterBiz = declaredBiz.getBizClassLoader()
+            .getResources("Sample_Resource_Exported");
+        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
+        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
+
+        // declaredMode: get all resources from biz and master biz
+        Enumeration<URL> resourcesOnlyFromBiz = notDeclaredBiz.getBizClassLoader().getResources(
             "Sample_Resource_Exported");
-        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
-        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
+        Assert.assertNotNull(resourcesOnlyFromBiz.nextElement());
+        Assert.assertFalse(resourcesOnlyFromBiz.hasMoreElements());
     }
 }

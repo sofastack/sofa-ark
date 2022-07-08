@@ -363,4 +363,13 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     public int getPriority() {
         return DEFAULT_PRECEDENCE;
     }
+
+    @Override
+    public boolean isDeclaredMode(String bizIdentity) {
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        if (biz == null) {
+            return false;
+        }
+        return biz.isDeclaredMode();
+    }
 }

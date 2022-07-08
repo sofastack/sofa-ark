@@ -150,4 +150,10 @@ public interface ClassLoaderService extends ArkService {
      * @return
      */
     boolean isDeniedImportResource(String bizIdentity, String resourceName);
+
+    /**
+     * Whether biz is declaredMode
+     * @param bizIdentity biz identity
+     */
+    boolean isDeclaredMode(String bizIdentity);
 }

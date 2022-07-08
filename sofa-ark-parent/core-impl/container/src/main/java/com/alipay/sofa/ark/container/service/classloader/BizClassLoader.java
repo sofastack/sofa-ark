@@ -148,6 +148,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
     }
 
+    @Override
+    boolean isDeclaredMode() {
+        return classloaderService.isDeclaredMode(bizIdentity);
+    }
+
     private void loadBizClassLoaderHook() {
         if (!skipLoadHook.get()) {
             synchronized (lock) {

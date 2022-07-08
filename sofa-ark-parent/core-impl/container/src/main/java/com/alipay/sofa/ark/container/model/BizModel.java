@@ -450,6 +450,14 @@ public class BizModel implements Biz {
         return false;
     }
 
+    @Override
+    public boolean isDeclaredMode() {
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
     private String getArtifactId(String jarLocation) {
         String[] jars = jarLocation.split("!/");
         if (jars.length == 0) {

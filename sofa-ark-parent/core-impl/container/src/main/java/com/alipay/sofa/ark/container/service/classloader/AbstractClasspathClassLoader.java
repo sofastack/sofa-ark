@@ -282,16 +282,31 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     public Enumeration<URL> getResources(String name) throws IOException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            List<Enumeration<URL>> enumerationList = new ArrayList<>();
-            // 1. get resources from ClassLoaderHook.
-            enumerationList.add(preFindResources(name));
-            // 2. get jdk resources, plugin resources declared by the biz and resources in the biz.
-            enumerationList.add(getResourcesInternal(name));
-            // 3. delegate master biz to get resources declared by the biz.
-            enumerationList.add(postFindResources(name));
+            if (isDeclaredMode()) {
+                List<Enumeration<URL>> enumerationList = new ArrayList<>();
+                // 1. get resources from ClassLoaderHook.
+                enumerationList.add(preFindResources(name));
+                // 2. get jdk resources, plugin resources declared by the biz and resources in the biz.
+                enumerationList.add(getResourcesInternal(name));
+                // 3. delegate master biz to get resources declared by the biz.
+                enumerationList.add(postFindResources(name));
 
-            return new CompoundEnumeration<>(
-                enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+                return new CompoundEnumeration<>(
+                    enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+            } else {
+                Enumeration<URL> ret = preFindResources(name);
+                if (ret != null && ret.hasMoreElements()) {
+                    return ret;
+                }
+                ret = getResourcesInternal(name);
+                if (ret != null && ret.hasMoreElements()) {
+                    return ret;
+                }
+                ret = postFindResources(name);
+                return ret != null ? ret : new CompoundEnumeration<URL>(
+                    (Enumeration<URL>[]) new Enumeration<?>[] {});
+            }
+
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -331,6 +346,11 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     abstract boolean shouldFindExportedResource(String resourceName);
+
+    /**
+     * check declaredMode for the biz.
+     */
+    abstract boolean isDeclaredMode();
 
     /**
      * Load JDK class
