@@ -52,7 +52,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         Class<?> clazz = bizClassLoader.loadClass(name);
         if (clazz != null) {
             String location = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
-            if (!biz.isDeclaredMode() || biz.isDeclared(location)) {
+            if (biz.isDeclared(location)) {
                 return clazz;
             }
 
@@ -61,7 +61,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
                                                                     + ".class");
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
-                    if (!biz.isDeclaredMode() || biz.isDeclared(resourceUrl)) {
+                    if (biz.isDeclared(resourceUrl)) {
                         return clazz;
                     }
                 }
@@ -86,7 +86,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         }
         try {
             URL resourceUrl = bizClassLoader.getResource(name);
-            if (!biz.isDeclaredMode() || biz.isDeclared(resourceUrl)) {
+            if (biz.isDeclared(resourceUrl)) {
                 return resourceUrl;
             }
             return null;
@@ -114,7 +114,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             while (resourceUrls.hasMoreElements()) {
                 URL resourceUrl = resourceUrls.nextElement();
 
-                if (!biz.isDeclaredMode() || biz.isDeclared(resourceUrl)) {
+                if (biz.isDeclared(resourceUrl)) {
                     matchedResourceUrls.add(resourceUrl);
                 }
             }
