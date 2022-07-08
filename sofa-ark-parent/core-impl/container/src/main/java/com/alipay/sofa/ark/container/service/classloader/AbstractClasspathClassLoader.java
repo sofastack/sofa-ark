@@ -474,8 +474,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null && this instanceof BizClassLoader) {
-                        BizModel biz = ((BizClassLoader) (this)).getBizModel();
-                        if (biz.isDeclared(url)) {
+                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url)) {
                             return url;
                         } else {
                             return null;
