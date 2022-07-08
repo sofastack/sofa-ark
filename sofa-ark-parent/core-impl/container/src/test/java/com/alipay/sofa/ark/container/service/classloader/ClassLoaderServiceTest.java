@@ -201,4 +201,20 @@ public class ClassLoaderServiceTest extends BaseTest {
         plugin.getExportResources().clear();
         pluginManagerService.getPluginsInOrder().remove(plugin);
     }
+
+    @Test
+    public void testIsDeclaredMode() {
+        Biz declaredBiz = new BizModel().setBizName("mockBiz1").setBizVersion("1.0.0")
+            .setDeclaredLibraries("mockLibrary").setBizState(BizState.RESOLVED);
+        Biz notDeclaredBiz = new BizModel().setBizName("mockBiz2").setBizVersion("1.0.0")
+            .setDeclaredLibraries("").setBizState(BizState.RESOLVED);
+        Biz notRegisterBiz = new BizModel().setBizName("mockBiz3").setBizVersion("1.0.0")
+            .setDeclaredLibraries("mockLibrary").setBizState(BizState.RESOLVED);
+        bizManagerService.registerBiz(declaredBiz);
+        bizManagerService.registerBiz(notDeclaredBiz);
+
+        Assert.assertTrue(classloaderService.isDeclaredMode(declaredBiz.getIdentity()));
+        Assert.assertFalse(classloaderService.isDeclaredMode(notDeclaredBiz.getIdentity()));
+        Assert.assertFalse(classloaderService.isDeclaredMode(notRegisterBiz.getIdentity()));
+    }
 }
