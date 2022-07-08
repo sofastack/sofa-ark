@@ -449,7 +449,6 @@ public class BizModel implements Biz {
         return false;
     }
 
-    @Override
     public boolean isDeclaredMode() {
         if (declaredLibraries == null || declaredLibraries.size() == 0) {
             return false;

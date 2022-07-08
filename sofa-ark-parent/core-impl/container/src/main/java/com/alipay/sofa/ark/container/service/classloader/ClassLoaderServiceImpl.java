@@ -363,5 +363,4 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     public int getPriority() {
         return DEFAULT_PRECEDENCE;
     }
-
 }
