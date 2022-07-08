@@ -43,7 +43,6 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -491,11 +490,16 @@ public class BizModel implements Biz {
     }
 
     private boolean checkDeclaredWithCache(String libraryFile) {
-        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
+        int index = libraryFile.lastIndexOf("!/");
+        String jarFilePath = libraryFile;
+        if (index != -1) {
+            jarFilePath = libraryFile.substring(0, index);
+        }
+        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
     }
 
-    private boolean doCheckDeclared(String libraryFile) {
-        String artifactId = getArtifactId(libraryFile);
+    private boolean doCheckDeclared(String jarFilePath) {
+        String artifactId = getArtifactId(jarFilePath);
         if (artifactId == null) {
             return true;
         }
