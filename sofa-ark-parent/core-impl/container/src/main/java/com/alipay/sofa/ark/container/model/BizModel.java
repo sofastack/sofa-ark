@@ -412,11 +412,10 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(String classLocation) {
-        // compatibility when no declared parse in biz, then just no filter by return true.
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
             return true;
         }
-
         if (!StringUtils.isEmpty(classLocation)) {
             if (classLocation.contains(".jar")) {
                 return checkDeclaredWithCache(classLocation);
@@ -433,8 +432,8 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(URL url) {
-        // compatibility when no declared parse in biz, then just no filter by return true.
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
             return true;
         }
         if (url != null) {
@@ -447,6 +446,13 @@ public class BizModel implements Biz {
         }
 
         return false;
+    }
+
+    public boolean isDeclaredMode() {
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return false;
+        }
+        return true;
     }
 
     private String getArtifactId(String jarLocation) {
