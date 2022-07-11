@@ -178,7 +178,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     @Override
     protected Package getPackage(String name) {
         Optional<Package> pkgInCache = packageCache.getIfPresent(name);
-        if (pkgInCache != null) {
+        if (pkgInCache != null && pkgInCache.isPresent()) {
             return pkgInCache.orElse(null);
         }
 
