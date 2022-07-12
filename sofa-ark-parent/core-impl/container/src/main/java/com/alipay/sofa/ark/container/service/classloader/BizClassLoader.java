@@ -239,4 +239,8 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     public String getBizIdentity() {
         return bizIdentity;
     }
+
+    public void setBizIdentity(String bizIdentity) {
+        this.bizIdentity = bizIdentity;
+    }
 }

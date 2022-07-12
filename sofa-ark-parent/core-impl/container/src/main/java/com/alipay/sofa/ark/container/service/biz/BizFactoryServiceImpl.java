@@ -135,6 +135,10 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         BizModel biz = (BizModel) createBiz(file);
         if (bizOperation != null && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
             biz.setBizVersion(bizOperation.getBizVersion());
+            if (biz.getBizClassLoader() instanceof BizClassLoader) {
+                BizClassLoader bizClassLoader = (BizClassLoader) (biz.getBizClassLoader());
+                bizClassLoader.setBizIdentity(biz.getIdentity());
+            }
         }
         return biz;
     }
