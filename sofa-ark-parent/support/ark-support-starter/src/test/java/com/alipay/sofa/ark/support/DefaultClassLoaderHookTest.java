@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.support;
 
+import java.io.IOException;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.StringUtils;
@@ -37,6 +38,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -138,5 +140,53 @@ public class DefaultClassLoaderHookTest {
 
         // case 9: find resources from plugin in jar
         Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported").hasMoreElements());
+    }
+
+    @Test
+    public void getAllResources() throws IOException {
+        URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
+        URL resourceUrl = this.getClass().getClassLoader()
+            .getResource("sample-ark-plugin-0.5.0.jar");
+
+        URL[] bizUrls = new URL[] { bizUrl, resourceUrl };
+        BizModel declaredBiz = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, bizUrls);
+        declaredBiz.setDeclaredLibraries("sample-ark-plugin");
+
+        BizModel notDeclaredBiz = createTestBizModel("biz B", "1.0.0", BizState.RESOLVED, bizUrls);
+        declaredBiz.setDeclaredLibraries("");
+
+        List<URL> masterUrls = new ArrayList<>();
+        Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");
+        while (urlEnumeration.hasMoreElements()) {
+            URL url = urlEnumeration.nextElement();
+            masterUrls.add(url);
+        }
+        masterUrls.add(resourceUrl);
+
+        BizModel masterBizModel = createTestBizModel("master biz", "1.0.0", BizState.RESOLVED,
+            masterUrls.toArray(new URL[0]));
+        masterBizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        masterBizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        masterBizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+
+        bizManagerService.registerBiz(declaredBiz);
+        bizManagerService.registerBiz(notDeclaredBiz);
+        bizManagerService.registerBiz(masterBizModel);
+
+        ArkClient.setMasterBiz(masterBizModel);
+
+        Assert.assertTrue(masterBizModel.getBizClassLoader()
+            .getResources("Sample_Resource_Exported").hasMoreElements());
+        // declaredMode: get all resources from biz and master biz
+        Enumeration<URL> resourcesFromBizAndMasterBiz = declaredBiz.getBizClassLoader()
+            .getResources("Sample_Resource_Exported");
+        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
+        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
+
+        // declaredMode: get all resources from biz and master biz
+        Enumeration<URL> resourcesOnlyFromBiz = notDeclaredBiz.getBizClassLoader().getResources(
+            "Sample_Resource_Exported");
+        Assert.assertNotNull(resourcesOnlyFromBiz.nextElement());
+        Assert.assertFalse(resourcesOnlyFromBiz.hasMoreElements());
     }
 }
