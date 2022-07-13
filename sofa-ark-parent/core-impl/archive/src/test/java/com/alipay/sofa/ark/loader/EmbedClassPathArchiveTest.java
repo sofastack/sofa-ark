@@ -16,9 +16,12 @@
  */
 package com.alipay.sofa.ark.loader;
 
+import com.alipay.sofa.ark.spi.archive.BizArchive;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.JarFileArchive;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -26,6 +29,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertTrue;
 
@@ -64,8 +68,24 @@ public class EmbedClassPathArchiveTest {
     }
 
     protected boolean isNestedArchive(Archive.Entry entry) {
-        return entry.isDirectory() ? entry.getName().equals("BOOT-INF/classes/") : entry.getName()
+        return entry.isDirectory() ? Objects.equals(entry.getName(), "BOOT-INF/classes/") : entry.getName()
             .startsWith("BOOT-INF/lib/");
     }
 
+    @Test
+    public void testStaticCombineGetBizArchives() throws Exception {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL springbootFatJar = cl.getResource("static-combine-springboot-executable.jar");
+        JarFileArchive jarFileArchive = new JarFileArchive(new File(springbootFatJar.getFile()));
+        Iterator<org.springframework.boot.loader.archive.Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
+        List<URL> urls = new ArrayList<>();
+        while (archives.hasNext()){
+            urls.add(archives.next().getUrl());
+        }
+        EmbedClassPathArchive archive = new EmbedClassPathArchive("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication",
+                "main",
+                urls.toArray(new URL[] {}));
+        List<BizArchive> bizArchives = archive.getBizArchives();
+        Assert.assertTrue(!CollectionUtils.isEmpty(bizArchives));
+    }
 }
