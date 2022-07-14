@@ -581,4 +581,8 @@ public class Repackager {
     public void setDeclaredMode(boolean declaredMode) {
         this.declaredMode = declaredMode;
     }
+
+    public boolean isDeclaredMode() {
+        return declaredMode;
+    }
 }
