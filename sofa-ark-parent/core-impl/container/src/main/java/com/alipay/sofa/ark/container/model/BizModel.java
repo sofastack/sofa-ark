@@ -43,7 +43,6 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -413,11 +412,10 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(String classLocation) {
-        // compatibility when no declared parse in biz, then just no filter by return true.
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
             return true;
         }
-
         if (!StringUtils.isEmpty(classLocation)) {
             if (classLocation.contains(".jar")) {
                 return checkDeclaredWithCache(classLocation);
@@ -434,8 +432,8 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(URL url) {
-        // compatibility when no declared parse in biz, then just no filter by return true.
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
             return true;
         }
         if (url != null) {
@@ -448,6 +446,13 @@ public class BizModel implements Biz {
         }
 
         return false;
+    }
+
+    public boolean isDeclaredMode() {
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return false;
+        }
+        return true;
     }
 
     private String getArtifactId(String jarLocation) {
@@ -485,11 +490,16 @@ public class BizModel implements Biz {
     }
 
     private boolean checkDeclaredWithCache(String libraryFile) {
-        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
+        int index = libraryFile.lastIndexOf("!/");
+        String jarFilePath = libraryFile;
+        if (index != -1) {
+            jarFilePath = libraryFile.substring(0, index);
+        }
+        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
     }
 
-    private boolean doCheckDeclared(String libraryFile) {
-        String artifactId = getArtifactId(libraryFile);
+    private boolean doCheckDeclared(String jarFilePath) {
+        String artifactId = getArtifactId(jarFilePath);
         if (artifactId == null) {
             return true;
         }

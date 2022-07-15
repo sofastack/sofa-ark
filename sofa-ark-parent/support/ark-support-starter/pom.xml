@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>2.0.2</version>
+        <version>2.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,6 +27,10 @@
                     <artifactId>guice</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-api</artifactId>
         </dependency>
 
         <!--junit-->
