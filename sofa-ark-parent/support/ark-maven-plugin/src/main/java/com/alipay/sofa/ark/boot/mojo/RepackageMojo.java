@@ -290,8 +290,10 @@ public class RepackageMojo extends AbstractMojo {
             getLog());
         try {
             MavenProject rootProject = MavenUtils.getRootProject(this.project);
-            Set<ArtifactItem> artifactItems = getAllArtifact(rootProject);
-            repackager.prepareDeclaredLibraries(artifactItems);
+            if (repackager.isDeclaredMode()) {
+                Set<ArtifactItem> artifactItems = getAllArtifact(rootProject);
+                repackager.prepareDeclaredLibraries(artifactItems);
+            }
             repackager.repackage(appTarget, moduleTarget, libraries);
         } catch (IOException ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
