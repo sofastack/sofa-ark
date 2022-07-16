@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.support.common;
  */
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
@@ -62,6 +63,9 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
                     if (biz.isDeclared(resourceUrl)) {
+                        ArkLoggerFactory.getDefaultLogger().warn(
+                            String.format("find class %s from %s in multiple dependencies.", name,
+                                resourceUrl.getFile()));
                         return clazz;
                     }
                 }
@@ -104,8 +108,11 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
     @Override
     public Enumeration<URL> postFindResources(String name, ClassLoaderService classLoaderService,
                                               Biz biz) throws IOException {
+        if (biz == null || (!biz.isDeclaredMode() && shouldSkip(name))) {
+            return null;
+        }
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
@@ -122,5 +129,9 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private boolean shouldSkip(String resourceName) {
+        return !resourceName.endsWith(".class");
     }
 }

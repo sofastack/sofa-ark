@@ -388,11 +388,15 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         if (bizModel.isDeclared(location)) {
                             return clazz;
                         }
-                        Enumeration<URL> urls = importClassLoader.getResources(name.replace('/',
-                            '.') + ".class");
+                        Enumeration<URL> urls = importClassLoader.getResources(name.replace('.',
+                            '/') + ".class");
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
                             if (bizModel.isDeclared(resourceUrl)) {
+                                ArkLoggerFactory.getDefaultLogger().warn(
+                                    String.format(
+                                        "find class %s from %s in multiple dependencies.", name,
+                                        resourceUrl.getFile()));
                                 return clazz;
                             }
                         }
