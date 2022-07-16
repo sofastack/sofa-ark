@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.support.common;
  */
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
@@ -62,6 +63,9 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
                     if (biz.isDeclared(resourceUrl)) {
+                        ArkLoggerFactory.getDefaultLogger().warn(
+                            String.format("find class %s from %s in multiple dependencies.", name,
+                                resourceUrl.getFile()));
                         return clazz;
                     }
                 }
