@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -30,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -75,6 +77,17 @@ public class BizFactoryServiceTest extends BaseTest {
         Assert.assertNotNull(masterBiz);
         Assert.assertNotNull(masterBiz.getBizClassLoader().getResource(
             "com/alipay/sofa/ark/container/service/biz/"));
+    }
+
+    @Test
+    public void testCreateBiz() throws IOException {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL sampleBiz = cl.getResource("sample-biz.jar");
+        BizOperation bizOperation = new BizOperation();
+        String mockVersion = "mock version";
+        bizOperation.setBizVersion(mockVersion);
+        Biz biz = bizFactoryService.createBiz(bizOperation, new File(sampleBiz.getFile()));
+        Assert.assertEquals(biz.getBizVersion(), mockVersion);
     }
 
     @Test
