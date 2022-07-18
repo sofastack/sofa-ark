@@ -53,7 +53,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
     private AtomicBoolean          shutdown                = new AtomicBoolean(false);
 
     private boolean                enableTelnetServer      = EnvironmentUtils.getProperty(
-                                                               TELNET_SERVER_ENABLE, "false")
+                                                               TELNET_SERVER_ENABLE, "true")
                                                                .equalsIgnoreCase("true");
 
     private NettyTelnetServer      nettyTelnetServer;
