@@ -148,6 +148,14 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
         return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
     }
 
+    public boolean checkDeclaredMode() {
+        BizModel biz = this.getBizModel();
+        if (biz == null) {
+            return false;
+        }
+        return biz.isDeclaredMode();
+    }
+
     private void loadBizClassLoaderHook() {
         if (!skipLoadHook.get()) {
             synchronized (lock) {
@@ -232,11 +240,15 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     }
 
     /**
-     * Getter method for property <tt>bizIdentity</tt>.
+     * Getter method for property <code>bizIdentity</code>.
      *
      * @return property value of bizIdentity
      */
     public String getBizIdentity() {
         return bizIdentity;
+    }
+
+    public void setBizIdentity(String bizIdentity) {
+        this.bizIdentity = bizIdentity;
     }
 }

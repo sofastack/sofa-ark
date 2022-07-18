@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>2.0.1-SNAPSHOT</version>
+        <version>2.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,7 +18,7 @@
         <logback.version>1.2.9</logback.version>
 
         <guice.version>4.0</guice.version>
-        <asm.version>5.0.3</asm.version>
+        <asm.version>8.0</asm.version>
         <commons.io.version>2.7</commons.io.version>
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
@@ -36,12 +36,11 @@
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
-        <jmockit.version>1.35</jmockit.version>
-        <mockito.version>2.21.0</mockito.version>
+        <mockito.version>3.6.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
-        <maven.plugin.plugin>3.4</maven.plugin.plugin>
+        <maven.plugin.plugin>3.6.1</maven.plugin.plugin>
         <surefire.version>2.20</surefire.version>
         <netty.version>4.1.42.Final</netty.version>
         <spring.loader.version>2.5.6</spring.loader.version>
@@ -309,13 +308,6 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jmockit</groupId>
-                <artifactId>jmockit</artifactId>
-                <version>${jmockit.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <dependency>

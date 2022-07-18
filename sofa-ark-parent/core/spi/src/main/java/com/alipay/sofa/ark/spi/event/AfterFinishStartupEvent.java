@@ -19,8 +19,8 @@ package com.alipay.sofa.ark.spi.event;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/4 3:31 PM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/4 3:31 PM
+ * @since
  **/
 public class AfterFinishStartupEvent extends AbstractArkEvent<String> {
 

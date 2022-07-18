@@ -42,7 +42,10 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,7 +91,8 @@ public class BizModel implements Biz {
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String>            declaredLibraries             = new HashSet<>();
+    private Set<String>            declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean>   declaredCacheMap              = new ConcurrentHashMap<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
@@ -394,6 +398,9 @@ public class BizModel implements Biz {
     }
 
     public BizModel setDeclaredLibraries(String declaredLibraries) {
+        if (StringUtils.isEmpty(declaredLibraries)) {
+            return this;
+        }
         this.declaredLibraries = StringUtils.strToSet(declaredLibraries,
             Constants.MANIFEST_VALUE_SPLIT);
         return this;
@@ -405,22 +412,14 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(String classLocation) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
+            return true;
+        }
         if (!StringUtils.isEmpty(classLocation)) {
-            int index = classLocation.indexOf(".jar");
-            if (index == -1) {
-                return true;
+            if (classLocation.contains(".jar")) {
+                return checkDeclaredWithCache(classLocation);
             }
-            String subClassLocation = classLocation.substring(0, index);
-            String[] pathInfo = subClassLocation.split("/");
-
-            if (pathInfo.length >= 2) {
-                String packageName = pathInfo[pathInfo.length - 1];
-                String packageVersion = "-" + pathInfo[pathInfo.length - 2];
-                String artifactId = packageName.replace(packageVersion, "");
-                return declaredLibraries.contains(artifactId);
-            }
-
-            // class not in jar
             return true;
         }
 
@@ -433,30 +432,82 @@ public class BizModel implements Biz {
      * @return
      */
     public boolean isDeclared(URL url) {
-        // compatibility when no declared parse in biz, then just not filter by return true.
-        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
             return true;
         }
         if (url != null) {
             if ("jar".equals(url.getProtocol())) {
-                String libraryFile = url.getFile();
-                int index = libraryFile.indexOf(".jar!");
-                if (index == -1) {
-                    return true;
-                }
-                String subLibraryFile = libraryFile.substring(0, index);
-                String[] pathInfo = subLibraryFile.split("/");
-                if (pathInfo.length >= 2) {
-                    String packageName = pathInfo[pathInfo.length - 1];
-                    String packageVersion = "-" + pathInfo[pathInfo.length - 2];
-                    String artifactId = packageName.replace(packageVersion, "");
-                    return declaredLibraries.contains(artifactId);
-                }
+                String libraryFile = url.getFile().replace("file:", "");
+                return checkDeclaredWithCache(libraryFile);
             } else {
                 return "file".equals(url.getProtocol());
             }
         }
 
         return false;
+    }
+
+    public boolean isDeclaredMode() {
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private String getArtifactId(String jarLocation) {
+        String[] jars = jarLocation.split("!/");
+        if (jars.length == 0) {
+            return null;
+        }
+
+        for (int i = jars.length - 1; i >= 0; i--) {
+            String jar = jars[i];
+            if (jar.endsWith(".jar")) {
+                String[] pathInfos = jar.split("/");
+                if (pathInfos.length == 0) {
+                    return null;
+                }
+                String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
+                String[] artifactVersionInfos = artifactVersion.split("-");
+                List<String> artifactInfos = new ArrayList<>();
+                boolean getVersion = false;
+                for (String info : artifactVersionInfos) {
+                    if (!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0))) {
+                        getVersion = true;
+                        break;
+                    }
+                    artifactInfos.add(info);
+                }
+                if (getVersion) {
+                    return String.join("-", artifactInfos);
+                }
+                // if can't find any version from jar name, then we just return null to paas the declared check
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private boolean checkDeclaredWithCache(String libraryFile) {
+        int index = libraryFile.lastIndexOf("!/");
+        String jarFilePath = libraryFile;
+        if (index != -1) {
+            jarFilePath = libraryFile.substring(0, index);
+        }
+        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
+    }
+
+    private boolean doCheckDeclared(String jarFilePath) {
+        String artifactId = getArtifactId(jarFilePath);
+        if (artifactId == null) {
+            return true;
+        }
+
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+            return true;
+        }
+
+        return declaredLibraries.contains(artifactId);
     }
 }

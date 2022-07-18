@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.spi.service.biz;
 
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizOperation;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +47,13 @@ public interface BizFactoryService {
      * @throws IOException throw io exception when {@link File} is invalid.
      */
     Biz createBiz(File file) throws IOException;
+
+    /**
+     * @param bizOperation
+     * @param file
+     * @return
+     */
+    Biz createBiz(BizOperation bizOperation, File file) throws IOException;
 
     /**
      * Create Biz Model according to master biz

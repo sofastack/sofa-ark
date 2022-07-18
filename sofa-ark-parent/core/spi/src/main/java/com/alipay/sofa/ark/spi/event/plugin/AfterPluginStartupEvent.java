@@ -21,8 +21,8 @@ import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
 import com.alipay.sofa.ark.spi.model.Plugin;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 6:17 PM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 6:17 PM
+ * @since
  **/
 public class AfterPluginStartupEvent extends AbstractArkEvent<Plugin> {
 

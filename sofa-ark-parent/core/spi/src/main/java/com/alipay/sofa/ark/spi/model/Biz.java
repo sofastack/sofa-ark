@@ -54,6 +54,14 @@ public interface Biz extends BizInfo, PriorityOrdered {
     boolean isDeclared(URL url);
 
     /**
+     * check whether this biz is declared mode.
+     * declared mode means this biz can only delegate declared class and resources
+     * in the pom of this biz to other classloader like plugin or master Biz.
+     * @return
+     */
+    boolean isDeclaredMode();
+
+    /**
      * allow to dynamic update biz name
      * @param bizName
      */

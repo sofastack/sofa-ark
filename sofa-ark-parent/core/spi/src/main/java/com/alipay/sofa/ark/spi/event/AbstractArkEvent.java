@@ -17,8 +17,8 @@
 package com.alipay.sofa.ark.spi.event;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 10:45 AM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 10:45 AM
+ * @since
  **/
 public abstract class AbstractArkEvent<T> implements ArkEvent {
 
