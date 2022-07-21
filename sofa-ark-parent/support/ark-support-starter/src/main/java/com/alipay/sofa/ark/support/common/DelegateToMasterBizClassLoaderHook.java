@@ -84,8 +84,12 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
 
     @Override
     public URL postFindResource(String name, ClassLoaderService classLoaderService, Biz biz) {
+        if (biz == null || (!biz.isDeclaredMode() && shouldSkip(name))) {
+            return null;
+        }
+
         ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
