@@ -234,5 +234,4 @@ public class HandleArchiveTest {
         Mockito.verify(bizFactoryService, times(1)).createBiz(any(BizArchive.class));
 
     }
-
 }

@@ -68,8 +68,8 @@ public class EmbedClassPathArchiveTest {
     }
 
     protected boolean isNestedArchive(Archive.Entry entry) {
-        return entry.isDirectory() ? Objects.equals(entry.getName(), "BOOT-INF/classes/") : entry.getName()
-            .startsWith("BOOT-INF/lib/");
+        return entry.isDirectory() ? Objects.equals(entry.getName(), "BOOT-INF/classes/") : entry
+            .getName().startsWith("BOOT-INF/lib/");
     }
 
     @Test
