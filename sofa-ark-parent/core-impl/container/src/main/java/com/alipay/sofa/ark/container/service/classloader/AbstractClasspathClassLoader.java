@@ -291,8 +291,32 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 // 3. delegate master biz to get resources declared by the biz.
                 enumerationList.add(postFindResources(name));
 
-                return new CompoundEnumeration<>(
-                    enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+                // unique urls
+                Set<String> temp = new HashSet<>();
+                List<URL> uniqueUrls = new ArrayList<>();
+                for (Enumeration<URL> e : enumerationList) {
+                    if (e == null) {
+                        continue;
+                    }
+                    while (e.hasMoreElements()) {
+                        URL resourceUrl = e.nextElement();
+                        String filePath = resourceUrl.getFile();
+                        int startIndex = filePath.lastIndexOf(name);
+                        filePath = filePath.substring(0, startIndex);
+                        if (filePath.endsWith("!/")) {
+                            filePath = filePath.substring(0, filePath.length() - 2);
+                        }
+                        int artifactStartIndex = filePath.lastIndexOf("/");
+                        String artifactId = filePath.substring(artifactStartIndex);
+
+                        if (!temp.contains(artifactId)) {
+                            uniqueUrls.add(resourceUrl);
+                        }
+                        temp.add(artifactId);
+                    }
+                }
+
+                return Collections.enumeration(uniqueUrls);
             } else {
                 Enumeration<URL> ret = preFindResources(name);
                 if (ret != null && ret.hasMoreElements()) {
