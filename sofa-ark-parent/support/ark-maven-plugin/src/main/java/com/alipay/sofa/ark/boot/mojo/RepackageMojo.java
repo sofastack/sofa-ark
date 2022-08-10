@@ -310,8 +310,8 @@ public class RepackageMojo extends AbstractMojo {
         String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
-        request.setGoals(Arrays.asList("dependency:tree", "-Dscope=compile", "-DappendOutput=true",
-            "-DoutputFile=" + outputPath));
+        request.setGoals(Arrays.asList("dependency:tree", "-DappendOutput=true", "-DoutputFile="
+                                                                                 + outputPath));
         Invoker invoker = new DefaultInvoker();
         try {
             InvocationResult result = invoker.execute(request);

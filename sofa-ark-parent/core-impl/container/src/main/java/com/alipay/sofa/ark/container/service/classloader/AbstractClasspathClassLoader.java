@@ -292,32 +292,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 enumerationList.add(postFindResources(name));
 
                 // unique urls
-                Set<String> temp = new HashSet<>();
-
-                List<URL> uniqueUrls = new ArrayList<>();
-                for (Enumeration<URL> e : enumerationList) {
-                    if (e == null) {
-                        continue;
-                    }
-                    while (e.hasMoreElements()) {
-                        URL resourceUrl = e.nextElement();
-                        String filePath = resourceUrl.getFile();
-                        int startIndex = filePath.lastIndexOf(name);
-                        filePath = filePath.substring(0, startIndex);
-                        if (filePath.endsWith("!/")) {
-                            filePath = filePath.substring(0, filePath.length() - 2);
-                        }
-                        int artifactStartIndex = filePath.lastIndexOf("/");
-                        String artifactId = filePath.substring(artifactStartIndex);
-
-                        if (!temp.contains(artifactId)) {
-                            uniqueUrls.add(resourceUrl);
-                        }
-                        temp.add(artifactId);
-                    }
-                }
-
-                return Collections.enumeration(uniqueUrls);
+                return uniqueUrls(enumerationList, name);
             } else {
                 Enumeration<URL> ret = preFindResources(name);
                 if (ret != null && ret.hasMoreElements()) {
@@ -335,6 +310,39 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String targetName) {
+        // unique urls
+        Set<String> temp = new HashSet<>();
+        List<URL> uniqueUrls = new ArrayList<>();
+        for (Enumeration<URL> e : enumerationList) {
+            if (e == null) {
+                continue;
+            }
+            while (e.hasMoreElements()) {
+                URL resourceUrl = e.nextElement();
+                String filePath = resourceUrl.getFile();
+                int startIndex = filePath.lastIndexOf(targetName);
+                if (startIndex == -1) {
+                    continue;
+                }
+
+                filePath = filePath.substring(0, startIndex);
+                if (filePath.endsWith("!/")) {
+                    filePath = filePath.substring(0, filePath.length() - 2);
+                }
+                int artifactStartIndex = filePath.lastIndexOf("/");
+                String artifactId = filePath.substring(artifactStartIndex);
+
+                if (!temp.contains(artifactId)) {
+                    uniqueUrls.add(resourceUrl);
+                }
+                temp.add(artifactId);
+            }
+        }
+
+        return Collections.enumeration(uniqueUrls);
     }
 
     /**
