@@ -21,6 +21,12 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>log-sofa-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
