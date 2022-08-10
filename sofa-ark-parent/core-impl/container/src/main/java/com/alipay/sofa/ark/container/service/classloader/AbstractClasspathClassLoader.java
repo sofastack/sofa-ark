@@ -293,6 +293,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
                 // unique urls
                 Set<String> temp = new HashSet<>();
+
                 List<URL> uniqueUrls = new ArrayList<>();
                 for (Enumeration<URL> e : enumerationList) {
                     if (e == null) {

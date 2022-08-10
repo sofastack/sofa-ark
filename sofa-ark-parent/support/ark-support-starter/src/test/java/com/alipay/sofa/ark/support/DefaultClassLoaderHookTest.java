@@ -83,17 +83,20 @@ public class DefaultClassLoaderHookTest {
     @Test
     public void testLoadClassFromClassLoaderHook() throws Exception {
         URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
-        URL pluginUrl1 = this.getClass().getClassLoader().getResource("sample-ark-plugin-0.5.0.jar");
+        URL pluginUrl1 = this.getClass().getClassLoader()
+            .getResource("sample-ark-plugin-0.5.0.jar");
         URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz-0.3.0.jar");
         URL pluginUrl3 = this.getClass().getClassLoader().getResource("aopalliance-1.0.jar");
-        URL pluginUrl4 = this.getClass().getClassLoader().getResource("com.springsource.org.aopalliance-1.0.0.jar");
+        URL pluginUrl4 = this.getClass().getClassLoader()
+            .getResource("com.springsource.org.aopalliance-1.0.0.jar");
 
         BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
-                new URL[] { bizUrl });
+            new URL[] { bizUrl });
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
-        bizModel.setDeclaredLibraries("sample-ark-plugin,com.springsource.org.aopalliance");
+        bizModel
+            .setDeclaredLibraries("sample-ark,sample-ark-plugin,com.springsource.org.aopalliance");
 
         List<URL> masterUrls = new ArrayList<>();
         Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");
@@ -107,7 +110,7 @@ public class DefaultClassLoaderHookTest {
         masterUrls.add(pluginUrl4);
 
         BizModel masterBizModel = createTestBizModel("master biz", "1.0.0", BizState.RESOLVED,
-                 masterUrls.toArray(new URL[0]));
+            masterUrls.toArray(new URL[0]));
         masterBizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         masterBizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         masterBizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
@@ -134,19 +137,23 @@ public class DefaultClassLoaderHookTest {
         Assert.assertNull(bizModel.getBizClassLoader().getResource("META-INF/spring/service.xml"));
 
         // case 6: find resource from plugin in classpath
-        Assert.assertNotNull(bizModel.getBizClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar"));
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
+            "sample-ark-1.0.0-ark-biz.jar"));
 
         // case 7: find resource from plugin in jar
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Exported"));
 
         // case 8: find resources from plugin but not set provided in biz model
-        Assert.assertFalse(bizModel.getBizClassLoader().getResources("META-INF/spring/service.xml").hasMoreElements());
+        Assert.assertFalse(bizModel.getBizClassLoader().getResources("META-INF/spring/service.xml")
+            .hasMoreElements());
 
         // case 9: find resources from plugin in classpath
-        Assert.assertTrue(bizModel.getBizClassLoader().getResources("sample-ark-1.0.0-ark-biz.jar").hasMoreElements());
+        Assert.assertTrue(bizModel.getBizClassLoader().getResources("sample-ark-1.0.0-ark-biz.jar")
+            .hasMoreElements());
 
         // case 10: find resources from plugin in jar
-        Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported").hasMoreElements());
+        Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported")
+            .hasMoreElements());
     }
 
     @Test
@@ -160,7 +167,7 @@ public class DefaultClassLoaderHookTest {
         declaredBiz.setDeclaredLibraries("sample-ark-plugin");
 
         BizModel notDeclaredBiz = createTestBizModel("biz B", "1.0.0", BizState.RESOLVED, bizUrls);
-        declaredBiz.setDeclaredLibraries("");
+        notDeclaredBiz.setDeclaredLibraries("");
 
         List<URL> masterUrls = new ArrayList<>();
         Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");
@@ -187,7 +194,6 @@ public class DefaultClassLoaderHookTest {
         // declaredMode: get all resources from biz and master biz
         Enumeration<URL> resourcesFromBizAndMasterBiz = declaredBiz.getBizClassLoader()
             .getResources("Sample_Resource_Exported");
-        Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
         Assert.assertNotNull(resourcesFromBizAndMasterBiz.nextElement());
 
         // declaredMode: get all resources from biz and master biz

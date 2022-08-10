@@ -24,6 +24,8 @@ import java.util.Properties;
 
 public class JarUtils {
     private static final String CLASSPATH_ROOT_IDENTITY          = "/target/classes/";
+
+    private static final String TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes/";
     private static final String TARGET_ROOT_IDENTITY             = "/target/";
 
     private static final String JAR_POM_PROPERTIES_RELATIVE_PATH = "maven-archiver/pom.properties";
@@ -34,8 +36,18 @@ public class JarUtils {
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
         int classesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
+        int testClassesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
+        int rootIndex = -1;
+        if (classesRootIndex != -1) {
+            rootIndex = classesRootIndex;
+            libraryFile.substring(0, classesRootIndex + TARGET_ROOT_IDENTITY.length());
+        } else if (testClassesRootIndex != -1) {
+            rootIndex = testClassesRootIndex;
+        } else {
+            return null;
+        }
         String classPathRootPath = libraryFile.substring(0,
-            classesRootIndex + TARGET_ROOT_IDENTITY.length());
+            rootIndex + TARGET_ROOT_IDENTITY.length());
         String pomPropertiesPath = classPathRootPath + JAR_POM_PROPERTIES_RELATIVE_PATH;
 
         try (InputStream inputStream = Files.newInputStream(Paths.get(pomPropertiesPath))) {
