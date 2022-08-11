@@ -36,7 +36,7 @@ public class JarUtils {
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
         int classesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
-        int testClassesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
+        int testClassesRootIndex = libraryFile.indexOf(TEST_CLASSPATH_ROOT_IDENTITY);
         int rootIndex = -1;
         if (classesRootIndex != -1) {
             rootIndex = classesRootIndex;
