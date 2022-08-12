@@ -40,6 +40,8 @@ public class ArtifactItem {
 
     private String              type      = "jar";
 
+    private String              scope     = "compile";
+
     public String getGroupId() {
         return groupId;
     }
@@ -78,6 +80,14 @@ public class ArtifactItem {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
     }
 
     public String toString() {

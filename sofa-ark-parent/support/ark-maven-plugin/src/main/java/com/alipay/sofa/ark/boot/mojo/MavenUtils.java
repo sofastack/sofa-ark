@@ -47,7 +47,7 @@ public class MavenUtils {
 
         for (String content : contents) {
             ArtifactItem artifactItem = getArtifactItem(content);
-            if (artifactItem != null) {
+            if (artifactItem != null && !"test".equals(artifactItem.getScope())) {
                 artifactItems.add(artifactItem);
             }
         }
@@ -77,6 +77,7 @@ public class MavenUtils {
             artifactItem.setArtifactId(artifactInfos[1]);
             artifactItem.setType(artifactInfos[2]);
             artifactItem.setVersion(artifactInfos[3]);
+            artifactItem.setScope(artifactInfos[4]);
         } else if (artifactInfos.length == 6) {
             // like "io.sofastack:dynamic-stock-mng:jar:ark-biz:1.0.0:compile"
 
@@ -85,6 +86,7 @@ public class MavenUtils {
             artifactItem.setType(artifactInfos[2]);
             artifactItem.setClassifier(artifactInfos[3]);
             artifactItem.setVersion(artifactInfos[4]);
+            artifactItem.setScope(artifactInfos[5]);
         } else {
             return null;
         }

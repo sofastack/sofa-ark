@@ -333,12 +333,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     filePath = filePath.substring(0, filePath.length() - 2);
                 }
                 int artifactStartIndex = filePath.lastIndexOf("/");
-                String artifactId = filePath.substring(artifactStartIndex);
+                String jarFileName = filePath.substring(artifactStartIndex);
 
-                if (!temp.contains(artifactId)) {
+                if (!temp.contains(jarFileName)) {
                     uniqueUrls.add(resourceUrl);
                 }
-                temp.add(artifactId);
+                temp.add(jarFileName);
             }
         }
 
