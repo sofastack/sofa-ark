@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.JarFileArchive;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -86,6 +85,6 @@ public class EmbedClassPathArchiveTest {
                 "main",
                 urls.toArray(new URL[] {}));
         List<BizArchive> bizArchives = archive.getBizArchives();
-        Assert.assertTrue(!CollectionUtils.isEmpty(bizArchives));
+        Assert.assertFalse(bizArchives==null||bizArchives.isEmpty());
     }
 }
