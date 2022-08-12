@@ -291,8 +291,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 // 3. delegate master biz to get resources declared by the biz.
                 enumerationList.add(postFindResources(name));
 
-                return new CompoundEnumeration<>(
-                    enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+                // unique urls
+                return uniqueUrls(enumerationList, name);
             } else {
                 Enumeration<URL> ret = preFindResources(name);
                 if (ret != null && ret.hasMoreElements()) {
@@ -310,6 +310,39 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String targetName) {
+        // unique urls
+        Set<String> temp = new HashSet<>();
+        List<URL> uniqueUrls = new ArrayList<>();
+        for (Enumeration<URL> e : enumerationList) {
+            if (e == null) {
+                continue;
+            }
+            while (e.hasMoreElements()) {
+                URL resourceUrl = e.nextElement();
+                String filePath = resourceUrl.getFile();
+                int startIndex = filePath.lastIndexOf(targetName);
+                if (startIndex == -1) {
+                    continue;
+                }
+
+                filePath = filePath.substring(0, startIndex);
+                if (filePath.endsWith("!/")) {
+                    filePath = filePath.substring(0, filePath.length() - 2);
+                }
+                int artifactStartIndex = filePath.lastIndexOf("/");
+                String jarFileName = filePath.substring(artifactStartIndex);
+
+                if (!temp.contains(jarFileName)) {
+                    uniqueUrls.add(resourceUrl);
+                }
+                temp.add(jarFileName);
+            }
+        }
+
+        return Collections.enumeration(uniqueUrls);
     }
 
     /**
