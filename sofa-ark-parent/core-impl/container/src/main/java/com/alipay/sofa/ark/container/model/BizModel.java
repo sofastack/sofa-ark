@@ -41,6 +41,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromClassPath;
 
 /**
  * Ark Biz Standard Model
@@ -437,12 +440,8 @@ public class BizModel implements Biz {
             return true;
         }
         if (url != null) {
-            if ("jar".equals(url.getProtocol())) {
-                String libraryFile = url.getFile().replace("file:", "");
-                return checkDeclaredWithCache(libraryFile);
-            } else {
-                return "file".equals(url.getProtocol());
-            }
+            String libraryFile = url.getFile().replace("file:", "");
+            return checkDeclaredWithCache(libraryFile);
         }
 
         return false;
@@ -499,7 +498,19 @@ public class BizModel implements Biz {
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
-        String artifactId = getArtifactId(jarFilePath);
+        String artifactId = "";
+        if (jarFilePath.contains(".jar")) {
+            artifactId = getArtifactId(jarFilePath);
+        } else {
+            try {
+                artifactId = getArtifactIdFromClassPath(jarFilePath);
+            } catch (IOException e) {
+                LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
+                    e.getMessage()));
+                return false;
+            }
+        }
+
         if (artifactId == null) {
             return true;
         }
