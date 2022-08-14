@@ -30,7 +30,7 @@
         <maven.plugin.annotations.version>3.2</maven.plugin.annotations.version>
         <maven.common.artifact.filters.version>1.4</maven.common.artifact.filters.version>
 
-        <plexus.utils.version>3.0</plexus.utils.version>
+        <plexus.utils.version>3.0.16</plexus.utils.version>
         <plexus.build.api.version>0.0.7</plexus.build.api.version>
         <plexus.component.annotations.version>1.5.5</plexus.component.annotations.version>
 
