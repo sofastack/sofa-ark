@@ -37,6 +37,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -253,6 +254,13 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean               declaredMode;
 
+    /*----------------Git 相关参数---------------------*/
+    /**
+     * The root directory of the repository we want to check.
+     */
+    @Parameter(defaultValue = "")
+    private File                  dotGitDirectory;
+
     @Override
     public void execute() throws MojoExecutionException {
         if ("war".equals(this.project.getPackaging())) {
@@ -294,11 +302,19 @@ public class RepackageMojo extends AbstractMojo {
                 Set<ArtifactItem> artifactItems = getAllArtifact(rootProject);
                 repackager.prepareDeclaredLibraries(artifactItems);
             }
+            repackager.setDotGitDirectory(getGitDirectory(rootProject));
             repackager.repackage(appTarget, moduleTarget, libraries);
         } catch (IOException ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
         updateArtifact(appTarget, repackager.getModuleTargetFile());
+    }
+
+    private File getGitDirectory(MavenProject rootProject) {
+        if (dotGitDirectory != null && dotGitDirectory.exists()) {
+            return dotGitDirectory;
+        }
+        return new File(rootProject.getBasedir().getAbsolutePath() + "/.git");
     }
 
     private Set<ArtifactItem> getAllArtifact(MavenProject rootProject)

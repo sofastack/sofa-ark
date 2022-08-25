@@ -20,8 +20,11 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.tools.git.GitInfo;
+import com.alipay.sofa.ark.tools.git.JGitParser;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
@@ -98,6 +101,10 @@ public class Repackager {
     private final List<Library>                   arkPluginLibraries                 = new ArrayList<>();
 
     private final List<Library>                   arkModuleLibraries                 = new ArrayList<>();
+
+    private File                                 dotGitDirectory;
+
+    private GitInfo                              gitInfo;
 
     public Repackager(File source) {
         if (source == null) {
@@ -184,6 +191,10 @@ public class Repackager {
         }
     }
 
+    public void setDotGitDirectory(File dotGitDirectory) {
+        this.dotGitDirectory = dotGitDirectory;
+    }
+
     public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
         if (!this.declaredMode) {
             return;
@@ -254,6 +265,9 @@ public class Repackager {
                 }
             }
         });
+
+        // 构建信息
+        gitInfo = JGitParser.parse(dotGitDirectory);
 
         repackageModule();
         repackageApp();
@@ -443,7 +457,8 @@ public class Repackager {
             StringUtils.setToStr(injectPluginExportPackages, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(DECLARED_LIBRARIES,
             StringUtils.setToStr(declaredLibraries, MANIFEST_VALUE_SPLIT));
-        return manifest;
+
+        return appendBuildInfo(manifest);
     }
 
     public static String setToStr(Set<ArtifactItem> artifactItemSet, String delimiter) {
@@ -476,6 +491,25 @@ public class Repackager {
         manifest.getMainAttributes().putValue(ARK_VERSION_ATTRIBUTE, arkVersion);
         manifest.getMainAttributes().putValue(ARK_CONTAINER_ROOT,
             Layouts.Jar.jar().getArkContainerLocation());
+
+        return appendBuildInfo(manifest);
+    }
+
+    private Manifest appendBuildInfo(Manifest manifest) {
+        manifest.getMainAttributes().putValue(BUILD_TIME, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+
+        if (gitInfo != null) {
+            manifest.getMainAttributes().putValue(REMOTE_ORIGIN_URL, gitInfo.getRepository());
+            manifest.getMainAttributes().putValue(BRANCH, gitInfo.getBranchName());
+            manifest.getMainAttributes().putValue(COMMIT_ID, gitInfo.getLastCommitId());
+            manifest.getMainAttributes().putValue(COMMIT_AUTHOR_NAME, gitInfo.getLastCommitUser());
+            manifest.getMainAttributes().putValue(COMMIT_AUTHOR_EMAIL, gitInfo.getLastCommitEmail());
+            manifest.getMainAttributes().putValue(COMMIT_TIME, gitInfo.getLastCommitDateTime());
+            manifest.getMainAttributes().putValue(COMMIT_TIMESTAMP, String.valueOf(gitInfo.getLastCommitTime()));
+            manifest.getMainAttributes().putValue(BUILD_USER, gitInfo.getBuildUser());
+            manifest.getMainAttributes().putValue(BUILD_EMAIL, gitInfo.getBuildEmail());
+        }
+
         return manifest;
     }
 
@@ -585,4 +619,5 @@ public class Repackager {
     public boolean isDeclaredMode() {
         return declaredMode;
     }
+
 }
