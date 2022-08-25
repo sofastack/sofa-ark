@@ -102,9 +102,9 @@ public class Repackager {
 
     private final List<Library>                   arkModuleLibraries                 = new ArrayList<>();
 
-    private File                                 dotGitDirectory;
+    private File                                  dotGitDirectory;
 
-    private GitInfo                              gitInfo;
+    private GitInfo                               gitInfo;
 
     public Repackager(File source) {
         if (source == null) {
@@ -496,16 +496,19 @@ public class Repackager {
     }
 
     private Manifest appendBuildInfo(Manifest manifest) {
-        manifest.getMainAttributes().putValue(BUILD_TIME, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+        manifest.getMainAttributes().putValue(BUILD_TIME,
+            new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
         if (gitInfo != null) {
             manifest.getMainAttributes().putValue(REMOTE_ORIGIN_URL, gitInfo.getRepository());
             manifest.getMainAttributes().putValue(BRANCH, gitInfo.getBranchName());
             manifest.getMainAttributes().putValue(COMMIT_ID, gitInfo.getLastCommitId());
             manifest.getMainAttributes().putValue(COMMIT_AUTHOR_NAME, gitInfo.getLastCommitUser());
-            manifest.getMainAttributes().putValue(COMMIT_AUTHOR_EMAIL, gitInfo.getLastCommitEmail());
+            manifest.getMainAttributes()
+                .putValue(COMMIT_AUTHOR_EMAIL, gitInfo.getLastCommitEmail());
             manifest.getMainAttributes().putValue(COMMIT_TIME, gitInfo.getLastCommitDateTime());
-            manifest.getMainAttributes().putValue(COMMIT_TIMESTAMP, String.valueOf(gitInfo.getLastCommitTime()));
+            manifest.getMainAttributes().putValue(COMMIT_TIMESTAMP,
+                String.valueOf(gitInfo.getLastCommitTime()));
             manifest.getMainAttributes().putValue(BUILD_USER, gitInfo.getBuildUser());
             manifest.getMainAttributes().putValue(BUILD_EMAIL, gitInfo.getBuildEmail());
         }

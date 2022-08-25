@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.sofa.ark.tools.git;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
@@ -63,7 +79,8 @@ public class JGitParser {
         }
 
         if (headObjectId == null) {
-            throw new Exception("Could not get HEAD Ref, are you sure have commits in the dotGitDirectory?");
+            throw new Exception(
+                "Could not get HEAD Ref, are you sure have commits in the dotGitDirectory?");
         }
         RevCommit headCommit = revWalk.parseCommit(headObjectId);
         revWalk.markStart(headCommit);
@@ -72,22 +89,21 @@ public class JGitParser {
 
     private static FileRepository getGitRepository(File dotGitDirectory) throws Exception {
         if (!dotGitDirectory.exists()) {
-            throw new Exception("Could not create git repository. " + dotGitDirectory + " is not exists!");
+            throw new Exception("Could not create git repository. " + dotGitDirectory
+                                + " is not exists!");
         }
         Repository repository;
         try {
-            repository = new FileRepositoryBuilder()
-                    .setGitDir(dotGitDirectory)
-                    .readEnvironment() // scan environment GIT_* variables
-                    .findGitDir() // scan up the file system tree
-                    .build();
+            repository = new FileRepositoryBuilder().setGitDir(dotGitDirectory).readEnvironment() // scan environment GIT_* variables
+                .findGitDir() // scan up the file system tree
+                .build();
         } catch (IOException e) {
             throw new Exception("Could not initialize git repository...", e);
         }
 
         if (repository == null) {
-            throw new Exception("Could not create git repository. Are you sure '" + dotGitDirectory +
-                    "' is the valid Git root for your project?");
+            throw new Exception("Could not create git repository. Are you sure '" + dotGitDirectory
+                                + "' is the valid Git root for your project?");
         }
 
         return (FileRepository) repository;
