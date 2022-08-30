@@ -31,8 +31,8 @@ import static com.alipay.sofa.ark.spi.constant.Constants.DATE_FORMAT;
 
 public class JGitParser {
 
-    public static GitInfo parse(File dotGitDirectory) {
-        try (FileRepository repository = getGitRepository(dotGitDirectory)) {
+    public static GitInfo parse(File gitDirectory) {
+        try (FileRepository repository = getGitRepository(gitDirectory)) {
 
             GitInfo gitInfo = new GitInfo();
 
@@ -80,21 +80,21 @@ public class JGitParser {
 
         if (headObjectId == null) {
             throw new Exception(
-                "Could not get HEAD Ref, are you sure have commits in the dotGitDirectory?");
+                "Could not get HEAD Ref, are you sure have commits in the gitDirectory?");
         }
         RevCommit headCommit = revWalk.parseCommit(headObjectId);
         revWalk.markStart(headCommit);
         return headCommit;
     }
 
-    private static FileRepository getGitRepository(File dotGitDirectory) throws Exception {
-        if (!dotGitDirectory.exists()) {
-            throw new Exception("Could not create git repository. " + dotGitDirectory
+    private static FileRepository getGitRepository(File gitDirectory) throws Exception {
+        if (!gitDirectory.exists()) {
+            throw new Exception("Could not create git repository. " + gitDirectory
                                 + " is not exists!");
         }
         Repository repository;
         try {
-            repository = new FileRepositoryBuilder().setGitDir(dotGitDirectory).readEnvironment() // scan environment GIT_* variables
+            repository = new FileRepositoryBuilder().setGitDir(gitDirectory).readEnvironment() // scan environment GIT_* variables
                 .findGitDir() // scan up the file system tree
                 .build();
         } catch (IOException e) {
@@ -102,7 +102,7 @@ public class JGitParser {
         }
 
         if (repository == null) {
-            throw new Exception("Could not create git repository. Are you sure '" + dotGitDirectory
+            throw new Exception("Could not create git repository. Are you sure '" + gitDirectory
                                 + "' is the valid Git root for your project?");
         }
 

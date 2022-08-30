@@ -102,7 +102,7 @@ public class Repackager {
 
     private final List<Library>                   arkModuleLibraries                 = new ArrayList<>();
 
-    private File                                  dotGitDirectory;
+    private File                                  gitDirectory;
 
     private GitInfo                               gitInfo;
 
@@ -191,8 +191,8 @@ public class Repackager {
         }
     }
 
-    public void setDotGitDirectory(File dotGitDirectory) {
-        this.dotGitDirectory = dotGitDirectory;
+    public void setGitDirectory(File gitDirectory) {
+        this.gitDirectory = gitDirectory;
     }
 
     public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
@@ -267,7 +267,7 @@ public class Repackager {
         });
 
         // 构建信息
-        gitInfo = JGitParser.parse(dotGitDirectory);
+        gitInfo = JGitParser.parse(gitDirectory);
 
         repackageModule();
         repackageApp();
