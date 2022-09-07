@@ -96,7 +96,7 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
             }
             return clazz;
         } catch (ClassNotFoundException exception) {
-            classCache.put(name, new LoadClassResult(exception));
+            classCache.put(name, LoadClassResult.NOT_FOUND);
             throw exception;
         }
     }
