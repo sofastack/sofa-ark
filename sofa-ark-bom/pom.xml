@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <log4j.version>1.7.21</log4j.version>
+        <log4j.version>1.7.32</log4j.version>
         <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
         <logback.version>1.2.9</logback.version>
 
@@ -23,26 +23,26 @@
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
         <maven.invoker.version>3.1.0</maven.invoker.version>
-        <maven.core.version>2.2.1</maven.core.version>
-        <maven.artifact.version>2.2.1</maven.artifact.version>
-        <maven.archiver.version>2.5</maven.archiver.version>
-        <maven.plugin.api.version>3.1.1</maven.plugin.api.version>
-        <maven.plugin.annotations.version>3.2</maven.plugin.annotations.version>
-        <maven.common.artifact.filters.version>1.4</maven.common.artifact.filters.version>
+        <maven.core.version>3.8.1</maven.core.version>
+        <maven.artifact.version>3.8.1</maven.artifact.version>
+        <maven.archiver.version>3.5.1</maven.archiver.version>
+        <maven.plugin.api.version>3.8.1</maven.plugin.api.version>
+        <maven.plugin.annotations.version>3.6.1</maven.plugin.annotations.version>
+        <maven.common.artifact.filters.version>3.2.0</maven.common.artifact.filters.version>
 
-        <plexus.utils.version>3.0.16</plexus.utils.version>
+        <plexus.utils.version>3.3.0</plexus.utils.version>
         <plexus.build.api.version>0.0.7</plexus.build.api.version>
-        <plexus.component.annotations.version>1.5.5</plexus.component.annotations.version>
+        <plexus.component.annotations.version>2.1.1</plexus.component.annotations.version>
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
         <mockito.version>3.6.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
-        <maven.assembly.plugin>2.4</maven.assembly.plugin>
+        <maven.assembly.plugin>3.3.0</maven.assembly.plugin>
         <maven.plugin.plugin>3.6.1</maven.plugin.plugin>
-        <surefire.version>2.20</surefire.version>
-        <netty.version>4.1.42.Final</netty.version>
+        <surefire.version>2.22.2</surefire.version>
+        <netty.version>4.1.79.Final</netty.version>
         <spring.boot.version>2.5.12</spring.boot.version>
     </properties>
 
