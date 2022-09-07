@@ -21,9 +21,7 @@ import org.springframework.boot.loader.archive.Archive;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -32,12 +30,29 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author bingjie.lbj
  */
 public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
-    private final Map<String, LoadClassResult>            classCache        = new ConcurrentHashMap<>(
-                                                                                3000);
-    private final Map<String, Optional<URL>>              resourceUrlCache  = new ConcurrentHashMap<>(
-                                                                                3000);
-    private final Map<String, Optional<Enumeration<URL>>> resourcesUrlCache = new ConcurrentHashMap<>(
-                                                                                300);
+    private static final int CLASS_MISS_CACHE_SIZE = 10000;
+    private static final int ENTRY_CACHE_SIZE = 6000;
+
+    private final Map<String, LoadClassResult> classCache        = Collections
+            .synchronizedMap(new LinkedHashMap<String, LoadClassResult>(3000, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(
+                        Map.Entry<String, LoadClassResult> eldest) {
+                    return size() >= CLASS_MISS_CACHE_SIZE;
+                }
+            });
+    private final Map<String, Optional<URL>>   resourceUrlCache  = Collections
+            .synchronizedMap(new LinkedHashMap<String, Optional<URL>>(3000, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(
+                        Map.Entry<String, Optional<URL>> eldest) {
+                    return size() >= ENTRY_CACHE_SIZE;
+                }
+            });
+    private final Map<String, Optional>        resourcesUrlCache = Collections
+            .synchronizedMap(new LinkedHashMap<String, Optional>(300, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(Map.Entry<String, Optional> eldest) {
+                    return size() >= ENTRY_CACHE_SIZE;
+                }
+            });
 
     static {
         ClassLoader.registerAsParallelCapable();
