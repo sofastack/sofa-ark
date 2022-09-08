@@ -126,7 +126,10 @@ public class FileUtils {
                     FileOutputStream fileOutputStream = null;
                     try {
                         inputStream = zipFile.getInputStream(entry);
-                        File file = new File(targetPath + File.separator + entry.getName());
+                        File file = new File(targetPath, entry.getName());
+                        if (!file.toPath().normalize().startsWith(targetPath)) {
+                            throw new IOException("Bad zip entry");
+                        }
                         if (!file.exists()) {
                             File fileParent = file.getParentFile();
                             if (!fileParent.exists()) {
