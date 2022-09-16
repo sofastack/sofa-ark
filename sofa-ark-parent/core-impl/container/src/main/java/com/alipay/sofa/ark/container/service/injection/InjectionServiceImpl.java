@@ -51,7 +51,7 @@ public class InjectionServiceImpl implements InjectionService {
 
     @Override
     public void inject(final Object object) {
-        inject(object, object.toString());
+        inject(object, object.getClass().getName());
     }
 
     private void inject(final Object instance, final String type) {
