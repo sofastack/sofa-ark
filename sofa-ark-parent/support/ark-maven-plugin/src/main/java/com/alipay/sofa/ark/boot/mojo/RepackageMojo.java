@@ -236,13 +236,13 @@ public class RepackageMojo extends AbstractMojo {
      * list of inject plugin dependencies
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  injectPluginDependencies   = new LinkedHashSet<>();         ;
+    private LinkedHashSet<String>  injectPluginDependencies   = new LinkedHashSet<>();
 
     /**
      * list of inject plugin export packages
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  injectPluginExportPackages = new LinkedHashSet<>();         ;
+    private LinkedHashSet<String>  injectPluginExportPackages = new LinkedHashSet<>();
 
     /**
      * whether package provided dependencies into ark

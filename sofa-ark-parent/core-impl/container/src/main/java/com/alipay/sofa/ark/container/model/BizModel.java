@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -470,19 +471,25 @@ public class BizModel implements Biz {
                 String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
                 String[] artifactVersionInfos = artifactVersion.split("-");
                 List<String> artifactInfos = new ArrayList<>();
-                boolean getVersion = false;
-                for (String info : artifactVersionInfos) {
-                    if (!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0))) {
-                        getVersion = true;
-                        break;
+
+                int versionIndex = -1;
+                for (int j = artifactVersionInfos.length - 1; j >= 0; j--) {
+                    String info = artifactVersionInfos[j];
+                    if (versionIndex == -1) {
+                        if ((!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0)))) {
+                            versionIndex = j;
+                        }
+                    } else {
+                        artifactInfos.add(info);
                     }
-                    artifactInfos.add(info);
                 }
-                if (getVersion) {
+
+                if (versionIndex != -1) {
+                    Collections.reverse(artifactInfos);
                     return String.join("-", artifactInfos);
+                } else {
+                    return artifactVersion;
                 }
-                // if can't find any version from jar name, then we just return null to paas the declared check
-                return null;
             }
         }
         return null;
