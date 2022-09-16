@@ -189,11 +189,10 @@ public class ArkClient {
                 biz.stop();
             } catch (Throwable e) {
                 LOGGER.error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), e);
-                throw e;
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             }
-            return response;
+            throw throwable;
         }
     }
 
