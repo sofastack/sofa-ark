@@ -31,8 +31,8 @@ public class JGitParserTest {
         File gitFile = new File("../../../.git");
         GitInfo gitInfo = JGitParser.parse(gitFile);
         Assert.assertNotNull(gitInfo);
-        Assert.assertNotNull(gitInfo.getBuildUser());
-        Assert.assertNotNull(gitInfo.getBuildEmail());
+        gitInfo.getBuildUser();
+        gitInfo.getBuildEmail();
         Assert.assertNotNull(gitInfo.getLastCommitId());
         Assert.assertNotEquals(gitInfo.getLastCommitTime(), 0L);
         Assert.assertNotNull(gitInfo.getLastCommitDateTime());
