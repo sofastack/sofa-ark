@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.tools.test;
 
+import com.alipay.sofa.ark.tools.Repackager;
 import com.alipay.sofa.ark.tools.git.GitInfo;
 import com.alipay.sofa.ark.tools.git.JGitParser;
 import org.junit.Assert;
@@ -27,9 +28,22 @@ public class JGitParserTest {
 
     @Test
     public void testParse() {
-        GitInfo gitInfo = JGitParser.parse(new File("../../..//.git"));
+        File gitFile = new File("../../../.git");
+        GitInfo gitInfo = JGitParser.parse(gitFile);
         Assert.assertNotNull(gitInfo);
+        Assert.assertNotNull(gitInfo.getBuildUser());
+        Assert.assertNotNull(gitInfo.getBuildEmail());
+        Assert.assertNotNull(gitInfo.getLastCommitId());
+        Assert.assertNotEquals(gitInfo.getLastCommitTime(), 0L);
+        Assert.assertNotNull(gitInfo.getLastCommitDateTime());
+        Assert.assertNotNull(gitInfo.getLastCommitUser());
+        Assert.assertNotNull(gitInfo.getLastCommitEmail());
         Assert.assertNotNull(gitInfo.getBranchName());
+        Assert.assertNotNull(gitInfo.getRepository());
+        Assert.assertNotNull(gitInfo.toString());
+
+        Repackager repackager = new Repackager(new File("../../../pom.xml"));
+        repackager.setGitDirectory(gitFile);
 
     }
 }
