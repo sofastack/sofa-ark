@@ -406,8 +406,12 @@ public class RepackageMojo extends AbstractMojo {
 
     private void updateArtifact(File repackaged, File modulePackaged) {
         if (this.attach) {
-            attachArtifact(repackaged, arkClassifier);
-            attachArtifact(modulePackaged, bizClassifier);
+            if (!this.skipArkExecutable) {
+                attachArtifact(repackaged, arkClassifier);
+            }
+            if (this.keepArkBizJar) {
+                attachArtifact(modulePackaged, bizClassifier);
+            }
         }
     }
 
