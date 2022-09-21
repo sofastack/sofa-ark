@@ -253,6 +253,13 @@ public class RepackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean               declaredMode;
 
+    /*----------------Git 相关参数---------------------*/
+    /**
+     * The root directory of the repository we want to check.
+     */
+    @Parameter(defaultValue = "")
+    private File                  gitDirectory;
+
     @Override
     public void execute() throws MojoExecutionException {
         if ("war".equals(this.project.getPackaging())) {
@@ -294,11 +301,19 @@ public class RepackageMojo extends AbstractMojo {
                 Set<ArtifactItem> artifactItems = getAllArtifact(rootProject);
                 repackager.prepareDeclaredLibraries(artifactItems);
             }
+            repackager.setGitDirectory(getGitDirectory(rootProject));
             repackager.repackage(appTarget, moduleTarget, libraries);
         } catch (IOException ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
         updateArtifact(appTarget, repackager.getModuleTargetFile());
+    }
+
+    private File getGitDirectory(MavenProject rootProject) {
+        if (gitDirectory != null && gitDirectory.exists()) {
+            return gitDirectory;
+        }
+        return new File(rootProject.getBasedir().getAbsolutePath() + "/.git");
     }
 
     private Set<ArtifactItem> getAllArtifact(MavenProject rootProject)
