@@ -34,6 +34,8 @@
         <plexus.build.api.version>0.0.7</plexus.build.api.version>
         <plexus.component.annotations.version>1.5.5</plexus.component.annotations.version>
 
+        <eclipse.jgit.version>5.9.0.202009080501-r</eclipse.jgit.version>
+
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
         <mockito.version>3.6.0</mockito.version>
@@ -303,6 +305,13 @@
                 <artifactId>plexus-build-api</artifactId>
                 <version>${plexus.build.api.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>${eclipse.jgit.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-loader</artifactId>
