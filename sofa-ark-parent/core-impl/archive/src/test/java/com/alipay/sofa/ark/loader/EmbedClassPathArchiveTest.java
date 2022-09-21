@@ -74,7 +74,7 @@ public class EmbedClassPathArchiveTest {
     @Test
     public void testStaticCombineGetBizArchives() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        URL springbootFatJar = cl.getResource("static-combine-springboot-executable.jar");
+        URL springbootFatJar = cl.getResource("static-combine-demo.jar");
         JarFileArchive jarFileArchive = new JarFileArchive(new File(springbootFatJar.getFile()));
         Iterator<org.springframework.boot.loader.archive.Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
         List<URL> urls = new ArrayList<>();
