@@ -17,13 +17,9 @@
 package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.tools.ArtifactItem;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Objects;
 import java.util.Set;
 
 public class MavenUtilsTest {
