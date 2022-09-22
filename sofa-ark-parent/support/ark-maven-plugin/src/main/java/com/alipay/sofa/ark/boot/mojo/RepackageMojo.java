@@ -280,7 +280,7 @@ public class RepackageMojo extends AbstractMojo {
      * The root directory of the repository we want to check.
      */
     @Parameter(defaultValue = "")
-    private File                  gitDirectory;
+    private File                   gitDirectory;
 
     @Override
     public void execute() throws MojoExecutionException {
