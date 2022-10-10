@@ -41,4 +41,18 @@ public class JarUtilsTest {
         String artifactId = JarUtils.getArtifactIdFromClassPath(clazzURL.getPath());
         Assert.assertEquals("sofa-ark-common", artifactId);
     }
+
+    @Test
+    public void testParseArtifactId() {
+        String filePathPrefix = "file:///home/admin/xxx/xxx/%s.jar";
+        String artifactId1 = JarUtils.getArtifactId(String.format(filePathPrefix,
+            "dafdfa-2-dafdfad"));
+        Assert.assertEquals(artifactId1, "dafdfa-2-dafdfad");
+        String artifactId2 = JarUtils.getArtifactId(String.format(filePathPrefix,
+            "dfadfa-dfadfa-3.0"));
+        Assert.assertEquals(artifactId2, "dfadfa-dfadfa");
+        String artifactId3 = JarUtils.getArtifactId(String.format(filePathPrefix,
+            "hessian-4.0.7.bugfix12-tuning3"));
+        Assert.assertEquals(artifactId3, "hessian");
+    }
 }
