@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class JarUtils {
@@ -30,6 +32,8 @@ public class JarUtils {
 
     private static final String JAR_POM_PROPERTIES_RELATIVE_PATH = "maven-archiver/pom.properties";
     private static final String JAR_ARTIFACT_ID                  = "artifactId";
+
+    private static final String VERSION_REGEX                    = "^([0-9]+\\.)+.+";
 
     public static String getArtifactIdFromClassPath(String fileClassPath) throws IOException {
         // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
@@ -55,5 +59,40 @@ public class JarUtils {
             properties.load(inputStream);
             return properties.getProperty(JAR_ARTIFACT_ID);
         }
+    }
+
+    public static String getArtifactId(String jarLocation) {
+        String[] jars = jarLocation.split("!/");
+        if (jars.length == 0) {
+            return null;
+        }
+
+        for (int i = jars.length - 1; i >= 0; i--) {
+            String jar = jars[i];
+            if (jar.endsWith(".jar")) {
+                String[] pathInfos = jar.split("/");
+                if (pathInfos.length == 0) {
+                    return null;
+                }
+                String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
+                String[] artifactVersionInfos = artifactVersion.split("-");
+                List<String> artifactInfos = new ArrayList<>();
+                boolean getVersion = false;
+                for (String info : artifactVersionInfos) {
+                    // Character.isDigit(info.charAt(0))
+                    if (!StringUtils.isEmpty(info) && info.matches(VERSION_REGEX)) {
+                        getVersion = true;
+                        break;
+                    }
+                    artifactInfos.add(info);
+                }
+                if (getVersion) {
+                    return String.join("-", artifactInfos);
+                }
+                // if can't find any version from jar name, then we just return null to paas the declared check
+                return null;
+            }
+        }
+        return null;
     }
 }

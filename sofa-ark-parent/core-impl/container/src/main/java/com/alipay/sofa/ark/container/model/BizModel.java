@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -455,46 +456,6 @@ public class BizModel implements Biz {
         return true;
     }
 
-    private String getArtifactId(String jarLocation) {
-        String[] jars = jarLocation.split("!/");
-        if (jars.length == 0) {
-            return null;
-        }
-
-        for (int i = jars.length - 1; i >= 0; i--) {
-            String jar = jars[i];
-            if (jar.endsWith(".jar")) {
-                String[] pathInfos = jar.split("/");
-                if (pathInfos.length == 0) {
-                    return null;
-                }
-                String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
-                String[] artifactVersionInfos = artifactVersion.split("-");
-                List<String> artifactInfos = new ArrayList<>();
-
-                int versionIndex = -1;
-                for (int j = artifactVersionInfos.length - 1; j >= 0; j--) {
-                    String info = artifactVersionInfos[j];
-                    if (versionIndex == -1) {
-                        if ((!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0)))) {
-                            versionIndex = j;
-                        }
-                    } else {
-                        artifactInfos.add(info);
-                    }
-                }
-
-                if (versionIndex != -1) {
-                    Collections.reverse(artifactInfos);
-                    return String.join("-", artifactInfos);
-                } else {
-                    return artifactVersion;
-                }
-            }
-        }
-        return null;
-    }
-
     private boolean checkDeclaredWithCache(String libraryFile) {
         int index = libraryFile.lastIndexOf("!/");
         String jarFilePath = libraryFile;
@@ -507,7 +468,7 @@ public class BizModel implements Biz {
     private boolean doCheckDeclared(String jarFilePath) {
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
-            artifactId = getArtifactId(jarFilePath);
+            artifactId = JarUtils.getArtifactId(jarFilePath);
         } else {
             try {
                 artifactId = getArtifactIdFromClassPath(jarFilePath);
