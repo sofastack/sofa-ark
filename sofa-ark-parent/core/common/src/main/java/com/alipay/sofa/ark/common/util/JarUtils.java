@@ -90,7 +90,7 @@ public class JarUtils {
                     return String.join("-", artifactInfos);
                 }
                 // if can't find any version from jar name, then we just return null to paas the declared check
-                return artifactVersion;
+                return null;
             }
         }
         return null;
