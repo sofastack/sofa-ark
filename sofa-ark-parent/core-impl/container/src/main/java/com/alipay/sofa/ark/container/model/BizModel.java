@@ -44,16 +44,13 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromClassPath;
+import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromLocalClassPath;
 
 /**
  * Ark Biz Standard Model
@@ -469,18 +466,22 @@ public class BizModel implements Biz {
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
             artifactId = JarUtils.getArtifactId(jarFilePath);
+            // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
+            if (artifactId == null) {
+                return true;
+            }
         } else {
             try {
-                artifactId = getArtifactIdFromClassPath(jarFilePath);
+                artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
             } catch (IOException e) {
                 LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
                     e.getMessage()));
                 return false;
             }
-        }
-
-        if (artifactId == null) {
-            return true;
+            // for not in jar, then default not delegate.
+            if (artifactId == null) {
+                return false;
+            }
         }
 
         if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
