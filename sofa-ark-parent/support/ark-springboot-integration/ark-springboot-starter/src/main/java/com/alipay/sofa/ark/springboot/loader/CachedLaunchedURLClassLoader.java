@@ -104,7 +104,8 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
     protected static class LoadClassResult {
         private Class<?>                 clazz;
         private ClassNotFoundException   ex;
-        protected static LoadClassResult NOT_FOUND = new LoadClassResult();
+        protected static LoadClassResult NOT_FOUND = new LoadClassResult(
+                                                       new ClassNotFoundException());
 
         public LoadClassResult() {
         }
