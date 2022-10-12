@@ -16,6 +16,11 @@
  */
 package com.alipay.sofa.ark.tools.git;
 
+import com.alipay.sofa.common.utils.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -26,8 +31,12 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.DATE_FORMAT;
+import static org.eclipse.jgit.lib.Constants.MASTER;
 
 public class JGitParser {
 
@@ -59,6 +68,11 @@ public class JGitParser {
                 gitInfo.setLastCommitEmail(lastCommitEmail);
                 gitInfo.setLastCommitTime(lastCommitTime);
                 gitInfo.setLastCommitDateTime(commitDateTime);
+
+                if (lastCommitId.equals(branchName)) {
+                    gitInfo.setBranchName(StringUtils.join(
+                            getBranchsFromCommit(repository, lastCommitId), ","));
+                }
             }
 
             return gitInfo;
@@ -66,6 +80,24 @@ public class JGitParser {
             return null;
         }
     }
+
+    private static List<String> getBranchsFromCommit(FileRepository repository, String lastCommitId) throws GitAPIException {
+        Git git = new Git(repository);
+        List<Ref> refs = Git.wrap(repository).branchList()
+                .setListMode(ListBranchCommand.ListMode.REMOTE)
+                .setContains(lastCommitId)
+                .call();
+        return refs.stream()
+                .filter(ref -> !ref.isSymbolic())
+                .map(Ref::getName)
+                .map(repository::shortenRemoteBranchName)
+                .filter(StringUtil::isNotBlank)
+                .distinct()
+                .sorted(MASTER_FIRST_COMPARATOR)
+                .collect(Collectors.toList());
+    }
+
+    public static final Comparator<String> MASTER_FIRST_COMPARATOR = (o1, o2) -> MASTER.equals(o1) ? -1 : 1;
 
     private static RevCommit getLastCommit(Repository repository) throws Exception {
         RevWalk revWalk = new RevWalk(repository);
