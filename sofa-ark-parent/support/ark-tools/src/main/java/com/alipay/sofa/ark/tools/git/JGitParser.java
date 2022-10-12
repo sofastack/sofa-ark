@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.tools.git;
 
-import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -91,7 +90,7 @@ public class JGitParser {
                 .filter(ref -> !ref.isSymbolic())
                 .map(Ref::getName)
                 .map(repository::shortenRemoteBranchName)
-                .filter(StringUtil::isNotBlank)
+                .filter(StringUtils::isNotBlank)
                 .distinct()
                 .sorted(MASTER_FIRST_COMPARATOR)
                 .collect(Collectors.toList());
