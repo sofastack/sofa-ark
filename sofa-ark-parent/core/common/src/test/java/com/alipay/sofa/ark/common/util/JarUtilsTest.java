@@ -47,7 +47,7 @@ public class JarUtilsTest {
         String filePathPrefix = "file:///home/admin/xxx/xxx/%s.jar";
         String artifactId1 = JarUtils.getArtifactId(String.format(filePathPrefix,
             "dafdfa-2-dafdfad"));
-        Assert.assertEquals(artifactId1, "dafdfa-2-dafdfad");
+        Assert.assertNull(artifactId1);
         String artifactId2 = JarUtils.getArtifactId(String.format(filePathPrefix,
             "dfadfa-dfadfa-3.0"));
         Assert.assertEquals(artifactId2, "dfadfa-dfadfa");
