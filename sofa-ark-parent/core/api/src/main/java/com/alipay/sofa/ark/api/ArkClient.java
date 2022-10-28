@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.api;
 
+import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
@@ -34,7 +35,6 @@ import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
-import org.slf4j.Logger;
 
 import java.io.File;
 import java.net.URL;
@@ -382,7 +382,7 @@ public class ArkClient {
         }
     }
 
-    private static Logger getLogger() {
+    private static ArkLogger getLogger() {
         return ArkLoggerFactory.getDefaultLogger();
     }
 
