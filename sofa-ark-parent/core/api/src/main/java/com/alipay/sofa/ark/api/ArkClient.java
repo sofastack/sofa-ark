@@ -224,8 +224,8 @@ public class ArkClient {
             try {
                 biz.stop();
             } catch (Throwable throwable) {
-                getLogger()
-                    .error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), throwable);
+                getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()),
+                    throwable);
                 throw throwable;
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
