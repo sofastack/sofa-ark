@@ -189,6 +189,12 @@ public class HandleArchiveStage implements PipelineStage {
                 LOGGER.warn(String.format("The plugin of %s is excluded.", plugin.getPluginName()));
             }
         }
+        List<BizArchive> bizArchives = executableArchive.getBizArchives();
+        for (BizArchive bizArchive : bizArchives) {
+            Biz biz = bizFactoryService.createBiz(bizArchive);
+            bizManagerService.registerBiz(biz);
+        }
+
         return;
     }
 

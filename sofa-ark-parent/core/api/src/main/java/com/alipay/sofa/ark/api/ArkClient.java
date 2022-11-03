@@ -52,7 +52,6 @@ import java.util.Set;
  */
 public class ArkClient {
 
-    private static ArkLogger         LOGGER = ArkLoggerFactory.getDefaultLogger();
     private static BizManagerService bizManagerService;
     private static BizFactoryService bizFactoryService;
     private static Biz               masterBiz;
@@ -177,18 +176,18 @@ public class ArkClient {
                     String.format("Install Biz: %s success, cost: %s ms, started at: %s",
                         biz.getIdentity(), end - start, startDate))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
-            LOGGER.info(response.getMessage());
+            getLogger().info(response.getMessage());
             return response;
         } catch (Throwable throwable) {
             long end = System.currentTimeMillis();
             response.setCode(ResponseCode.FAILED).setMessage(
                 String.format("Install Biz: %s fail,cost: %s ms, started at: %s",
                     biz.getIdentity(), end - start, startDate));
-            LOGGER.error(response.getMessage(), throwable);
+            getLogger().error(response.getMessage(), throwable);
             try {
                 biz.stop();
             } catch (Throwable e) {
-                LOGGER.error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), e);
+                getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), e);
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             }
@@ -225,8 +224,8 @@ public class ArkClient {
             try {
                 biz.stop();
             } catch (Throwable throwable) {
-                LOGGER
-                    .error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), throwable);
+                getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()),
+                    throwable);
                 throw throwable;
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
@@ -234,7 +233,7 @@ public class ArkClient {
             response.setCode(ResponseCode.SUCCESS).setMessage(
                 String.format("Uninstall biz: %s success.", biz.getIdentity()));
         }
-        LOGGER.info(response.getMessage());
+        getLogger().info(response.getMessage());
         return response;
     }
 
@@ -289,7 +288,7 @@ public class ArkClient {
                     bizInfo.getBizVersion(), bizInfo.getBizState())).append("\n");
         }
         response.setCode(ResponseCode.SUCCESS).setBizInfos(bizInfoSet).setMessage(sb.toString());
-        LOGGER.info(String.format("Check Biz: %s", response.getMessage()));
+        getLogger().info(String.format("Check Biz: %s", response.getMessage()));
         return response;
     }
 
@@ -324,7 +323,7 @@ public class ArkClient {
                     String.format("Switch biz: %s is activated.", biz.getIdentity()));
             }
         }
-        LOGGER.info(response.getMessage());
+        getLogger().info(response.getMessage());
         return response;
     }
 
@@ -381,6 +380,10 @@ public class ArkClient {
         } finally {
             ReplayContext.unset();
         }
+    }
+
+    private static ArkLogger getLogger() {
+        return ArkLoggerFactory.getDefaultLogger();
     }
 
 }

@@ -24,6 +24,8 @@ import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.support.common.DelegateToMasterBizClassLoaderHook;
 import org.springframework.core.env.Environment;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,6 +38,8 @@ import com.alipay.sofa.ark.spi.constant.Constants;
  */
 public class EmbedSofaArkBootstrap {
     private static AtomicBoolean started = new AtomicBoolean(false);
+
+    private static Object        arkContainer;
 
     public static void launch(Environment environment) {
         if (started.compareAndSet(false, true)) {
@@ -55,7 +59,8 @@ public class EmbedSofaArkBootstrap {
                 URL[] urls = getURLClassPath();
                 ClasspathLauncher launcher = new ClasspathLauncher(new EmbedClassPathArchive(
                     entryMethod.getDeclaringClassName(), entryMethod.getMethod().getName(), urls));
-                launcher.launch(new String[] {}, getClasspath(urls), entryMethod.getMethod());
+                arkContainer = launcher.launch(new String[] {}, getClasspath(urls),
+                    entryMethod.getMethod());
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -80,5 +85,26 @@ public class EmbedSofaArkBootstrap {
     private static URL[] getURLClassPath() {
         ClassLoader classLoader = EmbedSofaArkBootstrap.class.getClassLoader();
         return ClassLoaderUtils.getURLs(classLoader);
+    }
+
+    public static void deployBizAfterEmbedMasterBizStarted() {
+        if (null == arkContainer) {
+            throw new RuntimeException(
+                "ArkContainer is null when deploying biz after embed master biz started.");
+        }
+
+        try {
+            ClassLoader containerClassLoader = arkContainer.getClass().getClassLoader();
+            ClassLoader oldClassLoader = ClassLoaderUtils
+                .pushContextClassLoader(containerClassLoader);
+            Method deployBizMethod = arkContainer.getClass().getMethod(
+                "deployBizAfterMasterBizReady");
+            deployBizMethod.invoke(arkContainer);
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                "Meet exception when deploying biz after embed master biz started!", e);
+        }
+
     }
 }
