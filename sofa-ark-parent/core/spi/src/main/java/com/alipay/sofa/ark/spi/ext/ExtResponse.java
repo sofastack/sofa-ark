@@ -16,11 +16,12 @@
  */
 package com.alipay.sofa.ark.spi.ext;
 
-public class ExtResponse {
+public class ExtResponse<T> {
 
     private boolean success;
     private String  errorMsg;
     private String  errorCode;
+    private T       data;
 
     public boolean isSuccess() {
         return success;
@@ -46,9 +47,21 @@ public class ExtResponse {
         this.errorCode = errorCode;
     }
 
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
     @Override
     public String toString() {
-        return "ExtResponse{" + "success=" + success + ", errorMsg='" + errorMsg + '\''
-               + ", errorCode='" + errorCode + '\'' + '}';
+        return "ExtResponse{" +
+                "success=" + success +
+                ", errorMsg='" + errorMsg + '\'' +
+                ", errorCode='" + errorCode + '\'' +
+                ", data=" + data +
+                '}';
     }
 }
