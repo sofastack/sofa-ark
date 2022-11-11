@@ -57,11 +57,7 @@ public class ExtResponse<T> {
 
     @Override
     public String toString() {
-        return "ExtResponse{" +
-                "success=" + success +
-                ", errorMsg='" + errorMsg + '\'' +
-                ", errorCode='" + errorCode + '\'' +
-                ", data=" + data +
-                '}';
+        return "ExtResponse{" + "success=" + success + ", errorMsg='" + errorMsg + '\''
+               + ", errorCode='" + errorCode + '\'' + ", data=" + data + '}';
     }
 }
