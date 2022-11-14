@@ -50,17 +50,17 @@ public class ClasspathLauncher extends ArkLauncher {
 
     public static class ClassPathArchive implements ExecutableArchive {
 
-        public static final String   FILE_IN_JAR = "!/";
+        public static final String     FILE_IN_JAR = "!/";
 
-        private final String         className;
+        private final String           className;
 
-        private final String         methodName;
+        private final String           methodName;
 
-        private final URL[]          urls;
+        private final URL[]            urls;
 
-        private final URLClassLoader urlClassLoader;
+        protected final URLClassLoader urlClassLoader;
 
-        private File                 arkConfBaseDir;
+        private File                   arkConfBaseDir;
 
         public ClassPathArchive(String className, String methodName, URL[] urls) throws IOException {
             AssertUtils.isFalse(StringUtils.isEmpty(className),

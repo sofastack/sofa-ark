@@ -84,6 +84,7 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     protected void startUpArkEmbed(SpringApplicationEvent event) {
+        // 仅监听基座启动时的Event
         if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
             return;
         }
@@ -92,12 +93,20 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
             EmbedSofaArkBootstrap.launch(preparedEvent.getEnvironment());
         }
         if (event instanceof ApplicationReadyEvent) {
-            if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
-                ArkClient.getEventAdminService().sendEvent(
-                    new AfterBizStartupEvent(ArkClient.getMasterBiz()));
-                ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
-                ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
-            }
+            // 基座启动后，静态合并部署biz
+            EmbedSofaArkBootstrap.deployBizAfterEmbedMasterBizStarted();
+
+            // 基座启动后+静态合并部署的biz启动后，发送事件
+            sendEventAfterArkEmbedStartupFinish();
+        }
+    }
+
+    protected void sendEventAfterArkEmbedStartupFinish() {
+        if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
+            ArkClient.getEventAdminService().sendEvent(
+                new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+            ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
+            ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
         }
     }
 }
