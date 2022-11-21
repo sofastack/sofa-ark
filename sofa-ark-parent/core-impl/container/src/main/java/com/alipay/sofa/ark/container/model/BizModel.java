@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromClassPath;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * Ark Biz Standard Model
@@ -331,7 +332,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            deleteFile(bizTempWorkDir);
+            deleteQuietly(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
@@ -474,20 +475,5 @@ public class BizModel implements Biz {
         }
 
         return declaredLibraries.contains(artifactId);
-    }
-
-    private static void deleteFile(File file) {
-        if (file == null || !file.exists()) {
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] list = file.listFiles();
-            if (list != null) {
-                for (File temp : list) {
-                    deleteFile(temp);
-                }
-            }
-        }
-        file.delete();
     }
 }
