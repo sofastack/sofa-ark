@@ -23,8 +23,8 @@ import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
-import com.alipay.sofa.ark.loader.ExplodedBizArchive;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
+import com.alipay.sofa.ark.loader.ExplodedBizArchive;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
@@ -43,7 +43,6 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,18 +50,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
-import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_CLASSES;
-import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_PACKAGES;
-import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_RESOURCES;
-import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
-import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_PLUGIN_DEPENDENCIES;
-import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
-import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
-import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * {@link BizFactoryService}
@@ -95,7 +83,8 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
-            .setClassPath(bizArchive.getUrls());
+            .setClassPath(bizArchive.getUrls())
+                .setFromClassPath(bizArchive.isFromClasspath());
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
             getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive

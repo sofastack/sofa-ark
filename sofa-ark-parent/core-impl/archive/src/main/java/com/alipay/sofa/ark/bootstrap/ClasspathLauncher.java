@@ -21,22 +21,38 @@ import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.loader.*;
+import com.alipay.sofa.ark.loader.DirectoryBizArchive;
+import com.alipay.sofa.ark.loader.DirectoryContainerArchive;
+import com.alipay.sofa.ark.loader.JarBizArchive;
+import com.alipay.sofa.ark.loader.JarContainerArchive;
+import com.alipay.sofa.ark.loader.JarPluginArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.spi.archive.*;
+import com.alipay.sofa.ark.spi.archive.Archive;
+import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.archive.ContainerArchive;
+import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
+import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH;
-import static com.alipay.sofa.ark.spi.constant.Constants.SUREFIRE_BOOT_CLASSPATH_SPLIT;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * @author ruoshan
@@ -128,7 +144,7 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             for (URL url : urlList) {
-                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile())), true));
             }
 
             return bizArchives;

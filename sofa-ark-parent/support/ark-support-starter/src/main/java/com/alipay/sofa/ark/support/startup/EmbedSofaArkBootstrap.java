@@ -92,8 +92,7 @@ public class EmbedSofaArkBootstrap {
         }
 
         ClassLoader containerClassLoader = arkContainer.getClass().getClassLoader();
-        ClassLoader oldClassLoader = ClassLoaderUtils
-                .pushContextClassLoader(containerClassLoader);
+        ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(containerClassLoader);
         try {
             Method deployBizMethod = arkContainer.getClass().getMethod(
                 "deployBizAfterMasterBizReady");

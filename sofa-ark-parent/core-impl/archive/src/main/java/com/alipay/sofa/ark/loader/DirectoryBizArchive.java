@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
@@ -49,6 +50,11 @@ public class DirectoryBizArchive implements BizArchive {
     private final URL[]        urls;
 
     private final Manifest     manifest                      = new Manifest();
+
+    @Override
+    public boolean isFromClasspath() {
+        return false;
+    }
 
     public DirectoryBizArchive(String className, String methodName, URL[] urls) {
         this.className = (className == null ? MOCK_IDE_ARK_BIZ_MAIN_CLASS : className);
@@ -132,4 +138,6 @@ public class DirectoryBizArchive implements BizArchive {
             super(null);
         }
     }
+
+
 }

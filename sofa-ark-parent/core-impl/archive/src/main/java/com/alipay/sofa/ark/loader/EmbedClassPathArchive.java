@@ -69,11 +69,11 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
             if (url.getPath().contains(".jar!")) {
                 Archive archiveFromJarEntry = getArchiveFromJarEntry(url);
                 if (archiveFromJarEntry != null) {
-                    bizArchives.add(new JarBizArchive(archiveFromJarEntry));
+                    bizArchives.add(new JarBizArchive(archiveFromJarEntry, true));
                 }
 
             } else {
-                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile())), true));
             }
         }
         return bizArchives;

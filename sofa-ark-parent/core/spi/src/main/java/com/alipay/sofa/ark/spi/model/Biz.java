@@ -66,4 +66,6 @@ public interface Biz extends BizInfo, PriorityOrdered {
      * @param bizName
      */
     void setCustomBizName(String bizName);
+
+    boolean isFromClasspath();
 }

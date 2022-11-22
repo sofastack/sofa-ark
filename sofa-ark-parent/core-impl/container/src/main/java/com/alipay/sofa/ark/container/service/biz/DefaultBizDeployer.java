@@ -47,7 +47,7 @@ public class DefaultBizDeployer implements BizDeployer {
 
     /**
      * 1. ark1.0
-     * 2. ark2.0 + 静态合并部署
+     * 2. ark2.0 + biz from classpath
      */
     @Override
     public void deploy() {

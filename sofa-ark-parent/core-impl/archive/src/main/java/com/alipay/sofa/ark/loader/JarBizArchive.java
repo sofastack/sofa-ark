@@ -45,8 +45,20 @@ public class JarBizArchive extends AbstractArchive implements BizArchive {
 
     private final String SOFA_ARK_BIZ_LIB_EXPORT = "lib/export";
 
+    private boolean fromClasspath = false;
+
     public JarBizArchive(Archive archive) {
         this.archive = archive;
+    }
+
+    public JarBizArchive(Archive archive, boolean fromClasspath) {
+        this.archive = archive;
+        this.fromClasspath = fromClasspath;
+    }
+
+    @Override
+    public boolean isFromClasspath() {
+        return fromClasspath;
     }
 
     @Override

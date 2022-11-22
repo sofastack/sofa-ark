@@ -49,6 +49,11 @@ public class ExplodedBizArchive implements BizArchive {
         this.manifest = new Manifest(new FileInputStream(new File(root, MANIFEST_NAME)));
     }
 
+    @Override
+    public boolean isFromClasspath() {
+        return false;
+    }
+
     private URL[] scanUrl() throws MalformedURLException {
         List<URL> urls = new ArrayList<>();
         urls.add(this.file.toURI().toURL());

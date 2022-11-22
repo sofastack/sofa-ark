@@ -103,6 +103,13 @@ public class BizModel implements Biz {
 
     private File                   bizTempWorkDir;
 
+    private boolean                fromClassPath = false;
+
+    public BizModel setFromClassPath(boolean fromClassPath) {
+        this.fromClassPath = fromClassPath;
+        return this;
+    }
+
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
         this.bizName = bizName;
@@ -355,6 +362,11 @@ public class BizModel implements Biz {
     @Override
     public void setCustomBizName(String bizName) {
         this.bizName = bizName;
+    }
+
+    @Override
+    public boolean isFromClasspath() {
+        return this.fromClassPath;
     }
 
     @Override

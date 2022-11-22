@@ -44,4 +44,6 @@ public interface BizArchive extends Archive {
      */
     boolean isEntryExist(EntryFilter filter);
 
+    boolean isFromClasspath();
+
 }
