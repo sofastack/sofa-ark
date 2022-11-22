@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromClassPath;
+import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromLocalClassPath;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
@@ -465,18 +465,22 @@ public class BizModel implements Biz {
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
             artifactId = JarUtils.getArtifactId(jarFilePath);
+            // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
+            if (artifactId == null) {
+                return true;
+            }
         } else {
             try {
-                artifactId = getArtifactIdFromClassPath(jarFilePath);
+                artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
             } catch (IOException e) {
                 LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
                     e.getMessage()));
                 return false;
             }
-        }
-
-        if (artifactId == null) {
-            return true;
+            // for not in jar, then default not delegate.
+            if (artifactId == null) {
+                return false;
+            }
         }
 
         if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {

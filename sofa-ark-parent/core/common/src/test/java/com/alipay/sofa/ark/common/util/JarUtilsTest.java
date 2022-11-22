@@ -22,14 +22,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.URL;
 
-import static org.junit.Assert.*;
-
 public class JarUtilsTest {
 
     @Test
     public void getArtifactIdFromTestClassPath() throws IOException {
         URL url = this.getClass().getClassLoader().getResource("sample-biz.jar");
-        String artifactId = JarUtils.getArtifactIdFromClassPath(url.getPath());
+        String artifactId = JarUtils.getArtifactIdFromLocalClassPath(url.getPath());
         Assert.assertEquals("sofa-ark-common", artifactId);
     }
 
@@ -38,7 +36,7 @@ public class JarUtilsTest {
         URL clazzURL = this.getClass().getClassLoader()
             .getResource("com/alipay/sofa/ark/common/util/JarUtils.class");
 
-        String artifactId = JarUtils.getArtifactIdFromClassPath(clazzURL.getPath());
+        String artifactId = JarUtils.getArtifactIdFromLocalClassPath(clazzURL.getPath());
         Assert.assertEquals("sofa-ark-common", artifactId);
     }
 

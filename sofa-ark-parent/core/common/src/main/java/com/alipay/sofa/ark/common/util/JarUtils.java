@@ -35,7 +35,7 @@ public class JarUtils {
 
     private static final String VERSION_REGEX                    = "^([0-9]+\\.)+.+";
 
-    public static String getArtifactIdFromClassPath(String fileClassPath) throws IOException {
+    public static String getArtifactIdFromLocalClassPath(String fileClassPath) throws IOException {
         // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
@@ -79,7 +79,6 @@ public class JarUtils {
                 List<String> artifactInfos = new ArrayList<>();
                 boolean getVersion = false;
                 for (String info : artifactVersionInfos) {
-                    // Character.isDigit(info.charAt(0))
                     if (!StringUtils.isEmpty(info) && info.matches(VERSION_REGEX)) {
                         getVersion = true;
                         break;
