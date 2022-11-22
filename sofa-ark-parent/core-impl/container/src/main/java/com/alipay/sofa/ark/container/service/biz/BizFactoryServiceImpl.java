@@ -50,7 +50,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_CLASSES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_RESOURCES;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_PLUGIN_DEPENDENCIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
+
 
 /**
  * {@link BizFactoryService}
