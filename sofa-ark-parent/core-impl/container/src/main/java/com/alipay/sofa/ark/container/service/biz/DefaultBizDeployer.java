@@ -20,7 +20,6 @@ import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -53,7 +52,7 @@ public class DefaultBizDeployer implements BizDeployer {
     public void deploy() {
         for (Biz biz : bizManagerService.getBizInOrder()) {
             try {
-                if (!BizState.RESOLVED.equals(biz.getBizState())) {
+                if (!biz.isFromClasspath()) {
                     continue;
                 }
                 LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
