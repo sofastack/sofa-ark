@@ -21,15 +21,13 @@ import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.support.common.DelegateToMasterBizClassLoaderHook;
 import org.springframework.core.env.Environment;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.alipay.sofa.ark.spi.constant.Constants;
 
 /**
  * Launch an embed ark container
@@ -93,17 +91,18 @@ public class EmbedSofaArkBootstrap {
                 "ArkContainer is null when deploying biz after embed master biz started.");
         }
 
-        try {
-            ClassLoader containerClassLoader = arkContainer.getClass().getClassLoader();
-            ClassLoader oldClassLoader = ClassLoaderUtils
+        ClassLoader containerClassLoader = arkContainer.getClass().getClassLoader();
+        ClassLoader oldClassLoader = ClassLoaderUtils
                 .pushContextClassLoader(containerClassLoader);
+        try {
             Method deployBizMethod = arkContainer.getClass().getMethod(
                 "deployBizAfterMasterBizReady");
             deployBizMethod.invoke(arkContainer);
-            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         } catch (Exception e) {
             throw new RuntimeException(
                 "Meet exception when deploying biz after embed master biz started!", e);
+        } finally {
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
 
     }
