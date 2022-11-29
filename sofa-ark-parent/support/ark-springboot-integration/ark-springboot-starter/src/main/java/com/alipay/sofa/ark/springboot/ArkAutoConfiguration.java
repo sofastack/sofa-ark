@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.springboot;
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
 import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
+import com.alipay.sofa.ark.springboot.web.ArkNettyReactiveWebServerFactory;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
@@ -27,7 +28,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +55,18 @@ public class ArkAutoConfiguration {
     public static ArkEventHandlerProcessor arkEventHandlerProcessor() {
         return new ArkEventHandlerProcessor();
     }
+
+    @Configuration
+    @ConditionalOnMissingBean(value = ReactiveWebServerFactory.class, search = SearchStrategy.CURRENT)
+    public static class EmbeddedArkNetty {
+        @Bean
+        @ConditionalOnMissingBean(ArkNettyReactiveWebServerFactory.class)
+        public NettyReactiveWebServerFactory nettyReactiveWebServerFactory() {
+            return new ArkNettyReactiveWebServerFactory();
+        }
+
+    }
+
 
     @Configuration
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = { "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader" })
