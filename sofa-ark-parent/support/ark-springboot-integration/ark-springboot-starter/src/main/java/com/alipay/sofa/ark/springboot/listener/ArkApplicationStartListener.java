@@ -94,7 +94,7 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         }
         if (event instanceof ApplicationReadyEvent) {
             // 基座启动后，静态合并部署biz
-            EmbedSofaArkBootstrap.deployBizAfterEmbedMasterBizStarted();
+            //            EmbedSofaArkBootstrap.deployBizAfterEmbedMasterBizStarted();
 
             // 基座启动后+静态合并部署的biz启动后，发送事件
             sendEventAfterArkEmbedStartupFinish();

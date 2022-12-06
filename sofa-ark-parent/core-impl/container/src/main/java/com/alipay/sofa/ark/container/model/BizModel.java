@@ -325,7 +325,9 @@ public class BizModel implements Biz {
             return;
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
-        bizState = BizState.DEACTIVATED;
+        if (bizState == BizState.ACTIVATED) {
+            bizState = BizState.DEACTIVATED;
+        }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         try {
