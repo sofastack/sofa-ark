@@ -18,12 +18,12 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
-import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -285,7 +285,7 @@ public class RepackageMojo extends TreeMojo {
             getLog().debug("repackage goal could not be applied to pom project.");
             return;
         }
-        if (StringUtils.isSameStr(this.arkClassifier, this.bizClassifier)) {
+        if (StringUtils.equals(this.arkClassifier, this.bizClassifier)) {
             getLog().debug("Executable fat jar should be different from 'plug-in' module jar.");
             return;
         }
@@ -480,37 +480,44 @@ public class RepackageMojo extends TreeMojo {
 
         Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
-            boolean isExclude = false;
-
-            for (ArtifactItem exclude : excludeList) {
-                if (exclude.isSameIgnoreVersion(ArtifactItem.parseArtifactItem(e))) {
-                    isExclude = true;
-                    break;
-                }
-            }
-
-            if (excludeGroupIds != null) {
-                // 支持通配符
-                for (String excludeGroupId : excludeGroupIds) {
-                    if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        excludeGroupId = ClassUtils.getPackageName(excludeGroupId);
-                    }
-                    if (e.getGroupId().startsWith(excludeGroupId)) {
-                        isExclude = true;
-                    }
-                }
-            }
-
-            if (excludeArtifactIds != null && excludeArtifactIds.contains(e.getArtifactId())) {
-                isExclude = true;
-            }
-
-            if (!isExclude) {
+            if (!checkMatchExclude(excludeList, e)) {
                 result.add(e);
             }
         }
 
         return result;
+    }
+
+    private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
+        for (ArtifactItem exclude : excludeList) {
+            if (exclude.isSameIgnoreVersion(ArtifactItem.parseArtifactItem(artifact))) {
+                return true;
+            }
+        }
+
+        if (excludeGroupIds != null) {
+            // 支持通配符
+            for (String excludeGroupId : excludeGroupIds) {
+                excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                    Constants.PACKAGE_PREFIX_MARK);
+                if (artifact.getGroupId().startsWith(excludeGroupId)) {
+                    return true;
+                }
+            }
+        }
+
+        if (excludeArtifactIds != null) {
+            // 支持通配符
+            for (String excludeArtifactId : excludeArtifactIds) {
+                excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                    Constants.PACKAGE_PREFIX_MARK);
+                if (artifact.getGroupId().startsWith(excludeArtifactId)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected void extensionExcludeArtifacts(String extraResources) {
