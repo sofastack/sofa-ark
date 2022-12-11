@@ -106,7 +106,7 @@ public class ClasspathLauncher extends ArkLauncher {
 
         protected ContainerArchive getJarContainerArchive() throws Exception {
             List<URL> urlList = filterUrls(Constants.ARK_CONTAINER_MARK_ENTRY);
-
+            System.out.println(urlList);
             if (urlList.isEmpty()) {
                 return null;
             }

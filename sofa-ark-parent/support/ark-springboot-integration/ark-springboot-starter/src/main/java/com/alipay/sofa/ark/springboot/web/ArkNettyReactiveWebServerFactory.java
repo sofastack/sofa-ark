@@ -1,16 +1,20 @@
 package com.alipay.sofa.ark.springboot.web;
 
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import org.apache.catalina.Context;
 import org.springframework.boot.web.embedded.netty.*;
 import org.springframework.boot.web.server.Shutdown;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.http.client.reactive.ReactorResourceFactory;
+import org.springframework.http.server.reactive.ContextPathCompositeHandler;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
 import reactor.netty.resources.LoopResources;
@@ -23,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Executor;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
 public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFactory {
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -42,21 +48,54 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
     private int                           backgroundProcessorDelay;
     private Set<NettyServerCustomizer> serverCustomizers = new LinkedHashSet();
 
+    public ArkNettyReactiveWebServerFactory() {
+    }
+
+    public ArkNettyReactiveWebServerFactory(int port) {
+        super(port);
+    }
+
+
     @Override
     public WebServer getWebServer(HttpHandler httpHandler) {
+        String contextPath = getContextPath();
+        Map<String, HttpHandler> handlerMap = new HashMap<>();
+        System.out.println(contextPath);
+        handlerMap.put(contextPath, httpHandler);
+        ContextPathCompositeHandler contextHandler=  new ContextPathCompositeHandler(handlerMap);
+
         if(embeddedNettyService == null){
-            return super.getWebServer(httpHandler);
+            return super.getWebServer(contextHandler);
         }else if(embeddedNettyService.getEmbedServer() == null){
             embeddedNettyService.setEmbedServer(initEmbedNetty());
         }
         HttpServer httpServer = (HttpServer) embeddedNettyService.getEmbedServer();
-        ReactorHttpHandlerAdapter handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
+        ReactorHttpHandlerAdapter handlerAdapter = new ReactorHttpHandlerAdapter(contextHandler);
         ArkNettyWebServer webServer = (ArkNettyWebServer) createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout);
         webServer.setRouteProviders(this.routeProviders);
 
         return webServer;
     }
 
+    public String getContextPath() {
+        String contextPath = "";
+        if (bizManagerService == null) {
+            return contextPath;
+        }
+        Biz biz = bizManagerService.getBizByClassLoader(Thread.currentThread()
+                .getContextClassLoader());
+
+        if (!StringUtils.isEmpty(contextPath)) {
+            return contextPath;
+        } else if (biz != null) {
+            if (StringUtils.isEmpty(biz.getWebContextPath())) {
+                return ROOT_WEB_CONTEXT_PATH;
+            }
+            return biz.getWebContextPath();
+        } else {
+            return ROOT_WEB_CONTEXT_PATH;
+        }
+    }
 
 
 
