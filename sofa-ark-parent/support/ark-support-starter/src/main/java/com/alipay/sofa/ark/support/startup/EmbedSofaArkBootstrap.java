@@ -21,15 +21,13 @@ import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.support.common.DelegateToMasterBizClassLoaderHook;
 import org.springframework.core.env.Environment;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.alipay.sofa.ark.spi.constant.Constants;
 
 /**
  * Launch an embed ark container
@@ -87,6 +85,9 @@ public class EmbedSofaArkBootstrap {
         return ClassLoaderUtils.getURLs(classLoader);
     }
 
+    /**
+     * 只会扫描classpath下静态biz包，并启动
+     */
     public static void deployBizAfterEmbedMasterBizStarted() {
         if (null == arkContainer) {
             throw new RuntimeException(

@@ -191,7 +191,7 @@ public class HandleArchiveStage implements PipelineStage {
         }
     }
 
-    public void processBizFromClasspath(PipelineContext pipelineContext) throws Exception {
+    public void processStaticBizFromClasspath(PipelineContext pipelineContext) throws Exception {
         ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
         List<BizArchive> bizArchives = executableArchive.getBizArchives();
         for (BizArchive bizArchive : bizArchives) {
