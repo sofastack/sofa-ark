@@ -18,48 +18,41 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
-import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.dependency.tree.TreeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
-import org.apache.maven.shared.invoker.InvocationRequest;
-import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.invoker.Invoker;
-import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
@@ -75,12 +68,12 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
  * @since 0.1.0
  */
 @Mojo(name = "repackage", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class RepackageMojo extends AbstractMojo {
+public class RepackageMojo extends TreeMojo {
 
     private static final String    BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject           project;
+    private MavenProject           mavenProject;
 
     @Component
     private MavenProjectHelper     projectHelper;
@@ -283,16 +276,16 @@ public class RepackageMojo extends AbstractMojo {
     private File                   gitDirectory;
 
     @Override
-    public void execute() throws MojoExecutionException {
-        if ("war".equals(this.project.getPackaging())) {
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if ("war".equals(this.mavenProject.getPackaging())) {
             getLog().debug("repackage goal could not be applied to war project.");
             return;
         }
-        if ("pom".equals(this.project.getPackaging())) {
+        if ("pom".equals(this.mavenProject.getPackaging())) {
             getLog().debug("repackage goal could not be applied to pom project.");
             return;
         }
-        if (StringUtils.isSameStr(this.arkClassifier, this.bizClassifier)) {
+        if (StringUtils.equals(this.arkClassifier, this.bizClassifier)) {
             getLog().debug("Executable fat jar should be different from 'plug-in' module jar.");
             return;
         }
@@ -301,7 +294,7 @@ public class RepackageMojo extends AbstractMojo {
             return;
         }
 
-        projectBuildingRequest = this.project.getProjectBuildingRequest();
+        projectBuildingRequest = this.mavenProject.getProjectBuildingRequest();
 
         /* version of ark container packaged into fat jar follows the plugin version */
         PluginDescriptor pluginDescriptor = (PluginDescriptor) getPluginContext().get(
@@ -311,8 +304,8 @@ public class RepackageMojo extends AbstractMojo {
         repackage();
     }
 
-    private void repackage() throws MojoExecutionException {
-        File source = this.project.getArtifact().getFile();
+    private void repackage() throws MojoExecutionException, MojoFailureException {
+        File source = this.mavenProject.getArtifact().getFile();
         File appTarget = getAppTargetFile();
         File moduleTarget = getModuleTargetFile();
 
@@ -320,11 +313,11 @@ public class RepackageMojo extends AbstractMojo {
         Libraries libraries = new ArtifactsLibraries(getAdditionalArtifact(), this.requiresUnpack,
             getLog());
         try {
-            MavenProject rootProject = MavenUtils.getRootProject(this.project);
             if (repackager.isDeclaredMode()) {
-                Set<ArtifactItem> artifactItems = getAllArtifact(rootProject);
+                Set<ArtifactItem> artifactItems = getAllArtifact();
                 repackager.prepareDeclaredLibraries(artifactItems);
             }
+            MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
             repackager.setGitDirectory(getGitDirectory(rootProject));
             repackager.repackage(appTarget, moduleTarget, libraries);
         } catch (IOException ex) {
@@ -340,43 +333,21 @@ public class RepackageMojo extends AbstractMojo {
         return new File(rootProject.getBasedir().getAbsolutePath() + "/.git");
     }
 
-    private Set<ArtifactItem> getAllArtifact(MavenProject rootProject)
-                                                                      throws MojoExecutionException {
-        File baseDir = rootProject.getBasedir();
-        getLog().info("root project path: " + baseDir.getAbsolutePath());
-
-        // dependency:tree
-        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
-        InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
-
-        List<String> goals = Arrays.asList("dependency:tree", "-DappendOutput=true",
-            "-DoutputFile=" + outputPath);
-
-        Properties userProperties = projectBuildingRequest.getUserProperties();
-        if (userProperties.contains("maven.repo.local")) {
-            goals.add("-Dmaven.repo.local=" + userProperties.getProperty("maven.repo.local"));
-        }
-        request.setGoals(goals);
-        Invoker invoker = new DefaultInvoker();
-        try {
-            InvocationResult result = invoker.execute(request);
-            if (result.getExitCode() != 0) {
-                throw new MojoExecutionException("execute dependency:tree failed",
-                    result.getExecutionException());
-            }
-
-            String depTreeStr = FileUtils.readFileToString(FileUtils.getFile(outputPath),
-                Charset.defaultCharset());
-            return MavenUtils.convert(depTreeStr);
-        } catch (MavenInvocationException | IOException e) {
-            throw new MojoExecutionException("execute dependency:tree failed", e);
-        } finally {
-            File outputFile = new File(outputPath);
-            if (outputFile.exists()) {
-                outputFile.delete();
+    private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
+        if (rootNode != null && CollectionUtils.isNotEmpty(rootNode.getChildren())) {
+            for (DependencyNode node : rootNode.getChildren()) {
+                result.add(ArtifactItem.parseArtifactItem(rootNode.getArtifact()));
+                parseArtifactItems(node, result);
             }
         }
+    }
+
+    private Set<ArtifactItem> getAllArtifact() throws MojoExecutionException, MojoFailureException {
+        super.execute();
+        DependencyNode dependencyNode = super.getDependencyGraph();
+        Set<ArtifactItem> results = new HashSet<>();
+        parseArtifactItems(dependencyNode, results);
+        return results;
     }
 
     @SuppressWarnings("unchecked")
@@ -390,11 +361,11 @@ public class RepackageMojo extends AbstractMojo {
             artifactResolutionRequest.setArtifact(arkArtifact);
             artifactResolutionRequest.setLocalRepository(projectBuildingRequest
                 .getLocalRepository());
-            artifactResolutionRequest
-                .setRemoteRepositories(project.getRemoteArtifactRepositories());
+            artifactResolutionRequest.setRemoteRepositories(this.mavenProject
+                .getRemoteArtifactRepositories());
             repositorySystem.resolve(artifactResolutionRequest);
             Set<Artifact> artifacts = new HashSet<>(Collections.singleton(arkArtifact));
-            artifacts.addAll(filterExcludeArtifacts(project.getArtifacts()));
+            artifacts.addAll(filterExcludeArtifacts(this.mavenProject.getArtifacts()));
             return artifacts;
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
@@ -412,8 +383,8 @@ public class RepackageMojo extends AbstractMojo {
         return new File(this.outputDirectory, this.finalName
                                               + classifier
                                               + "."
-                                              + this.project.getArtifact().getArtifactHandler()
-                                                  .getExtension());
+                                              + this.mavenProject.getArtifact()
+                                                  .getArtifactHandler().getExtension());
     }
 
     private File getModuleTargetFile() {
@@ -427,8 +398,8 @@ public class RepackageMojo extends AbstractMojo {
         return new File(this.outputDirectory, this.finalName
                                               + classifier
                                               + "."
-                                              + this.project.getArtifact().getArtifactHandler()
-                                                  .getExtension());
+                                              + this.mavenProject.getArtifact()
+                                                  .getArtifactHandler().getExtension());
     }
 
     private Repackager getRepackager(File source) {
@@ -469,8 +440,8 @@ public class RepackageMojo extends AbstractMojo {
 
     private void attachArtifact(File jarFile, String classifier) {
         getLog().info("Attaching archive:" + jarFile + ", with classifier: " + classifier);
-        this.projectHelper.attachArtifact(this.project, this.project.getPackaging(), classifier,
-            jarFile);
+        this.projectHelper.attachArtifact(this.mavenProject, this.mavenProject.getPackaging(),
+            classifier, jarFile);
     }
 
     private class LoggingMainClassTimeoutWarningListener implements
@@ -509,37 +480,44 @@ public class RepackageMojo extends AbstractMojo {
 
         Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
-            boolean isExclude = false;
-
-            for (ArtifactItem exclude : excludeList) {
-                if (exclude.isSameIgnoreVersion(ArtifactItem.parseArtifactItem(e))) {
-                    isExclude = true;
-                    break;
-                }
-            }
-
-            if (excludeGroupIds != null) {
-                // 支持通配符
-                for (String excludeGroupId : excludeGroupIds) {
-                    if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        excludeGroupId = ClassUtils.getPackageName(excludeGroupId);
-                    }
-                    if (e.getGroupId().startsWith(excludeGroupId)) {
-                        isExclude = true;
-                    }
-                }
-            }
-
-            if (excludeArtifactIds != null && excludeArtifactIds.contains(e.getArtifactId())) {
-                isExclude = true;
-            }
-
-            if (!isExclude) {
+            if (!checkMatchExclude(excludeList, e)) {
                 result.add(e);
             }
         }
 
         return result;
+    }
+
+    private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
+        for (ArtifactItem exclude : excludeList) {
+            if (exclude.isSameIgnoreVersion(ArtifactItem.parseArtifactItem(artifact))) {
+                return true;
+            }
+        }
+
+        if (excludeGroupIds != null) {
+            // 支持通配符
+            for (String excludeGroupId : excludeGroupIds) {
+                excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                    Constants.PACKAGE_PREFIX_MARK);
+                if (artifact.getGroupId().startsWith(excludeGroupId)) {
+                    return true;
+                }
+            }
+        }
+
+        if (excludeArtifactIds != null) {
+            // 支持通配符
+            for (String excludeArtifactId : excludeArtifactIds) {
+                excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                    Constants.PACKAGE_PREFIX_MARK);
+                if (artifact.getGroupId().startsWith(excludeArtifactId)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected void extensionExcludeArtifacts(String extraResources) {
