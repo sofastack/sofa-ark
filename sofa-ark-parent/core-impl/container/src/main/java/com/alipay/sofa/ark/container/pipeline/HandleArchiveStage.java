@@ -47,9 +47,9 @@ import java.util.Set;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
-import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
 import static com.alipay.sofa.ark.spi.constant.Constants.MANIFEST_VALUE_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
@@ -189,13 +189,15 @@ public class HandleArchiveStage implements PipelineStage {
                 LOGGER.warn(String.format("The plugin of %s is excluded.", plugin.getPluginName()));
             }
         }
+    }
+
+    public void processBizFromClasspath(PipelineContext pipelineContext) throws Exception {
+        ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
         List<BizArchive> bizArchives = executableArchive.getBizArchives();
         for (BizArchive bizArchive : bizArchives) {
             Biz biz = bizFactoryService.createBiz(bizArchive);
             bizManagerService.registerBiz(biz);
         }
-
-        return;
     }
 
     public boolean isPluginExcluded(Plugin plugin) {
