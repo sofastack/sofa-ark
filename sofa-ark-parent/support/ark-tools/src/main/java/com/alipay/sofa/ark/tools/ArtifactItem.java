@@ -175,6 +175,7 @@ public class ArtifactItem {
         artifactItem.setClassifier(artifact.getClassifier());
         artifactItem.setVersion(artifact.getVersion());
         artifactItem.setType(artifact.getType());
+        artifactItem.setScope(artifact.getScope());
         return artifactItem;
     }
 
@@ -192,7 +193,8 @@ public class ArtifactItem {
                && Objects.equals(this.artifactId, artifactItem.getArtifactId())
                && Objects.equals(this.type, artifactItem.getType())
                && Objects.equals(this.version, artifactItem.getVersion())
-               && Objects.equals(this.classifier, artifactItem.getClassifier());
+               && Objects.equals(this.classifier, artifactItem.getClassifier())
+               && Objects.equals(this.scope, artifactItem.getScope());
     }
 
     @Override
