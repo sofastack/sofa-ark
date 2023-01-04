@@ -159,7 +159,8 @@ public class ArkContainer {
 
     public Object deployBizAfterMasterBizReady() throws Exception {
         // 扫描classpath下所有biz
-        HandleArchiveStage handleArchiveStage = ArkServiceContainerHolder.getContainer().getService(HandleArchiveStage.class);
+        HandleArchiveStage handleArchiveStage = ArkServiceContainerHolder.getContainer()
+            .getService(HandleArchiveStage.class);
         handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
         // 启动
         DeployBizStage deployBizStage = ArkServiceContainerHolder.getContainer().getService(

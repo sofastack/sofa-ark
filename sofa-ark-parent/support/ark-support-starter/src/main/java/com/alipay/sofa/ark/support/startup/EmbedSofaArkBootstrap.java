@@ -88,7 +88,7 @@ public class EmbedSofaArkBootstrap {
     /**
      * 只会扫描classpath下静态biz包，并启动
      */
-    public static void deployBizAfterEmbedMasterBizStarted() {
+    public static void deployStaticBizAfterEmbedMasterBizStarted() {
         if (null == arkContainer) {
             throw new RuntimeException(
                 "ArkContainer is null when deploying biz after embed master biz started.");
