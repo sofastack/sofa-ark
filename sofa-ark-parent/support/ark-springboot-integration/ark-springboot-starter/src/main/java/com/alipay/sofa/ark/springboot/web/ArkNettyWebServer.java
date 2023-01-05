@@ -38,7 +38,7 @@ public class ArkNettyWebServer implements WebServer {
     private final Duration lifecycleTimeout;
     private List<NettyRouteProvider> routeProviders = Collections.emptyList();
     private volatile DisposableServer disposableServer;
-    Thread awaitThread;
+    private Thread awaitThread;
 
     public ArkNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout) {
         Assert.notNull(httpServer, "HttpServer must not be null");
@@ -51,16 +51,13 @@ public class ArkNettyWebServer implements WebServer {
 
     public ArkNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout, HttpServer arkhttpServer){
         this(httpServer, handlerAdapter, lifecycleTimeout);
-        this.arkHttpServer = arkhttpServer;
+        this.arkHttpServer = arkHttpServer;
 
     }
 
     public void setRouteProviders(List<NettyRouteProvider> routeProviders) {
         this.routeProviders = routeProviders;
     }
-
-
-
 
     @Override
     public void start() throws WebServerException {

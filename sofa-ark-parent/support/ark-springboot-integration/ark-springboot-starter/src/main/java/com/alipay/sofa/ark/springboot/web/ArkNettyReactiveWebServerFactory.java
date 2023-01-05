@@ -60,7 +60,6 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
     public WebServer getWebServer(HttpHandler httpHandler) {
         String contextPath = getContextPath();
         Map<String, HttpHandler> handlerMap = new HashMap<>();
-        System.out.println(contextPath);
         handlerMap.put(contextPath, httpHandler);
         ContextPathCompositeHandler contextHandler=  new ContextPathCompositeHandler(handlerMap);
 
@@ -96,8 +95,6 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
             return ROOT_WEB_CONTEXT_PATH;
         }
     }
-
-
 
     WebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout) {
         return new ArkNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout);

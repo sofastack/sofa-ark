@@ -121,7 +121,7 @@ public class ArkTomcatWebServer implements WebServer {
                 }
                 catch (NamingException ex) {
                     // Naming is not enabled. Continue
-                }
+                 }
 
                 // Unlike Jetty, all Tomcat threads are daemon threads. We create a
                 // blocking non-daemon to stop immediate shutdown
