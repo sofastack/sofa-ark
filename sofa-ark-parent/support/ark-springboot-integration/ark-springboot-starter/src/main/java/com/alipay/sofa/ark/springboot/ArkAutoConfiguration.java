@@ -53,11 +53,11 @@ public class ArkAutoConfiguration {
         return new ArkEventHandlerProcessor();
     }
 
-
     @Configuration
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = { "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader" })
     @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
     public static class EmbeddedArkTomcat {
+
         @Bean
         @ConditionalOnMissingBean(ArkTomcatServletWebServerFactory.class)
         public TomcatServletWebServerFactory tomcatServletWebServerFactory() {

@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
  * @author qilong.zql
  * @since 0.6.0
  */
-
 @Component
 public class RegisterMockEmbedTomcatService implements BeanPostProcessor, InitializingBean {
     @ArkInject

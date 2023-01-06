@@ -72,7 +72,6 @@
         </dependency>
 
         <!--test-->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -139,7 +138,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -168,5 +166,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
