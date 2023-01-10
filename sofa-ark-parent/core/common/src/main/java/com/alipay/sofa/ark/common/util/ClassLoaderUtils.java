@@ -79,7 +79,7 @@ public class ClassLoaderUtils {
             argument = argument.substring(JAVA_AGENT_MARK.length());
             try {
                 String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
-                URL url = new File(path).toURI().toURL();
+                URL url = new File(path).getCanonicalFile().toURI().toURL();
                 agentPaths.add(url);
             } catch (Throwable e) {
                 throw new ArkRuntimeException("Failed to create java agent classloader", e);
