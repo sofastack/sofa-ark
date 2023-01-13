@@ -57,6 +57,9 @@ public class DefaultBizDeployer implements BizDeployer {
                     LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
                     throw new ArkRuntimeException(e);
                 }
+            } else {
+                LOGGER.error(String.format(
+                    "Biz: %s is RESOLVED, repeated deployment is prohibited！", biz.getBizName()));
             }
         }
     }
