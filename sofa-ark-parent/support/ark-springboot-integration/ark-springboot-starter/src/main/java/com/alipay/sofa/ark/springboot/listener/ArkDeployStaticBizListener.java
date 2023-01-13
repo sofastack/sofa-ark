@@ -23,7 +23,8 @@ import org.springframework.context.event.ApplicationContextEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
-public class ArkDeployStaticBizListener implements ApplicationListener<ApplicationContextEvent>, Ordered {
+public class ArkDeployStaticBizListener implements ApplicationListener<ApplicationContextEvent>,
+                                       Ordered {
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
