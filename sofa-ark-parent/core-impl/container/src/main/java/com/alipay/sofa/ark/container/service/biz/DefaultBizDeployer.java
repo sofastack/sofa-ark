@@ -49,7 +49,7 @@ public class DefaultBizDeployer implements BizDeployer {
     @Override
     public void deploy() {
         for (Biz biz : bizManagerService.getBizInOrder()) {
-            if (ArkConfigs.isEmbedStaticBizEnable() && !BizState.RESOLVED.equals(biz.getBizState())) {
+            if (isEmbedStaticBizAndIllegalState(biz)) {
                 continue;
             }
             try {
@@ -75,6 +75,11 @@ public class DefaultBizDeployer implements BizDeployer {
                 throw new ArkRuntimeException(e);
             }
         }
+    }
+
+
+    public boolean isEmbedStaticBizAndIllegalState(Biz biz) {
+        return ArkConfigs.isEmbedStaticBizEnable() && !BizState.RESOLVED.equals(biz.getBizState());
     }
 
     @Override
