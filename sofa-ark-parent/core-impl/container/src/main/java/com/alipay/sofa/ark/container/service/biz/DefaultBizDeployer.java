@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -48,18 +49,16 @@ public class DefaultBizDeployer implements BizDeployer {
     @Override
     public void deploy() {
         for (Biz biz : bizManagerService.getBizInOrder()) {
-            if (BizState.RESOLVED.equals(biz.getBizState())) {
-                try {
-                    LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
-                    biz.start(arguments);
-                    LOGGER.info(String.format("Finish to start biz: %s", biz.getBizName()));
-                } catch (Throwable e) {
-                    LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
-                    throw new ArkRuntimeException(e);
-                }
-            } else {
-                LOGGER.error(String.format(
-                    "Biz: %s is RESOLVED, repeated deployment is prohibited！", biz.getBizName()));
+            if (ArkConfigs.isEmbedStaticBizEnable() && !BizState.RESOLVED.equals(biz.getBizState())) {
+                continue;
+            }
+            try {
+                LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
+                biz.start(arguments);
+                LOGGER.info(String.format("Finish to start biz: %s", biz.getBizName()));
+            } catch (Throwable e) {
+                LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
+                throw new ArkRuntimeException(e);
             }
         }
     }
