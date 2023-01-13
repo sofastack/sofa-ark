@@ -337,7 +337,7 @@ public class BizModel implements Biz {
             LOGGER.info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
             LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
-                    (System.currentTimeMillis() - start));
+                (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);

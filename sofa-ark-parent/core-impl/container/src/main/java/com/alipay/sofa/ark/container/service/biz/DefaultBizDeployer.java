@@ -77,7 +77,6 @@ public class DefaultBizDeployer implements BizDeployer {
         }
     }
 
-
     public boolean isEmbedStaticBizAndIllegalState(Biz biz) {
         return ArkConfigs.isEmbedStaticBizEnable() && !BizState.RESOLVED.equals(biz.getBizState());
     }
