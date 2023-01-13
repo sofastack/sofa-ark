@@ -27,13 +27,13 @@ public class ArkDeployStaticBizListener implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
-        // 仅监听基座启动时的Event
+        // Only listen to the event when the master biz is started
         if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
             return;
         }
-        if (ArkConfigs.isEmbedEnable()) {
+        if (ArkConfigs.isEmbedEnable() && ArkConfigs.isEmbedStaticBizEnable()) {
             if (event instanceof ContextRefreshedEvent) {
-                // 基座启动后，静态合并部署biz
+                // After the master biz is started, statically deploy the other biz from classpath
                 EmbedSofaArkBootstrap.deployStaticBizAfterEmbedMasterBizStarted();
             }
         }
