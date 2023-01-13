@@ -16,14 +16,7 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import com.alipay.sofa.ark.common.util.StringUtils;
-import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.project.MavenProject;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 public class MavenUtils {
     public static MavenProject getRootProject(MavenProject project) {

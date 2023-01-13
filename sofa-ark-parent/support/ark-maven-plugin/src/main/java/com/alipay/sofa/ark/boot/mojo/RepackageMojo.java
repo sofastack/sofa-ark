@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
