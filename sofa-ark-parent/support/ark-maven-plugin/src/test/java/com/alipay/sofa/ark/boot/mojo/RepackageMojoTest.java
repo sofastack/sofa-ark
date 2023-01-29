@@ -91,7 +91,7 @@ public class RepackageMojoTest {
          *  biz
          *     \            biz-child2-child1
          *      \          /
-         *      biz-child1
+         *      biz-child2
          *                 \
          *                  biz-child2-child1
          *
