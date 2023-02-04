@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromLocalClassPath;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * Ark Biz Standard Model
@@ -281,6 +282,7 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
+                LOGGER.info("Ark biz {} starts.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
@@ -324,12 +326,18 @@ public class BizModel implements Biz {
             return;
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
-        bizState = BizState.DEACTIVATED;
+        if (bizState == BizState.ACTIVATED) {
+            bizState = BizState.DEACTIVATED;
+        }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         try {
             // this can trigger uninstall handler
+            long start = System.currentTimeMillis();
+            LOGGER.info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
+            LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
+                (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -340,9 +348,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            if (bizTempWorkDir != null && bizTempWorkDir.exists()) {
-                bizTempWorkDir.delete();
-            }
+            deleteQuietly(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
