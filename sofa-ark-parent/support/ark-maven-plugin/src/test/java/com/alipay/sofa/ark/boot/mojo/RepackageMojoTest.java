@@ -68,7 +68,6 @@ public class RepackageMojoTest {
                           && ((LinkedHashSet) excludesResult).contains("tracer-core:3.0.11"));
     }
 
-
     /**
      * 测试依赖解析
      *
@@ -77,8 +76,8 @@ public class RepackageMojoTest {
      * @throws IllegalAccessException
      */
     @Test
-    public void testParseArtifactItems()
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testParseArtifactItems() throws NoSuchMethodException, InvocationTargetException,
+                                        IllegalAccessException {
 
         /**
          *  构建依赖图
@@ -97,27 +96,29 @@ public class RepackageMojoTest {
          *
          */
         DefaultDependencyNode bizNode = buildDependencyNode(null, "com.alipay.sofa", "biz", "1.0.0");
-        DefaultDependencyNode bizChild1 = buildDependencyNode(bizNode, "com.alipay.sofa", "biz-child1", "1.0.0");
-        DefaultDependencyNode bizChild2 = buildDependencyNode(bizNode, "com.alipay.sofa", "biz-child2", "1.0.0");
+        DefaultDependencyNode bizChild1 = buildDependencyNode(bizNode, "com.alipay.sofa",
+            "biz-child1", "1.0.0");
+        DefaultDependencyNode bizChild2 = buildDependencyNode(bizNode, "com.alipay.sofa",
+            "biz-child2", "1.0.0");
         buildDependencyNode(bizChild1, "com.alipay.sofa", "biz-child1-child1", "1.0.0");
         buildDependencyNode(bizChild1, "com.alipay.sofa", "biz-child1-child2", "1.0.0");
         buildDependencyNode(bizChild2, "com.alipay.sofa", "biz-child2-child1", "1.0.0");
         buildDependencyNode(bizChild2, "com.alipay.sofa", "biz-child2-child2", "1.0.0");
 
         RepackageMojo repackageMojo = new RepackageMojo();
-        Method parseArtifactItems = repackageMojo.getClass().getDeclaredMethod("parseArtifactItems",
-                DependencyNode.class, Set.class);
+        Method parseArtifactItems = repackageMojo.getClass().getDeclaredMethod(
+            "parseArtifactItems", DependencyNode.class, Set.class);
         parseArtifactItems.setAccessible(true);
         Set<ArtifactItem> artifactItems = new HashSet<>();
         parseArtifactItems.invoke(repackageMojo, bizNode, artifactItems);
         Assert.assertTrue(artifactItems.size() == 7);
     }
 
-    private DefaultDependencyNode buildDependencyNode(DefaultDependencyNode parent, String groupId, String artifactId,
-                                                      String version) {
+    private DefaultDependencyNode buildDependencyNode(DefaultDependencyNode parent, String groupId,
+                                                      String artifactId, String version) {
         DefaultDependencyNode dependencyNode = new DefaultDependencyNode(parent,
-                new DefaultArtifact(groupId, artifactId, version, "provided", "jar", "biz-jar", null), null, null,
-                null);
+            new DefaultArtifact(groupId, artifactId, version, "provided", "jar", "biz-jar", null),
+            null, null, null);
         if (parent != null) {
             if (CollectionUtils.isEmpty(parent.getChildren())) {
                 parent.setChildren(Lists.newArrayList());
