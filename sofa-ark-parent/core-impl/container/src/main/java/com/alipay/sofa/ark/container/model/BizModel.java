@@ -24,7 +24,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.JarUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromLocalClassPath;
+import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
 
 /**
  * Ark Biz Standard Model
@@ -454,6 +454,7 @@ public class BizModel implements Biz {
     }
 
     private boolean checkDeclaredWithCache(String libraryFile) {
+        // remove specific file real name, extract jar file path
         int index = libraryFile.lastIndexOf("!/");
         String jarFilePath = libraryFile;
         if (index != -1) {
@@ -463,9 +464,13 @@ public class BizModel implements Biz {
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
+        // 1. /xxxx/xxx/xxx.jar
+        // 2. /xxx/xxx/xxx/xxx.class
+        // 3. /xxx/xxx/xxx.jar!/xxx/xxx/jar
+
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
-            artifactId = JarUtils.getArtifactId(jarFilePath);
+            artifactId = JarUtils.getJarArtifactId(jarFilePath);
             // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
             if (artifactId == null) {
                 return true;

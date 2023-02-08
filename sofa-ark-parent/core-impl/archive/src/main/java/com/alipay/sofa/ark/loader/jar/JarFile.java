@@ -30,6 +30,7 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -168,6 +169,22 @@ public class JarFile extends java.util.jar.JarFile {
             this.manifest = new SoftReference<>(manifest);
         }
         return manifest;
+    }
+
+    public Properties getPomProperties() throws IOException {
+        Enumeration<java.util.jar.JarEntry> entries = this.entries();
+
+        Properties p = new Properties();
+        while (entries.hasMoreElements()) {
+            java.util.jar.JarEntry jarEntry = entries.nextElement();
+            if (jarEntry.getName().endsWith("pom.properties")) {
+                try (InputStream is = this.getInputStream(jarEntry)) {
+                    p.load(is);
+                    return p;
+                }
+            }
+        }
+        return p;
     }
 
     @Override
