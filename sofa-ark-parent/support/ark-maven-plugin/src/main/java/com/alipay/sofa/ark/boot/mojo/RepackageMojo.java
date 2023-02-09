@@ -334,6 +334,10 @@ public class RepackageMojo extends TreeMojo {
 
     private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
         if (rootNode != null) {
+            if (StringUtils.equalsIgnoreCase(rootNode.getArtifact().getScope(), "test")) {
+                return;
+            }
+
             result.add(ArtifactItem.parseArtifactItem(rootNode.getArtifact()));
             if (CollectionUtils.isNotEmpty(rootNode.getChildren())) {
                 for (DependencyNode node : rootNode.getChildren()) {

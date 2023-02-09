@@ -51,6 +51,8 @@ public class JarFile extends java.util.jar.JarFile {
 
     private static final String        MANIFEST_NAME            = "META-INF/MANIFEST.MF";
 
+    private static final String        POM_PROPERTIES           = "pom.properties";
+
     private static final String        PROTOCOL_HANDLER         = "java.protocol.handler.pkgs";
 
     private static final String        HANDLERS_PACKAGE         = "com.alipay.sofa.ark.loader";
@@ -177,7 +179,7 @@ public class JarFile extends java.util.jar.JarFile {
         Properties p = new Properties();
         while (entries.hasMoreElements()) {
             java.util.jar.JarEntry jarEntry = entries.nextElement();
-            if (jarEntry.getName().endsWith("pom.properties")) {
+            if (jarEntry.getName().endsWith(POM_PROPERTIES)) {
                 try (InputStream is = this.getInputStream(jarEntry)) {
                     p.load(is);
                     return p;

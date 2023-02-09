@@ -282,7 +282,7 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
-                LOGGER.info("Ark biz {} starts.", getIdentity());
+                LOGGER.info("Ark biz {} start.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
@@ -470,15 +470,13 @@ public class BizModel implements Biz {
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
-        // 1. /xxxx/xxx/xxx.jar
-        // 2. /xxx/xxx/xxx/xxx.class
-        // 3. /xxx/xxx/xxx.jar!/xxx/xxx/jar
-
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
             artifactId = JarUtils.getJarArtifactId(jarFilePath);
             // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
             if (artifactId == null) {
+                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                    jarFilePath));
                 return true;
             }
         } else {
@@ -491,6 +489,8 @@ public class BizModel implements Biz {
             }
             // for not in jar, then default not delegate.
             if (artifactId == null) {
+                LOGGER.info(String.format(
+                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
                 return false;
             }
         }

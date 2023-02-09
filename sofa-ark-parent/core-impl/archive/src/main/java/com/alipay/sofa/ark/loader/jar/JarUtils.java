@@ -29,25 +29,26 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class JarUtils {
-    private static final String              CLASSPATH_ROOT_IDENTITY          = "/target/classes/";
+    private static final String                        CLASSPATH_ROOT_IDENTITY          = "/target/classes/";
 
-    private static final String              TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes/";
-    private static final String              TARGET_ROOT_IDENTITY             = "/target/";
+    private static final String                        TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes/";
+    private static final String                        TARGET_ROOT_IDENTITY             = "/target/";
 
-    private static final String              JAR_POM_PROPERTIES_RELATIVE_PATH = "maven-archiver/pom.properties";
-    private static final String              JAR_ARTIFACT_ID                  = "artifactId";
+    private static final String                        JAR_POM_PROPERTIES_RELATIVE_PATH = "maven-archiver/pom.properties";
+    private static final String                        JAR_ARTIFACT_ID                  = "artifactId";
 
-    private static final String              JAR_POM_PROPERTIES               = "pom.properties";
+    private static final String                        JAR_POM_PROPERTIES               = "pom.properties";
 
-    private static final String              VERSION_REGEX                    = "^([0-9]+\\.)+.+";
+    private static final String                        VERSION_REGEX                    = "^([0-9]+\\.)+.+";
 
-    private static final Map<String, String> artifactIdCacheMap               = new ConcurrentHashMap<>();
+    private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
     public static String getArtifactIdFromLocalClassPath(String fileClassPath) throws IOException {
         // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
@@ -76,12 +77,14 @@ public class JarUtils {
     }
 
     public static String getJarArtifactId(String jarLocation) {
-        String artifactId = doGetArtifactIdFromJarPom(jarLocation);
-        if (!StringUtils.isEmpty(artifactId)) {
-            return artifactId;
-        } else {
-            return doGetArtifactIdFromFileName(jarLocation);
-        }
+        artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
+            String artifactId = doGetArtifactIdFromFileName(a);
+            if (StringUtils.isEmpty(artifactId)) {
+                artifactId = doGetArtifactIdFromJarPom(a);
+            }
+            return Optional.ofNullable(artifactId);
+        });
+        return artifactIdCacheMap.get(jarLocation).orElse(null);
     }
 
     private static String doGetArtifactIdFromFileName(String jarLocation) {
@@ -108,21 +111,18 @@ public class JarUtils {
     }
 
     private static String doGetArtifactIdFromJarPom(String jarLocation) {
-
-        return artifactIdCacheMap.computeIfAbsent(jarLocation, (a) -> {
-            try {
-                if (a.contains("!/")) {
-                    // in nested jar
-                    return parseArtifactIdFromJarInJar(jarLocation);
-                } else {
-                    try (JarFile jarFile = new JarFile(a)) {
-                        return parseArtifactIdFromJar(jarFile);
-                    }
+        try {
+            if (jarLocation.contains("!/")) {
+                // in nested jar
+                return parseArtifactIdFromJarInJar(jarLocation);
+            } else {
+                try (JarFile jarFile = new JarFile(jarLocation)) {
+                    return parseArtifactIdFromJar(jarFile);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to parse artifact id from jar.", e);
             }
-        });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse artifact id from jar.", e);
+        }
     }
 
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
@@ -138,15 +138,6 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJar(JarFile jarFile) throws IOException {
-        //        Manifest manifest = jarFile.getManifest();
-        //
-        //        if (manifest != null) {
-        //            Attributes attributes = manifest.getMainAttributes();
-        //            String artifactId = attributes.getValue(IMPLEMENTATION_TITLE);
-        //            if (!StringUtils.isEmpty(artifactId)) {
-        //                return artifactId;
-        //            }
-        //        }
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             java.util.jar.JarEntry entry = entries.nextElement();
