@@ -495,7 +495,9 @@ public class BizModel implements Biz {
             }
         }
 
-        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+        // some ark related lib which each ark module needed should set declared as default
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")
+            || artifactId.contains("arklet-alipay") || artifactId.contains("-arklet-")) {
             return true;
         }
 

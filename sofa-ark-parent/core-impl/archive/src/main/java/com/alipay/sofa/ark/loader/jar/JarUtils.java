@@ -132,6 +132,9 @@ public class JarUtils {
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
 
+        if (archives.size() != 1) {
+            return null;
+        }
         Archive archive = archives.get(0);
         Properties properties = ((JarFileArchive) archive).getPomProperties();
         return properties.getProperty(JAR_ARTIFACT_ID);
