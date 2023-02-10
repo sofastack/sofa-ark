@@ -93,6 +93,10 @@ public class JarFileArchive implements Archive {
         return new EntryIterator(this.jarFile.entries());
     }
 
+    public Properties getPomProperties() throws IOException {
+        return this.jarFile.getPomProperties();
+    }
+
     public Archive getNestedArchive(Entry entry) throws IOException {
         JarEntry jarEntry = ((JarFileEntry) entry).getJarEntry();
         if (jarEntry.getComment() != null && jarEntry.getComment().startsWith(UNPACK_MARKER)) {
