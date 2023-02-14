@@ -24,7 +24,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.JarUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromLocalClassPath;
+import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
@@ -282,7 +282,7 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
-                LOGGER.info("Ark biz {} starts.", getIdentity());
+                LOGGER.info("Ark biz {} start.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
@@ -460,6 +460,7 @@ public class BizModel implements Biz {
     }
 
     private boolean checkDeclaredWithCache(String libraryFile) {
+        // remove specific file real name, extract jar file path
         int index = libraryFile.lastIndexOf("!/");
         String jarFilePath = libraryFile;
         if (index != -1) {
@@ -471,9 +472,11 @@ public class BizModel implements Biz {
     private boolean doCheckDeclared(String jarFilePath) {
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
-            artifactId = JarUtils.getArtifactId(jarFilePath);
+            artifactId = JarUtils.getJarArtifactId(jarFilePath);
             // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
             if (artifactId == null) {
+                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                    jarFilePath));
                 return true;
             }
         } else {
@@ -486,11 +489,15 @@ public class BizModel implements Biz {
             }
             // for not in jar, then default not delegate.
             if (artifactId == null) {
+                LOGGER.info(String.format(
+                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
                 return false;
             }
         }
 
-        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+        // some ark related lib which each ark module needed should set declared as default
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")
+            || artifactId.contains("arklet-alipay") || artifactId.contains("-arklet-")) {
             return true;
         }
 
