@@ -16,9 +16,27 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.project.MavenProject;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 public class MavenUtils {
+    public static boolean isRootProject(MavenProject project) {
+        if (project == null) {
+            return true;
+        }
+
+        if (project.hasParent() && project.getParent().getBasedir() != null) {
+            return false;
+        }
+        return true;
+    }
+
     public static MavenProject getRootProject(MavenProject project) {
         if (project == null) {
             return null;
@@ -28,5 +46,61 @@ public class MavenUtils {
             parent = parent.getParent();
         }
         return parent;
+    }
+
+    /**
+     * @param depTreeContent
+     * @return
+     */
+    public static Set<ArtifactItem> convert(String depTreeContent) {
+        Set<ArtifactItem> artifactItems = new HashSet<>();
+        String[] contents = depTreeContent.split("\n");
+
+        for (String content : contents) {
+            ArtifactItem artifactItem = getArtifactItem(content);
+            if (artifactItem != null && !"test".equals(artifactItem.getScope())) {
+                artifactItems.add(artifactItem);
+            }
+        }
+
+        return artifactItems;
+    }
+
+    private static ArtifactItem getArtifactItem(String lineContent) {
+        if (StringUtils.isEmpty(lineContent)) {
+            return null;
+        }
+        String[] contentInfos = lineContent.split(" ");
+        if (contentInfos.length == 0) {
+            return null;
+        }
+        Optional<String> artifactStrOp = Arrays.stream(contentInfos).filter(c -> c.contains(":")).findFirst();
+        if (!artifactStrOp.isPresent()) {
+            return null;
+        }
+        String[] artifactInfos = artifactStrOp.get().split(":");
+
+        ArtifactItem artifactItem = new ArtifactItem();
+        if (artifactInfos.length == 5) {
+            // like "com.alipay.sofa:healthcheck-sofa-boot-starter:jar:3.11.1:provided"
+
+            artifactItem.setGroupId(artifactInfos[0]);
+            artifactItem.setArtifactId(artifactInfos[1]);
+            artifactItem.setType(artifactInfos[2]);
+            artifactItem.setVersion(artifactInfos[3]);
+            artifactItem.setScope(artifactInfos[4]);
+        } else if (artifactInfos.length == 6) {
+            // like "io.sofastack:dynamic-stock-mng:jar:ark-biz:1.0.0:compile"
+
+            artifactItem.setGroupId(artifactInfos[0]);
+            artifactItem.setArtifactId(artifactInfos[1]);
+            artifactItem.setType(artifactInfos[2]);
+            artifactItem.setClassifier(artifactInfos[3]);
+            artifactItem.setVersion(artifactInfos[4]);
+            artifactItem.setScope(artifactInfos[5]);
+        } else {
+            return null;
+        }
+        return artifactItem;
     }
 }
