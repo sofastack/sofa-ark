@@ -95,8 +95,7 @@ SOFAArk 基于类隔离能力，实现了应用的合并部署，可以简单分
 * [Gitter channel](https://gitter.im/sofa-ark/Lobby) 
 * [Issues](https://github.com/sofastack/sofa-ark/issues)
 * [钉钉群]
-
-<img src="[https://img-blog.csdnimg.cn/2020102116384135.png](https://user-images.githubusercontent.com/3754074/222352525-06efec3e-d296-4238-807d-3c2034f9a0e4.png)" width="100px">
+<img src="https://user-images.githubusercontent.com/3754074/222353887-fe783ea4-cd49-428e-8a98-c59780a927f6.png" width="300px">
 
 
 ## 贡献
