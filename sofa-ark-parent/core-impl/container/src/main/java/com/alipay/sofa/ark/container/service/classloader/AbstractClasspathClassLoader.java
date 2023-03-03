@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
@@ -292,7 +293,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 enumerationList.add(postFindResources(name));
 
                 // unique urls
-                return uniqueUrls(enumerationList, name);
+                return uniqueUrls(enumerationList);
             } else {
                 Enumeration<URL> ret = preFindResources(name);
                 if (ret != null && ret.hasMoreElements()) {
@@ -312,10 +313,11 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         }
     }
 
-    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String targetName) {
+    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList) {
         // unique urls
         Set<String> temp = new HashSet<>();
         List<URL> uniqueUrls = new ArrayList<>();
+
         for (Enumeration<URL> e : enumerationList) {
             if (e == null) {
                 continue;
@@ -323,22 +325,23 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             while (e.hasMoreElements()) {
                 URL resourceUrl = e.nextElement();
                 String filePath = resourceUrl.getFile();
-                int startIndex = filePath.lastIndexOf(targetName);
-                if (startIndex == -1) {
-                    continue;
-                }
 
-                filePath = filePath.substring(0, startIndex);
-                if (filePath.endsWith("!/")) {
-                    filePath = filePath.substring(0, filePath.length() - 2);
-                }
-                int artifactStartIndex = filePath.lastIndexOf("/");
-                String jarFileName = filePath.substring(artifactStartIndex);
+                String artifactId;
+                if (filePath.contains(".jar")) {
+                    int index = filePath.lastIndexOf("!/");
+                    String jarFilePath = filePath;
+                    if (index != -1) {
+                        jarFilePath = filePath.substring(0, index);
+                    }
 
-                if (!temp.contains(jarFileName)) {
+                    artifactId = JarUtils.getJarArtifactId(jarFilePath);
+                } else {
+                    artifactId = JarUtils.getArtifactIdFromLocalClassPath(filePath);
+                }
+                if (!temp.contains(artifactId)) {
                     uniqueUrls.add(resourceUrl);
                 }
-                temp.add(jarFileName);
+                temp.add(artifactId);
             }
         }
 

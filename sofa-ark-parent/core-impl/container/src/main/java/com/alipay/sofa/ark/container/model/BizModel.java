@@ -480,13 +480,7 @@ public class BizModel implements Biz {
                 return true;
             }
         } else {
-            try {
-                artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
-            } catch (IOException e) {
-                LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
-                    e.getMessage()));
-                return false;
-            }
+            artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
             // for not in jar, then default not delegate.
             if (artifactId == null) {
                 LOGGER.info(String.format(

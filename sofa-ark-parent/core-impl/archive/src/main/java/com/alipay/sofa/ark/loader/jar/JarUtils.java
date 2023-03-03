@@ -50,7 +50,7 @@ public class JarUtils {
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
-    public static String getArtifactIdFromLocalClassPath(String fileClassPath) throws IOException {
+    public static String getArtifactIdFromLocalClassPath(String fileClassPath) {
         // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
@@ -73,6 +73,8 @@ public class JarUtils {
             Properties properties = new Properties();
             properties.load(inputStream);
             return properties.getProperty(JAR_ARTIFACT_ID);
+        } catch (IOException e) {
+            return null;
         }
     }
 

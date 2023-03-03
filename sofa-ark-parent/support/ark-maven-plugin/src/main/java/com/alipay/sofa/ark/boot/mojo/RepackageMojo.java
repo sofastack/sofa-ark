@@ -56,7 +56,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -325,11 +324,11 @@ public class RepackageMojo extends TreeMojo {
             getLog());
         try {
             if (repackager.isDeclaredMode()) {
-                Set<ArtifactItem> artifactItems = new HashSet<>();
+                Set<ArtifactItem> artifactItems;
                 if (MavenUtils.isRootProject(this.mavenProject)) {
-                    getAllArtifact();
+                    artifactItems = getAllArtifact();
                 } else {
-                    getAllArtifactByMavenTree();
+                    artifactItems = getAllArtifactByMavenTree();
                 }
                 repackager.prepareDeclaredLibraries(artifactItems);
             }
@@ -384,10 +383,17 @@ public class RepackageMojo extends TreeMojo {
             "-DoutputFile=" + outputPath).collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
-        if (userProperties.containsKey("maven.repo.local")) {
-            goals.add("-Dmaven.repo.local=" + userProperties.getProperty("maven.repo.local"));
+        if (userProperties != null) {
+            userProperties.forEach((key, value) -> goals.add(String.format("-D%s=%s", key, value)));
         }
+
+        getLog().info(
+            "execute 'mvn dependency:tree' with command 'mvn " + String.join(" ", goals) + "'");
         request.setGoals(goals);
+        request.setBatchMode(mavenSession.getSettings().getInteractiveMode());
+        request.setProfiles(mavenSession.getSettings().getActiveProfiles());
+        request.setUserSettingsFile(mavenSession.getRequest().getUserSettingsFile());
+        request.setGlobalSettingsFile(mavenSession.getRequest().getGlobalSettingsFile());
         Invoker invoker = new DefaultInvoker();
         try {
             InvocationResult result = invoker.execute(request);
