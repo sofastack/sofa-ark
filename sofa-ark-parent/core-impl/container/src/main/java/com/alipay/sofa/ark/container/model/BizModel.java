@@ -480,13 +480,7 @@ public class BizModel implements Biz {
                 return true;
             }
         } else {
-            try {
-                artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
-            } catch (IOException e) {
-                LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
-                    e.getMessage()));
-                return false;
-            }
+            artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
             // for not in jar, then default not delegate.
             if (artifactId == null) {
                 LOGGER.info(String.format(
@@ -497,7 +491,8 @@ public class BizModel implements Biz {
 
         // some ark related lib which each ark module needed should set declared as default
         if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")
-            || artifactId.contains("arklet-alipay") || artifactId.contains("-arklet-")) {
+            || artifactId.equals("arklet-alipay-sofa-boot-starter")
+            || artifactId.equals("sofa-boot-alipay-arklet")) {
             return true;
         }
 
