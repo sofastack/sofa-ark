@@ -324,7 +324,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             }
             while (e.hasMoreElements()) {
                 URL resourceUrl = e.nextElement();
-                String filePath = resourceUrl.getFile();
+                String filePath = resourceUrl.getFile().replace("file:", "");
 
                 String artifactId;
                 if (filePath.contains(".jar")) {

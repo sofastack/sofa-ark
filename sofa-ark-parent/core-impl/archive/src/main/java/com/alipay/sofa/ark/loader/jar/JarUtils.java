@@ -123,7 +123,8 @@ public class JarUtils {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to parse artifact id from jar.", e);
+            throw new RuntimeException(String.format("Failed to parse artifact id from jar %s.",
+                jarLocation), e);
         }
     }
 
