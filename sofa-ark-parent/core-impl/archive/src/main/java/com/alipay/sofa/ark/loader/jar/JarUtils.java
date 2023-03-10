@@ -56,18 +56,19 @@ public class JarUtils {
         // 1. search pom.properties
         int classesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
         int testClassesRootIndex = libraryFile.indexOf(TEST_CLASSPATH_ROOT_IDENTITY);
-        int rootIndex = -1;
+        String pomPropertiesPath;
         if (classesRootIndex != -1) {
-            rootIndex = classesRootIndex;
-            libraryFile.substring(0, classesRootIndex + TARGET_ROOT_IDENTITY.length());
+            pomPropertiesPath = libraryFile.substring(0,
+                classesRootIndex + TARGET_ROOT_IDENTITY.length())
+                                + JAR_POM_PROPERTIES_RELATIVE_PATH;
         } else if (testClassesRootIndex != -1) {
-            rootIndex = testClassesRootIndex;
+            pomPropertiesPath = libraryFile.substring(0, testClassesRootIndex
+                                                         + TARGET_ROOT_IDENTITY.length())
+                                + JAR_POM_PROPERTIES_RELATIVE_PATH;
         } else {
+            // is not from test classpath, for example install uncompressed modules, just return null
             return null;
         }
-        String classPathRootPath = libraryFile.substring(0,
-            rootIndex + TARGET_ROOT_IDENTITY.length());
-        String pomPropertiesPath = classPathRootPath + JAR_POM_PROPERTIES_RELATIVE_PATH;
 
         try (InputStream inputStream = Files.newInputStream(Paths.get(pomPropertiesPath))) {
             Properties properties = new Properties();

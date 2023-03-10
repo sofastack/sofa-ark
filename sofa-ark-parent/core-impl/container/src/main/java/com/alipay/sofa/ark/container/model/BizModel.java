@@ -425,7 +425,7 @@ public class BizModel implements Biz {
             return true;
         }
         if (!StringUtils.isEmpty(classLocation)) {
-            if (classLocation.contains(".jar")) {
+            if (classLocation.contains(".jar!") || classLocation.endsWith(".jar")) {
                 return checkDeclaredWithCache(classLocation);
             }
             return true;
@@ -471,7 +471,7 @@ public class BizModel implements Biz {
 
     private boolean doCheckDeclared(String jarFilePath) {
         String artifactId = "";
-        if (jarFilePath.contains(".jar")) {
+        if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
             artifactId = JarUtils.getJarArtifactId(jarFilePath);
             // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
             if (artifactId == null) {
