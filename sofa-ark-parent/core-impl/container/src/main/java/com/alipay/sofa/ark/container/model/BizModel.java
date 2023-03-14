@@ -24,7 +24,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.JarUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -50,7 +50,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromLocalClassPath;
+import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * Ark Biz Standard Model
@@ -281,6 +282,7 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
+                LOGGER.info("Ark biz {} start.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
@@ -324,12 +326,18 @@ public class BizModel implements Biz {
             return;
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
-        bizState = BizState.DEACTIVATED;
+        if (bizState == BizState.ACTIVATED) {
+            bizState = BizState.DEACTIVATED;
+        }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         try {
             // this can trigger uninstall handler
+            long start = System.currentTimeMillis();
+            LOGGER.info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
+            LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
+                (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -340,9 +348,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            if (bizTempWorkDir != null && bizTempWorkDir.exists()) {
-                bizTempWorkDir.delete();
-            }
+            deleteQuietly(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
@@ -454,6 +460,7 @@ public class BizModel implements Biz {
     }
 
     private boolean checkDeclaredWithCache(String libraryFile) {
+        // remove specific file real name, extract jar file path
         int index = libraryFile.lastIndexOf("!/");
         String jarFilePath = libraryFile;
         if (index != -1) {
@@ -465,26 +472,27 @@ public class BizModel implements Biz {
     private boolean doCheckDeclared(String jarFilePath) {
         String artifactId = "";
         if (jarFilePath.contains(".jar")) {
-            artifactId = JarUtils.getArtifactId(jarFilePath);
+            artifactId = JarUtils.getJarArtifactId(jarFilePath);
             // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
             if (artifactId == null) {
+                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                    jarFilePath));
                 return true;
             }
         } else {
-            try {
-                artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
-            } catch (IOException e) {
-                LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
-                    e.getMessage()));
-                return false;
-            }
+            artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
             // for not in jar, then default not delegate.
             if (artifactId == null) {
+                LOGGER.info(String.format(
+                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
                 return false;
             }
         }
 
-        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+        // some ark related lib which each ark module needed should set declared as default
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")
+            || artifactId.equals("arklet-alipay-sofa-boot-starter")
+            || artifactId.equals("sofa-boot-alipay-arklet")) {
             return true;
         }
 

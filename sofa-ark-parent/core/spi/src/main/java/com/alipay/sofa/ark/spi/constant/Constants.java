@@ -175,6 +175,7 @@ public class Constants {
     public final static String       RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY     = "hessian.parent.context.create";
     public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
     public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
+    public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
     /**
