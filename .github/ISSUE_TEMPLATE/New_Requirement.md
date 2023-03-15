@@ -1,3 +1,9 @@
+---
+name: Propose New Requirement
+about: Propose a new requirement about improving user experience or new feature
+
+---
+
 
 ### 需求细节
 
