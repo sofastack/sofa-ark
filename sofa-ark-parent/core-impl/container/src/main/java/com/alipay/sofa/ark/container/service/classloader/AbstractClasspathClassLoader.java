@@ -325,10 +325,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     private Enumeration<URL> mergeEnum(List<Enumeration<URL>> urlEnums) {
         List<URL> urls = new ArrayList<>();
         for (Enumeration<URL> e : urlEnums) {
-            if (e == null) {
-                continue;
-            }
-            while (e.hasMoreElements()) {
+            while (e != null && e.hasMoreElements()) {
                 urls.add(e.nextElement());
             }
         }
@@ -345,10 +342,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         List<URL> uniqueUrls = new ArrayList<>();
 
         for (Enumeration<URL> e : enumerationList) {
-            if (e == null) {
-                continue;
-            }
-            while (e.hasMoreElements()) {
+            while (e != null && e.hasMoreElements()) {
                 URL resourceUrl = e.nextElement();
                 String filePath = resourceUrl.getFile().replace("file:", "");
 
