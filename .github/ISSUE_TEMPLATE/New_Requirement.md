@@ -1,11 +1,15 @@
 
-### Requiement Details
+### 需求细节
 
 describe this requirement details with Chinese or English
 
-### Relative YuQue Document
+
+
+### 关联的语雀文档
 
 relative YuQue document if necessary
 
-### Notes
+
+
+### 其它备注
 other notes if necessary
