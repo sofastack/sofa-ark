@@ -29,7 +29,14 @@ public class JarUtilsTest {
     @Test
     public void getArtifactIdFromTestClassPath() throws IOException {
         URL url = this.getClass().getClassLoader().getResource("sample-biz-withjar.jar");
-        String artifactId = JarUtils.getArtifactIdFromLocalClassPath(url.getPath());
+        String artifactId = JarUtils.parseArtifactId(url.getPath());
+        Assert.assertEquals("sofa-ark-sample-springboot-ark", artifactId);
+    }
+
+    @Test
+    public void getArtifactIdFromTestClassPath1() throws IOException {
+        URL url = this.getClass().getClassLoader().getResource("SampleClass.class");
+        String artifactId = JarUtils.parseArtifactId(url.getPath());
         Assert.assertEquals("sofa-ark-archive", artifactId);
     }
 
@@ -38,7 +45,7 @@ public class JarUtilsTest {
         URL clazzURL = this.getClass().getClassLoader()
             .getResource("com/alipay/sofa/ark/loader/jar/JarUtils.class");
 
-        String artifactId = JarUtils.getArtifactIdFromLocalClassPath(clazzURL.getPath());
+        String artifactId = JarUtils.parseArtifactId(clazzURL.getPath());
         Assert.assertEquals("sofa-ark-archive", artifactId);
     }
 
@@ -97,34 +104,20 @@ public class JarUtilsTest {
     }
 
     @Test
-    public void testParseArtifactIdFromJarPom() {
+    public void testParseArtifactIdFromJarInJar() throws Exception {
         URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
-        String artifactId0 = JarUtils.getJarArtifactId(jar.getFile());
-        Assert.assertEquals("sofa-ark-sample-springboot-ark", artifactId0);
+        Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJarInJar",
+            String.class);
+        method.setAccessible(Boolean.TRUE);
+        Assert.assertEquals("slf4j-api",
+            method.invoke(JarUtils.class, jar.getFile() + "!/lib/slf4j-api-1.7.30.jar"));
     }
 
     @Test
     public void testParseArtifactIdFromJarInJarPom() {
         URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
-        String artifactId0 = JarUtils
-            .getJarArtifactId(jar.getFile() + "!/lib/slf4j-api-1.7.30.jar");
+        String artifactId0 = JarUtils.parseArtifactId(jar.getFile()
+                                                      + "!/lib/slf4j-api-1.7.30.jar!/");
         Assert.assertEquals("slf4j-api", artifactId0);
-    }
-
-    @Test
-    public void testParseArtifactIdFromJarPoms() throws Exception {
-        Method method = JarUtils.class.getDeclaredMethod("doGetArtifactIdFromJarPom", String.class);
-        method.setAccessible(Boolean.TRUE);
-
-        URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
-
-        String jarPath = jar.getFile();
-        String nestedJarPath = jar.getFile() + "!/lib/slf4j-api-1.7.30.jar";
-
-        String artifactId0 = (String) method.invoke(JarUtils.class, jarPath);
-        Assert.assertEquals("sofa-ark-sample-springboot-ark", artifactId0);
-
-        String artifactId1 = (String) method.invoke(JarUtils.class, nestedJarPath);
-        Assert.assertEquals("slf4j-api", artifactId1);
     }
 }

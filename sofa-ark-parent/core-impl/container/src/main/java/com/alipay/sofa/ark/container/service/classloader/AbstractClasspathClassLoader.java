@@ -286,23 +286,13 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             if (isDeclaredMode()) {
                 List<Enumeration<URL>> enumerationList = new ArrayList<>();
                 // 1. get resources from ClassLoaderHook.
-                Enumeration<URL> ret = preFindResources(name);
-                if (ret != null && ret.hasMoreElements()) {
-                    enumerationList.add(ret);
-                }
+                enumerationList.add(preFindResources(name));
                 // 2. get jdk resources, plugin resources declared by the biz and resources in the biz.
-                ret = getResourcesInternal(name);
-                if (ret != null && ret.hasMoreElements()) {
-                    enumerationList.add(ret);
-                }
+                enumerationList.add(getResourcesInternal(name));
                 // 3. delegate master biz to get resources declared by the biz.
-                ret = postFindResources(name);
-                if (ret != null && ret.hasMoreElements()) {
-                    enumerationList.add(ret);
-                }
-
+                enumerationList.add(postFindResources(name));
                 // unique urls
-                return uniqueUrls(enumerationList);
+                return uniqueUrls(enumerationList, name);
             } else {
                 Enumeration<URL> ret = preFindResources(name);
                 if (ret != null && ret.hasMoreElements()) {
@@ -322,21 +312,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         }
     }
 
-    private Enumeration<URL> mergeEnum(List<Enumeration<URL>> urlEnums) {
-        List<URL> urls = new ArrayList<>();
-        for (Enumeration<URL> e : urlEnums) {
-            while (e != null && e.hasMoreElements()) {
-                urls.add(e.nextElement());
-            }
-        }
-        return Collections.enumeration(urls);
-    }
-
-    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList) {
-        // only get from one source, skip unique
-        if (enumerationList.size() <= 1) {
-            return mergeEnum(enumerationList);
-        }
+    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String resourceName) {
         // unique urls
         Set<String> temp = new HashSet<>();
         List<URL> uniqueUrls = new ArrayList<>();
@@ -346,16 +322,10 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 URL resourceUrl = e.nextElement();
                 String filePath = resourceUrl.getFile().replace("file:", "");
 
-                String artifactId;
-                if (filePath.contains(".jar!") || filePath.endsWith(".jar")) {
-                    int index = filePath.lastIndexOf("!/");
-                    if (index != -1) {
-                        filePath = filePath.substring(0, index);
-                    }
-                    artifactId = JarUtils.getJarArtifactId(filePath);
-                } else {
-                    artifactId = JarUtils.getArtifactIdFromLocalClassPath(filePath);
+                if (filePath.endsWith(resourceName)) {
+                    filePath = filePath.substring(0, filePath.lastIndexOf(resourceName));
                 }
+                String artifactId = JarUtils.parseArtifactId(filePath);
                 if (artifactId == null || !temp.contains(artifactId)) {
                     uniqueUrls.add(resourceUrl);
                 }
@@ -438,15 +408,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         && ((BizClassLoader) this).getBizModel() != null) {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
 
-                        String location = url.getFile();
-                        if (bizModel.isDeclared(location)) {
+                        if (bizModel.isDeclared(url, "")) {
                             return clazz;
                         }
-                        Enumeration<URL> urls = importClassLoader.getResources(name.replace('.',
-                            '/') + ".class");
+                        String classResourceName = name.replace('.', '/') + ".class";
+                        Enumeration<URL> urls = importClassLoader.getResources(classResourceName);
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
-                            if (bizModel.isDeclared(resourceUrl)) {
+                            if (bizModel.isDeclared(resourceUrl, classResourceName)) {
                                 ArkLoggerFactory.getDefaultLogger().warn(
                                     String.format(
                                         "find class %s from %s in multiple dependencies.", name,
@@ -531,7 +500,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null && this instanceof BizClassLoader) {
-                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url)) {
+                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url, resourceName)) {
                             return url;
                         } else {
                             return null;
@@ -620,7 +589,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     while (urls.hasMoreElements()) {
                         URL resourceUrl = urls.nextElement();
 
-                        if (bizModel.isDeclared(resourceUrl)) {
+                        if (bizModel.isDeclared(resourceUrl, resourceName)) {
                             matchedResourceUrls.add(resourceUrl);
                         }
                     }

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,29 @@ public class JarUtils {
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
-    public static String getArtifactIdFromLocalClassPath(String fileClassPath) {
+    private static File searchPomProperties(File dirOrFile) {
+        if (dirOrFile == null || !dirOrFile.exists()) {
+            return null;
+        }
+        if (dirOrFile.isFile() && JAR_POM_PROPERTIES.equals(dirOrFile.getName())) {
+            return dirOrFile;
+        }
+        if (dirOrFile.isDirectory()) {
+            File[] files = dirOrFile.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    File result = searchPomProperties(file);
+                    if (result != null) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String getArtifactIdFromLocalClassPath(String fileClassPath) {
         // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
@@ -67,7 +90,13 @@ public class JarUtils {
                                 + JAR_POM_PROPERTIES_RELATIVE_PATH;
         } else {
             // is not from test classpath, for example install uncompressed modules, just return null
-            return null;
+            // search for pom.properties
+            File pomPropertiesFile = searchPomProperties(new File(libraryFile));
+            if (pomPropertiesFile != null && pomPropertiesFile.exists()) {
+                pomPropertiesPath = pomPropertiesFile.getAbsolutePath();
+            } else {
+                return null;
+            }
         }
 
         try (InputStream inputStream = Files.newInputStream(Paths.get(pomPropertiesPath))) {
@@ -79,13 +108,53 @@ public class JarUtils {
         }
     }
 
-    public static String getJarArtifactId(String jarLocation) {
+    public static String parseArtifactId(String jarLocation) {
+        // 1. /xxx/xxx/xx.jar!/
+        // 2. /xxx/xxx/xx.jar!/xxxx.class
+        // 3. /xxx/xxx/xx.jar
+        // 4. /xxx/xxx/xxx-bootstrap-1.0.0-ark-biz.jar!/BOOT-INF/lib/spring-boot-2.4.13.jar!/
+        // 5. /xxx/xxx-bootstrap-1.0.0-ark-biz.jar!/BOOT-INF/lib/sofa-ark-springboot-starter-2.1.1.jar!/META-INF/spring.factories
+        // 6. /xxx/xxx/target/classes/xxxx.jar
+        // 7. /xxx/xxx/target/test-classes/yyy/yyy/
+
+
         artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
-            String artifactId = doGetArtifactIdFromFileName(a);
-            if (StringUtils.isEmpty(artifactId)) {
-                artifactId = doGetArtifactIdFromJarPom(a);
+            try {
+                String artifactId;
+                String[] as = a.split("!/", -1);
+                if (as.length == 1) {
+                    // no '!/'
+                    String filePath = as[0];
+                    if (a.endsWith(".jar")) {
+                        artifactId = doGetArtifactIdFromFileName(filePath);
+                        if (StringUtils.isEmpty(artifactId)) {
+                            artifactId = parseArtifactIdFromJar(filePath);
+                        }
+                    } else {
+                        artifactId = getArtifactIdFromLocalClassPath(filePath);
+                    }
+                } else if (as.length == 2) {
+                    // one '!/'
+                    String filePath = as[0];
+                    artifactId = doGetArtifactIdFromFileName(filePath);
+                    if (StringUtils.isEmpty(artifactId)) {
+                        artifactId = parseArtifactIdFromJar(filePath);
+                    }
+                } else {
+                    // two '!/'
+                    String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
+                    String filePath = String.join("!/", jarPathInfo);
+                    artifactId = doGetArtifactIdFromFileName(filePath);
+                    if (StringUtils.isEmpty(artifactId)) {
+                        artifactId = parseArtifactIdFromJarInJar(filePath);
+                    }
+                }
+                return Optional.ofNullable(artifactId);
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Failed to parse artifact id from jar %s.",
+                        jarLocation), e);
             }
-            return Optional.ofNullable(artifactId);
+
         });
         return artifactIdCacheMap.get(jarLocation).orElse(null);
     }
@@ -113,22 +182,6 @@ public class JarUtils {
         return null;
     }
 
-    private static String doGetArtifactIdFromJarPom(String jarLocation) {
-        try {
-            if (jarLocation.contains("!/")) {
-                // in nested jar
-                return parseArtifactIdFromJarInJar(jarLocation);
-            } else {
-                try (JarFile jarFile = new JarFile(jarLocation)) {
-                    return parseArtifactIdFromJar(jarFile);
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed to parse artifact id from jar %s.",
-                jarLocation), e);
-        }
-    }
-
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
         String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf("!/"));
         String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf("!/") + 2);
@@ -144,18 +197,20 @@ public class JarUtils {
         return properties.getProperty(JAR_ARTIFACT_ID);
     }
 
-    private static String parseArtifactIdFromJar(JarFile jarFile) throws IOException {
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-            java.util.jar.JarEntry entry = entries.nextElement();
-            if (entry.getName().endsWith(JAR_POM_PROPERTIES)) {
-                try (InputStream is = jarFile.getInputStream(entry)) {
-                    Properties p = new Properties();
-                    p.load(is);
-                    return p.getProperty(JAR_ARTIFACT_ID);
+    private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
+        try (JarFile jarFile = new JarFile(jarLocation)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                java.util.jar.JarEntry entry = entries.nextElement();
+                if (entry.getName().endsWith(JAR_POM_PROPERTIES)) {
+                    try (InputStream is = jarFile.getInputStream(entry)) {
+                        Properties p = new Properties();
+                        p.load(is);
+                        return p.getProperty(JAR_ARTIFACT_ID);
+                    }
                 }
             }
+            return null;
         }
-        return null;
     }
 }
