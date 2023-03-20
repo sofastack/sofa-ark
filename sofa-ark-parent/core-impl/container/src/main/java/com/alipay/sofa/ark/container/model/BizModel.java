@@ -448,17 +448,10 @@ public class BizModel implements Biz {
     private boolean doCheckDeclared(String jarFilePath) {
         String artifactId = JarUtils.parseArtifactId(jarFilePath);
         if (artifactId == null) {
-            if (jarFilePath.contains(".jar!")) {
-                // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
-                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
-                    jarFilePath));
-                return true;
-            } else {
-                // for not in jar, then default not delegate.
-                LOGGER.info(String.format(
-                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
-                return false;
-            }
+            // can't get artifactId from jar file, then just rollback to all delegate.
+            LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                jarFilePath));
+            return true;
         }
 
         // some ark related lib which each ark module needed should set declared as default

@@ -326,13 +326,16 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     filePath = filePath.substring(0, filePath.lastIndexOf(resourceName));
                 }
                 String artifactId = JarUtils.parseArtifactId(filePath);
-                if (artifactId == null || !temp.contains(artifactId)) {
+                if (artifactId == null) {
                     uniqueUrls.add(resourceUrl);
+                } else {
+                    if (!temp.contains(artifactId)) {
+                        uniqueUrls.add(resourceUrl);
+                        temp.add(artifactId);
+                    }
                 }
-                temp.add(artifactId);
             }
         }
-
         return Collections.enumeration(uniqueUrls);
     }
 

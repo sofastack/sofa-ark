@@ -23,6 +23,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Paths;
+
+import static java.io.File.separator;
 
 public class JarUtilsTest {
 
@@ -47,6 +50,11 @@ public class JarUtilsTest {
 
         String artifactId = JarUtils.parseArtifactId(clazzURL.getPath());
         Assert.assertEquals("sofa-ark-archive", artifactId);
+
+        String classPathRoot = this.getClass().getClassLoader().getResource("").getPath();
+        String classPath = Paths.get(classPathRoot).getParent().toFile().getAbsolutePath();
+        String artifactId1 = JarUtils.parseArtifactId(classPath);
+        Assert.assertNotNull(artifactId1);
     }
 
     @Test
