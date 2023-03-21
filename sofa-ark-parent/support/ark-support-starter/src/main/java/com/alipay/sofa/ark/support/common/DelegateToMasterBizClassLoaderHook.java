@@ -61,7 +61,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
                 Enumeration<URL> urls = bizClassLoader.getResources(classResourceName);
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
-                    if (biz.isDeclared(resourceUrl, classResourceName)) {
+                    if (resourceUrl != null && biz.isDeclared(resourceUrl, classResourceName)) {
                         ArkLoggerFactory.getDefaultLogger().warn(
                             String.format("find class %s from %s in multiple dependencies.", name,
                                 resourceUrl.getFile()));
@@ -93,7 +93,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         }
         try {
             URL resourceUrl = bizClassLoader.getResource(name);
-            if (biz.isDeclared(resourceUrl, name)) {
+            if (resourceUrl != null && biz.isDeclared(resourceUrl, name)) {
                 return resourceUrl;
             }
             return null;
@@ -124,7 +124,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             while (resourceUrls.hasMoreElements()) {
                 URL resourceUrl = resourceUrls.nextElement();
 
-                if (biz.isDeclared(resourceUrl, name)) {
+                if (resourceUrl != null && biz.isDeclared(resourceUrl, name)) {
                     matchedResourceUrls.add(resourceUrl);
                 }
             }

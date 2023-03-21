@@ -411,14 +411,15 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         && ((BizClassLoader) this).getBizModel() != null) {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
 
-                        if (bizModel.isDeclared(url, "")) {
+                        if (url != null && bizModel.isDeclared(url, "")) {
                             return clazz;
                         }
                         String classResourceName = name.replace('.', '/') + ".class";
                         Enumeration<URL> urls = importClassLoader.getResources(classResourceName);
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
-                            if (bizModel.isDeclared(resourceUrl, classResourceName)) {
+                            if (resourceUrl != null
+                                && bizModel.isDeclared(resourceUrl, classResourceName)) {
                                 ArkLoggerFactory.getDefaultLogger().warn(
                                     String.format(
                                         "find class %s from %s in multiple dependencies.", name,
@@ -592,7 +593,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     while (urls.hasMoreElements()) {
                         URL resourceUrl = urls.nextElement();
 
-                        if (bizModel.isDeclared(resourceUrl, resourceName)) {
+                        if (resourceUrl != null && bizModel.isDeclared(resourceUrl, resourceName)) {
                             matchedResourceUrls.add(resourceUrl);
                         }
                     }
