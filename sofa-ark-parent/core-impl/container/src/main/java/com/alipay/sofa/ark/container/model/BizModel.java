@@ -42,7 +42,6 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -50,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
@@ -415,37 +413,20 @@ public class BizModel implements Biz {
     }
 
     /**
-     * check if the class is defined in classloader
-     * @param classLocation
-     * @return
-     */
-    public boolean isDeclared(String classLocation) {
-        // compatibility with no-declaredMode
-        if (!isDeclaredMode()) {
-            return true;
-        }
-        if (!StringUtils.isEmpty(classLocation)) {
-            if (classLocation.contains(".jar")) {
-                return checkDeclaredWithCache(classLocation);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * check if the resource is defined in classloader, ignore jar version
      * @param url
      * @return
      */
-    public boolean isDeclared(URL url) {
+    public boolean isDeclared(URL url, String resourceName) {
         // compatibility with no-declaredMode
         if (!isDeclaredMode()) {
             return true;
         }
         if (url != null) {
             String libraryFile = url.getFile().replace("file:", "");
+            if (!StringUtils.isEmpty(resourceName) && libraryFile.endsWith(resourceName)) {
+                libraryFile = libraryFile.substring(0, libraryFile.lastIndexOf(resourceName));
+            }
             return checkDeclaredWithCache(libraryFile);
         }
 
@@ -460,29 +441,20 @@ public class BizModel implements Biz {
     }
 
     private boolean checkDeclaredWithCache(String libraryFile) {
-        // remove specific file real name, extract jar file path
-        int index = libraryFile.lastIndexOf("!/");
-        String jarFilePath = libraryFile;
-        if (index != -1) {
-            jarFilePath = libraryFile.substring(0, index);
-        }
-        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
+        // set key as jar, but need to checkDeclared by specific file.
+        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
-        String artifactId = "";
-        if (jarFilePath.contains(".jar")) {
-            artifactId = JarUtils.getJarArtifactId(jarFilePath);
-            // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
-            if (artifactId == null) {
+        String artifactId = JarUtils.parseArtifactId(jarFilePath);
+        if (artifactId == null) {
+            if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
+                // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
                 LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
                     jarFilePath));
                 return true;
-            }
-        } else {
-            artifactId = getArtifactIdFromLocalClassPath(jarFilePath);
-            // for not in jar, then default not delegate.
-            if (artifactId == null) {
+            } else {
+                // for not in jar, then default not delegate.
                 LOGGER.info(String.format(
                     "Can't find artifact id for %s, default as not declared.", jarFilePath));
                 return false;
