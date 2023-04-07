@@ -16,11 +16,9 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
       fail-fast: true
-      matrix:
-        os: [windows-latest, windows-2019]
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 8
