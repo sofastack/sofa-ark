@@ -16,9 +16,11 @@ on:
 
 jobs:
   build:
-
-    runs-on: ['windows-latest', 'windows-2019"]
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [windows-latest, windows-2019]
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 8
@@ -28,8 +30,8 @@ jobs:
         distribution: 'adopt-hotspot'
         cache: maven
     - name: Build with Maven
-        run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true -B -U
-          && sh ./check_format.sh
-          && mvn test
+      run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true -B -U
+        && sh ./check_format.sh
+        && mvn test
     - name: Codecov
       uses: codecov/codecov-action@v2.1.0
