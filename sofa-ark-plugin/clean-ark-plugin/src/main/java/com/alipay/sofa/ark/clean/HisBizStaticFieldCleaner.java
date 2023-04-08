@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.clean;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
@@ -35,11 +35,11 @@ import java.util.List;
  * @author firedemo1
  */
 @Component
-public class HisBizStaticFieldCleaner implements EventHandler<AfterBizStopEvent> {
+public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizStopEvent> {
     private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(HisBizStaticFieldCleaner.class);
 
-    @Override public void handleEvent(AfterBizStopEvent afterBizStopEvent) {
-        Biz biz = afterBizStopEvent.getSource();
+    @Override public void handleEvent(BeforeBizStopEvent beforeBizStopEvent) {
+        Biz biz = beforeBizStopEvent.getSource();
 
         try {
             if (biz != null && biz != ArkClient.getMasterBiz()) {
