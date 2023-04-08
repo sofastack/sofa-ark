@@ -28,7 +28,7 @@ public class ModifyPathUtils {
      */
     public static String modifyPath(String path) {
         if (path.charAt(2) == ':') {
-            path = path.substring(1);
+            path = path.substring(0,2) + path.substring(3);
         }
         return path;
     }
