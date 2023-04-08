@@ -38,7 +38,8 @@ import java.util.List;
 public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizStopEvent> {
     private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(HisBizStaticFieldCleaner.class);
 
-    @Override public void handleEvent(BeforeBizStopEvent beforeBizStopEvent) {
+    @Override
+    public void handleEvent(BeforeBizStopEvent beforeBizStopEvent) {
         Biz biz = beforeBizStopEvent.getSource();
 
         try {
@@ -57,9 +58,13 @@ public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizStopEvent
             try {
                 Field[] fields = clazz.getDeclaredFields();
                 for (Field field : fields) {
-                    if (Modifier.isStatic(field.getModifiers())) {
-                        field.setAccessible(true);
-                        field.set(null, null);
+                    try {
+                        if (!Modifier.isFinal(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
+                            field.setAccessible(true);
+                            field.set(null, null);
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("Clean static fields meet exception.errMsg = {}" + e.getMessage());
                     }
                 }
                 clazz = null;
