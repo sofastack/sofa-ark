@@ -48,6 +48,7 @@
                                 <packages>
                                     <package>javax.*</package>
                                     <package>org.apache.*</package>
+                                    <package>com.alipay.sofa.ark.web.embed.tomcat.*</package>
                                 </packages>
                             </exported>
                         </configuration>
