@@ -18,10 +18,13 @@ package com.alipay.sofa.ark.loader.util;
 
 /**
  * @author sususama
- * @date 2023/4/8 11:11
  */
 public class ModifyPathUtils {
-    /**
+    /** When using SofaArk in the Windows environment, you will encounter a path error.
+     * This tool class will judge the read file or the configured path,
+     * and judge whether it is the file path of the Windows operating system.
+     * If it is, this method will modify the path to suit WindowsOS,
+     * otherwise the input path will be returned directly.
      *
      * @param path File Path
      * @return Modified file path
