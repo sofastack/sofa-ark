@@ -99,7 +99,7 @@ public class JarUtils {
             }
         }
 
-        try (InputStream inputStream = Files.newInputStream(Paths.get(pomPropertiesPath))) {
+        try (InputStream inputStream = Files.newInputStream(new File(pomPropertiesPath).toPath())) {
             Properties properties = new Properties();
             properties.load(inputStream);
             return properties.getProperty(JAR_ARTIFACT_ID);
