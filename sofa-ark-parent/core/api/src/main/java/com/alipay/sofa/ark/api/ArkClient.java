@@ -152,7 +152,7 @@ public class ArkClient {
 
     public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
 
         long start = System.currentTimeMillis();
