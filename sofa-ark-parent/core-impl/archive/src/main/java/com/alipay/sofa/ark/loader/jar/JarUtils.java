@@ -166,6 +166,10 @@ public class JarUtils {
         }
         String artifactVersion = jarInfos[jarInfos.length - 1];
         String[] artifactVersionInfos = artifactVersion.split("-");
+        //对于多个类似version 直接返回null
+        if (messCheck(artifactVersionInfos)) {
+            return null;
+        }
         List<String> artifactInfos = new ArrayList<>();
         boolean getVersion = false;
         for (String info : artifactVersionInfos) {
@@ -180,6 +184,19 @@ public class JarUtils {
         }
         // if can't find any version from jar name, then we just return null to paas the declared check
         return null;
+    }
+
+    private static boolean messCheck(String[] artifactVersionInfos) {
+        if (artifactVersionInfos == null || artifactVersionInfos.length < 2) {
+            return Boolean.FALSE;
+        }
+        int messCount = 0;
+        for (String info : artifactVersionInfos) {
+            if (!StringUtils.isEmpty(info) && info.matches(VERSION_REGEX)) {
+                messCount++;
+            }
+        }
+        return messCount > 1;
     }
 
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
