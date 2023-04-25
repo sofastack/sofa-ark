@@ -90,13 +90,13 @@ public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizRecycleEv
         }
         return classes;
     }
-    private static File[] collectClassFiles(File classDir) {
+    private File[] collectClassFiles(File classDir) {
         List<File> fileList = new ArrayList<>();
         collectClassFiles(classDir, fileList);
         return fileList.toArray(new File[0]);
     }
 
-    private static void collectClassFiles(File classDir, List<File> fileList) {
+    private void collectClassFiles(File classDir, List<File> fileList) {
         File[] files = classDir.listFiles();
         for (File file : files) {
             if (file.isFile() && file.getName().endsWith(".class")) {
