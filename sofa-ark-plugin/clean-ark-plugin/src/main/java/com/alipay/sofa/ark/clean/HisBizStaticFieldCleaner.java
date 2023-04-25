@@ -75,7 +75,8 @@ public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizRecycleEv
     public List<Class<?>> findClassesWithStaticFields(ClassLoader bizClassLoader, String classPath) {
         List<Class<?>> classes = new ArrayList<>();
         File classDir = new File(classPath);
-        File[] classFiles = classDir.listFiles(file -> file.getName().endsWith(".class"));
+        File[] classFiles = collectClassFiles(classDir);
+
         for (File file : classFiles) {
             String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
             try {
@@ -88,6 +89,24 @@ public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizRecycleEv
             }
         }
         return classes;
+    }
+    private static File[] collectClassFiles(File classDir) {
+        List<File> fileList = new ArrayList<>();
+        collectClassFiles(classDir, fileList);
+        return fileList.toArray(new File[0]);
+    }
+
+    private static void collectClassFiles(File classDir, List<File> fileList) {
+        File[] files = classDir.listFiles();
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith(".class")) {
+                // 处理以".class"结尾的文件
+                fileList.add(file);
+            } else if (file.isDirectory()) {
+                // 递归遍历子目录
+                collectClassFiles(file, fileList);
+            }
+        }
     }
 
     private boolean hasStaticFields(Class<?> cls) {
