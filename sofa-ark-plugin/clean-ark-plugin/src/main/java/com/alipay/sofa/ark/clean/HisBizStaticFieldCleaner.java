@@ -37,8 +37,8 @@ public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizRecycleEv
     private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(HisBizStaticFieldCleaner.class);
 
     @Override
-    public void handleEvent(BeforeBizRecycleEvent beforeBizStopEvent) {
-        Biz biz = beforeBizStopEvent.getSource();
+    public void handleEvent(BeforeBizRecycleEvent beforeBizRecycleEvent) {
+        Biz biz = beforeBizRecycleEvent.getSource();
 
         try {
             if (biz != null && biz != ArkClient.getMasterBiz()) {
