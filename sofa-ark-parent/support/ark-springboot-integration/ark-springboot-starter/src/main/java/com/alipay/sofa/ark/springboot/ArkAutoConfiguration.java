@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot;
 
+import com.alipay.sofa.ark.clean.HisBizStaticFieldCleaner;
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
 import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
@@ -65,4 +66,9 @@ public class ArkAutoConfiguration {
         }
 
     }
+    @Bean
+    public static HisBizStaticFieldCleaner hisBizStaticFieldCleaner() {
+        return new HisBizStaticFieldCleaner();
+    }
+
 }

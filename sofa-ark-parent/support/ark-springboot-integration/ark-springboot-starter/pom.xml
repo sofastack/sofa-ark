@@ -126,6 +126,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>clean-ark-plugin</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

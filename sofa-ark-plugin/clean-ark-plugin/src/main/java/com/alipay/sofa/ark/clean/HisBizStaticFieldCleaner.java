@@ -19,11 +19,10 @@ package com.alipay.sofa.ark.clean;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
-import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -34,12 +33,11 @@ import java.util.List;
 /**
  * @author firedemo1
  */
-@Component
-public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizStopEvent> {
+public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizRecycleEvent> {
     private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(HisBizStaticFieldCleaner.class);
 
     @Override
-    public void handleEvent(BeforeBizStopEvent beforeBizStopEvent) {
+    public void handleEvent(BeforeBizRecycleEvent beforeBizStopEvent) {
         Biz biz = beforeBizStopEvent.getSource();
 
         try {
@@ -101,7 +99,8 @@ public class HisBizStaticFieldCleaner implements EventHandler<BeforeBizStopEvent
         return false;
     }
 
-    @Override public int getPriority() {
+    @Override
+    public int getPriority() {
         return PriorityOrdered.HIGHEST_PRECEDENCE;
     }
 }
