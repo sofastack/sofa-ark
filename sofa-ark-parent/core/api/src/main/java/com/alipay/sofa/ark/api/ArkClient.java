@@ -205,7 +205,7 @@ public class ArkClient {
      */
     public static ClientResponse uninstallBiz(String bizName, String bizVersion) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
 
@@ -265,7 +265,7 @@ public class ArkClient {
      */
     public static ClientResponse checkBiz(String bizName, String bizVersion) {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
 
         ClientResponse response = new ClientResponse();
         Set<BizInfo> bizInfoSet = new HashSet<>();
@@ -301,7 +301,7 @@ public class ArkClient {
      */
     public static ClientResponse switchBiz(String bizName, String bizVersion) {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
