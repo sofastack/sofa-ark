@@ -14,26 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.loader.util;
+package com.alipay.sofa.ark.loader.test.util;
+
+import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author sususama
- * @since 2023/5/8
+ * @since 2023-05-08
  */
-public class ModifyPathUtils {
-    /** When using SofaArk in the Windows environment, you will encounter a path error.
-     * This tool class will judge the read file or the configured path,
-     * and judge whether it is the file path of the Windows operating system.
-     * If it is, this method will modify the path to suit WindowsOS,
-     * otherwise the input path will be returned directly.
-     *
-     * @param path File Path
-     * @return Modified file path
-     */
-    public static String modifyPath(String path) {
-        if (path.charAt(2) == ':') {
-            path = path.substring(1);
-        }
-        return path;
+public class ModifyPathUtilsTest {
+    @Test
+    public void modifyPathTest() {
+        String path = "/C:/Users/XXX/Desktop/XXX-ark-biz.jar";
+        Assert.assertEquals("C:/Users/XXX/Desktop/XXX-ark-biz.jar", ModifyPathUtils.modifyPath(path));
+        String path1 = "C:/Users/XXX/Desktop/XXX-ark-biz.jar";
+        Assert.assertEquals("C:/Users/XXX/Desktop/XXX-ark-biz.jar", ModifyPathUtils.modifyPath(path1));
+        String path2 = "/home/user/XXX/test/XXX-ark-biz.jar";
+        Assert.assertEquals("/home/user/XXX/test/XXX-ark-biz.jar",ModifyPathUtils.modifyPath(path2));
     }
 }
