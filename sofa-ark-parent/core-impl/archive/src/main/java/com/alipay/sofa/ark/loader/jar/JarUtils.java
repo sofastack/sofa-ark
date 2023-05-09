@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.loader.jar;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
+import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,7 +118,8 @@ public class JarUtils {
         // 6. /xxx/xxx/target/classes/xxxx.jar
         // 7. /xxx/xxx/target/test-classes/yyy/yyy/
 
-
+        jarLocation = ModifyPathUtils.modifyPath(jarLocation);
+        String finalJarLocation = jarLocation;
         artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
             try {
                 String artifactId;
@@ -152,7 +154,7 @@ public class JarUtils {
                 return Optional.ofNullable(artifactId);
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Failed to parse artifact id from jar %s.",
-                        jarLocation), e);
+                        finalJarLocation), e);
             }
 
         });
