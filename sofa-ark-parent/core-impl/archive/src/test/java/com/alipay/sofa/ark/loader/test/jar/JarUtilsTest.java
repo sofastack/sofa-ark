@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.jar.JarUtils;
+import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,6 +53,7 @@ public class JarUtilsTest {
         Assert.assertEquals("sofa-ark-archive", artifactId);
 
         String classPathRoot = this.getClass().getClassLoader().getResource("").getPath();
+        classPathRoot = ModifyPathUtils.modifyPath(classPathRoot);
         String classPath = Paths.get(classPathRoot).getParent().toFile().getAbsolutePath();
         String artifactId1 = JarUtils.parseArtifactId(classPath);
         Assert.assertNotNull(artifactId1);
