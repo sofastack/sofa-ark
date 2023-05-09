@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.sofa.ark.springboot.web;
 
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
@@ -31,21 +47,21 @@ import java.util.concurrent.Executor;
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
 public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFactory {
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private Duration lifecycleTimeout;
+    private static final Charset       DEFAULT_CHARSET   = StandardCharsets.UTF_8;
+    private Duration                   lifecycleTimeout;
 
-    private List<NettyRouteProvider> routeProviders = new ArrayList();
+    private List<NettyRouteProvider>   routeProviders    = new ArrayList();
     @ArkInject
-    private EmbeddedServerService embeddedNettyService;
+    private EmbeddedServerService      embeddedNettyService;
 
     @ArkInject
-    private BizManagerService bizManagerService;
+    private BizManagerService          bizManagerService;
 
-    private boolean useForwardHeaders;
+    private boolean                    useForwardHeaders;
 
-    private ReactorResourceFactory resourceFactory;
+    private ReactorResourceFactory     resourceFactory;
 
-    private int                           backgroundProcessorDelay;
+    private int                        backgroundProcessorDelay;
     private Set<NettyServerCustomizer> serverCustomizers = new LinkedHashSet();
 
     public ArkNettyReactiveWebServerFactory() {
@@ -55,22 +71,22 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
         super(port);
     }
 
-
     @Override
     public WebServer getWebServer(HttpHandler httpHandler) {
         String contextPath = getContextPath();
         Map<String, HttpHandler> handlerMap = new HashMap<>();
         handlerMap.put(contextPath, httpHandler);
-        ContextPathCompositeHandler contextHandler=  new ContextPathCompositeHandler(handlerMap);
+        ContextPathCompositeHandler contextHandler = new ContextPathCompositeHandler(handlerMap);
 
-        if(embeddedNettyService == null){
+        if (embeddedNettyService == null) {
             return super.getWebServer(contextHandler);
-        }else if(embeddedNettyService.getEmbedServer() == null){
+        } else if (embeddedNettyService.getEmbedServer() == null) {
             embeddedNettyService.setEmbedServer(initEmbedNetty());
         }
         HttpServer httpServer = (HttpServer) embeddedNettyService.getEmbedServer();
         ReactorHttpHandlerAdapter handlerAdapter = new ReactorHttpHandlerAdapter(contextHandler);
-        ArkNettyWebServer webServer = (ArkNettyWebServer) createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout);
+        ArkNettyWebServer webServer = (ArkNettyWebServer) createNettyWebServer(httpServer,
+            handlerAdapter, lifecycleTimeout);
         webServer.setRouteProviders(this.routeProviders);
 
         return webServer;
@@ -82,7 +98,7 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
             return contextPath;
         }
         Biz biz = bizManagerService.getBizByClassLoader(Thread.currentThread()
-                .getContextClassLoader());
+            .getContextClassLoader());
 
         if (!StringUtils.isEmpty(contextPath)) {
             return contextPath;
@@ -96,10 +112,10 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
         }
     }
 
-    WebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout) {
+    WebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
+                                   Duration lifecycleTimeout) {
         return new ArkNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout);
     }
-
 
     private HttpServer  initEmbedNetty(){
         HttpServer server = HttpServer.create();
@@ -121,7 +137,8 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
     }
 
     private HttpServer customizeSslConfiguration(HttpServer httpServer) {
-        SslServerCustomizer sslServerCustomizer = new SslServerCustomizer(this.getSsl(), this.getHttp2(), this.getSslStoreProvider());
+        SslServerCustomizer sslServerCustomizer = new SslServerCustomizer(this.getSsl(),
+            this.getHttp2(), this.getSslStoreProvider());
         return sslServerCustomizer.apply(httpServer);
     }
 
@@ -136,26 +153,23 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
             }
         }
 
-        return (HttpProtocol[])protocols.toArray(new HttpProtocol[0]);
+        return (HttpProtocol[]) protocols.toArray(new HttpProtocol[0]);
     }
 
     private HttpServer applyCustomizers(HttpServer server) {
         NettyServerCustomizer customizer;
-        for(Iterator var2 = this.serverCustomizers.iterator(); var2.hasNext(); server = (HttpServer)customizer.apply(server)) {
-            customizer = (NettyServerCustomizer)var2.next();
+        for (Iterator var2 = this.serverCustomizers.iterator(); var2.hasNext(); server = (HttpServer) customizer
+            .apply(server)) {
+            customizer = (NettyServerCustomizer) var2.next();
         }
 
         return server;
     }
 
     private InetSocketAddress getListenAddress() {
-        return this.getAddress() != null ? new InetSocketAddress(this.getAddress().getHostAddress(), this.getPort()) : new InetSocketAddress(this.getPort());
+        return this.getAddress() != null ? new InetSocketAddress(
+            this.getAddress().getHostAddress(), this.getPort()) : new InetSocketAddress(
+            this.getPort());
     }
-
-
-
-
-
-
 
 }
