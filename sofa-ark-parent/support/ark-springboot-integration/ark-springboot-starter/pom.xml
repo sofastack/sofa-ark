@@ -17,6 +17,13 @@
     <artifactId>sofa-ark-springboot-starter</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>1.0.22</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
@@ -154,5 +161,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
