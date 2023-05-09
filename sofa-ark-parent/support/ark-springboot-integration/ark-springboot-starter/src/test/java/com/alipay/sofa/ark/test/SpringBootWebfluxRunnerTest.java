@@ -39,7 +39,7 @@ public class SpringBootWebfluxRunnerTest {
     PluginManagerService pluginManagerService;
 
     @ArkInject
-    EventAdminService eventAdminService;
+    EventAdminService    eventAdminService;
 
     @Before
     public void before() {
