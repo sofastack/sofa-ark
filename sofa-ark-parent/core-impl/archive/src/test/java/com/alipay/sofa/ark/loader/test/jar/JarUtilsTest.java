@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.jar.JarUtils;
+import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
