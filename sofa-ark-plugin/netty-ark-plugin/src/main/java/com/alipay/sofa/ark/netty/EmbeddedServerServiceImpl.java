@@ -16,13 +16,12 @@
  */
 package com.alipay.sofa.ark.netty;
 
-
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
 import reactor.netty.http.server.HttpServer;
 
 public class EmbeddedServerServiceImpl implements EmbeddedServerService<HttpServer> {
     private HttpServer httpServer;
-    private Object lock = new Object();
+    private Object     lock = new Object();
 
     @Override
     public HttpServer getEmbedServer() {

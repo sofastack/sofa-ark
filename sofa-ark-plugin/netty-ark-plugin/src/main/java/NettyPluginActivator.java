@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.netty.EmbeddedServerServiceImpl;
 import com.alipay.sofa.ark.spi.model.PluginContext;
@@ -39,7 +38,7 @@ public class NettyPluginActivator implements PluginActivator {
         }
         if (webServer != null) {
             try {
-               //webServer.stop();
+                //webServer.stop();
             } catch (Exception ex) {
                 ArkLoggerFactory.getDefaultLogger().error("Unable to stop embedded Netty", ex);
             }
