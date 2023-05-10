@@ -41,17 +41,10 @@ public interface Biz extends BizInfo, PriorityOrdered {
     void stop() throws Throwable;
 
     /**
-     * check class whether declared in this biz classloader.
-     * @param classLocation
-     * @return
-     */
-    boolean isDeclared(String classLocation);
-
-    /**
      * check resource whether declared in this biz classLoader.
      * @param url
      */
-    boolean isDeclared(URL url);
+    boolean isDeclared(URL url, String resourceName);
 
     /**
      * check whether this biz is declared mode.
