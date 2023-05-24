@@ -16,10 +16,12 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
+import com.alipay.sofa.ark.spi.model.Biz;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +53,32 @@ public class JarUtils {
     private static final String                        VERSION_REGEX                    = "^([0-9]+\\.)+.+";
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
+
+    private static final String                        DEFAULT_ARTIFACT_ID_IDENTITY     = "META-INF/default-artifactId.properties";
+    private static final Properties                    DEFAULT_ARTIFACT_ID_PROPERTIES   = new Properties();
+
+    static {
+        ClassLoader classLoader = null;
+        Biz masterBiz = ArkClient.getMasterBiz();
+        if (masterBiz != null){
+            classLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        }
+        if (classLoader == null){
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+
+        InputStream file = classLoader.getResourceAsStream(DEFAULT_ARTIFACT_ID_IDENTITY);
+        if (file != null) {
+            try {
+                DEFAULT_ARTIFACT_ID_PROPERTIES.load(file);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    public static Properties getDefaultArtifactIdProperties(){
+        return DEFAULT_ARTIFACT_ID_PROPERTIES;
+    }
 
     private static File searchPomProperties(File dirOrFile) {
         if (dirOrFile == null || !dirOrFile.exists()) {
@@ -167,11 +195,11 @@ public class JarUtils {
             return null;
         }
         String artifactVersion = jarInfos[jarInfos.length - 1];
-        String[] artifactVersionInfos = artifactVersion.split("-");
-        //对于多个类似version 直接返回null
-        if (messCheck(artifactVersionInfos)) {
-            return null;
+        String innerArtifactId;
+        if ((innerArtifactId = DEFAULT_ARTIFACT_ID_PROPERTIES.getProperty(artifactVersion)) != null) {
+            return innerArtifactId;
         }
+        String[] artifactVersionInfos = artifactVersion.split("-");
         List<String> artifactInfos = new ArrayList<>();
         boolean getVersion = false;
         for (String info : artifactVersionInfos) {
@@ -188,23 +216,15 @@ public class JarUtils {
         return null;
     }
 
-    private static boolean messCheck(String[] artifactVersionInfos) {
-        if (artifactVersionInfos == null || artifactVersionInfos.length < 2) {
-            return Boolean.FALSE;
-        }
-        int messCount = 0;
-        for (String info : artifactVersionInfos) {
-            if (!StringUtils.isEmpty(info) && info.matches(VERSION_REGEX)) {
-                messCount++;
-            }
-        }
-        return messCount > 1;
-    }
-
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
         String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf("!/"));
         String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf("!/") + 2);
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(new File(rootPath));
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile;
+        try {
+            jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(new File(rootPath));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("File must exist: " + rootPath);
+        }
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
 
