@@ -26,6 +26,7 @@ import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -38,7 +39,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -201,5 +201,27 @@ public class DefaultClassLoaderHookTest {
             "Sample_Resource_Exported");
         Assert.assertNotNull(resourcesOnlyFromBiz.nextElement());
         Assert.assertFalse(resourcesOnlyFromBiz.hasMoreElements());
+    }
+
+    @Test
+    public void testParseArtifactIdFromJarInJarWithJarPomWithProperties() {
+        //set master
+        URL masterUrl = this.getClass().getClassLoader()
+            .getResource("sample-ark-master-jarinjarwithjar-1.0.0.jar");
+        BizModel masterBizModel = createTestBizModel("master biz", "1.0.0", BizState.RESOLVED,
+            new URL[] { masterUrl });
+        masterBizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        masterBizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        masterBizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+
+        bizManagerService.registerBiz(masterBizModel);
+        ArkClient.setMasterBiz(masterBizModel);
+        //start test parse
+        URL jar = DefaultClassLoaderHookTest.class
+            .getResource("/sample-ark-master-jarinjarwithjar-1.0.0.jar");
+        String artifactId0 = JarUtils
+            .parseArtifactId(jar.getFile()
+                             + "!/BOOT-INF/lib/sofa-ark-spring-guides-2.0.0-ark-biz.jar!/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
+        Assert.assertEquals("sofa-ark-spring-guides", artifactId0);
     }
 }

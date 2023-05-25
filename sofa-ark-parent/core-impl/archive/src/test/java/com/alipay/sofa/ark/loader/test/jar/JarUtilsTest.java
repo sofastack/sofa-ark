@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.jar.JarUtils;
-import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,8 +27,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Properties;
-
-import static java.io.File.separator;
 
 public class JarUtilsTest {
 
@@ -134,12 +131,13 @@ public class JarUtilsTest {
     }
 
     @Test
-    public void testParseArtifactIdFromJarInJarPomWithDefault() {
+    public void testParseArtifactIdFromJarInJarWithJarPomWithDefault() {
         Properties p = JarUtils.getDefaultArtifactIdProperties();
-        p.put("slf4j-api-1.7.30.jar", "slf4j-api");
-        URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
-        String artifactId0 = JarUtils.parseArtifactId(jar.getFile()
-                                                      + "!/lib/slf4j-api-1.7.30.jar!/");
-        Assert.assertEquals("slf4j-api", artifactId0);
+        p.put("sofa-ark-spring-guides-230525-SOFA.jar", "sofa-ark-spring-guides");
+        URL jar = JarUtilsTest.class.getResource("/sample-ark-master-jarinjarwithjar-1.0.0.jar");
+        String artifactId0 = JarUtils
+            .parseArtifactId(jar.getFile()
+                             + "!/BOOT-INF/lib/sofa-ark-spring-guides-2.0.0-ark-biz.jar!/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
+        Assert.assertEquals("sofa-ark-spring-guides", artifactId0);
     }
 }
