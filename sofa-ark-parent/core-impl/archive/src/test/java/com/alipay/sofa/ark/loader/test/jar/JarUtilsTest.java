@@ -140,4 +140,18 @@ public class JarUtilsTest {
                              + "!/BOOT-INF/lib/sofa-ark-spring-guides-2.0.0-ark-biz.jar!/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
         Assert.assertEquals("sofa-ark-spring-guides", artifactId0);
     }
+
+    @Test
+    public void testParseArtifactFailThrowJarLocation() {
+        URL jar = JarUtilsTest.class.getResource("/sample-ark-master-jarinjarwithjar-1.0.0.jar");
+        String jarLocation = jar.getFile()
+                             + "!/BOOT-INF/lib/sofa-ark-spring-guides-2.0.0-ark-biz.jar!/lib/sofa-ark-spring-guides-230525-SOFA.jar!/";
+        String throwMessage = "!/";
+        try {
+            JarUtils.parseArtifactId(jarLocation);
+        } catch (IllegalArgumentException e) {
+            throwMessage = e.getMessage() + throwMessage;
+        }
+        Assert.assertEquals("File must exist: " + jarLocation, throwMessage);
+    }
 }

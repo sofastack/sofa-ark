@@ -223,7 +223,7 @@ public class JarUtils {
         try {
             jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(new File(rootPath));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("File must exist: " + rootPath);
+            throw new IllegalArgumentException("File must exist: " + jarLocation);
         }
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
