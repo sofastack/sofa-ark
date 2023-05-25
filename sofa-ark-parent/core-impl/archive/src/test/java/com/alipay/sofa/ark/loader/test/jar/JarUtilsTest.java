@@ -139,7 +139,7 @@ public class JarUtilsTest {
         p.put("slf4j-api-1.7.30.jar", "slf4j-api");
         URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
         String artifactId0 = JarUtils.parseArtifactId(jar.getFile()
-                + "!/lib/slf4j-api-1.7.30.jar!/");
+                                                      + "!/lib/slf4j-api-1.7.30.jar!/");
         Assert.assertEquals("slf4j-api", artifactId0);
     }
 }

@@ -60,10 +60,10 @@ public class JarUtils {
     static {
         ClassLoader classLoader = null;
         Biz masterBiz = ArkClient.getMasterBiz();
-        if (masterBiz != null){
+        if (masterBiz != null) {
             classLoader = ArkClient.getMasterBiz().getBizClassLoader();
         }
-        if (classLoader == null){
+        if (classLoader == null) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
 
@@ -76,7 +76,7 @@ public class JarUtils {
         }
     }
 
-    public static Properties getDefaultArtifactIdProperties(){
+    public static Properties getDefaultArtifactIdProperties() {
         return DEFAULT_ARTIFACT_ID_PROPERTIES;
     }
 
