@@ -143,6 +143,6 @@ public class StringUtils {
         if (originalStr == null || originalStr.isEmpty()) {
             return originalStr;
         }
-        return originalStr.replaceAll(String.format("[%s]", spcChar),EMPTY_STRING);
+        return originalStr.replaceAll(String.format("[%s]", spcChar), EMPTY_STRING);
     }
 }

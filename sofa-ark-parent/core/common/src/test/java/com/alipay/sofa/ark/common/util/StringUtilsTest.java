@@ -100,7 +100,8 @@ public class StringUtilsTest {
     public void testRemoveCR() {
         Assert.assertNull(StringUtils.removeCR(null));
         Assert.assertEquals("", StringUtils.removeCR(""));
-        Assert.assertEquals("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\n", StringUtils.removeCR("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\r\n"));
+        Assert.assertEquals("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\n",
+            StringUtils.removeCR("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\r\n"));
     }
 
     @Test
@@ -113,5 +114,4 @@ public class StringUtilsTest {
         Assert.assertEquals("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test", StringUtils.removeSpcChar("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\r\n", "\r\n"));
         Assert.assertEquals("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\r", StringUtils.removeSpcChar("com.alipay.sofa:biz-child1-child1:1.0.0:jar:test\r\n", "\n"));
     }
-
 }
