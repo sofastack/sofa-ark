@@ -6,6 +6,10 @@
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 ![maven](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.alipay.sofa/sofa-ark-all.svg)
 
+
+欢迎大家移步 https://github.com/sofastack/sofa-serverless 一起讨论 SOFAServerless 开源版能力共建。
+
+
 SOFAArk 是一款基于 Java 实现的动态热部署和轻量级类隔离框架，由蚂蚁集团开源贡献，主要提供应用模块的动态热部署和类隔离能力。基于 [Fat Jar](https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html#executable-jar-jar-file-structure) 技术，可以将多个应用模块打包成一个自包含可运行的 Fat Jar，应用既可以是简单的单模块 Java 应用也可以是 SpringBoot/SOFABoot 应用。[访问网址](https://www.sofastack.tech/sofa-boot/docs/sofa-ark-readme?lang=zh-cn)进入快速开始并获取更多详细信息。
 
 
