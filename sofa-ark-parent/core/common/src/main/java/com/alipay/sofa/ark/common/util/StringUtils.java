@@ -29,6 +29,7 @@ public class StringUtils {
     public static final int    CHAR_A       = 'A';
     public static final int    CHAR_Z       = 'Z';
     public static final int    CASE_GAP     = 32;
+    public static final String CR           = "\r";
 
     /**
      * <p>Checks if a String is empty ("") or null.</p>
@@ -124,5 +125,24 @@ public class StringUtils {
             }
         } while (ret && ++index < anotherString.length());
         return ret;
+    }
+
+    public static String removeCR(String originalStr) {
+        return removeSpcChar(originalStr, CR);
+    }
+
+    /**
+     * <p>Remove Special Characters, Such as \t、\n、\r</p>
+     *
+     * @param originalStr  the String to deal
+     * @param spcChar      Special char
+     * @return removed string
+     */
+    public static String removeSpcChar(String originalStr, String spcChar) {
+        AssertUtils.assertNotNull(spcChar, "SpcChar must not be null!");
+        if (originalStr == null || originalStr.isEmpty()) {
+            return originalStr;
+        }
+        return originalStr.replaceAll(String.format("[%s]", spcChar), EMPTY_STRING);
     }
 }

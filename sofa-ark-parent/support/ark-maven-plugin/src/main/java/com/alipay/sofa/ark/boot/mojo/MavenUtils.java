@@ -70,6 +70,7 @@ public class MavenUtils {
         if (StringUtils.isEmpty(lineContent)) {
             return null;
         }
+        lineContent = StringUtils.removeCR(lineContent);
         String[] contentInfos = lineContent.split(" ");
         if (contentInfos.length == 0) {
             return null;
