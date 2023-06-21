@@ -136,7 +136,7 @@ public class StringUtils {
      *
      * @param originalStr  the String to deal
      * @param spcChar      Special char
-     * @return str of removed
+     * @return removed string
      */
     public static String removeSpcChar(String originalStr, String spcChar) {
         AssertUtils.assertNotNull(spcChar, "SpcChar must not be null!");
