@@ -392,8 +392,7 @@ public class RepackageMojo extends TreeMojo {
         request.setGoals(goals);
         request.setBatchMode(mavenSession.getSettings().getInteractiveMode());
         request.setProfiles(mavenSession.getSettings().getActiveProfiles());
-        request.setUserSettingsFile(mavenSession.getRequest().getUserSettingsFile());
-        request.setGlobalSettingsFile(mavenSession.getRequest().getGlobalSettingsFile());
+        setSettingsLocation(request);
         Invoker invoker = new DefaultInvoker();
         try {
             InvocationResult result = invoker.execute(request);
@@ -412,6 +411,17 @@ public class RepackageMojo extends TreeMojo {
             if (outputFile.exists()) {
                 outputFile.delete();
             }
+        }
+    }
+
+    private void setSettingsLocation(InvocationRequest request) {
+        File userSettingsFile = mavenSession.getRequest().getUserSettingsFile();
+        if (userSettingsFile != null && userSettingsFile.exists()) {
+            request.setUserSettingsFile(userSettingsFile);
+        }
+        File globalSettingsFile = mavenSession.getRequest().getGlobalSettingsFile();
+        if (globalSettingsFile != null && globalSettingsFile.exists()) {
+            request.setGlobalSettingsFile(globalSettingsFile);
         }
     }
 
