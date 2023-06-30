@@ -94,8 +94,6 @@ public class ClassLoaderUtils {
             return ((URLClassLoader) classLoader).getURLs();
         }
 
-        // todo cache？
-
         // support jdk9+
         String classpath = System.getProperty("java.class.path");
         String[] classpathEntries = classpath.split(System.getProperty("path.separator"));
@@ -112,7 +110,6 @@ public class ClassLoaderUtils {
         }
 
         return classpathURLs.toArray(new URL[0]);
-
     }
 
 }
