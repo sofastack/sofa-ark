@@ -16,17 +16,26 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.execution.DefaultMavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.shared.dependency.graph.internal.DefaultDependencyNode;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.InvocationRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -127,4 +136,51 @@ public class RepackageMojoTest {
         }
         return dependencyNode;
     }
+
+    @Test
+    public void testSetSettingsLocation() throws Exception {
+        String userSettingsFilePath = System.getProperty("user.home") + File.separator
+                                      + "user-settings-test.xml";
+        String globalSettingsFilePath = System.getProperty("user.home") + File.separator
+                                        + "global-settings-test.xml";
+        File userSettingsFile = new File(userSettingsFilePath);
+        File globalSettingsFile = new File(globalSettingsFilePath);
+        InvocationRequest request = new DefaultInvocationRequest();
+        invokeSetSettingsLocation(request, userSettingsFilePath, globalSettingsFilePath);
+        Assert.assertNull(request.getUserSettingsFile());
+        Assert.assertNull(request.getGlobalSettingsFile());
+
+        Files.touch(globalSettingsFile);
+        invokeSetSettingsLocation(request, userSettingsFilePath, globalSettingsFilePath);
+        Assert.assertNull(request.getUserSettingsFile());
+        Assert.assertNotNull(request.getGlobalSettingsFile());
+
+        Files.touch(userSettingsFile);
+        invokeSetSettingsLocation(request, userSettingsFilePath, globalSettingsFilePath);
+        Assert.assertNotNull(request.getUserSettingsFile());
+        Assert.assertNotNull(request.getGlobalSettingsFile());
+
+        FileUtils.deleteQuietly(userSettingsFile);
+        FileUtils.deleteQuietly(globalSettingsFile);
+    }
+
+    private void invokeSetSettingsLocation(InvocationRequest request, String userSettingsFilePath,
+                                           String globalSettingsFilePath) throws Exception {
+        RepackageMojo repackageMojo = new RepackageMojo();
+        MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
+        executionRequest.setUserSettingsFile(new File(userSettingsFilePath));
+        executionRequest.setGlobalSettingsFile(new File(globalSettingsFilePath));
+        // 构造对象
+        MavenSession mavenSession = new MavenSession(null, executionRequest, null,
+            new ArrayList<>());
+        Field mavenSessionField = repackageMojo.getClass().getDeclaredField("mavenSession");
+        mavenSessionField.setAccessible(true);
+        mavenSessionField.set(repackageMojo, mavenSession);
+
+        Method setSettingsLocation = repackageMojo.getClass().getDeclaredMethod(
+            "setSettingsLocation", InvocationRequest.class);
+        setSettingsLocation.setAccessible(true);
+        setSettingsLocation.invoke(repackageMojo, request);
+    }
+
 }
