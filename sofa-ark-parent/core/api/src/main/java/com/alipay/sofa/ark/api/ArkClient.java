@@ -57,27 +57,13 @@ public class ArkClient {
     private static Biz               masterBiz;
     private static InjectionService  injectionService;
     private static String[]          arguments;
-    private final static File        bizInstallDirectory;
 
     private static EventAdminService eventAdminService;
 
-    static {
-        bizInstallDirectory = getBizInstallDirectory();
-    }
-
     private static File getBizInstallDirectory() {
-        File workingDir = FileUtils.createTempDir("sofa-ark");
         String configDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR);
-        if (!StringUtils.isEmpty(configDir)) {
-            if (!configDir.endsWith(File.separator)) {
-                configDir += File.separator;
-            }
-            workingDir = new File(configDir);
-            if (!workingDir.exists()) {
-                workingDir.mkdir();
-            }
-        }
-        return workingDir;
+        return StringUtils.isEmpty(configDir) ? FileUtils.createTempDir("sofa-ark") : FileUtils
+            .mkdir(configDir);
     }
 
     public static File createBizSaveFile(String bizName, String bizVersion, String fileSuffix) {
@@ -85,6 +71,7 @@ public class ArkClient {
         if (!StringUtils.isEmpty(fileSuffix)) {
             suffix = fileSuffix;
         }
+        File bizInstallDirectory = getBizInstallDirectory();
         return new File(bizInstallDirectory, bizName + "-" + bizVersion + "-" + suffix);
     }
 
