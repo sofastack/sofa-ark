@@ -110,6 +110,17 @@ public class ArtifactItem {
                && isSameStr(this.getClassifier(), that.getClassifier());
     }
 
+    public boolean isSameWithVersion(ArtifactItem that) {
+        if (that == null) {
+            return false;
+        }
+
+        return isSameStr(this.getGroupId(), that.getGroupId())
+                && isSameStr(this.getArtifactId(), that.getArtifactId())
+                && isSameStr(this.getVersion(), that.getVersion())
+                && isSameStr(this.getClassifier(), that.getClassifier());
+    }
+
     protected boolean isSameStr(String left, String right) {
         if ("*".equals(left) || "*".equals(right)) {
             return true;
