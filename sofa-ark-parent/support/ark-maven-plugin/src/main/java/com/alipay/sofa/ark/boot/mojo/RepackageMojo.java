@@ -71,6 +71,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
@@ -589,7 +590,7 @@ public class RepackageMojo extends TreeMojo {
             for (String excludeGroupId : excludeGroupIds) {
                 if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                     excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                        Constants.PACKAGE_PREFIX_MARK);
                     if (artifact.getGroupId().startsWith(excludeGroupId)) {
                         return true;
                     }
@@ -606,7 +607,7 @@ public class RepackageMojo extends TreeMojo {
             for (String excludeArtifactId : excludeArtifactIds) {
                 if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                     excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                        Constants.PACKAGE_PREFIX_MARK);
                     if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
                         return true;
                     }
@@ -652,9 +653,12 @@ public class RepackageMojo extends TreeMojo {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == 200 && response.getEntity() != null) {
                 String result = EntityUtils.toString(response.getEntity());
-                getLog().info(String.format("success to get excludes config from url: %s, response: %s", packExcludesUrl, result));
+                getLog().info(
+                    String.format("success to get excludes config from url: %s, response: %s",
+                        packExcludesUrl, result));
                 ObjectMapper objectMapper = new ObjectMapper();
-                ExcludeConfigResponse excludeConfigResponse = objectMapper.readValue(result, ExcludeConfigResponse.class);
+                ExcludeConfigResponse excludeConfigResponse = objectMapper.readValue(result,
+                    ExcludeConfigResponse.class);
                 if (excludeConfigResponse.isSuccess() && excludeConfigResponse.getResult() != null) {
                     ExcludeConfig excludeConfig = excludeConfigResponse.getResult();
                     List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
@@ -669,22 +673,26 @@ public class RepackageMojo extends TreeMojo {
                     if (CollectionUtils.isNotEmpty(jarBlackList)) {
                         excludes.addAll(jarBlackList);
                     }
-                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList, artifacts, true);
+                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
+                        artifacts, true);
 
                     List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
                     List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
                     List<String> jarWarnList = excludeConfig.getJarWarnList();
-                    logExcludeMessage(jarWarnGroupIds, jarWarnArtifactIds, jarWarnList, artifacts, false);
+                    logExcludeMessage(jarWarnGroupIds, jarWarnArtifactIds, jarWarnList, artifacts,
+                        false);
                 }
             }
             response.close();
             client.close();
         } catch (Exception e) {
-            getLog().error(String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
+            getLog().error(
+                String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
         }
     }
 
-    protected void extensionExcludeArtifacts(List<String> jarGroupIds, List<String> jarArtifactIds, List<String> jarList) {
+    protected void extensionExcludeArtifacts(List<String> jarGroupIds, List<String> jarArtifactIds,
+                                             List<String> jarList) {
         if (CollectionUtils.isNotEmpty(jarGroupIds)) {
             excludeGroupIds.addAll(jarGroupIds);
         }
@@ -696,27 +704,45 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
-    protected void logExcludeMessage(List<String> jarGroupIds, List<String> jarArtifactIds, List<String> jarList, Set<Artifact> artifacts, boolean error) {
+    protected void logExcludeMessage(List<String> jarGroupIds, List<String> jarArtifactIds,
+                                     List<String> jarList, Set<Artifact> artifacts, boolean error) {
+        // filterNotProvidedArtifact
+
         if (CollectionUtils.isNotEmpty(jarGroupIds)) {
-            for (String jarBlackGroupId : jarGroupIds) {
-                for (Artifact artifact : artifacts) {
+            for (Artifact artifact : artifacts) {
+                if (inUnLogScopes(artifact.getScope())) {
+                    continue;
+                }
+                for (String jarBlackGroupId : jarGroupIds) {
                     if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                            Constants.PACKAGE_PREFIX_MARK);
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
                             if (error) {
-                                getLog().error(String.format("Error to package jar: %s due to match groupId: %s", artifact, jarBlackGroupId));
+                                getLog().error(
+                                    String.format(
+                                        "Error to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
                             } else {
-                                getLog().warn(String.format("Warn to package jar: %s due to match groupId: %s", artifact, jarBlackGroupId));
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
                             }
 
                         }
                     } else {
                         if (artifact.getGroupId().equals(jarBlackGroupId)) {
                             if (error) {
-                                getLog().error(String.format("Error to package jar: %s due to match groupId: %s", artifact, jarBlackGroupId));
+                                getLog().error(
+                                    String.format(
+                                        "Error to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
                             } else {
-                                getLog().warn(String.format("Warn to package jar: %s due to match groupId: %s", artifact, jarBlackGroupId));
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
                             }
                         }
                     }
@@ -724,24 +750,39 @@ public class RepackageMojo extends TreeMojo {
             }
         }
         if (CollectionUtils.isNotEmpty(jarArtifactIds)) {
-            for (String jarBlackArtifactId : jarArtifactIds) {
-                for (Artifact artifact : artifacts) {
+            for (Artifact artifact : artifacts) {
+                if (inUnLogScopes(artifact.getScope())) {
+                    continue;
+                }
+                for (String jarBlackArtifactId : jarArtifactIds) {
                     if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                            Constants.PACKAGE_PREFIX_MARK);
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
-                                getLog().error(String.format("Error to package jar: %s due to match artifactId: %s", artifact, jarBlackArtifactId));
+                                getLog().error(
+                                    String.format(
+                                        "Error to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
                             } else {
-                                getLog().warn(String.format("Warn to package jar: %s due to match artifactId: %s", artifact, jarBlackArtifactId));
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
                             }
                         }
                     } else {
                         if (artifact.getArtifactId().equals(jarBlackArtifactId)) {
                             if (error) {
-                                getLog().error(String.format("Error to package jar: %s due to match artifactId: %s", artifact, jarBlackArtifactId));
+                                getLog().error(
+                                    String.format(
+                                        "Error to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
                             } else {
-                                getLog().warn(String.format("Warn to package jar: %s due to match artifactId: %s", artifact, jarBlackArtifactId));
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
                             }
                         }
                     }
@@ -749,13 +790,27 @@ public class RepackageMojo extends TreeMojo {
             }
         }
         if (CollectionUtils.isNotEmpty(jarList)) {
-            for (String jarBlack : jarList) {
-                for (Artifact artifact : artifacts) {
-                    if (jarBlack.equals(String.join(":", artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()))) {
+            for (Artifact artifact : artifacts) {
+                if (inUnLogScopes(artifact.getScope())) {
+                    continue;
+                }
+                for (String jarBlack : jarList) {
+                    if (jarBlack.equals(String.join(":", artifact.getGroupId(),
+                        artifact.getArtifactId(), artifact.getVersion()))) {
                         if (error) {
-                            getLog().error(String.format("Error to package jar: %s due to match groupId:artifactId:version: %s", artifact, jarBlack));
+                            getLog()
+                                .error(
+                                    String
+                                        .format(
+                                            "Error to package jar: %s due to match groupId:artifactId:version: %s",
+                                            artifact, jarBlack));
                         } else {
-                            getLog().warn(String.format("Warn to package jar: %s due to match groupId:artifactId:version: %s", artifact, jarBlack));
+                            getLog()
+                                .warn(
+                                    String
+                                        .format(
+                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
+                                            artifact, jarBlack));
                         }
                     }
                 }
@@ -765,7 +820,7 @@ public class RepackageMojo extends TreeMojo {
 
     public static class ExcludeConfigResponse {
 
-        private boolean success;
+        private boolean       success;
 
         private ExcludeConfig result;
 
@@ -788,6 +843,8 @@ public class RepackageMojo extends TreeMojo {
 
     public static class ExcludeConfig {
 
+        private String       app;
+
         private List<String> jarBlackGroupIds;
 
         private List<String> jarBlackArtifactIds;
@@ -799,6 +856,14 @@ public class RepackageMojo extends TreeMojo {
         private List<String> jarWarnArtifactIds;
 
         private List<String> jarWarnList;
+
+        public String getApp() {
+            return app;
+        }
+
+        public void setApp(String app) {
+            this.app = app;
+        }
 
         public List<String> getJarBlackGroupIds() {
             return jarBlackGroupIds;
@@ -848,8 +913,6 @@ public class RepackageMojo extends TreeMojo {
             this.jarWarnList = jarWarnList;
         }
     }
-
-
 
     public static class ArkConstants {
 

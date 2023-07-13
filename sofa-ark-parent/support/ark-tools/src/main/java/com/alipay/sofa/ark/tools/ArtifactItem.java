@@ -116,9 +116,9 @@ public class ArtifactItem {
         }
 
         return isSameStr(this.getGroupId(), that.getGroupId())
-                && isSameStr(this.getArtifactId(), that.getArtifactId())
-                && isSameStr(this.getVersion(), that.getVersion())
-                && isSameStr(this.getClassifier(), that.getClassifier());
+               && isSameStr(this.getArtifactId(), that.getArtifactId())
+               && isSameStr(this.getVersion(), that.getVersion())
+               && isSameStr(this.getClassifier(), that.getClassifier());
     }
 
     protected boolean isSameStr(String left, String right) {
