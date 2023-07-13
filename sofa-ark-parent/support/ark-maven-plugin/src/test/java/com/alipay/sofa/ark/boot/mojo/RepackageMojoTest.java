@@ -188,14 +188,18 @@ public class RepackageMojoTest {
     }
 
     @Test
-    public void testExtensionExcludeArtifactsFromUrl() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testExtensionExcludeArtifactsFromUrl() throws NoSuchMethodException,
+                                                      InvocationTargetException,
+                                                      IllegalAccessException {
         RepackageMojo repackageMojo = new RepackageMojo();
         Method extensionExcludeArtifactsFromUrl = repackageMojo.getClass().getDeclaredMethod(
-                "extensionExcludeArtifactsFromUrl", String.class, Set.class);
+            "extensionExcludeArtifactsFromUrl", String.class, Set.class);
         extensionExcludeArtifactsFromUrl.setAccessible(true);
 
-        DefaultArtifact defaultArtifact = new DefaultArtifact("groupId","artifactId", "version", "provided", "jar", null, new DefaultArtifactHandler());
-        DefaultArtifact defaultArtifact1 = new DefaultArtifact("groupId","artifactId", "version", "provided", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
+            "provided", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact1 = new DefaultArtifact("groupId", "artifactId", "version",
+            "provided", "jar", null, new DefaultArtifactHandler());
         Set<Artifact> artifacts = new HashSet<>();
         artifacts.add(defaultArtifact);
         artifacts.add(defaultArtifact1);
@@ -205,26 +209,32 @@ public class RepackageMojoTest {
     }
 
     @Test
-    public void testLogExcludeMessage() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testLogExcludeMessage() throws NoSuchMethodException, InvocationTargetException,
+                                       IllegalAccessException {
         List<String> jarGroupIds = asList("com.alipay.sofa", "org.springframework");
         List<String> jarArtifactIds = asList("netty");
         List<String> jarList = asList("commons-io:commons-io:2.7");
 
-        DefaultArtifact defaultArtifact = new DefaultArtifact("com.alipay.sofa","artifactId", "version", "compile", "jar", null, new DefaultArtifactHandler());
-        DefaultArtifact defaultArtifact1 = new DefaultArtifact("io.netty","netty", "version", "compile", "jar", null, new DefaultArtifactHandler());
-        DefaultArtifact defaultArtifact2 = new DefaultArtifact("commons-io","commons-io", "2.7", "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact = new DefaultArtifact("com.alipay.sofa", "artifactId",
+            "version", "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact1 = new DefaultArtifact("io.netty", "netty", "version",
+            "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact2 = new DefaultArtifact("commons-io", "commons-io", "2.7",
+            "compile", "jar", null, new DefaultArtifactHandler());
         Set<Artifact> artifacts = new HashSet<>();
         artifacts.add(defaultArtifact);
         artifacts.add(defaultArtifact1);
         artifacts.add(defaultArtifact2);
 
         RepackageMojo repackageMojo = new RepackageMojo();
-        Method logExcludeMessage = repackageMojo.getClass().getDeclaredMethod(
-                "logExcludeMessage", List.class, List.class, List.class, Set.class, boolean.class);
+        Method logExcludeMessage = repackageMojo.getClass().getDeclaredMethod("logExcludeMessage",
+            List.class, List.class, List.class, Set.class, boolean.class);
         logExcludeMessage.setAccessible(true);
-        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts, true);
+        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts,
+            true);
 
-        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts, false);
+        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts,
+            false);
     }
 
 }

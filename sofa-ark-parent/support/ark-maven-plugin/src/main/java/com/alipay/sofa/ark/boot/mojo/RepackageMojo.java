@@ -704,10 +704,12 @@ public class RepackageMojo extends TreeMojo {
                             Constants.PACKAGE_PREFIX_MARK);
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
                             if (error) {
-                                getLog().error(
-                                    String.format(
-                                        "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                        artifact, jarBlackGroupId));
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
                                     String.format(
@@ -719,10 +721,12 @@ public class RepackageMojo extends TreeMojo {
                     } else {
                         if (artifact.getGroupId().equals(jarBlackGroupId)) {
                             if (error) {
-                                getLog().error(
-                                    String.format(
-                                        "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                        artifact, jarBlackGroupId));
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
                                     String.format(
@@ -745,10 +749,12 @@ public class RepackageMojo extends TreeMojo {
                             Constants.PACKAGE_PREFIX_MARK);
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
-                                getLog().error(
-                                    String.format(
-                                        "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                        artifact, jarBlackArtifactId));
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
                                     String.format(
@@ -759,10 +765,12 @@ public class RepackageMojo extends TreeMojo {
                     } else {
                         if (artifact.getArtifactId().equals(jarBlackArtifactId)) {
                             if (error) {
-                                getLog().error(
-                                    String.format(
-                                        "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                        artifact, jarBlackArtifactId));
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
                                     String.format(
