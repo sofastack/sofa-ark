@@ -223,6 +223,8 @@ public class RepackageMojoTest {
                 "logExcludeMessage", List.class, List.class, List.class, Set.class, boolean.class);
         logExcludeMessage.setAccessible(true);
         logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts, true);
+
+        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
 
 }

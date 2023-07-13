@@ -706,7 +706,7 @@ public class RepackageMojo extends TreeMojo {
                             if (error) {
                                 getLog().error(
                                     String.format(
-                                        "Error to package jar: %s due to match groupId: %s",
+                                        "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
                                         artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
@@ -721,7 +721,7 @@ public class RepackageMojo extends TreeMojo {
                             if (error) {
                                 getLog().error(
                                     String.format(
-                                        "Error to package jar: %s due to match groupId: %s",
+                                        "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
                                         artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
@@ -747,7 +747,7 @@ public class RepackageMojo extends TreeMojo {
                             if (error) {
                                 getLog().error(
                                     String.format(
-                                        "Error to package jar: %s due to match artifactId: %s",
+                                        "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
                                         artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
@@ -761,7 +761,7 @@ public class RepackageMojo extends TreeMojo {
                             if (error) {
                                 getLog().error(
                                     String.format(
-                                        "Error to package jar: %s due to match artifactId: %s",
+                                        "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
                                         artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
@@ -787,7 +787,7 @@ public class RepackageMojo extends TreeMojo {
                                 .error(
                                     String
                                         .format(
-                                            "Error to package jar: %s due to match groupId:artifactId:version: %s",
+                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
                                             artifact, jarBlack));
                         } else {
                             getLog()
