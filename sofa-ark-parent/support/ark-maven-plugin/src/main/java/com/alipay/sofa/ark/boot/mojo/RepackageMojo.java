@@ -691,23 +691,8 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
-    protected void extensionExcludeArtifacts(List<String> jarGroupIds, List<String> jarArtifactIds,
-                                             List<String> jarList) {
-        if (CollectionUtils.isNotEmpty(jarGroupIds)) {
-            excludeGroupIds.addAll(jarGroupIds);
-        }
-        if (CollectionUtils.isNotEmpty(jarArtifactIds)) {
-            excludeArtifactIds.addAll(jarArtifactIds);
-        }
-        if (CollectionUtils.isNotEmpty(jarList)) {
-            excludes.addAll(jarList);
-        }
-    }
-
     protected void logExcludeMessage(List<String> jarGroupIds, List<String> jarArtifactIds,
                                      List<String> jarList, Set<Artifact> artifacts, boolean error) {
-        // filterNotProvidedArtifact
-
         if (CollectionUtils.isNotEmpty(jarGroupIds)) {
             for (Artifact artifact : artifacts) {
                 if (inUnLogScopes(artifact.getScope())) {
