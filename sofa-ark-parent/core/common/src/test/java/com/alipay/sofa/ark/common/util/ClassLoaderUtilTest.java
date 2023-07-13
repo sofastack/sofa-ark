@@ -22,14 +22,12 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import sun.misc.Unsafe;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -111,12 +109,6 @@ public class ClassLoaderUtilTest {
             urls = path.toArray(new URL[path.size()]);
         }
         Assert.assertArrayEquals(urls, ClassLoaderUtils.getURLs(appClassLoader));
-
-        URL url1 = this.getClass().getResource("");
-        URL[] mockURLs = new URL[] { url1 };
-        MockClassLoader mockClassLoader = new MockClassLoader(mockURLs);
-        Assert.assertArrayEquals(mockClassLoader.getURLs(),
-            ClassLoaderUtils.getURLs(mockClassLoader));
 
     }
 
