@@ -237,4 +237,21 @@ public class RepackageMojoTest {
             false);
     }
 
+    @Test
+    public void testIsSameWithVersion() {
+        ArtifactItem artifactItem = new ArtifactItem();
+        artifactItem.setGroupId("groupId1");
+        artifactItem.setArtifactId("artifactId");
+        artifactItem.setVersion("1.1.1");
+        ArtifactItem artifactItem1 = new ArtifactItem();
+        artifactItem1.setGroupId("groupId1");
+        artifactItem1.setArtifactId("artifactId");
+        artifactItem1.setVersion("1.1.1");
+        Assert.assertTrue(artifactItem.isSameWithVersion(artifactItem1));
+        artifactItem1.setVersion("2.2.2");
+        Assert.assertFalse(artifactItem.isSameWithVersion(artifactItem1));
+        artifactItem1.setVersion("*");
+        Assert.assertTrue(artifactItem.isSameWithVersion(artifactItem1));
+    }
+
 }
