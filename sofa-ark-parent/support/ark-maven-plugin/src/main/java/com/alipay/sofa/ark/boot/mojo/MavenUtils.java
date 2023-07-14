@@ -22,8 +22,11 @@ import org.apache.maven.project.MavenProject;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 public class MavenUtils {
     public static boolean isRootProject(MavenProject project) {
@@ -103,5 +106,11 @@ public class MavenUtils {
             return null;
         }
         return artifactItem;
+    }
+
+    private static List<String> UN_LOG_SCOPES = asList("provided", "test", "import", "system");
+
+    public static boolean inUnLogScopes(String scope) {
+        return UN_LOG_SCOPES.contains(scope);
     }
 }
