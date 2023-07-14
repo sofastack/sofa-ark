@@ -16,10 +16,14 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.tools.ArtifactItem;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
@@ -38,10 +42,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
-import com.alipay.sofa.ark.tools.ArtifactItem;
-import com.google.common.collect.Lists;
+import static java.util.Arrays.asList;
 
 /**
  * @author guolei.sgl (guolei.sgl@antfin.com) 2020/12/16 2:25 下午
@@ -181,6 +185,74 @@ public class RepackageMojoTest {
             "setSettingsLocation", InvocationRequest.class);
         setSettingsLocation.setAccessible(true);
         setSettingsLocation.invoke(repackageMojo, request);
+    }
+
+    @Test
+    public void testExtensionExcludeArtifactsFromUrl() throws NoSuchMethodException,
+                                                      InvocationTargetException,
+                                                      IllegalAccessException {
+        RepackageMojo repackageMojo = new RepackageMojo();
+        Method extensionExcludeArtifactsFromUrl = repackageMojo.getClass().getDeclaredMethod(
+            "extensionExcludeArtifactsFromUrl", String.class, Set.class);
+        extensionExcludeArtifactsFromUrl.setAccessible(true);
+
+        DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
+            "provided", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact1 = new DefaultArtifact("groupId", "artifactId", "version",
+            "provided", "jar", null, new DefaultArtifactHandler());
+        Set<Artifact> artifacts = new HashSet<>();
+        artifacts.add(defaultArtifact);
+        artifacts.add(defaultArtifact1);
+
+        String packExcludesUrl = "https://github.com/sofastack/sofa-ark";
+        extensionExcludeArtifactsFromUrl.invoke(repackageMojo, packExcludesUrl, artifacts);
+    }
+
+    @Test
+    public void testLogExcludeMessage() throws NoSuchMethodException, InvocationTargetException,
+                                       IllegalAccessException {
+        List<String> jarGroupIds = asList("com.alipay.sofa", "org.springframework");
+        List<String> jarArtifactIds = asList("netty");
+        List<String> jarList = asList("commons-io:commons-io:2.7");
+
+        DefaultArtifact defaultArtifact = new DefaultArtifact("com.alipay.sofa", "artifactId",
+            "version", "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact1 = new DefaultArtifact("io.netty", "netty", "version",
+            "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact2 = new DefaultArtifact("commons-io", "commons-io", "2.7",
+            "compile", "jar", null, new DefaultArtifactHandler());
+        Set<Artifact> artifacts = new HashSet<>();
+        artifacts.add(defaultArtifact);
+        artifacts.add(defaultArtifact1);
+        artifacts.add(defaultArtifact2);
+
+        RepackageMojo repackageMojo = new RepackageMojo();
+        Method logExcludeMessage = repackageMojo.getClass().getDeclaredMethod("logExcludeMessage",
+            List.class, List.class, List.class, Set.class, boolean.class);
+        logExcludeMessage.setAccessible(true);
+        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts,
+            true);
+
+        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts,
+            false);
+    }
+
+    @Test
+    public void testIsSameWithVersion() {
+        ArtifactItem artifactItem = new ArtifactItem();
+        artifactItem.setGroupId("groupId1");
+        artifactItem.setArtifactId("artifactId");
+        artifactItem.setVersion("1.1.1");
+        Assert.assertFalse(artifactItem.isSameWithVersion(null));
+        ArtifactItem artifactItem1 = new ArtifactItem();
+        artifactItem1.setGroupId("groupId1");
+        artifactItem1.setArtifactId("artifactId");
+        artifactItem1.setVersion("1.1.1");
+        Assert.assertTrue(artifactItem.isSameWithVersion(artifactItem1));
+        artifactItem1.setVersion("2.2.2");
+        Assert.assertFalse(artifactItem.isSameWithVersion(artifactItem1));
+        artifactItem1.setVersion("*");
+        Assert.assertTrue(artifactItem.isSameWithVersion(artifactItem1));
     }
 
 }
