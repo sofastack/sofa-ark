@@ -243,6 +243,7 @@ public class RepackageMojoTest {
         artifactItem.setGroupId("groupId1");
         artifactItem.setArtifactId("artifactId");
         artifactItem.setVersion("1.1.1");
+        Assert.assertFalse(artifactItem.isSameWithVersion(null));
         ArtifactItem artifactItem1 = new ArtifactItem();
         artifactItem1.setGroupId("groupId1");
         artifactItem1.setArtifactId("artifactId");
