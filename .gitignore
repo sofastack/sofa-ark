@@ -7,3 +7,4 @@ pom.xml.bak
 .classpath
 *.log
 logs/
+.flattened-pom.xml
