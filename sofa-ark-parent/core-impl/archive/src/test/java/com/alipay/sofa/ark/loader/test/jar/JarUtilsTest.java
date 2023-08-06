@@ -17,16 +17,15 @@
 package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.jar.JarUtils;
-import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-
-import static java.io.File.separator;
 
 public class JarUtilsTest {
 
@@ -45,15 +44,14 @@ public class JarUtilsTest {
     }
 
     @Test
-    public void getArtifactIdFromClassPath() throws IOException {
+    public void getArtifactIdFromClassPath() throws IOException, URISyntaxException {
         URL clazzURL = this.getClass().getClassLoader()
             .getResource("com/alipay/sofa/ark/loader/jar/JarUtils.class");
 
         String artifactId = JarUtils.parseArtifactId(clazzURL.getPath());
         Assert.assertEquals("sofa-ark-archive", artifactId);
 
-        String classPathRoot = this.getClass().getClassLoader().getResource("").getPath();
-        classPathRoot = ModifyPathUtils.modifyPath(classPathRoot);
+        URI classPathRoot = this.getClass().getClassLoader().getResource("").toURI();
         String classPath = Paths.get(classPathRoot).getParent().toFile().getAbsolutePath();
         String artifactId1 = JarUtils.parseArtifactId(classPath);
         Assert.assertNotNull(artifactId1);
