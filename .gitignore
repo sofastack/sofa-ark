@@ -8,3 +8,4 @@ pom.xml.bak
 *.log
 logs/
 .flattened-pom.xml
+lib/

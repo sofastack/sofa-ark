@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark</artifactId>
-    <version>${revision}</version>
+    <version>${sofa.ark.version}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -15,7 +15,7 @@
     </modules>
 
     <properties>
-        <revision>2.2.1</revision>
+        <sofa.ark.version>2.2.1</sofa.ark.version>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
