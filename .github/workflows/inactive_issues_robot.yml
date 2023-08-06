@@ -1,3 +1,4 @@
+# https://docs.github.com/en/actions/managing-issues-and-pull-requests/scheduling-issue-creation
 name: Close inactive issues
 on:
   schedule:
