@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -58,8 +60,56 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
     }
 
     @Override
-    public List<BizArchive> getBizArchives() {
-        return new ArrayList<>();
+    public List<BizArchive> getBizArchives() throws Exception {
+        //将classpath中的biz包载入
+        List<URL> urlList = filterBizUrl(Constants.ARK_BIZ_MARK_ENTRY);
+        List<BizArchive> bizArchives = new LinkedList<>();
+        for (URL url : urlList) {
+            //判断是classpath下的还是fatjar内的biz包
+            if (url.getPath().contains(".jar!")) {
+                Archive archiveFromJarEntry = getArchiveFromJarEntry(url);
+                if (archiveFromJarEntry != null) {
+                    bizArchives.add(new JarBizArchive(archiveFromJarEntry));
+                }
+
+            } else {
+                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
+            }
+        }
+        return bizArchives;
+    }
+
+    /**
+     * 从biz包内解析出archive
+     * @param jarUrl biz包的url路径
+     * @return 依赖的arkbiz包
+     * @throws IOException
+     */
+    private Archive getArchiveFromJarEntry(URL jarUrl) throws IOException {
+        String jarPath = jarUrl.getPath().substring(0, jarUrl.getPath().indexOf("!"));
+        String bizPath = jarUrl.getPath().substring(jarUrl.getPath().indexOf("!") + 2);
+        List<Archive> nestedArchives = new JarFileArchive(new File(jarPath))
+                .getNestedArchives(entry -> entry.getName().equals(bizPath));
+        if (nestedArchives.isEmpty()) {
+            return null;
+        }
+        return nestedArchives.get(0);
+    }
+
+    /**
+     * 过滤出biz包
+     */
+    public List<URL> filterBizUrl(String resource) throws Exception {
+        List<URL> urlList = new ArrayList<>();
+        Enumeration<URL> enumeration = super.urlClassLoader.findResources(resource);
+        while (enumeration.hasMoreElements()) {
+            URL resourceUrl = enumeration.nextElement();
+            String resourceFile = resourceUrl.getFile();
+            String jarFile = resourceFile.substring(0, resourceFile.length() - resource.length()
+                                                       - FILE_IN_JAR.length());
+            urlList.add(new URL(jarFile));
+        }
+        return urlList;
     }
 
     @Override

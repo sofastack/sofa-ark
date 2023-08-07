@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sofa-ark-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>2.0.5</version>
+        <version>${sofa.ark.version}</version>
     </parent>
 
     <artifactId>sofa-ark-all</artifactId>
@@ -47,6 +47,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin}</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>

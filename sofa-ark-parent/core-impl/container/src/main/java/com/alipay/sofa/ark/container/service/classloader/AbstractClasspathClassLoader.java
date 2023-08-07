@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
@@ -290,7 +291,6 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 enumerationList.add(getResourcesInternal(name));
                 // 3. delegate master biz to get resources declared by the biz.
                 enumerationList.add(postFindResources(name));
-
                 // unique urls
                 return uniqueUrls(enumerationList, name);
             } else {
@@ -312,36 +312,30 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         }
     }
 
-    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String targetName) {
+    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String resourceName) {
         // unique urls
         Set<String> temp = new HashSet<>();
         List<URL> uniqueUrls = new ArrayList<>();
+
         for (Enumeration<URL> e : enumerationList) {
-            if (e == null) {
-                continue;
-            }
-            while (e.hasMoreElements()) {
+            while (e != null && e.hasMoreElements()) {
                 URL resourceUrl = e.nextElement();
-                String filePath = resourceUrl.getFile();
-                int startIndex = filePath.lastIndexOf(targetName);
-                if (startIndex == -1) {
-                    continue;
-                }
+                String filePath = resourceUrl.getFile().replace("file:", "");
 
-                filePath = filePath.substring(0, startIndex);
-                if (filePath.endsWith("!/")) {
-                    filePath = filePath.substring(0, filePath.length() - 2);
+                if (filePath.endsWith(resourceName)) {
+                    filePath = filePath.substring(0, filePath.lastIndexOf(resourceName));
                 }
-                int artifactStartIndex = filePath.lastIndexOf("/");
-                String jarFileName = filePath.substring(artifactStartIndex);
-
-                if (!temp.contains(jarFileName)) {
+                String artifactId = JarUtils.parseArtifactId(filePath);
+                if (artifactId == null) {
                     uniqueUrls.add(resourceUrl);
+                } else {
+                    if (!temp.contains(artifactId)) {
+                        uniqueUrls.add(resourceUrl);
+                        temp.add(artifactId);
+                    }
                 }
-                temp.add(jarFileName);
             }
         }
-
         return Collections.enumeration(uniqueUrls);
     }
 
@@ -417,15 +411,15 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         && ((BizClassLoader) this).getBizModel() != null) {
                         BizModel bizModel = ((BizClassLoader) this).getBizModel();
 
-                        String location = url.getFile();
-                        if (bizModel.isDeclared(location)) {
+                        if (url != null && bizModel.isDeclared(url, "")) {
                             return clazz;
                         }
-                        Enumeration<URL> urls = importClassLoader.getResources(name.replace('.',
-                            '/') + ".class");
+                        String classResourceName = name.replace('.', '/') + ".class";
+                        Enumeration<URL> urls = importClassLoader.getResources(classResourceName);
                         while (urls.hasMoreElements()) {
                             URL resourceUrl = urls.nextElement();
-                            if (bizModel.isDeclared(resourceUrl)) {
+                            if (resourceUrl != null
+                                && bizModel.isDeclared(resourceUrl, classResourceName)) {
                                 ArkLoggerFactory.getDefaultLogger().warn(
                                     String.format(
                                         "find class %s from %s in multiple dependencies.", name,
@@ -510,7 +504,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null && this instanceof BizClassLoader) {
-                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url)) {
+                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url, resourceName)) {
                             return url;
                         } else {
                             return null;
@@ -599,7 +593,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     while (urls.hasMoreElements()) {
                         URL resourceUrl = urls.nextElement();
 
-                        if (bizModel.isDeclared(resourceUrl)) {
+                        if (resourceUrl != null && bizModel.isDeclared(resourceUrl, resourceName)) {
                             matchedResourceUrls.add(resourceUrl);
                         }
                     }

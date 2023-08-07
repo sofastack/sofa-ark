@@ -110,6 +110,17 @@ public class ArtifactItem {
                && isSameStr(this.getClassifier(), that.getClassifier());
     }
 
+    public boolean isSameWithVersion(ArtifactItem that) {
+        if (that == null) {
+            return false;
+        }
+
+        return isSameStr(this.getGroupId(), that.getGroupId())
+               && isSameStr(this.getArtifactId(), that.getArtifactId())
+               && isSameStr(this.getVersion(), that.getVersion())
+               && isSameStr(this.getClassifier(), that.getClassifier());
+    }
+
     protected boolean isSameStr(String left, String right) {
         if ("*".equals(left) || "*".equals(right)) {
             return true;
@@ -175,6 +186,7 @@ public class ArtifactItem {
         artifactItem.setClassifier(artifact.getClassifier());
         artifactItem.setVersion(artifact.getVersion());
         artifactItem.setType(artifact.getType());
+        artifactItem.setScope(artifact.getScope());
         return artifactItem;
     }
 
@@ -192,7 +204,8 @@ public class ArtifactItem {
                && Objects.equals(this.artifactId, artifactItem.getArtifactId())
                && Objects.equals(this.type, artifactItem.getType())
                && Objects.equals(this.version, artifactItem.getVersion())
-               && Objects.equals(this.classifier, artifactItem.getClassifier());
+               && Objects.equals(this.classifier, artifactItem.getClassifier())
+               && Objects.equals(this.scope, artifactItem.getScope());
     }
 
     @Override

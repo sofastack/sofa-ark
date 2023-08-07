@@ -109,6 +109,19 @@ public class Constants {
     public final static String       INJECT_EXPORT_PACKAGES                        = "inject-export-packages";
     public final static String       DECLARED_LIBRARIES                            = "declared-libraries";
 
+    public static final String       BRANCH                                        = "commit-branch";
+    public static final String       COMMIT_ID                                     = "commit-id";
+    public static final String       BUILD_USER                                    = "build-user";
+    public static final String       BUILD_EMAIL                                   = "build-email";
+    public static final String       BUILD_TIME                                    = "build-time";
+    public static final String       COMMIT_AUTHOR_NAME                            = "commit-user-name";
+    public static final String       COMMIT_AUTHOR_EMAIL                           = "commit-user-email";
+    public static final String       COMMIT_TIMESTAMP                              = "commit-timestamp";
+    public static final String       COMMIT_TIME                                   = "commit-time";
+    public static final String       REMOTE_ORIGIN_URL                             = "remote-origin-url";
+
+    public static final String       DATE_FORMAT                                   = "yyyy-MM-dd'T'HH:mm:ssZ";
+
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
     public final static String       DEFAULT_PACKAGE                               = ".";
     public final static String       MANIFEST_VALUE_SPLIT                          = COMMA_SPLIT;
@@ -162,6 +175,7 @@ public class Constants {
     public final static String       RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY     = "hessian.parent.context.create";
     public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
     public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
+    public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
     /**

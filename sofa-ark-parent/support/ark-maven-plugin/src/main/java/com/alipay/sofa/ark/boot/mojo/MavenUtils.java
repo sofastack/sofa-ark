@@ -22,10 +22,24 @@ import org.apache.maven.project.MavenProject;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
+
 public class MavenUtils {
+    public static boolean isRootProject(MavenProject project) {
+        if (project == null) {
+            return true;
+        }
+
+        if (project.hasParent() && project.getParent().getBasedir() != null) {
+            return false;
+        }
+        return true;
+    }
+
     public static MavenProject getRootProject(MavenProject project) {
         if (project == null) {
             return null;
@@ -59,6 +73,7 @@ public class MavenUtils {
         if (StringUtils.isEmpty(lineContent)) {
             return null;
         }
+        lineContent = StringUtils.removeCR(lineContent);
         String[] contentInfos = lineContent.split(" ");
         if (contentInfos.length == 0) {
             return null;
@@ -91,5 +106,11 @@ public class MavenUtils {
             return null;
         }
         return artifactItem;
+    }
+
+    private static List<String> UN_LOG_SCOPES = asList("provided", "test", "import", "system");
+
+    public static boolean inUnLogScopes(String scope) {
+        return UN_LOG_SCOPES.contains(scope);
     }
 }

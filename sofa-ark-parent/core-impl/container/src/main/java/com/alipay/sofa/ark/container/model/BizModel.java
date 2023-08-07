@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -41,17 +42,14 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alipay.sofa.ark.common.util.JarUtils.getArtifactIdFromClassPath;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * Ark Biz Standard Model
@@ -282,6 +280,7 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
+                LOGGER.info("Ark biz {} start.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
@@ -325,12 +324,18 @@ public class BizModel implements Biz {
             return;
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
-        bizState = BizState.DEACTIVATED;
+        if (bizState == BizState.ACTIVATED) {
+            bizState = BizState.DEACTIVATED;
+        }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         try {
             // this can trigger uninstall handler
+            long start = System.currentTimeMillis();
+            LOGGER.info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
+            LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
+                (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -341,9 +346,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            if (bizTempWorkDir != null && bizTempWorkDir.exists()) {
-                bizTempWorkDir.delete();
-            }
+            deleteQuietly(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
@@ -410,37 +413,20 @@ public class BizModel implements Biz {
     }
 
     /**
-     * check if the class is defined in classloader
-     * @param classLocation
-     * @return
-     */
-    public boolean isDeclared(String classLocation) {
-        // compatibility with no-declaredMode
-        if (!isDeclaredMode()) {
-            return true;
-        }
-        if (!StringUtils.isEmpty(classLocation)) {
-            if (classLocation.contains(".jar")) {
-                return checkDeclaredWithCache(classLocation);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * check if the resource is defined in classloader, ignore jar version
      * @param url
      * @return
      */
-    public boolean isDeclared(URL url) {
+    public boolean isDeclared(URL url, String resourceName) {
         // compatibility with no-declaredMode
         if (!isDeclaredMode()) {
             return true;
         }
         if (url != null) {
             String libraryFile = url.getFile().replace("file:", "");
+            if (!StringUtils.isEmpty(resourceName) && libraryFile.endsWith(resourceName)) {
+                libraryFile = libraryFile.substring(0, libraryFile.lastIndexOf(resourceName));
+            }
             return checkDeclaredWithCache(libraryFile);
         }
 
@@ -454,67 +440,28 @@ public class BizModel implements Biz {
         return true;
     }
 
-    private String getArtifactId(String jarLocation) {
-        String[] jars = jarLocation.split("!/");
-        if (jars.length == 0) {
-            return null;
-        }
-
-        for (int i = jars.length - 1; i >= 0; i--) {
-            String jar = jars[i];
-            if (jar.endsWith(".jar")) {
-                String[] pathInfos = jar.split("/");
-                if (pathInfos.length == 0) {
-                    return null;
-                }
-                String artifactVersion = pathInfos[pathInfos.length - 1].replace(".jar", "");
-                String[] artifactVersionInfos = artifactVersion.split("-");
-                List<String> artifactInfos = new ArrayList<>();
-                boolean getVersion = false;
-                for (String info : artifactVersionInfos) {
-                    if (!StringUtils.isEmpty(info) && Character.isDigit(info.charAt(0))) {
-                        getVersion = true;
-                        break;
-                    }
-                    artifactInfos.add(info);
-                }
-                if (getVersion) {
-                    return String.join("-", artifactInfos);
-                }
-                // if can't find any version from jar name, then we just return null to paas the declared check
-                return null;
-            }
-        }
-        return null;
-    }
-
     private boolean checkDeclaredWithCache(String libraryFile) {
-        int index = libraryFile.lastIndexOf("!/");
-        String jarFilePath = libraryFile;
-        if (index != -1) {
-            jarFilePath = libraryFile.substring(0, index);
-        }
-        return declaredCacheMap.computeIfAbsent(jarFilePath, this::doCheckDeclared);
+        // set key as jar, but need to checkDeclared by specific file.
+        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
-        String artifactId = "";
-        if (jarFilePath.contains(".jar")) {
-            artifactId = getArtifactId(jarFilePath);
-        } else {
-            try {
-                artifactId = getArtifactIdFromClassPath(jarFilePath);
-            } catch (IOException e) {
-                LOGGER.error(String.format("Failed to get artifact from %s: %s", jarFilePath,
-                    e.getMessage()));
+        String artifactId = JarUtils.parseArtifactId(jarFilePath);
+        if (artifactId == null) {
+            if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
+                // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
+                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                    jarFilePath));
+                return true;
+            } else {
+                // for not in jar, then default not delegate.
+                LOGGER.info(String.format(
+                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
                 return false;
             }
         }
 
-        if (artifactId == null) {
-            return true;
-        }
-
+        // some ark related lib which each ark module needed should set declared as default
         if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
             return true;
         }
