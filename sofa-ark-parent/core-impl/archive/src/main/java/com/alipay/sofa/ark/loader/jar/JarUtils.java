@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -200,6 +201,7 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
+        jarLocation = URLDecoder.decode(jarLocation, "UTF-8");
         try (JarFile jarFile = new JarFile(jarLocation)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {

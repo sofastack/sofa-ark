@@ -16,10 +16,13 @@
  */
 package com.alipay.sofa.ark.loader.test.jar;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.loader.jar.JarUtils;
+import com.google.common.io.Files;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -128,4 +131,20 @@ public class JarUtilsTest {
                                                       + "!/lib/slf4j-api-1.7.30.jar!/");
         Assert.assertEquals("slf4j-api", artifactId0);
     }
+
+    @Test
+    public void testParseArtifactIdFromJar() throws Exception {
+        URL jar = JarUtilsTest.class.getResource("/junit-4.12.jar");
+        URL root = JarUtilsTest.class.getResource("/");
+        String fullPath = root.getPath() + "space directory";
+        String jarLocation = fullPath + "/junit-4.12.jar";
+        FileUtils.mkdir(fullPath);
+        Files.copy(new File(jar.getFile()), new File(jarLocation));
+
+        URL url = JarUtilsTest.class.getResource("/space directory/junit-4.12.jar");
+        Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJar", String.class);
+        method.setAccessible(Boolean.TRUE);
+        Assert.assertNull(method.invoke(JarUtils.class, url.getPath()));
+    }
+
 }
