@@ -108,11 +108,11 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             if (!exploded) {
                 definePackageIfNecessary(name);
             }
-            if (skipCache(name)) {
-                return loadClassInternal(name, resolve);
-            } else {
-                return loadClassWithCache(name, resolve);
-            }
+//            if (skipCache(name)) {
+//                return loadClassInternal(name, resolve);
+//            } else {
+//            }
+            return loadClassWithCache(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
@@ -120,7 +120,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     //todo 优化成可以配置的模式
     protected boolean skipCache(String name) {
-        return name.contains("$$SpringCGLIB$$");
+        return name.contains("CGLIB$$");
     }
 
     /**
