@@ -77,7 +77,7 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
 
     // support use biz classloader define app classloader class in org.springframework.cglib.core.ReflectUtils.defineClass
     public Class<?> publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain) {
-        return defineClass(name, b, 0 ,b.length, protectionDomain);
+        return defineClass(name, b, 0, b.length, protectionDomain);
     }
 
     @Override
