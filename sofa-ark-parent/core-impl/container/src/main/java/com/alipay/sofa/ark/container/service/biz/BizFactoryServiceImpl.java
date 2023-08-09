@@ -102,7 +102,6 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                                                 || bizArchive instanceof DirectoryBizArchive);
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
-        bizClassLoader.setBizModel(bizModel);
         return bizModel;
     }
 
