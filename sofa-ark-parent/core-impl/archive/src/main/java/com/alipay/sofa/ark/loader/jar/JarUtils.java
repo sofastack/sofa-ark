@@ -118,6 +118,7 @@ public class JarUtils {
         // 5. /xxx/xxx-bootstrap-1.0.0-ark-biz.jar!/BOOT-INF/lib/sofa-ark-springboot-starter-2.1.1.jar!/META-INF/spring.factories
         // 6. /xxx/xxx/target/classes/xxxx.jar
         // 7. /xxx/xxx/target/test-classes/yyy/yyy/
+        // 8. /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar!/
 
         jarLocation = ModifyPathUtils.modifyPath(jarLocation);
         String finalJarLocation = jarLocation;
@@ -143,13 +144,21 @@ public class JarUtils {
                     if (StringUtils.isEmpty(artifactId)) {
                         artifactId = parseArtifactIdFromJar(filePath);
                     }
-                } else {
+                } else if (as.length == 3) {
                     // two '!/'
                     String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
                     String filePath = String.join("!/", jarPathInfo);
                     artifactId = doGetArtifactIdFromFileName(filePath);
                     if (StringUtils.isEmpty(artifactId)) {
                         artifactId = parseArtifactIdFromJarInJar(filePath);
+                    }
+                } else {
+                    // three '!/' or more
+                    String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
+                    String filePath = String.join("!/", jarPathInfo);
+                    artifactId = doGetArtifactIdFromFileName(filePath);
+                    if (StringUtils.isEmpty(artifactId)) {
+                        artifactId = parseArtifactIdFromJarInJarInJarMore(filePath);
                     }
                 }
                 return Optional.ofNullable(artifactId);
@@ -198,6 +207,35 @@ public class JarUtils {
         Archive archive = archives.get(0);
         Properties properties = ((JarFileArchive) archive).getPomProperties();
         return properties.getProperty(JAR_ARTIFACT_ID);
+    }
+
+    private static String parseArtifactIdFromJarInJarInJarMore(String jarLocation)
+                                                                                  throws IOException {
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = getTemporaryRootJarFromJarLocation(jarLocation);
+        JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
+        return jarFileArchive.getPomProperties().getProperty(JAR_ARTIFACT_ID);
+    }
+
+    public static com.alipay.sofa.ark.loader.jar.JarFile getTemporaryRootJarFromJarLocation(String jarLocation)
+                                                                                                               throws IOException {
+        //  /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar
+        String[] js = jarLocation.split("!/", -1);
+        com.alipay.sofa.ark.loader.jar.JarFile rJarFile = new com.alipay.sofa.ark.loader.jar.JarFile(
+            new File(js[0]));
+        for (int i = 1; i < js.length; i++) {
+            String jPath = js[i];
+            if (jPath == null || jPath.isEmpty()) {
+                break;
+            }
+            try {
+                JarEntry jarEntry = rJarFile.getJarEntry(jPath);
+                rJarFile = rJarFile.getNestedJarFile(jarEntry);
+            } catch (NullPointerException e) {
+                throw new IOException(
+                    String.format("Failed to parse artifact id, jPath: %s", jPath));
+            }
+        }
+        return rJarFile;
     }
 
     private static String parseArtifactIdFromJar(String jarLocation) throws IOException {

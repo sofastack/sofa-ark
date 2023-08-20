@@ -133,7 +133,7 @@ public class JarUtilsTest {
     }
 
     @Test
-    public void testParseArtifactIdFromJar() throws Exception {
+    public void testParseArtifactIdFromJarWithBlankPath() throws Exception {
         URL jar = JarUtilsTest.class.getResource("/junit-4.12.jar");
         URL root = JarUtilsTest.class.getResource("/");
         String fullPath = root.getPath() + "space directory";
@@ -147,4 +147,17 @@ public class JarUtilsTest {
         Assert.assertNull(method.invoke(JarUtils.class, url.getPath()));
     }
 
+    @Test
+    public void testParseArtifactIdFromJarInJarInJarMore() {
+        URL jar = JarUtilsTest.class.getResource("/example-jarinjarinjar.jar");
+        String artifactId0 = JarUtils
+            .parseArtifactId(jar.getFile()
+                             + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
+        Assert.assertEquals("sofa-ark-spring-guides", artifactId0);
+
+        String artifactId1 = JarUtils
+            .parseArtifactId(jar.getFile()
+                             + "!/BOOT-IN/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
+        Assert.assertEquals("example-client", artifactId1);
+    }
 }
