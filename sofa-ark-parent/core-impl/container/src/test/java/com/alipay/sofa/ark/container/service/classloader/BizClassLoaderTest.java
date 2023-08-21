@@ -417,7 +417,7 @@ public class BizClassLoaderTest extends BaseTest {
 
         BizClassLoader cl = (BizClassLoader) bizModel.getBizClassLoader();
         try {
-            cl.publicDefineClass("NoExistClass", new byte[]{}, null);
+            cl.publicDefineClass("NoExistClass", new byte[] {}, null);
             Assert.fail();
         } catch (Throwable t) {
             Assert.assertTrue(t instanceof java.lang.ClassFormatError);
