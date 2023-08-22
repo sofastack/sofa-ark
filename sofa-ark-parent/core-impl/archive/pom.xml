@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sofa-ark-core-impl</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.1.7-SNAPSHOT</version>
+        <version>${sofa.ark.version}</version>
     </parent>
 
     <artifactId>sofa-ark-archive</artifactId>
@@ -16,7 +16,10 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-spi</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-common</artifactId>
@@ -35,8 +38,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

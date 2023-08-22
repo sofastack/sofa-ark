@@ -51,8 +51,8 @@ import java.util.List;
 /**
  * test for specified event type
  *
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/5 10:39 AM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/5 10:39 AM
+ * @since
  **/
 public class EventTest extends BaseTest {
 
@@ -84,6 +84,7 @@ public class EventTest extends BaseTest {
     @After
     public void after() {
         result.clear();
+        super.after();
     }
 
     @Test

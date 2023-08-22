@@ -47,7 +47,7 @@ public class TestClassLoader extends BizClassLoader {
             // TestNG
             "org.testng", "com.beust.jcommander", "bsh",
             // mockito
-            "org.mockito", "org.jmockit",
+            "org.mockito",
             // Ark
             "com.alipay.sofa.ark.support.common",
             // tomcat
@@ -59,7 +59,7 @@ public class TestClassLoader extends BizClassLoader {
     private List<String>      delegateClassToTestClassLoader;
 
     public TestClassLoader(String bizIdentity, URL[] urls, ClassLoader delegate) {
-        super(bizIdentity, urls);
+        super(bizIdentity, urls, true);
         delegateClassLoader = delegate;
         // since version 1.1.0, we support load extension from ark biz, we should register biz now.
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(

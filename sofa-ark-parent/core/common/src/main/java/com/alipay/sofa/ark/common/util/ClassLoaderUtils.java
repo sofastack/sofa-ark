@@ -20,7 +20,9 @@ import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ public class ClassLoaderUtils {
 
     /**
      * push ContextClassLoader
+     *
      * @param newClassLoader new classLoader
      * @return old classloader
      */
@@ -51,6 +54,7 @@ public class ClassLoaderUtils {
 
     /**
      * set ContextClassLoader back
+     *
      * @param oldClassLoader old classLoader
      */
     public static void popContextClassLoader(ClassLoader oldClassLoader) {
@@ -81,6 +85,31 @@ public class ClassLoaderUtils {
             }
         }
         return agentPaths.toArray(new URL[] {});
+    }
+
+    @SuppressWarnings({ "restriction", "unchecked" })
+    public static URL[] getURLs(ClassLoader classLoader) {
+        // https://stackoverflow.com/questions/46519092/how-to-get-all-jars-loaded-by-a-java-application-in-java9
+        if (classLoader instanceof URLClassLoader) {
+            return ((URLClassLoader) classLoader).getURLs();
+        }
+
+        // support jdk9+
+        String classpath = System.getProperty("java.class.path");
+        String[] classpathEntries = classpath.split(System.getProperty("path.separator"));
+        List<URL> classpathURLs = new ArrayList<>();
+        for (String classpathEntry : classpathEntries) {
+            URL url = null;
+            try {
+                url = new File(classpathEntry).toURI().toURL();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                throw new ArkRuntimeException("Failed to get urls from " + classLoader, e);
+            }
+            classpathURLs.add(url);
+        }
+
+        return classpathURLs.toArray(new URL[0]);
     }
 
 }

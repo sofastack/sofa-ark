@@ -19,9 +19,14 @@ package com.alipay.sofa.ark.loader;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 
-import java.io.*;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
@@ -35,11 +40,13 @@ public class DirectoryContainerArchive implements ContainerArchive {
 
     private final URL[]           urls;
 
-    private final static String[] AKR_CONTAINER_JAR = { "aopalliance-1.0", "commons-io-2.5",
-            "guava-16.0.1", "guice-4.0", "guice-multibindings-4.0", "javax.inject-1",
-            "logback-core-1.1.11", "logback-classic-1.1.11", "slf4j-api-1.7.21",
+    private final static String[] AKR_CONTAINER_JAR = { "aopalliance-1.0", "commons-io-2.7",
+            "guava-30.1-jre", "guice-5.1.0", "guice-multibindings-4.2.3", "failureaccess-1.0.1",
+            "javax.inject-1", "logback-core-1.2.9", "logback-classic-1.2.9", "slf4j-api-1.7.32",
             "log-sofa-boot-starter", "log-sofa-boot", "sofa-common-tools",
-            "netty-all-4.1.42.Final", "sofa-ark-parent/core-impl/container/target/classes",
+            "netty-all-4.1.90.Final", "netty-transport-4.1.90.Final", "netty-common-4.1.90.Final",
+            "netty-handler-4.1.90.Final", "netty-codec-4.1.90.Final", "netty-buffer-4.1.90.Final",
+            "sofa-ark-parent/core-impl/container/target/classes",
             "sofa-ark-parent/core-impl/archive/target/classes",
             "sofa-ark-parent/core/spi/target/classes",
             "sofa-ark-parent/core/common/target/classes",

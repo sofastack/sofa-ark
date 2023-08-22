@@ -16,13 +16,19 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
+import com.alipay.sofa.ark.common.log.ArkLogger;
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
@@ -38,9 +44,12 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * Ark Biz Standard Model
@@ -49,43 +58,48 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
+    private final static ArkLogger LOGGER                        = ArkLoggerFactory
+                                                                     .getDefaultLogger();
 
-    private String              bizName;
+    private String                 bizName;
 
-    private String              bizVersion;
+    private String                 bizVersion;
 
-    private BizState            bizState;
+    private BizState               bizState;
 
-    private String              mainClass;
+    private String                 mainClass;
 
-    private String              webContextPath;
+    private String                 webContextPath;
 
-    private URL[]               urls;
+    private URL[]                  urls;
 
-    private ClassLoader         classLoader;
+    private ClassLoader            classLoader;
 
-    private Map<String, String> attributes                    = new ConcurrentHashMap<>();
+    private Map<String, String>    attributes                    = new ConcurrentHashMap<>();
 
-    private int                 priority                      = DEFAULT_PRECEDENCE;
+    private int                    priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>         denyImportPackages;
+    private Set<String>            denyImportPackages;
 
-    private Set<String>         denyImportPackageNodes        = new HashSet<>();
+    private Set<String>            denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>         denyImportPackageStems        = new HashSet<>();
+    private Set<String>            denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>         denyImportClasses;
+    private Set<String>            denyImportClasses;
 
-    private Set<String>         denyImportResources           = new HashSet<>();
+    private Set<String>            denyImportResources           = new HashSet<>();
 
-    private Set<String>         injectPluginDependencies      = new HashSet<>();
-    private Set<String>         injectExportPackages          = new HashSet<>();
+    private Set<String>            injectPluginDependencies      = new HashSet<>();
+    private Set<String>            injectExportPackages          = new HashSet<>();
 
-    private Set<String>         denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>            declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean>   declaredCacheMap              = new ConcurrentHashMap<>();
 
-    private Set<String>         denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
-    private File                bizTempWorkDir;
+    private Set<String>            denySuffixImportResourceStems = new HashSet<>();
+
+    private File                   bizTempWorkDir;
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -264,10 +278,16 @@ public class BizModel implements Biz {
         try {
             eventAdminService.sendEvent(new BeforeBizStartupEvent(this));
             resetProperties();
-            MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
-            mainMethodRunner.run();
-            // this can trigger health checker handler
-            eventAdminService.sendEvent(new AfterBizStartupEvent(this));
+            if (!isMasterBizAndEmbedEnable()) {
+                long start = System.currentTimeMillis();
+                LOGGER.info("Ark biz {} start.", getIdentity());
+                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
+                mainMethodRunner.run();
+                // this can trigger health checker handler
+                eventAdminService.sendEvent(new AfterBizStartupEvent(this));
+                LOGGER.info("Ark biz {} started in {} ms", getIdentity(),
+                    (System.currentTimeMillis() - start));
+            }
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
             throw e;
@@ -276,10 +296,21 @@ public class BizModel implements Biz {
         }
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
-        if (bizManagerService.getActiveBiz(bizName) == null) {
-            bizState = BizState.ACTIVATED;
+
+        if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
+            Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
+            if (currentActiveBiz == null) {
+                bizState = BizState.ACTIVATED;
+            } else {
+                ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED);
+                bizState = BizState.ACTIVATED;
+            }
         } else {
-            bizState = BizState.DEACTIVATED;
+            if (bizManagerService.getActiveBiz(bizName) == null) {
+                bizState = BizState.ACTIVATED;
+            } else {
+                bizState = BizState.DEACTIVATED;
+            }
         }
     }
 
@@ -288,13 +319,23 @@ public class BizModel implements Biz {
         AssertUtils.isTrue(bizState == BizState.ACTIVATED || bizState == BizState.DEACTIVATED
                            || bizState == BizState.BROKEN,
             "BizState must be ACTIVATED, DEACTIVATED or BROKEN.");
+        if (isMasterBizAndEmbedEnable()) {
+            // skip stop when embed mode
+            return;
+        }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
-        bizState = BizState.DEACTIVATED;
+        if (bizState == BizState.ACTIVATED) {
+            bizState = BizState.DEACTIVATED;
+        }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         try {
             // this can trigger uninstall handler
+            long start = System.currentTimeMillis();
+            LOGGER.info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
+            LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
+                (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -305,10 +346,11 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            if (bizTempWorkDir != null && bizTempWorkDir.exists()) {
-                bizTempWorkDir.delete();
-            }
+            deleteQuietly(bizTempWorkDir);
             bizTempWorkDir = null;
+            if (classLoader instanceof AbstractClasspathClassLoader) {
+                ((AbstractClasspathClassLoader) classLoader).clearCache();
+            }
             classLoader = null;
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
@@ -341,7 +383,11 @@ public class BizModel implements Biz {
     }
 
     private void resetProperties() {
-        System.getProperties().remove("logging.path");
+        if (!ArkConfigs.isEmbedEnable()) {
+            System.getProperties().remove("logging.path");
+        } else if (this != ArkClient.getMasterBiz()) {
+            System.getProperties().remove("spring.application.admin.enabled");
+        }
     }
 
     public File getBizTempWorkDir() {
@@ -351,5 +397,75 @@ public class BizModel implements Biz {
     public BizModel setBizTempWorkDir(File bizTempWorkDir) {
         this.bizTempWorkDir = bizTempWorkDir;
         return this;
+    }
+
+    private boolean isMasterBizAndEmbedEnable() {
+        return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
+    }
+
+    public BizModel setDeclaredLibraries(String declaredLibraries) {
+        if (StringUtils.isEmpty(declaredLibraries)) {
+            return this;
+        }
+        this.declaredLibraries = StringUtils.strToSet(declaredLibraries,
+            Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    /**
+     * check if the resource is defined in classloader, ignore jar version
+     * @param url
+     * @return
+     */
+    public boolean isDeclared(URL url, String resourceName) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
+            return true;
+        }
+        if (url != null) {
+            String libraryFile = url.getFile().replace("file:", "");
+            if (!StringUtils.isEmpty(resourceName) && libraryFile.endsWith(resourceName)) {
+                libraryFile = libraryFile.substring(0, libraryFile.lastIndexOf(resourceName));
+            }
+            return checkDeclaredWithCache(libraryFile);
+        }
+
+        return false;
+    }
+
+    public boolean isDeclaredMode() {
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkDeclaredWithCache(String libraryFile) {
+        // set key as jar, but need to checkDeclared by specific file.
+        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
+    }
+
+    private boolean doCheckDeclared(String jarFilePath) {
+        String artifactId = JarUtils.parseArtifactId(jarFilePath);
+        if (artifactId == null) {
+            if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
+                // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
+                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                    jarFilePath));
+                return true;
+            } else {
+                // for not in jar, then default not delegate.
+                LOGGER.info(String.format(
+                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
+                return false;
+            }
+        }
+
+        // some ark related lib which each ark module needed should set declared as default
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+            return true;
+        }
+
+        return declaredLibraries.contains(artifactId);
     }
 }

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.1.7-SNAPSHOT</version>
+        <version>${sofa.ark.version}</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,7 @@
     <artifactId>sofa-ark-common-springboot</artifactId>
 
     <properties>
-        <spring.boot.version>1.5.16.RELEASE</spring.boot.version>
+        <spring.boot.version>1.5.22.RELEASE</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -29,6 +29,10 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>${spring.boot.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-api</artifactId>
         </dependency>
     </dependencies>
 

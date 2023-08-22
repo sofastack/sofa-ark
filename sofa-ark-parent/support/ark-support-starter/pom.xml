@@ -5,13 +5,22 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>1.1.7-SNAPSHOT</version>
+        <version>${sofa.ark.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sofa-ark-support-starter</artifactId>
 
+    <properties>
+
+    </properties>
+
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+        </dependency>
 
         <!--SOFAArk modules-->
         <dependency>

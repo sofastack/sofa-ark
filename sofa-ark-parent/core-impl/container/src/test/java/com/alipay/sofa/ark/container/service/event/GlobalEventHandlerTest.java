@@ -38,8 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 3:46 PM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 3:46 PM
+ * @since
  **/
 public class GlobalEventHandlerTest extends BaseTest {
 
@@ -69,6 +69,7 @@ public class GlobalEventHandlerTest extends BaseTest {
         eventAdminService.unRegister(abstractArkEventHandler);
         arkEventHandler = null;
         arkEventHandler1 = null;
+        super.after();
     }
 
     @Test

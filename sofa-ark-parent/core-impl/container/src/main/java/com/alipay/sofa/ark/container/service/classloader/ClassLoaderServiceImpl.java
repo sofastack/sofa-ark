@@ -19,8 +19,8 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -33,7 +33,6 @@ import com.google.inject.Singleton;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -278,7 +277,7 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
         List<URL> jdkUrls = new ArrayList<>();
         try {
             String javaHome = System.getProperty("java.home").replace(File.separator + "jre", "");
-            URL[] urls = ((URLClassLoader) systemClassLoader).getURLs();
+            URL[] urls = ClassLoaderUtils.getURLs(systemClassLoader);
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
                     if (LOGGER.isDebugEnabled()) {

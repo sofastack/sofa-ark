@@ -17,20 +17,24 @@
 package com.alipay.sofa.ark.container;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.pipeline.DeployBizStage;
+import com.alipay.sofa.ark.container.pipeline.HandleArchiveStage;
+import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
-import com.alipay.sofa.ark.spi.argument.LaunchCommand;
+import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
+import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
+import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
-import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
+import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
@@ -98,9 +102,14 @@ public class ArkContainer {
                 }
                 return new ArkContainer(executableArchive, launchCommand).start();
             } else {
-                ClassPathArchive classPathArchive = new ClassPathArchive(
-                    launchCommand.getEntryClassName(), launchCommand.getEntryMethodName(),
-                    launchCommand.getClasspath());
+                ClassPathArchive classPathArchive;
+                if (ArkConfigs.isEmbedEnable()) {
+                    classPathArchive = new EmbedClassPathArchive(launchCommand.getEntryClassName(),
+                        launchCommand.getEntryMethodName(), launchCommand.getClasspath());
+                } else {
+                    classPathArchive = new ClassPathArchive(launchCommand.getEntryClassName(),
+                        launchCommand.getEntryMethodName(), launchCommand.getClasspath());
+                }
                 return new ArkContainer(classPathArchive, launchCommand).start();
             }
         } catch (IOException e) {
@@ -145,6 +154,18 @@ public class ArkContainer {
             System.out.println("Ark container started in " + (System.currentTimeMillis() - start) //NOPMD
                                + " ms.");
         }
+        return this;
+    }
+
+    public Object deployBizAfterMasterBizReady() throws Exception {
+        // Scan all biz in classpath
+        HandleArchiveStage handleArchiveStage = ArkServiceContainerHolder.getContainer()
+            .getService(HandleArchiveStage.class);
+        handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
+        // start up
+        DeployBizStage deployBizStage = ArkServiceContainerHolder.getContainer().getService(
+            DeployBizStage.class);
+        deployBizStage.processStaticBiz(pipelineContext);
         return this;
     }
 

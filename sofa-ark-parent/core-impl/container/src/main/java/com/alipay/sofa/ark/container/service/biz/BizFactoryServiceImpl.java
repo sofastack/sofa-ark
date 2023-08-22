@@ -16,10 +16,15 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
+import com.alipay.sofa.ark.loader.ExplodedBizArchive;
+import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
@@ -27,6 +32,7 @@ import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
@@ -37,6 +43,7 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -44,7 +51,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_CLASSES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_RESOURCES;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
+import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_PLUGIN_DEPENDENCIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
 
 /**
  * {@link BizFactoryService}
@@ -76,20 +94,64 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectPluginDependencies(
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
-            .setClassPath(bizArchive.getUrls())
-            .setClassLoader(
-                new BizClassLoader(bizModel.getIdentity(), getBizUcp(bizModel.getClassPath())));
+            .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
+            .setClassPath(bizArchive.getUrls());
+
+        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
+            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
+                                                || bizArchive instanceof DirectoryBizArchive);
+        bizClassLoader.setBizModel(bizModel);
+        bizModel.setClassLoader(bizClassLoader);
         return bizModel;
     }
 
     @Override
     public Biz createBiz(File file) throws IOException {
-        JarFile bizFile = new JarFile(file);
-        JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
-        JarBizArchive bizArchive = new JarBizArchive(jarFileArchive);
+        BizArchive bizArchive;
+        if (ArkConfigs.isEmbedEnable()) {
+            File unpackFile = new File(file.getAbsolutePath() + "-unpack");
+            if (!unpackFile.exists()) {
+                unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
+            }
+            if (file.exists()) {
+                file.delete();
+            }
+            file = unpackFile;
+            bizArchive = new ExplodedBizArchive(unpackFile);
+        } else {
+            JarFile bizFile = new JarFile(file);
+            JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
+            bizArchive = new JarBizArchive(jarFileArchive);
+        }
         BizModel biz = (BizModel) createBiz(bizArchive);
         biz.setBizTempWorkDir(file);
         return biz;
+    }
+
+    @Override
+    public Biz createBiz(BizOperation bizOperation, File file) throws IOException {
+        BizModel biz = (BizModel) createBiz(file);
+        if (bizOperation != null && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
+            biz.setBizVersion(bizOperation.getBizVersion());
+            if (biz.getBizClassLoader() instanceof BizClassLoader) {
+                BizClassLoader bizClassLoader = (BizClassLoader) (biz.getBizClassLoader());
+                bizClassLoader.setBizIdentity(biz.getIdentity());
+            }
+        }
+        return biz;
+    }
+
+    @Override
+    public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
+        BizModel bizModel = new BizModel();
+        bizModel.setBizState(BizState.RESOLVED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
+            .setBizVersion("1.0.0").setMainClass("embed main").setPriority("100")
+            .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
+            .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
+            .setInjectExportPackages(null)
+            .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
+            .setClassLoader(masterClassLoader);
+        return bizModel;
     }
 
     private Set<String> getInjectDependencies(String injectPluginDependencies) {
@@ -102,6 +164,9 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     private boolean isArkBiz(BizArchive bizArchive) {
+        if (ArkConfigs.isEmbedEnable() && bizArchive instanceof ExplodedBizArchive) {
+            return true;
+        }
         return bizArchive.isEntryExist(new Archive.EntryFilter() {
             @Override
             public boolean matches(Archive.Entry entry) {

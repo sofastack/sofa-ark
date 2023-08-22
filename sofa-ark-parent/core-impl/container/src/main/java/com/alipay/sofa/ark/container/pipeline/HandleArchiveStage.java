@@ -47,9 +47,9 @@ import java.util.Set;
 import java.util.jar.Attributes;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
-import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
 import static com.alipay.sofa.ark.spi.constant.Constants.MANIFEST_VALUE_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
@@ -80,6 +80,10 @@ public class HandleArchiveStage implements PipelineStage {
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         try {
+            if (ArkConfigs.isEmbedEnable()) {
+                processEmbed(pipelineContext);
+                return;
+            }
             ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
             List<BizArchive> bizArchives = executableArchive.getBizArchives();
             List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
@@ -165,6 +169,34 @@ public class HandleArchiveStage implements PipelineStage {
 
         } catch (Throwable ex) {
             throw new ArkRuntimeException(ex.getMessage(), ex);
+        }
+    }
+
+    protected void processEmbed(PipelineContext pipelineContext) throws Exception {
+        ClassLoader masterBizClassLoader = pipelineContext.getClass().getClassLoader();
+        Biz masterBiz = bizFactoryService.createEmbedMasterBiz(masterBizClassLoader);
+        bizManagerService.registerBiz(masterBiz);
+        ArkClient.setMasterBiz(masterBiz);
+        ArkConfigs.putStringValue(Constants.MASTER_BIZ, masterBiz.getBizName());
+        ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
+        List<PluginArchive> pluginArchives = executableArchive.getPluginArchives();
+        for (PluginArchive pluginArchive : pluginArchives) {
+            Plugin plugin = pluginFactoryService.createEmbedPlugin(pluginArchive,
+                masterBizClassLoader);
+            if (!isPluginExcluded(plugin)) {
+                pluginManagerService.registerPlugin(plugin);
+            } else {
+                LOGGER.warn(String.format("The plugin of %s is excluded.", plugin.getPluginName()));
+            }
+        }
+    }
+
+    public void processStaticBizFromClasspath(PipelineContext pipelineContext) throws Exception {
+        ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
+        List<BizArchive> bizArchives = executableArchive.getBizArchives();
+        for (BizArchive bizArchive : bizArchives) {
+            Biz biz = bizFactoryService.createBiz(bizArchive);
+            bizManagerService.registerBiz(biz);
         }
     }
 

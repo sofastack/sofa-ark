@@ -55,6 +55,12 @@ public class Constants {
     public final static String       LOCAL_HOST                                    = "localhost";
 
     /**
+     * ark classloader cache conf
+     */
+    public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL      = "ark.classloader.cache.class.size.initial";
+    public final static String       ARK_CLASSLOADER_CACHE_CLASS_SIZE_MAX          = "ark.classloader.cache.class.size.max";
+    public final static String       ARK_CLASSLOADER_CACHE_CONCURRENCY_LEVEL       = "ark.classloader.cache.concurrencylevel";
+    /**
      * plugin conf, multi value is split by comma.
      */
     public final static String       PLUGIN_ACTIVE_INCLUDE                         = "ark.plugin.active.include";
@@ -101,6 +107,20 @@ public class Constants {
     public final static String       DENY_IMPORT_RESOURCES                         = "deny-import-resources";
     public final static String       INJECT_PLUGIN_DEPENDENCIES                    = "inject-plugin-dependencies";
     public final static String       INJECT_EXPORT_PACKAGES                        = "inject-export-packages";
+    public final static String       DECLARED_LIBRARIES                            = "declared-libraries";
+
+    public static final String       BRANCH                                        = "commit-branch";
+    public static final String       COMMIT_ID                                     = "commit-id";
+    public static final String       BUILD_USER                                    = "build-user";
+    public static final String       BUILD_EMAIL                                   = "build-email";
+    public static final String       BUILD_TIME                                    = "build-time";
+    public static final String       COMMIT_AUTHOR_NAME                            = "commit-user-name";
+    public static final String       COMMIT_AUTHOR_EMAIL                           = "commit-user-email";
+    public static final String       COMMIT_TIMESTAMP                              = "commit-timestamp";
+    public static final String       COMMIT_TIME                                   = "commit-time";
+    public static final String       REMOTE_ORIGIN_URL                             = "remote-origin-url";
+
+    public static final String       DATE_FORMAT                                   = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
     public final static String       DEFAULT_PACKAGE                               = ".";
@@ -153,6 +173,10 @@ public class Constants {
     public final static String       SPRING_BOOT_ENDPOINTS_JMX_ENABLED             = "endpoints.jmx.enabled";
     public final static String       LOG4J_IGNORE_TCL                              = "log4j.ignoreTCL";
     public final static String       RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY     = "hessian.parent.context.create";
+    public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
+    public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
+    public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
+    public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
     /**
      * Command Provider
@@ -166,6 +190,7 @@ public class Constants {
     public final static String       EXTENSION_FILE_DIR                            = "META-INF/services/sofa-ark/";
     public final static String       PLUGIN_CLASS_LOADER_HOOK                      = "plugin-classloader-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK                         = "biz-classloader-hook";
+    public final static String       BIZ_CLASS_LOADER_HOOK_DIR                     = "com.alipay.sofa.ark.biz.classloader.hook.dir";
 
     /**
      * Multiply biz name

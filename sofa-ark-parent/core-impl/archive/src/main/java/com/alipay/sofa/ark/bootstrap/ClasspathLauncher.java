@@ -50,17 +50,17 @@ public class ClasspathLauncher extends ArkLauncher {
 
     public static class ClassPathArchive implements ExecutableArchive {
 
-        public static final String   FILE_IN_JAR = "!/";
+        public static final String     FILE_IN_JAR = "!/";
 
-        private final String         className;
+        private final String           className;
 
-        private final String         methodName;
+        private final String           methodName;
 
-        private final URL[]          urls;
+        private final URL[]            urls;
 
-        private final URLClassLoader urlClassLoader;
+        protected final URLClassLoader urlClassLoader;
 
-        private File                 arkConfBaseDir;
+        private File                   arkConfBaseDir;
 
         public ClassPathArchive(String className, String methodName, URL[] urls) throws IOException {
             AssertUtils.isFalse(StringUtils.isEmpty(className),
@@ -174,6 +174,9 @@ public class ClasspathLauncher extends ArkLauncher {
                 URLClassLoader tempClassLoader = new URLClassLoader(urls);
                 Class entryClass = tempClassLoader.loadClass(className);
                 String classLocation = ClassUtils.getCodeBase(entryClass);
+                if (classLocation.startsWith("file:")) {
+                    classLocation = classLocation.substring("file:".length());
+                }
                 File file = classLocation == null ? null : new File(classLocation);
                 while (file != null) {
                     arkConfDir = new File(file.getPath() + File.separator + ARK_CONF_BASE_DIR);
@@ -225,13 +228,24 @@ public class ClasspathLauncher extends ArkLauncher {
 
         protected ContainerArchive createDirectoryContainerArchive() {
             URL[] candidates;
-            if (urls.length == 1 || urls.length == 2) {
+            if (fromSurefire(urls)) {
                 candidates = parseClassPathFromSurefireBoot(getSurefireBooterJar(urls));
             } else {
                 candidates = urls;
             }
             URL[] filterUrls = filterURLs(candidates);
             return filterUrls == null ? null : new DirectoryContainerArchive(filterUrls);
+        }
+
+        protected boolean fromSurefire(URL[] urls) {
+            if (urls.length <= 4) {
+                for (URL url : urls) {
+                    if (url.getFile().contains(Constants.SUREFIRE_BOOT_JAR)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private URL getSurefireBooterJar(URL[] urls) {

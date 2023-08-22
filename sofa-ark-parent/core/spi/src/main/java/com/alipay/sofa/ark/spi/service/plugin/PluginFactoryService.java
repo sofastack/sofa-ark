@@ -59,4 +59,11 @@ public interface PluginFactoryService {
      * @throws IOException throw io exception when {@link PluginArchive} is invalid.
      */
     Plugin createPlugin(File file) throws IOException;
+
+    /**
+     * Mock Plugin Model according to master biz
+     * @return
+     */
+    Plugin createEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
+                                                                                        throws IOException;
 }

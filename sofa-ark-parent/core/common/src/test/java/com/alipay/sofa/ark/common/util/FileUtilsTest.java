@@ -21,9 +21,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
- * @since:
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
+ * @since
  **/
 public class FileUtilsTest {
 
@@ -46,4 +50,30 @@ public class FileUtilsTest {
         String macPath = FileUtils.getCompatiblePath("/a/b/c");
         Assert.assertTrue(winPath.contains(macPath));
     }
+
+    @Test
+    public void testSHA1Hash() throws IOException {
+        URL url = this.getClass().getResource(this.getClass().getSimpleName() + ".class");
+        Assert.assertNotNull(FileUtils.sha1Hash(new File(url.getFile())));
+    }
+
+    @Test
+    public void testUnzip() throws IOException {
+        URL sampleBiz = this.getClass().getClassLoader().getResource("sample-biz.jar");
+        File file = new File(sampleBiz.getFile());
+        Assert.assertNotNull(FileUtils.unzip(file, file.getAbsolutePath() + "-unpack"));
+    }
+
+    @Test
+    public void testMkdir() {
+        Assert.assertNull(FileUtils.mkdir(""));
+        // test recursive creation
+        File newDir = FileUtils.mkdir("C:\\a\\b\\c");
+        Assert.assertNotNull(newDir);
+        // test for exist path
+        Assert.assertNotNull(FileUtils.mkdir("C:\\a\\b\\c"));
+        // del the dir
+        org.apache.commons.io.FileUtils.deleteQuietly(newDir);
+    }
+
 }

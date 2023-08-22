@@ -17,10 +17,11 @@
 package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.spi.model.Biz;
-import mockit.Expectations;
-import mockit.Mocked;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
 
 /**
  * @author qilong.zql
@@ -28,15 +29,11 @@ import org.junit.Test;
  */
 public class BizIdentityUtilsTest {
     @Test
-    public void testBizIdentity(@Mocked final Biz biz) {
-        new Expectations() {
-            {
-                biz.getBizName();
-                result = "biz-demo";
-                biz.getBizVersion();
-                result = "1.0.0";
-            }
-        };
+    public void testBizIdentity() {
+        Biz biz = Mockito.mock(Biz.class);
+        when(biz.getBizName()).thenReturn("biz-demo");
+        when(biz.getBizVersion()).thenReturn("1.0.0");
+
         String bizIdentity = BizIdentityUtils.generateBizIdentity(biz);
         Assert.assertEquals("biz-demo:1.0.0", bizIdentity);
 

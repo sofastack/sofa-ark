@@ -52,33 +52,18 @@ import java.util.Set;
  */
 public class ArkClient {
 
-    private static ArkLogger         LOGGER = ArkLoggerFactory.getDefaultLogger();
     private static BizManagerService bizManagerService;
     private static BizFactoryService bizFactoryService;
     private static Biz               masterBiz;
     private static InjectionService  injectionService;
     private static String[]          arguments;
-    private final static File        bizInstallDirectory;
 
     private static EventAdminService eventAdminService;
 
-    static {
-        bizInstallDirectory = getBizInstallDirectory();
-    }
-
     private static File getBizInstallDirectory() {
-        File workingDir = FileUtils.createTempDir("sofa-ark");
         String configDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR);
-        if (!StringUtils.isEmpty(configDir)) {
-            if (!configDir.endsWith(File.separator)) {
-                configDir += File.separator;
-            }
-            workingDir = new File(configDir);
-            if (!workingDir.exists()) {
-                workingDir.mkdir();
-            }
-        }
-        return workingDir;
+        return StringUtils.isEmpty(configDir) ? FileUtils.createTempDir("sofa-ark") : FileUtils
+            .mkdir(configDir);
     }
 
     public static File createBizSaveFile(String bizName, String bizVersion, String fileSuffix) {
@@ -86,6 +71,7 @@ public class ArkClient {
         if (!StringUtils.isEmpty(fileSuffix)) {
             suffix = fileSuffix;
         }
+        File bizInstallDirectory = getBizInstallDirectory();
         return new File(bizInstallDirectory, bizName + "-" + bizVersion + "-" + suffix);
     }
 
@@ -153,8 +139,12 @@ public class ArkClient {
 
     public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
+
+        long start = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
+        String startDate = sdf.format(new Date(start));
 
         Biz biz = bizFactoryService.createBiz(bizFile);
         ClientResponse response = new ClientResponse();
@@ -166,24 +156,29 @@ public class ArkClient {
 
         try {
             biz.start(args);
-            response.setCode(ResponseCode.SUCCESS)
-                .setMessage(String.format("Install Biz: %s success.", biz.getIdentity()))
+            long end = System.currentTimeMillis();
+            response
+                .setCode(ResponseCode.SUCCESS)
+                .setMessage(
+                    String.format("Install Biz: %s success, cost: %s ms, started at: %s",
+                        biz.getIdentity(), end - start, startDate))
                 .setBizInfos(Collections.<BizInfo> singleton(biz));
-            LOGGER.info(response.getMessage());
+            getLogger().info(response.getMessage());
             return response;
         } catch (Throwable throwable) {
+            long end = System.currentTimeMillis();
             response.setCode(ResponseCode.FAILED).setMessage(
-                String.format("Install Biz: %s fail.", biz.getIdentity()));
-            LOGGER.error(response.getMessage(), throwable);
+                String.format("Install Biz: %s fail,cost: %s ms, started at: %s",
+                    biz.getIdentity(), end - start, startDate));
+            getLogger().error(response.getMessage(), throwable);
             try {
                 biz.stop();
             } catch (Throwable e) {
-                LOGGER.error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), e);
-                throw e;
+                getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), e);
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
             }
-            return response;
+            throw throwable;
         }
     }
 
@@ -197,7 +192,7 @@ public class ArkClient {
      */
     public static ClientResponse uninstallBiz(String bizName, String bizVersion) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
 
@@ -216,8 +211,8 @@ public class ArkClient {
             try {
                 biz.stop();
             } catch (Throwable throwable) {
-                LOGGER
-                    .error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()), throwable);
+                getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()),
+                    throwable);
                 throw throwable;
             } finally {
                 bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
@@ -225,7 +220,7 @@ public class ArkClient {
             response.setCode(ResponseCode.SUCCESS).setMessage(
                 String.format("Uninstall biz: %s success.", biz.getIdentity()));
         }
-        LOGGER.info(response.getMessage());
+        getLogger().info(response.getMessage());
         return response;
     }
 
@@ -257,7 +252,7 @@ public class ArkClient {
      */
     public static ClientResponse checkBiz(String bizName, String bizVersion) {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
 
         ClientResponse response = new ClientResponse();
         Set<BizInfo> bizInfoSet = new HashSet<>();
@@ -280,7 +275,7 @@ public class ArkClient {
                     bizInfo.getBizVersion(), bizInfo.getBizState())).append("\n");
         }
         response.setCode(ResponseCode.SUCCESS).setBizInfos(bizInfoSet).setMessage(sb.toString());
-        LOGGER.info(String.format("Check Biz: %s", response.getMessage()));
+        getLogger().info(String.format("Check Biz: %s", response.getMessage()));
         return response;
     }
 
@@ -293,7 +288,7 @@ public class ArkClient {
      */
     public static ClientResponse switchBiz(String bizName, String bizVersion) {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
-        AssertUtils.assertNotNull(bizManagerService, "bizFactoryService must not be null!");
+        AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizName, "bizName must not be null!");
         AssertUtils.assertNotNull(bizVersion, "bizVersion must not be null!");
         Biz biz = bizManagerService.getBiz(bizName, bizVersion);
@@ -315,7 +310,7 @@ public class ArkClient {
                     String.format("Switch biz: %s is activated.", biz.getIdentity()));
             }
         }
-        LOGGER.info(response.getMessage());
+        getLogger().info(response.getMessage());
         return response;
     }
 
@@ -372,6 +367,10 @@ public class ArkClient {
         } finally {
             ReplayContext.unset();
         }
+    }
+
+    private static ArkLogger getLogger() {
+        return ArkLoggerFactory.getDefaultLogger();
     }
 
 }

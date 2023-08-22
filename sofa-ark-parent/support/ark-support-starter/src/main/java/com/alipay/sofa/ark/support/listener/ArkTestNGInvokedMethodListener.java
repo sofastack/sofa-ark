@@ -34,6 +34,8 @@ public class ArkTestNGInvokedMethodListener implements IInvokedMethodListener {
         Class testClass = method.getTestMethod().getTestClass().getRealClass();
         if (isTestOnArk(testClass)) {
             ClassLoaderUtils.pushContextClassLoader(DelegateArkContainer.getTestClassLoader());
+        } else {
+            ClassLoaderUtils.pushContextClassLoader(ClassLoader.getSystemClassLoader());
         }
     }
 

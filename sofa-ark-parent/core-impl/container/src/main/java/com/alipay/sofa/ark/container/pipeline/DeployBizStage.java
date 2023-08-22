@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
@@ -44,6 +45,14 @@ public class DeployBizStage implements PipelineStage {
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
         bizDeployService.deploy(args);
+        if (ArkConfigs.isEmbedEnable()) {
+            return;
+        }
         eventAdminService.sendEvent(new AfterFinishDeployEvent());
+    }
+
+    public void processStaticBiz(PipelineContext pipelineContext) throws ArkRuntimeException {
+        String[] args = pipelineContext.getLaunchCommand().getLaunchArgs();
+        bizDeployService.deploy(args);
     }
 }
