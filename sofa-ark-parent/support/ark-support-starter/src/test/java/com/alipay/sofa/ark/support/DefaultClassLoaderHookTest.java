@@ -221,5 +221,4 @@ public class DefaultClassLoaderHookTest {
 
         Assert.assertThrows(ArkLoaderException.class, () -> testBiz.getBizClassLoader().loadClass("xxxxCGLIB$$"));
     }
-
 }
