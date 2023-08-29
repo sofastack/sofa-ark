@@ -172,6 +172,17 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                         result.getExecutionException());
             }
             getLog().info("package base facade success.");
+            // 移动构建出来的jar到baseDir
+            File facadeTargetDir = new File(facadeRootDir, "target");
+            File[] targetFiles = facadeTargetDir.listFiles();
+            for (File f : targetFiles) {
+                if (f.getName().endsWith(".jar")) {
+                    File newFile = new File(baseDir, f.getName());
+                    f.renameTo(newFile);
+                    getLog().info("move " + f.getAbsolutePath() + " to " + newFile.getAbsolutePath() + " success.");
+                    break;
+                }
+            }
         } catch (Exception e) {
             throw new MojoExecutionException("package serverless facade exception", e);
         } finally {
