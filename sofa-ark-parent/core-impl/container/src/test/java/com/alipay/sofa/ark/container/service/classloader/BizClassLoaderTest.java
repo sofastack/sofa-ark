@@ -410,6 +410,20 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertFalse(urlResourceCache.getIfPresent(notExistingName).isPresent());
     }
 
+    @Test
+    public void testPublicDefineClass() {
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
+        bizManagerService.registerBiz(bizModel);
+
+        BizClassLoader cl = (BizClassLoader) bizModel.getBizClassLoader();
+        try {
+            cl.publicDefineClass("NoExistClass", new byte[] {}, null);
+            Assert.fail();
+        } catch (Throwable t) {
+            Assert.assertTrue(t instanceof java.lang.ClassFormatError);
+        }
+    }
+
     private Cache<String, Optional<URL>> getUrlResourceCache(Object classloader)
                                                                                 throws NoSuchFieldException,
                                                                                 IllegalAccessException {
