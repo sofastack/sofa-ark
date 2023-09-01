@@ -117,7 +117,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             getLog().info("create base facade directory success." + facadeRootDir.getAbsolutePath());
 
             //2. 解析所有依赖，写入pom
-            // 第一次，把所有依赖找到，平铺写到pom
+            // 第一次，把所有依赖找到，平铺写到pom (同时排掉指定的依赖)
             BufferedWriter pomWriter = new BufferedWriter(new FileWriter(facadePom, true));
             pomWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             pomWriter.write("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -131,6 +131,9 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             if (artifactItems != null && !artifactItems.isEmpty()) {
                 pomWriter.write("<dependencies>");
                 for (ArtifactItem i : artifactItems) {
+                    if (shouldExclude(i)) {
+                        continue;
+                    }
                     pomWriter.write("<dependency>\n");
                     pomWriter.write("<groupId>" + i.getGroupId() + "</groupId>\n");
                     pomWriter.write("<artifactId>" + i.getArtifactId() + "</artifactId>\n");
@@ -357,11 +360,11 @@ public class PackageBaseFacadeMojo extends TreeMojo {
 
     /**
      * 找到所有依赖，平铺返回
+     *
      * @return
      * @throws MojoExecutionException
      */
     private Set<ArtifactItem> getArtifactList() throws MojoExecutionException {
-        File baseDir = MavenUtils.getRootProject(this.mavenProject).getBasedir();
         getLog().info("root project path: " + baseDir.getAbsolutePath());
 
         // dependency:tree
@@ -369,8 +372,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
 
-        List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-                "-DoutputFile=" + outputPath).collect(Collectors.toList());
+        List<String> goals = Stream.of("dependency:tree", "-DoutputFile=" + outputPath).collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
         if (userProperties != null) {
@@ -406,6 +408,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
 
     /**
      * 解析依赖，按树状返回
+     *
      * @param baseDir
      * @return
      * @throws MojoExecutionException
@@ -418,8 +421,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
 
-        List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-                "-DoutputFile=" + outputPath).collect(Collectors.toList());
+        List<String> goals = Stream.of("dependency:tree", "-DoutputFile=" + outputPath).collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
         if (userProperties != null) {
