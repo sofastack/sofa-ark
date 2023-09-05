@@ -21,7 +21,9 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -119,7 +121,7 @@ public class JGitParser {
     }
 
     private static FileRepository getGitRepository(File gitDirectory) throws Exception {
-        if (!gitDirectory.exists()) {
+        if (gitDirectory == null || !gitDirectory.exists()) {
             throw new Exception("Could not create git repository. " + gitDirectory
                                 + " is not exists!");
         }
