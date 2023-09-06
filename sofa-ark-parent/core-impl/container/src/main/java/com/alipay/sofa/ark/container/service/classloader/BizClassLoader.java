@@ -28,6 +28,7 @@ import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.ProtectionDomain;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -72,6 +73,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     public BizClassLoader(String bizIdentity, URL[] urls, boolean exploded) {
         this(bizIdentity, urls);
         this.exploded = exploded;
+    }
+
+    // support use biz classloader define app classloader class in org.springframework.cglib.core.ReflectUtils.defineClass
+    public Class<?> publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain) {
+        return defineClass(name, b, 0, b.length, protectionDomain);
     }
 
     @Override
