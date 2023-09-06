@@ -288,6 +288,9 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "false")
     private boolean                declaredMode;
 
+    @Parameter(defaultValue = "false")
+    private boolean                disableGitInfo;
+
     /*----------------Git 相关参数---------------------*/
     /**
      * The root directory of the repository we want to check.
@@ -352,6 +355,9 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private File getGitDirectory(MavenProject rootProject) {
+        if (disableGitInfo) {
+            return null;
+        }
         if (gitDirectory != null && gitDirectory.exists()) {
             return gitDirectory;
         }
