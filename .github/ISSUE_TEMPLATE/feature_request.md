@@ -5,11 +5,12 @@ about: Propose a feature on improving user experience or bringing a new function
 ---
 
 
-### 需求细节
+### Feature Description
 
 Describe the feature details with Chinese or English.
 
 
 
-### 其它备注
+### Additional Notes
+
 Add other notes if necessary.
