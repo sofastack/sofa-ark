@@ -9,6 +9,6 @@ Describe the idea and modifications you've done.
 
 ### Result
 
-Fixes #<GitHub issue number>. 
+Resolved or fixed #<GitHub issue number>. 
 
 If there is no issue then describe the changes introduced by this PR.
