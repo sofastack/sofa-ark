@@ -1,5 +1,5 @@
 ---
-name: Propose Feature
+name: Feature
 about: Propose a feature on improving user experience or a new functionality.
 
 ---
