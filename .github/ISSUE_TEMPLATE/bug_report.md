@@ -18,7 +18,7 @@ A clear and concise description of what actually happened.
 
 ### Steps to reproduce
 
-Steps to reproduce the behavior:
+Steps to reproduce the bug:
 
 1. Go to '...'
 2. Click on '....'
