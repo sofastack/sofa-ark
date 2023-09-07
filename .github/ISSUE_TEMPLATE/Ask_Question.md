@@ -1,20 +1,33 @@
 ---
 name: Ask Question
-about: Ask a question about usage or feature
+about: Ask a question about usage or feature.
 
 ---
 
-### Your question
+### Describe your question
 
-describe your question clearly
+Describe your question clearly.
 
-### Your scenes
+### Expected behavior
 
-describe your use scenes (why need this feature)
+A clear and concise description of what you expected to happen.
 
-### Your advice
+### Actual behavior
 
-describe the advice or solution you'd like
+A clear and concise description of what actually happened.
+
+### Steps to reproduce
+
+Steps to reproduce the question:
+
+Go to '...'
+Click on '....'
+Scroll down to '....'
+See error
+
+### Screenshots
+
+If applicable, add screenshots to help explain your question.
 
 ### Environment
 
@@ -23,5 +36,3 @@ describe the advice or solution you'd like
 - OS version (e.g. `uname -a`):
 - Maven version:
 - IDE version:
-
-
