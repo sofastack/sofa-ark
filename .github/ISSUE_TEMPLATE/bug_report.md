@@ -1,12 +1,12 @@
 ---
-name: Bug Report
-about: Create a bug report to help us improve.
+name: Bug or Question Report
+about: Create a bug or question report to help us improve.
 
 ---
 
-### Describe the bug
+### Describe the bug or question
 
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug or question is.
 
 ### Expected behavior
 
@@ -18,7 +18,7 @@ A clear and concise description of what actually happened.
 
 ### Steps to reproduce
 
-Steps to reproduce the bug:
+Steps to reproduce the bug or question:
 
 1. Go to '...'
 2. Click on '....'
