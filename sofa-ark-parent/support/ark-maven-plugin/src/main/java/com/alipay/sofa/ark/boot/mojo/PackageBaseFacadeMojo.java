@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
@@ -117,7 +118,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             getLog().info("create base facade directory success." + facadeRootDir.getAbsolutePath());
 
             //2. 解析所有依赖，写入pom
-            // 第一次，把所有依赖找到，平铺写到pom (同时排掉指定的依赖)
+            // 第一次，把所有依赖找到，平铺写到pom (同时排掉指定的依赖, 以及基座的子module)
             BufferedWriter pomWriter = new BufferedWriter(new FileWriter(facadePom, true));
             pomWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             pomWriter.write("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -127,11 +128,13 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             pomWriter.write("    <artifactId>" + facadeArtifactId + "</artifactId>\n");
             pomWriter.write("    <version>" + version + "</version>\n");
             pomWriter.flush();
+            // 解析基座所有子module，用于exclude
+            Set<String> baseModuleArtifactIds = getBaseModuleArtifactIds();
             Set<ArtifactItem> artifactItems = getArtifactList();
             if (artifactItems != null && !artifactItems.isEmpty()) {
                 pomWriter.write("<dependencies>");
                 for (ArtifactItem i : artifactItems) {
-                    if (shouldExclude(i)) {
+                    if (shouldExclude(i) || baseModuleArtifactIds.contains(i.getArtifactId())) {
                         continue;
                     }
                     pomWriter.write("<dependency>\n");
@@ -147,8 +150,10 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             getLog().info("analyze all dependencies and write facade pom.xml success.");
 
             // 反复执行dependency tree，并排除指定的依赖（删掉根 + 排除间接依赖），直到排干净
-            clearExclusion(facadeRootDir, facadePom, facadeArtifactId);
-            getLog().info("exclusion cleared success.");
+            if (CollectionUtils.isNotEmpty(excludeGroupIds) || CollectionUtils.isNotEmpty(excludeArtifactIds)) {
+                clearExclusion(facadeRootDir, facadePom, facadeArtifactId);
+                getLog().info("exclusion cleared success.");
+            }
 
             //1. 复制指定的java文件到该module
             List<File> allJavaFiles = new LinkedList<>();
@@ -193,6 +198,42 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             if ("true".equals(cleanAfterPackage) && facadeRootDir != null) {
                 deleteDirectory(facadeRootDir);
             }
+        }
+    }
+
+    private Set<String> getBaseModuleArtifactIds() throws IOException, InterruptedException {
+        List<String> baseModules = this.mavenProject.getParent().getModel().getModules();
+        File basedir = mavenProject.getParent().getBasedir();
+        Set<String> baseModuleArtifactIds = new HashSet<>();
+        for (String module : baseModules) {
+            String pomPath = new File(basedir, module).getAbsolutePath();
+            String artifactId = getArtifactIdFromPom(pomPath);
+            getLog().info("find maven module of base: " + artifactId);
+            baseModuleArtifactIds.add(artifactId);
+        }
+        return baseModuleArtifactIds;
+    }
+
+    private static String getArtifactIdFromPom(String pomFilePath) throws IOException,
+                                                                  InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("mvn", "help:evaluate", "-Dexpression=project.artifactId", "-q",
+            "-DforceStdout", "-f", pomFilePath);
+
+        Process process = processBuilder.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+        String line;
+        StringBuilder output = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            output.append(line).append("\n");
+        }
+
+        int exitCode = process.waitFor();
+        if (exitCode == 0) {
+            return output.toString().trim();
+        } else {
+            throw new IOException("Failed to get artifactId from pom.xml");
         }
     }
 
