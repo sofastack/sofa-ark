@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
@@ -117,7 +116,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             }
             getLog().info("create base facade directory success." + facadeRootDir.getAbsolutePath());
 
-            //2. 解析所有依赖，写入pom
+            //1. 解析所有依赖，写入pom
             // 第一次，把所有依赖找到，平铺写到pom (同时排掉指定的依赖, 以及基座的子module)
             BufferedWriter pomWriter = new BufferedWriter(new FileWriter(facadePom, true));
             pomWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -141,6 +140,12 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                     pomWriter.write("<groupId>" + i.getGroupId() + "</groupId>\n");
                     pomWriter.write("<artifactId>" + i.getArtifactId() + "</artifactId>\n");
                     pomWriter.write("<version>" + i.getVersion() + "</version>\n");
+                    pomWriter.write("<exclusions>\n");
+                    pomWriter.write("<exclusion>\n");
+                    pomWriter.write("<groupId>*</groupId>\n");
+                    pomWriter.write("<artifactId>*</artifactId>\n");
+                    pomWriter.write("</exclusion>\n");
+                    pomWriter.write("</exclusions>\n");
                     pomWriter.write("</dependency>\n");
                 }
                 pomWriter.write("</dependencies>\n");
@@ -149,19 +154,13 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             pomWriter.close();
             getLog().info("analyze all dependencies and write facade pom.xml success.");
 
-            // 反复执行dependency tree，并排除指定的依赖（删掉根 + 排除间接依赖），直到排干净
-            if (CollectionUtils.isNotEmpty(excludeGroupIds) || CollectionUtils.isNotEmpty(excludeArtifactIds)) {
-                clearExclusion(facadeRootDir, facadePom, facadeArtifactId);
-                getLog().info("exclusion cleared success.");
-            }
-
-            //1. 复制指定的java文件到该module
+            //2. 复制指定的java文件到该module
             List<File> allJavaFiles = new LinkedList<>();
             getJavaFiles(baseDir, allJavaFiles);
             copyFiles(allJavaFiles, facadeJavaDir, javaFiles);
             getLog().info("copy java files success.");
 
-            // 3. 打包
+            //3. 打包
             InvocationRequest request = new DefaultInvocationRequest();
             request.setPomFile(facadePom);
             List<String> goals = Stream.of("install").collect(Collectors.toList());
@@ -180,7 +179,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                         result.getExecutionException());
             }
             getLog().info("package base facade success.");
-            // 移动构建出来的jar到baseDir
+            //4.移动构建出来的jar到baseDir
             File facadeTargetDir = new File(facadeRootDir, "target");
             File[] targetFiles = facadeTargetDir.listFiles();
             for (File f : targetFiles) {
@@ -235,95 +234,6 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         } else {
             throw new IOException("Failed to get artifactId from pom.xml");
         }
-    }
-
-    private void clearExclusion(File facadeRootDir, File facadePom, String facadeArtifactId)
-                                                                                            throws MojoExecutionException,
-                                                                                            IOException {
-        int i = 1;
-        Map<ArtifactItem, ArtifactWithExclusion> artifactWithExclusions = new HashMap<>();
-        while (true) {
-            int count = clearExclusionOnePass(facadeRootDir, facadePom.getAbsolutePath(),
-                facadeArtifactId, artifactWithExclusions);
-            getLog().info("clear exclusion success. " + i++ + " times. exclusion:" + count);
-            if (count == 0) {
-                break;
-            }
-        }
-    }
-
-    private int clearExclusionOnePass(File facadeRootDir,
-                                      String facadePomPath,
-                                      String facadeArtifactId,
-                                      Map<ArtifactItem, ArtifactWithExclusion> artifactWithExclusions)
-                                                                                                      throws MojoExecutionException,
-                                                                                                      IOException {
-        Set<ArtifactItem> artifactItems = getArtifactsTree(facadeRootDir);
-        int exclusionCount = 0;
-        // 清空
-        File pomFile = new File(facadePomPath);
-        pomFile.delete();
-        pomFile = new File(facadePomPath);
-        pomFile.createNewFile();
-
-        BufferedWriter pomWriter = new BufferedWriter(new FileWriter(pomFile, true));
-        pomWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        pomWriter
-            .write("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                   + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n");
-        pomWriter.write("    <modelVersion>4.0.0</modelVersion>\n");
-        pomWriter.write("    <groupId>" + groupId + "</groupId>\n");
-        pomWriter.write("    <artifactId>" + facadeArtifactId + "</artifactId>\n");
-        pomWriter.write("    <version>" + version + "</version>\n");
-
-        for (ArtifactItem artifact : artifactItems) {
-            ArtifactWithExclusion withExclusion = new ArtifactWithExclusion(artifact);
-            if (shouldExclude(artifact)) {
-                exclusionCount++;
-                artifactWithExclusions.remove(artifact);
-                continue;
-            } else {
-                artifactWithExclusions.putIfAbsent(artifact, withExclusion);
-                withExclusion = artifactWithExclusions.get(artifact);
-            }
-
-            for (ArtifactItem child : artifact.getDependencies()) {
-                if (shouldExclude(child)) {
-                    exclusionCount++;
-                    withExclusion.addExclusion(child);
-                }
-            }
-        }
-
-        if (artifactWithExclusions != null && !artifactWithExclusions.isEmpty()) {
-            pomWriter.write("<dependencies>");
-            for (Map.Entry<ArtifactItem, ArtifactWithExclusion> e : artifactWithExclusions
-                .entrySet()) {
-                ArtifactWithExclusion i = e.getValue();
-                pomWriter.write("<dependency>\n");
-                pomWriter.write("<groupId>" + i.artifactItem.getGroupId() + "</groupId>\n");
-                pomWriter
-                    .write("<artifactId>" + i.artifactItem.getArtifactId() + "</artifactId>\n");
-                pomWriter.write("<version>" + i.artifactItem.getVersion() + "</version>\n");
-                if (!i.exclusions.isEmpty()) {
-                    pomWriter.write("<exclusions>\n");
-                    for (ArtifactItem exclusion : i.exclusions) {
-                        pomWriter.write("<exclusion>\n");
-                        pomWriter.write("<groupId>" + exclusion.getGroupId() + "</groupId>\n");
-                        pomWriter.write("<artifactId>" + exclusion.getArtifactId()
-                                        + "</artifactId>\n");
-                        pomWriter.write("</exclusion>\n");
-                    }
-                    pomWriter.write("</exclusions>\n");
-                }
-                pomWriter.write("</dependency>\n");
-            }
-            pomWriter.write("</dependencies>\n");
-        }
-        pomWriter.write("</project>");
-        pomWriter.close();
-
-        return exclusionCount;
     }
 
     private boolean deleteDirectory(File path) {
@@ -447,55 +357,6 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         }
     }
 
-    /**
-     * 解析依赖，按树状返回
-     *
-     * @param baseDir
-     * @return
-     * @throws MojoExecutionException
-     */
-    private Set<ArtifactItem> getArtifactsTree(File baseDir) throws MojoExecutionException {
-        getLog().info("root project path: " + baseDir.getAbsolutePath());
-
-        // dependency:tree
-        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
-        InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
-
-        List<String> goals = Stream.of("dependency:tree", "-DoutputFile=" + outputPath).collect(Collectors.toList());
-
-        Properties userProperties = projectBuildingRequest.getUserProperties();
-        if (userProperties != null) {
-            userProperties.forEach((key, value) -> goals.add(String.format("-D%s=%s", key, value)));
-        }
-
-        getLog().info(
-                "execute 'mvn dependency:tree' with command 'mvn " + String.join(" ", goals) + "'");
-        request.setGoals(goals);
-        request.setBatchMode(mavenSession.getSettings().getInteractiveMode());
-        request.setProfiles(mavenSession.getSettings().getActiveProfiles());
-        setSettingsLocation(request);
-        Invoker invoker = new DefaultInvoker();
-        try {
-            InvocationResult result = invoker.execute(request);
-            if (result.getExitCode() != 0) {
-                throw new MojoExecutionException("execute dependency:tree failed",
-                        result.getExecutionException());
-            }
-
-            String depTreeStr = FileUtils.readFileToString(FileUtils.getFile(outputPath),
-                    Charset.defaultCharset());
-            return MavenUtils.convertToTree(depTreeStr);
-        } catch (MavenInvocationException | IOException e) {
-            throw new MojoExecutionException("execute dependency:tree failed", e);
-        } finally {
-            File outputFile = new File(outputPath);
-            if (outputFile.exists()) {
-                outputFile.delete();
-            }
-        }
-    }
-
     private void setSettingsLocation(InvocationRequest request) {
         File userSettingsFile = mavenSession.getRequest().getUserSettingsFile();
         if (userSettingsFile != null && userSettingsFile.exists()) {
@@ -504,19 +365,6 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         File globalSettingsFile = mavenSession.getRequest().getGlobalSettingsFile();
         if (globalSettingsFile != null && globalSettingsFile.exists()) {
             request.setGlobalSettingsFile(globalSettingsFile);
-        }
-    }
-
-    static class ArtifactWithExclusion {
-        ArtifactItem      artifactItem;
-        Set<ArtifactItem> exclusions = new HashSet<>();
-
-        public ArtifactWithExclusion(ArtifactItem artifactItem) {
-            this.artifactItem = artifactItem;
-        }
-
-        public void addExclusion(ArtifactItem a) {
-            this.exclusions.add(a);
         }
     }
 
