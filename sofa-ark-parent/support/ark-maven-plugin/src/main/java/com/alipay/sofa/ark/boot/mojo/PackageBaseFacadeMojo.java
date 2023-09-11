@@ -156,7 +156,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
 
             //2. 复制指定的java文件到该module
             List<File> allJavaFiles = new LinkedList<>();
-            getJavaFiles(baseDir, allJavaFiles);
+            getJavaFiles(mavenProject.getParent().getBasedir(), allJavaFiles);
             copyFiles(allJavaFiles, facadeJavaDir, javaFiles);
             getLog().info("copy java files success.");
 
@@ -262,8 +262,8 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         }
     }
 
-    public static void copyFiles(List<File> allJavaFiles, File targetDir, Set<String> patterns)
-                                                                                               throws IOException {
+    public void copyFiles(List<File> allJavaFiles, File targetDir, Set<String> patterns)
+                                                                                        throws IOException {
         for (File file : allJavaFiles) {
             File newFile;
             if ((newFile = shouldCopy(targetDir, file, patterns)) != null) {
@@ -271,6 +271,9 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                     newFile.getParentFile().mkdirs();
                 }
                 Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                getLog().info(
+                    "copy java from " + file.getAbsolutePath() + " to " + newFile.getAbsolutePath()
+                            + " success.");
             }
         }
     }
@@ -296,7 +299,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                 if (javaName.startsWith(pattern)) {
                     System.out.println(javaName);
                     return new File(newDir, file.getAbsolutePath().substring(
-                        file.getAbsolutePath().indexOf(s)));
+                        file.getAbsolutePath().indexOf(s) + s.length()));
                 }
             } else {
                 if (pattern.equals(javaName)) {
