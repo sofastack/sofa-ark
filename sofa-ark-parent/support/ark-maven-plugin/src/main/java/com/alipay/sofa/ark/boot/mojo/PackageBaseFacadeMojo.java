@@ -116,6 +116,12 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             }
             getLog().info("create base facade directory success." + facadeRootDir.getAbsolutePath());
 
+            //2. 复制指定的java文件到该module
+            List<File> allJavaFiles = new LinkedList<>();
+            getJavaFiles(mavenProject.getParent().getBasedir(), allJavaFiles);
+            copyFiles(allJavaFiles, facadeJavaDir, javaFiles);
+            getLog().info("copy java files success.");
+
             //1. 解析所有依赖，写入pom
             // 第一次，把所有依赖找到，平铺写到pom (同时排掉指定的依赖, 以及基座的子module)
             BufferedWriter pomWriter = new BufferedWriter(new FileWriter(facadePom, true));
@@ -153,12 +159,6 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             pomWriter.write("</project>");
             pomWriter.close();
             getLog().info("analyze all dependencies and write facade pom.xml success.");
-
-            //2. 复制指定的java文件到该module
-            List<File> allJavaFiles = new LinkedList<>();
-            getJavaFiles(mavenProject.getParent().getBasedir(), allJavaFiles);
-            copyFiles(allJavaFiles, facadeJavaDir, javaFiles);
-            getLog().info("copy java files success.");
 
             //3. 打包
             InvocationRequest request = new DefaultInvocationRequest();
@@ -305,7 +305,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                 if (pattern.equals(javaName)) {
                     System.out.println(javaName);
                     return new File(newDir, file.getAbsolutePath().substring(
-                        file.getAbsolutePath().indexOf(s)));
+                        file.getAbsolutePath().indexOf(s) + s.length()));
                 }
             }
         }
