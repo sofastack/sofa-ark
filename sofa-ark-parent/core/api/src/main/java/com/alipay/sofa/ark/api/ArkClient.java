@@ -35,6 +35,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.io.File;
 import java.net.URL;
@@ -52,13 +53,14 @@ import java.util.Set;
  */
 public class ArkClient {
 
-    private static BizManagerService bizManagerService;
-    private static BizFactoryService bizFactoryService;
-    private static Biz               masterBiz;
-    private static InjectionService  injectionService;
-    private static String[]          arguments;
+    private static BizManagerService    bizManagerService;
+    private static BizFactoryService    bizFactoryService;
+    private static PluginManagerService pluginManagerService;
+    private static Biz                  masterBiz;
+    private static InjectionService     injectionService;
+    private static String[]             arguments;
 
-    private static EventAdminService eventAdminService;
+    private static EventAdminService    eventAdminService;
 
     private static File getBizInstallDirectory() {
         String configDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_BIZ_DIR);
@@ -101,6 +103,14 @@ public class ArkClient {
 
     public static void setBizFactoryService(BizFactoryService bizFactoryService) {
         ArkClient.bizFactoryService = bizFactoryService;
+    }
+
+    public static void setPluginManagerService(PluginManagerService pluginManagerService) {
+        ArkClient.pluginManagerService = pluginManagerService;
+    }
+
+    public static PluginManagerService getPluginManagerService() {
+        return pluginManagerService;
     }
 
     public static Biz getMasterBiz() {
