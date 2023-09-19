@@ -156,6 +156,30 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                 }
                 pomWriter.write("</dependencies>\n");
             }
+            // 打source、jar包
+            pomWriter.write("<build>\n");
+            pomWriter.write("<plugins>\n");
+            pomWriter.write("<plugin>\n");
+            pomWriter.write("<groupId>org.apache.maven.plugins</groupId>\n");
+            pomWriter.write("<artifactId>maven-source-plugin</artifactId>\n");
+            pomWriter.write("<version>2.0.2</version>\n");
+            pomWriter.write("<executions>\n");
+            pomWriter.write("<execution>\n");
+            pomWriter.write("<id>attach-sources</id>\n");
+            pomWriter.write("<goals>\n");
+            pomWriter.write("<goal>jar</goal>\n");
+            pomWriter.write("</goals>\n");
+            pomWriter.write("</execution>\n");
+            pomWriter.write("</executions>\n");
+            pomWriter.write("</plugin>\n");
+            pomWriter.write("<plugin>\n");
+            pomWriter.write("<groupId>org.apache.maven.plugins</groupId>\n");
+            pomWriter.write("<artifactId>maven-jar-plugin</artifactId>\n");
+            pomWriter.write("<version>2.2</version>\n");
+            pomWriter.write("</plugin>\n");
+            pomWriter.write("</plugins>\n");
+            pomWriter.write("</build>\n");
+
             pomWriter.write("</project>");
             pomWriter.close();
             getLog().info("analyze all dependencies and write facade pom.xml success.");
@@ -179,17 +203,23 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                         result.getExecutionException());
             }
             getLog().info("package base facade success.");
-            //4.移动构建出来的jar到baseDir
+            //4.移动构建出来的jar、source jar、pom到outputs目录
+            File outputsDir = new File(baseDir, "outputs");
+            if (!outputsDir.exists()) {
+                outputsDir.mkdirs();
+            }
             File facadeTargetDir = new File(facadeRootDir, "target");
             File[] targetFiles = facadeTargetDir.listFiles();
             for (File f : targetFiles) {
                 if (f.getName().endsWith(".jar")) {
-                    File newFile = new File(baseDir, f.getName());
-                    f.renameTo(newFile);
-                    getLog().info("move " + f.getAbsolutePath() + " to " + newFile.getAbsolutePath() + " success.");
-                    break;
+                    File newFile = new File(outputsDir, f.getName());
+                    Files.copy(f.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    getLog().info("copy " + f.getAbsolutePath() + " to " + newFile.getAbsolutePath() + " success.");
                 }
             }
+            File newPomFile = new File(outputsDir, "pom.xml");
+            Files.copy(facadePom.toPath(), newPomFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            getLog().info("copy pom.xml to " + newPomFile.getAbsolutePath() + " success.");
         } catch (Exception e) {
             throw new MojoExecutionException("package serverless facade exception", e);
         } finally {
