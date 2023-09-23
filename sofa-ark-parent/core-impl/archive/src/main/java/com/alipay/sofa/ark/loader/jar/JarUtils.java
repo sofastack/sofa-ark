@@ -20,13 +20,15 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -49,7 +51,11 @@ public class JarUtils {
 
     private static final String                        JAR_POM_PROPERTIES               = "pom.properties";
 
+    private static final String                        POM_FILE                         = "/pom.xml";
+
     private static final String                        VERSION_REGEX                    = "^([0-9]+\\.)+.+";
+
+    private static final MavenXpp3Reader               READER                           = new MavenXpp3Reader();
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
@@ -82,14 +88,17 @@ public class JarUtils {
         int classesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
         int testClassesRootIndex = libraryFile.indexOf(TEST_CLASSPATH_ROOT_IDENTITY);
         String pomPropertiesPath;
+        String pomXmlPath = null;
         if (classesRootIndex != -1) {
             pomPropertiesPath = libraryFile.substring(0,
                 classesRootIndex + TARGET_ROOT_IDENTITY.length())
                                 + JAR_POM_PROPERTIES_RELATIVE_PATH;
+            pomXmlPath = libraryFile.substring(0, classesRootIndex) + POM_FILE;
         } else if (testClassesRootIndex != -1) {
             pomPropertiesPath = libraryFile.substring(0, testClassesRootIndex
                                                          + TARGET_ROOT_IDENTITY.length())
                                 + JAR_POM_PROPERTIES_RELATIVE_PATH;
+            pomXmlPath = libraryFile.substring(0, testClassesRootIndex) + POM_FILE;
         } else {
             // is not from test classpath, for example install uncompressed modules, just return null
             // search for pom.properties
@@ -101,13 +110,23 @@ public class JarUtils {
             }
         }
 
+        String artifactId = null;
         try (InputStream inputStream = Files.newInputStream(new File(pomPropertiesPath).toPath())) {
             Properties properties = new Properties();
             properties.load(inputStream);
-            return properties.getProperty(JAR_ARTIFACT_ID);
+            artifactId = properties.getProperty(JAR_ARTIFACT_ID);
         } catch (IOException e) {
-            return null;
+            // ignore
         }
+        if (StringUtils.isEmpty(artifactId) && !StringUtils.isEmpty(pomXmlPath)) {
+            try (FileReader fileReader = new FileReader(pomXmlPath)) {
+                Model model = READER.read(fileReader);
+                return model.getArtifactId();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return artifactId;
     }
 
     public static String parseArtifactId(String jarLocation) {
