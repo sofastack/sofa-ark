@@ -21,9 +21,15 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -65,6 +71,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
@@ -109,6 +116,9 @@ public class RepackageMojo extends TreeMojo {
 
     @Parameter(defaultValue = "", required = false)
     private String                 packExcludesConfig;
+
+    @Parameter(defaultValue = "", required = false)
+    private String                 packExcludesUrl;
 
     /**
      * Name of the generated archive
@@ -278,6 +288,9 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "false")
     private boolean                declaredMode;
 
+    @Parameter(defaultValue = "false")
+    private boolean                disableGitInfo;
+
     /*----------------Git 相关参数---------------------*/
     /**
      * The root directory of the repository we want to check.
@@ -342,6 +355,9 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private File getGitDirectory(MavenProject rootProject) {
+        if (disableGitInfo) {
+            return null;
+        }
         if (gitDirectory != null && gitDirectory.exists()) {
             return gitDirectory;
         }
@@ -392,8 +408,7 @@ public class RepackageMojo extends TreeMojo {
         request.setGoals(goals);
         request.setBatchMode(mavenSession.getSettings().getInteractiveMode());
         request.setProfiles(mavenSession.getSettings().getActiveProfiles());
-        request.setUserSettingsFile(mavenSession.getRequest().getUserSettingsFile());
-        request.setGlobalSettingsFile(mavenSession.getRequest().getGlobalSettingsFile());
+        setSettingsLocation(request);
         Invoker invoker = new DefaultInvoker();
         try {
             InvocationResult result = invoker.execute(request);
@@ -412,6 +427,17 @@ public class RepackageMojo extends TreeMojo {
             if (outputFile.exists()) {
                 outputFile.delete();
             }
+        }
+    }
+
+    private void setSettingsLocation(InvocationRequest request) {
+        File userSettingsFile = mavenSession.getRequest().getUserSettingsFile();
+        if (userSettingsFile != null && userSettingsFile.exists()) {
+            request.setUserSettingsFile(userSettingsFile);
+        }
+        File globalSettingsFile = mavenSession.getRequest().getGlobalSettingsFile();
+        if (globalSettingsFile != null && globalSettingsFile.exists()) {
+            request.setGlobalSettingsFile(globalSettingsFile);
         }
     }
 
@@ -537,9 +563,14 @@ public class RepackageMojo extends TreeMojo {
                                       + packExcludesConfig);
         }
 
+        // extension from url
+        if (StringUtils.isNotBlank(packExcludesUrl)) {
+            extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
+        }
+
         List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : excludes) {
-            ArtifactItem item = ArtifactItem.parseArtifactItemIgnoreVersion(exclude);
+            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(exclude);
             excludeList.add(item);
         }
 
@@ -555,7 +586,7 @@ public class RepackageMojo extends TreeMojo {
 
     private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
         for (ArtifactItem exclude : excludeList) {
-            if (exclude.isSameIgnoreVersion(ArtifactItem.parseArtifactItem(artifact))) {
+            if (exclude.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
                 return true;
             }
         }
@@ -563,10 +594,16 @@ public class RepackageMojo extends TreeMojo {
         if (excludeGroupIds != null) {
             // 支持通配符
             for (String excludeGroupId : excludeGroupIds) {
-                excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                    Constants.PACKAGE_PREFIX_MARK);
-                if (artifact.getGroupId().startsWith(excludeGroupId)) {
-                    return true;
+                if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                    excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                        Constants.PACKAGE_PREFIX_MARK);
+                    if (artifact.getGroupId().startsWith(excludeGroupId)) {
+                        return true;
+                    }
+                } else {
+                    if (artifact.getGroupId().equals(excludeGroupId)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -574,10 +611,16 @@ public class RepackageMojo extends TreeMojo {
         if (excludeArtifactIds != null) {
             // 支持通配符
             for (String excludeArtifactId : excludeArtifactIds) {
-                excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                    Constants.PACKAGE_PREFIX_MARK);
-                if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
-                    return true;
+                if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                    excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                        Constants.PACKAGE_PREFIX_MARK);
+                    if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
+                        return true;
+                    }
+                } else {
+                    if (artifact.getArtifactId().equals(excludeArtifactId)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -605,6 +648,268 @@ public class RepackageMojo extends TreeMojo {
             }
         } catch (IOException ex) {
             getLog().error("failed to extension excludes artifacts.", ex);
+        }
+    }
+
+    protected void extensionExcludeArtifactsFromUrl(String packExcludesUrl, Set<Artifact> artifacts) {
+        try {
+            CloseableHttpClient client = HttpClients.createDefault();
+            HttpGet request = new HttpGet(packExcludesUrl);
+            CloseableHttpResponse response = client.execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200 && response.getEntity() != null) {
+                String result = EntityUtils.toString(response.getEntity());
+                getLog().info(
+                    String.format("success to get excludes config from url: %s, response: %s",
+                        packExcludesUrl, result));
+                ObjectMapper objectMapper = new ObjectMapper();
+                ExcludeConfigResponse excludeConfigResponse = objectMapper.readValue(result,
+                    ExcludeConfigResponse.class);
+                if (excludeConfigResponse.isSuccess() && excludeConfigResponse.getResult() != null) {
+                    ExcludeConfig excludeConfig = excludeConfigResponse.getResult();
+                    List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
+                    List<String> jarBlackArtifactIds = excludeConfig.getJarBlackArtifactIds();
+                    List<String> jarBlackList = excludeConfig.getJarBlackList();
+                    if (CollectionUtils.isNotEmpty(jarBlackGroupIds)) {
+                        excludeGroupIds.addAll(jarBlackGroupIds);
+                    }
+                    if (CollectionUtils.isNotEmpty(jarBlackArtifactIds)) {
+                        excludeArtifactIds.addAll(jarBlackArtifactIds);
+                    }
+                    if (CollectionUtils.isNotEmpty(jarBlackList)) {
+                        excludes.addAll(jarBlackList);
+                    }
+                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
+                        artifacts, true);
+
+                    List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
+                    List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
+                    List<String> jarWarnList = excludeConfig.getJarWarnList();
+                    logExcludeMessage(jarWarnGroupIds, jarWarnArtifactIds, jarWarnList, artifacts,
+                        false);
+                }
+            }
+            response.close();
+            client.close();
+        } catch (Exception e) {
+            getLog().error(
+                String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
+        }
+    }
+
+    protected void logExcludeMessage(List<String> jarGroupIds, List<String> jarArtifactIds,
+                                     List<String> jarList, Set<Artifact> artifacts, boolean error) {
+        if (CollectionUtils.isNotEmpty(jarGroupIds)) {
+            for (Artifact artifact : artifacts) {
+                if (inUnLogScopes(artifact.getScope())) {
+                    continue;
+                }
+                for (String jarBlackGroupId : jarGroupIds) {
+                    if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                        if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
+                            if (error) {
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                artifact, jarBlackGroupId));
+                            } else {
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
+                            }
+
+                        }
+                    } else {
+                        if (artifact.getGroupId().equals(jarBlackGroupId)) {
+                            if (error) {
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                artifact, jarBlackGroupId));
+                            } else {
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (CollectionUtils.isNotEmpty(jarArtifactIds)) {
+            for (Artifact artifact : artifacts) {
+                if (inUnLogScopes(artifact.getScope())) {
+                    continue;
+                }
+                for (String jarBlackArtifactId : jarArtifactIds) {
+                    if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                        if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
+                            if (error) {
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                artifact, jarBlackArtifactId));
+                            } else {
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
+                            }
+                        }
+                    } else {
+                        if (artifact.getArtifactId().equals(jarBlackArtifactId)) {
+                            if (error) {
+                                getLog()
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                artifact, jarBlackArtifactId));
+                            } else {
+                                getLog().warn(
+                                    String.format(
+                                        "Warn to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (CollectionUtils.isNotEmpty(jarList)) {
+            for (Artifact artifact : artifacts) {
+                if (inUnLogScopes(artifact.getScope())) {
+                    continue;
+                }
+                for (String jarBlack : jarList) {
+                    if (jarBlack.equals(String.join(":", artifact.getGroupId(),
+                        artifact.getArtifactId(), artifact.getVersion()))) {
+                        if (error) {
+                            getLog()
+                                .error(
+                                    String
+                                        .format(
+                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
+                                            artifact, jarBlack));
+                        } else {
+                            getLog()
+                                .warn(
+                                    String
+                                        .format(
+                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
+                                            artifact, jarBlack));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static class ExcludeConfigResponse {
+
+        private boolean       success;
+
+        private ExcludeConfig result;
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public void setSuccess(boolean success) {
+            this.success = success;
+        }
+
+        public ExcludeConfig getResult() {
+            return result;
+        }
+
+        public void setResult(ExcludeConfig result) {
+            this.result = result;
+        }
+    }
+
+    public static class ExcludeConfig {
+
+        private String       app;
+
+        private List<String> jarBlackGroupIds;
+
+        private List<String> jarBlackArtifactIds;
+
+        private List<String> jarBlackList;
+
+        private List<String> jarWarnGroupIds;
+
+        private List<String> jarWarnArtifactIds;
+
+        private List<String> jarWarnList;
+
+        public String getApp() {
+            return app;
+        }
+
+        public void setApp(String app) {
+            this.app = app;
+        }
+
+        public List<String> getJarBlackGroupIds() {
+            return jarBlackGroupIds;
+        }
+
+        public void setJarBlackGroupIds(List<String> jarBlackGroupIds) {
+            this.jarBlackGroupIds = jarBlackGroupIds;
+        }
+
+        public List<String> getJarBlackArtifactIds() {
+            return jarBlackArtifactIds;
+        }
+
+        public void setJarBlackArtifactIds(List<String> jarBlackArtifactIds) {
+            this.jarBlackArtifactIds = jarBlackArtifactIds;
+        }
+
+        public List<String> getJarBlackList() {
+            return jarBlackList;
+        }
+
+        public void setJarBlackList(List<String> jarBlackList) {
+            this.jarBlackList = jarBlackList;
+        }
+
+        public List<String> getJarWarnGroupIds() {
+            return jarWarnGroupIds;
+        }
+
+        public void setJarWarnGroupIds(List<String> jarWarnGroupIds) {
+            this.jarWarnGroupIds = jarWarnGroupIds;
+        }
+
+        public List<String> getJarWarnArtifactIds() {
+            return jarWarnArtifactIds;
+        }
+
+        public void setJarWarnArtifactIds(List<String> jarWarnArtifactIds) {
+            this.jarWarnArtifactIds = jarWarnArtifactIds;
+        }
+
+        public List<String> getJarWarnList() {
+            return jarWarnList;
+        }
+
+        public void setJarWarnList(List<String> jarWarnList) {
+            this.jarWarnList = jarWarnList;
         }
     }
 
