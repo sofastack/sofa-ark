@@ -123,6 +123,8 @@ public class Constants {
     public static final String       DATE_FORMAT                                   = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
+
+    public final static String       PACKAGE_PREFIX_MARK_2                         = ".*";
     public final static String       DEFAULT_PACKAGE                               = ".";
     public final static String       MANIFEST_VALUE_SPLIT                          = COMMA_SPLIT;
     public final static String       RESOURCE_STEM_MARK                            = "*";
