@@ -16,19 +16,19 @@
  */
 package com.alipay.sofa.ark.loader.test.jar;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.loader.jar.JarUtils;
-import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
+import com.google.common.io.Files;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-
-import static java.io.File.separator;
 
 public class JarUtilsTest {
 
@@ -130,5 +130,34 @@ public class JarUtilsTest {
         String artifactId0 = JarUtils.parseArtifactId(jar.getFile()
                                                       + "!/lib/slf4j-api-1.7.30.jar!/");
         Assert.assertEquals("slf4j-api", artifactId0);
+    }
+
+    @Test
+    public void testParseArtifactIdFromJarWithBlankPath() throws Exception {
+        URL jar = JarUtilsTest.class.getResource("/junit-4.12.jar");
+        URL root = JarUtilsTest.class.getResource("/");
+        String fullPath = root.getPath() + "space directory";
+        String jarLocation = fullPath + "/junit-4.12.jar";
+        FileUtils.mkdir(fullPath);
+        Files.copy(new File(jar.getFile()), new File(jarLocation));
+
+        URL url = JarUtilsTest.class.getResource("/space directory/junit-4.12.jar");
+        Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJar", String.class);
+        method.setAccessible(Boolean.TRUE);
+        Assert.assertNull(method.invoke(JarUtils.class, url.getPath()));
+    }
+
+    @Test
+    public void testParseArtifactIdFromJarInJarInJarMore() {
+        URL jar = JarUtilsTest.class.getResource("/example-jarinjarinjar.jar");
+        String artifactId0 = JarUtils
+            .parseArtifactId(jar.getFile()
+                             + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
+        Assert.assertEquals("sofa-ark-spring-guides", artifactId0);
+
+        String artifactId1 = JarUtils
+            .parseArtifactId(jar.getFile()
+                             + "!/BOOT-IN/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
+        Assert.assertEquals("example-client", artifactId1);
     }
 }

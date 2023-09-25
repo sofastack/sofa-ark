@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.ark.support;
 
-import java.io.IOException;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
@@ -201,5 +201,24 @@ public class DefaultClassLoaderHookTest {
             "Sample_Resource_Exported");
         Assert.assertNotNull(resourcesOnlyFromBiz.nextElement());
         Assert.assertFalse(resourcesOnlyFromBiz.hasMoreElements());
+    }
+
+    @Test
+    public void testPostFindCglibClass() throws ClassNotFoundException {
+        URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
+        BizModel testBiz = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] { bizUrl });
+        testBiz.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        testBiz.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        testBiz.setDenyImportResources(StringUtils.EMPTY_STRING);
+
+        URL[] urLs = ClassLoaderUtils.getURLs(this.getClass().getClassLoader());
+        BizModel masterBiz = createTestBizModel("master biz", "1.0.0", BizState.RESOLVED, urLs);
+        masterBiz.setClassLoader(this.getClass().getClassLoader());
+
+        bizManagerService.registerBiz(testBiz);
+        bizManagerService.registerBiz(masterBiz);
+        ArkClient.setMasterBiz(masterBiz);
+
+        Assert.assertThrows(ArkLoaderException.class, () -> testBiz.getBizClassLoader().loadClass("xxxxCGLIB$$"));
     }
 }
