@@ -24,6 +24,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
 import com.alipay.sofa.ark.spi.archive.Archive;
@@ -116,7 +118,13 @@ public class JarFileArchive implements Archive {
         if (name.lastIndexOf("/") != -1) {
             name = name.substring(name.lastIndexOf("/") + 1);
         }
-        File file = new File(getTempUnpackFolder(), name);
+        File folderFile = getTempUnpackFolder();
+        File file = new File(folderFile, name);
+        boolean isValid = FileUtils.verifyOutFilePath(folderFile, file);
+        if (!isValid) {
+            StringBuilder sb = new StringBuilder("unpack failed, invalid entryName ").append(name);
+            throw new ArkRuntimeException(sb.toString());
+        }
         if (!file.exists() || file.length() != jarEntry.getSize()) {
             unpack(jarEntry, file);
         }

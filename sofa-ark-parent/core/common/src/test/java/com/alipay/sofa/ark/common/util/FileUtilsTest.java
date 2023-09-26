@@ -22,8 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
@@ -74,6 +78,45 @@ public class FileUtilsTest {
         Assert.assertNotNull(FileUtils.mkdir("C:\\a\\b\\c"));
         // del the dir
         org.apache.commons.io.FileUtils.deleteQuietly(newDir);
+    }
+
+    @Test
+    public void testUnzipSlip() throws IOException {
+        String outerFileStr = "../outer.test";
+        String zipFileName = "compressed.zip";
+        FileOutputStream fos = new FileOutputStream(zipFileName);
+        ZipOutputStream zipOut = new ZipOutputStream(fos);
+        //write to compressed.zip
+        try {
+            ZipEntry zipEntry = new ZipEntry(outerFileStr);
+            zipOut.putNextEntry(zipEntry);
+            String data = "this is test file";
+            byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
+            int length = bytes.length;
+            zipOut.write(bytes, 0, length);
+            zipOut.flush();
+        } finally {
+            zipOut.close();
+            fos.close();
+        }
+
+        //unzip
+        File zipFile = new File(zipFileName);
+        //test zipFile exist
+        Assert.assertTrue(zipFile.exists());
+        File unzipFile = null;
+        try {
+            unzipFile = FileUtils.unzip(zipFile, "./");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().startsWith("unzip failed"));
+        } finally {
+            //clear zipFile
+            if (null != zipFile && zipFile.exists()) {
+                zipFile.delete();
+            }
+        }
+        //assert failed null
+        Assert.assertNull(unzipFile);
     }
 
 }

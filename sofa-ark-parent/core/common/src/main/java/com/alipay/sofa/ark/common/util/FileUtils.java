@@ -110,6 +110,26 @@ public class FileUtils {
         return path;
     }
 
+    /**
+     * 验证输出文件 是否在指定目录下
+     * @param folderFile
+     * @param outputFile
+     * @return
+     * @throws IOException
+     */
+    public static boolean verifyOutFilePath(File folderFile, File outputFile) throws IOException {
+        String outputFileCanonicalPath = outputFile.getCanonicalPath();
+        if (outputFile.isDirectory() && !outputFileCanonicalPath.endsWith(File.separator)) {
+            outputFileCanonicalPath = outputFileCanonicalPath + File.separator;
+        }
+
+        String folderCanonicalPath = folderFile.getCanonicalPath();
+        if (!folderCanonicalPath.endsWith(File.separator)) {
+            folderCanonicalPath += File.separator;
+        }
+        return outputFileCanonicalPath.startsWith(folderCanonicalPath);
+    }
+
     public static File unzip(File root, String targetPath) throws IOException {
         ZipFile zipFile = null;
         try {
@@ -127,6 +147,13 @@ public class FileUtils {
                     try {
                         inputStream = zipFile.getInputStream(entry);
                         File file = new File(targetPath + File.separator + entry.getName());
+                        boolean isValid = verifyOutFilePath(new File(targetPath), file);
+                        if (!isValid) {
+                            StringBuilder sb = new StringBuilder("unzip failed, ")
+                                .append(zipFile.getName()).append(" contain invalid entryName ")
+                                .append(entry.getName());
+                            throw new ArkRuntimeException(sb.toString());
+                        }
                         if (!file.exists()) {
                             File fileParent = file.getParentFile();
                             if (!fileParent.exists()) {
