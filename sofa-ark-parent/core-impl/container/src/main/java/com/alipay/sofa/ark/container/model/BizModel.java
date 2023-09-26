@@ -40,7 +40,6 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
-import com.google.common.collect.Collections2;
 
 import java.io.File;
 import java.net.URL;
