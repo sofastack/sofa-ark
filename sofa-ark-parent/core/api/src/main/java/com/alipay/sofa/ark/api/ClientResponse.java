@@ -31,6 +31,7 @@ public class ClientResponse {
     private String       message;
     private ResponseCode code;
     private Set<BizInfo> bizInfos;
+    private long       elapsedSpace;
 
     public String getMessage() {
         return message;
@@ -57,5 +58,12 @@ public class ClientResponse {
     public ClientResponse setBizInfos(Set<BizInfo> bizInfos) {
         this.bizInfos = bizInfos;
         return this;
+    }
+    public long getElapsedSpace() {
+        return elapsedSpace;
+    }
+
+    public void setElapsedSpace(long elapsedSpace) {
+        this.elapsedSpace = elapsedSpace;
     }
 }

@@ -38,12 +38,11 @@ import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * API used to operate biz
@@ -152,7 +151,13 @@ public class ArkClient {
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
 
+        MemoryPoolMXBean metaSpaceMXBean = null;
+        List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
+        for (MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans)
+            if (memoryPoolMXBean.getName().equals("Metaspace"))
+                metaSpaceMXBean = memoryPoolMXBean;
         long start = System.currentTimeMillis();
+        long startSpace = metaSpaceMXBean.getUsage().getUsed();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
@@ -167,12 +172,14 @@ public class ArkClient {
         try {
             biz.start(args);
             long end = System.currentTimeMillis();
+            long endSpace = metaSpaceMXBean.getUsage().getUsed();
             response
                 .setCode(ResponseCode.SUCCESS)
                 .setMessage(
                     String.format("Install Biz: %s success, cost: %s ms, started at: %s",
                         biz.getIdentity(), end - start, startDate))
-                .setBizInfos(Collections.<BizInfo> singleton(biz));
+                .setBizInfos(Collections.<BizInfo> singleton(biz))
+                    .setElapsedSpace(endSpace - startSpace);
             getLogger().info(response.getMessage());
             return response;
         } catch (Throwable throwable) {
