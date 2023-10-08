@@ -95,11 +95,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     @Override
     public void start(final PluginContext context) {
-
-        if (!enableZkServer) {
-            LOGGER.warn("config server is disabled.");
-            return;
-        }
+        LOGGER.info("start zookeeper config activator");
 
         String config = ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ADDRESS);
         RegistryConfig registryConfig = ZookeeperConfigurator.buildConfig(config);
