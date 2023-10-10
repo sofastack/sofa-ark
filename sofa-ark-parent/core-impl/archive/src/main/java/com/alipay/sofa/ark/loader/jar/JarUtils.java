@@ -56,6 +56,8 @@ public class JarUtils {
     private static final String                        VERSION_REGEX                    = "^([0-9]+\\.)+.+";
 
     private static final MavenXpp3Reader               READER                           = new MavenXpp3Reader();
+  
+    public static final String                         JAR_SEPARATOR                    = "!/";
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
@@ -138,13 +140,14 @@ public class JarUtils {
         // 6. /xxx/xxx/target/classes/xxxx.jar
         // 7. /xxx/xxx/target/test-classes/yyy/yyy/
         // 8. /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar!/
+        // 9. if is ark plugin, then return null to set declared default
 
         jarLocation = ModifyPathUtils.modifyPath(jarLocation);
         String finalJarLocation = jarLocation;
         artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
             try {
                 String artifactId;
-                String[] as = a.split("!/", -1);
+                String[] as = a.split(JAR_SEPARATOR, -1);
                 if (as.length == 1) {
                     // no '!/'
                     String filePath = as[0];
@@ -166,7 +169,7 @@ public class JarUtils {
                 } else if (as.length == 3) {
                     // two '!/'
                     String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
-                    String filePath = String.join("!/", jarPathInfo);
+                    String filePath = String.join(JAR_SEPARATOR, jarPathInfo);
                     artifactId = doGetArtifactIdFromFileName(filePath);
                     if (StringUtils.isEmpty(artifactId)) {
                         artifactId = parseArtifactIdFromJarInJar(filePath);
@@ -174,7 +177,7 @@ public class JarUtils {
                 } else {
                     // three '!/' or more
                     String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
-                    String filePath = String.join("!/", jarPathInfo);
+                    String filePath = String.join(JAR_SEPARATOR, jarPathInfo);
                     artifactId = doGetArtifactIdFromFileName(filePath);
                     if (StringUtils.isEmpty(artifactId)) {
                         artifactId = parseArtifactIdFromJarInJarInJarMore(filePath);
@@ -214,8 +217,8 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
-        String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf("!/"));
-        String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf("!/") + 2);
+        String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SEPARATOR));
+        String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf(JAR_SEPARATOR) + 2);
         com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(new File(rootPath));
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
@@ -238,7 +241,7 @@ public class JarUtils {
     public static com.alipay.sofa.ark.loader.jar.JarFile getTemporaryRootJarFromJarLocation(String jarLocation)
                                                                                                                throws IOException {
         //  /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar
-        String[] js = jarLocation.split("!/", -1);
+        String[] js = jarLocation.split(JAR_SEPARATOR, -1);
         com.alipay.sofa.ark.loader.jar.JarFile rJarFile = new com.alipay.sofa.ark.loader.jar.JarFile(
             new File(js[0]));
         for (int i = 1; i < js.length; i++) {
