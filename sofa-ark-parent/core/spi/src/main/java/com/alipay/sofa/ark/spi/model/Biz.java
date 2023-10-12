@@ -18,6 +18,8 @@ package com.alipay.sofa.ark.spi.model;
 
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
 
+import java.net.URL;
+
 /**
  * Ark Biz Model Interface
  *
@@ -37,6 +39,20 @@ public interface Biz extends BizInfo, PriorityOrdered {
      * @throws Throwable
      */
     void stop() throws Throwable;
+
+    /**
+     * check resource whether declared in this biz classLoader.
+     * @param url
+     */
+    boolean isDeclared(URL url, String resourceName);
+
+    /**
+     * check whether this biz is declared mode.
+     * declared mode means this biz can only delegate declared class and resources
+     * in the pom of this biz to other classloader like plugin or master Biz.
+     * @return
+     */
+    boolean isDeclaredMode();
 
     /**
      * allow to dynamic update biz name

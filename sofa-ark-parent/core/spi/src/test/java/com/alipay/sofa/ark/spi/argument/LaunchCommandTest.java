@@ -16,17 +16,20 @@
  */
 package com.alipay.sofa.ark.spi.argument;
 
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author qilong.zql 18/3/9
@@ -44,7 +47,9 @@ public class LaunchCommandTest {
     public void init() {
 
         try {
-            classpath = getClasspath(((URLClassLoader) this.getClass().getClassLoader()).getURLs());
+
+            classpath = getClasspath(Objects.requireNonNull(getURLs(this.getClass()
+                .getClassLoader())));
             method = MainClass.class.getMethod("main", String[].class);
             fatJarUrl = this.getClass().getClassLoader().getResource("test 2.jar");
         } catch (Exception ex) {
@@ -112,5 +117,30 @@ public class LaunchCommandTest {
         }
 
         return sb.toString();
+    }
+
+    private URL[] getURLs(ClassLoader classLoader) {
+        // https://stackoverflow.com/questions/46519092/how-to-get-all-jars-loaded-by-a-java-application-in-java9
+        if (classLoader instanceof URLClassLoader) {
+            return ((URLClassLoader) classLoader).getURLs();
+        }
+
+        // support jdk9+
+        String classpath = System.getProperty("java.class.path");
+        String[] classpathEntries = classpath.split(System.getProperty("path.separator"));
+        List<URL> classpathURLs = new ArrayList<>();
+        for (String classpathEntry : classpathEntries) {
+            URL url = null;
+            try {
+                url = new File(classpathEntry).toURI().toURL();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                throw new ArkRuntimeException("Failed to get urls from " + classLoader, e);
+            }
+            classpathURLs.add(url);
+        }
+
+        return classpathURLs.toArray(new URL[0]);
+
     }
 }

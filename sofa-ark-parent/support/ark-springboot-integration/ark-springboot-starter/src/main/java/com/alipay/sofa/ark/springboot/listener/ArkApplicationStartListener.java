@@ -21,14 +21,13 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
-import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
+import org.springframework.boot.loader.LaunchedURLClassLoader;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -48,7 +47,8 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
             if (ArkConfigs.isEmbedEnable()
-                || SPRING_BOOT_LOADER.equals(this.getClass().getClassLoader().getClass().getName())) {
+                || LaunchedURLClassLoader.class.isAssignableFrom(this.getClass().getClassLoader()
+                    .getClass())) {
                 ArkConfigs.setEmbedEnable(true);
                 startUpArkEmbed(event);
                 return;
@@ -74,14 +74,17 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     }
 
     public boolean isSpringBoot1() {
-        return SpringBootVersion.getVersion().startsWith("1");
+        String version = SpringBootVersion.getVersion();
+        return null == version ? false : version.startsWith("1");
     }
 
     public boolean isSpringBoot2() {
-        return SpringBootVersion.getVersion().startsWith("2");
+        String version = SpringBootVersion.getVersion();
+        return null == version ? false : version.startsWith("2");
     }
 
     protected void startUpArkEmbed(SpringApplicationEvent event) {
+        // 仅监听基座启动时的Event
         if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
             return;
         }
@@ -90,12 +93,17 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
             EmbedSofaArkBootstrap.launch(preparedEvent.getEnvironment());
         }
         if (event instanceof ApplicationReadyEvent) {
-            if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
-                ArkClient.getEventAdminService().sendEvent(
-                    new AfterBizStartupEvent(ArkClient.getMasterBiz()));
-                ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
-                ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
-            }
+            // 基座启动后+静态合并部署的biz启动后，发送事件
+            sendEventAfterArkEmbedStartupFinish();
+        }
+    }
+
+    protected void sendEventAfterArkEmbedStartupFinish() {
+        if (ArkClient.getEventAdminService() != null && ArkClient.getMasterBiz() != null) {
+            ArkClient.getEventAdminService().sendEvent(
+                new AfterBizStartupEvent(ArkClient.getMasterBiz()));
+            ArkClient.getEventAdminService().sendEvent(new AfterFinishDeployEvent());
+            ArkClient.getEventAdminService().sendEvent(new AfterFinishStartupEvent());
         }
     }
 }

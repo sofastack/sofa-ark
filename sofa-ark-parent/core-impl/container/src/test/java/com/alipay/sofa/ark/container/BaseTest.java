@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
 import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
 import com.alipay.sofa.ark.container.service.ArkServiceContainer;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -29,11 +30,11 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import mockit.Mock;
-import mockit.MockUp;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -42,48 +43,51 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
+
 /**
  *
  * @author ruoshan
  * @since 0.1.0
  */
 public class BaseTest {
-    private URL                   jarURL              = ArkContainerTest.class.getClassLoader()
-                                                          .getResource("test.jar");
-    protected ArkServiceContainer arkServiceContainer = new ArkServiceContainer(new String[] {});
-    protected ArkContainer        arkContainer;
-
+    private URL                     jarURL              = ArkContainerTest.class.getClassLoader()
+                                                            .getResource("test.jar");
+    protected ArkServiceContainer   arkServiceContainer = new ArkServiceContainer(new String[] {});
+    protected ArkContainer          arkContainer;
+    MockedStatic<ManagementFactory> managementFactoryMockedStatic;
     static {
         // fix cobertura bug
         new PluginServiceProvider(new PluginModel());
     }
 
+    public static BizModel createTestBizModel(String bizName, String bizVersion, BizState bizState,
+                                              URL[] urls) {
+        BizModel bizModel = new BizModel().setBizState(bizState);
+        bizModel.setBizName(bizName).setBizVersion(bizVersion);
+        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(), urls);
+        bizClassLoader.setBizModel(bizModel);
+        bizModel.setClassPath(urls).setClassLoader(bizClassLoader);
+        return bizModel;
+    }
+
     @Before
     public void before() {
-        new MockUp<ManagementFactory>() {
-            @Mock
-            public RuntimeMXBean getRuntimeMXBean() {
-                return new MockUp<RuntimeMXBean>() {
-                    @Mock
-                    List<String> getInputArguments() {
-                        List<String> mockArguments = new ArrayList<>();
-                        String filePath = this.getClass().getClassLoader()
-                            .getResource("SampleClass.class").getPath();
-                        String workingPath = new File(filePath).getParent();
-                        mockArguments.add(String.format("javaaget:%s", workingPath));
-                        mockArguments.add(String.format("-javaagent:%s", workingPath));
-                        mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
-                        return mockArguments;
-                    }
+        List<String> mockArguments = new ArrayList<>();
+        String filePath = this.getClass().getClassLoader()
+                .getResource("SampleClass.class").getPath();
+        String workingPath = new File(filePath).getParent();
+        mockArguments.add(String.format("javaaget:%s", workingPath));
+        mockArguments.add(String.format("-javaagent:%s", workingPath));
+        mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
 
-                    // to avoid npe
-                    @Mock
-                    String getName() {
-                        return "";
-                    }
-                }.getMockInstance();
-            }
-        };
+        RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
+        when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
+        when(runtimeMXBean.getName()).thenReturn("");
+
+        managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
+
         arkServiceContainer.start();
         arkServiceContainer.getService(RegisterServiceStage.class).process(null);
         ArkServiceLoader.setExtensionLoaderService(arkServiceContainer
@@ -96,6 +100,7 @@ public class BaseTest {
         if (arkContainer != null) {
             arkContainer.stop();
         }
+        managementFactoryMockedStatic.close();
     }
 
     @BeforeClass

@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.test;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
@@ -24,11 +25,14 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.test.springboot.TestValueHolder;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author bingjie.lbj
@@ -43,13 +47,14 @@ public class SpringbootRunnerTest {
     @ArkInject
     EventAdminService    eventAdminService;
 
-    @BeforeClass
-    public static void before() {
+    @Before
+    public void before() {
+        ClassLoaderUtils.pushContextClassLoader(ClassLoader.getSystemClassLoader());
         System.setProperty(Constants.EMBED_ENABLE, "true");
     }
 
-    @AfterClass
-    public static void after() {
+    @After
+    public void after() {
         System.setProperty(Constants.EMBED_ENABLE, "");
     }
 

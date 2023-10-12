@@ -51,7 +51,10 @@ public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
 
     @Test
     public void testIntrospectBizEndpoint() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("management.endpoints.web.exposure.include", "*");
         SpringApplication springApplication = new SpringApplication(EmptyConfiguration.class);
+        springApplication.setDefaultProperties(properties);
         ConfigurableApplicationContext applicationContext = springApplication.run(new String[] {});
         Assert.assertTrue(applicationContext.containsBean("introspectBizEndpoint"));
         applicationContext.close();

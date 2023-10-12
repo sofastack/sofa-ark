@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
@@ -24,6 +25,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.testdata.ITest;
+import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
@@ -34,7 +36,7 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.misc.URLClassPath;
+//import sun.misc.URLClassPath;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -93,10 +95,8 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0")
-            .setClassPath(new URL[] { classPathURL })
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
+            new URL[] { classPathURL });
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -109,15 +109,109 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testAgentClass() throws ClassNotFoundException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()))
-            .setDenyImportResources("").setDenyImportClasses("");
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
+        bizModel.setDenyImportResources("").setDenyImportClasses("");
         bizManagerService.registerBiz(bizModel);
         Class clazz = bizModel.getBizClassLoader().loadClass("SampleClass");
         Assert.assertFalse(clazz.getClassLoader() instanceof AgentClassLoader);
+
         Assert.assertTrue(clazz.getClassLoader().getClass().getCanonicalName()
-            .contains("Launcher.AppClassLoader"));
+            .contains("Launcher.AppClassLoader")
+                          || clazz.getClassLoader().getClass().getCanonicalName()
+                              .contains("ClassLoaders.AppClassLoader"));
+    }
+
+    @Test
+    public void testLoadClassFromPluginClassLoader() throws Exception {
+        URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
+        URL pluginUrl1 = this.getClass().getClassLoader().getResource("sample-ark-plugin-0.5.0.jar");
+        URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz-0.3.0.jar");
+        URL pluginUrl3 = this.getClass().getClassLoader().getResource("aopalliance-1.0.jar");
+        URL pluginUrl4 = this.getClass().getClassLoader().getResource("com.springsource.org.aopalliance-1.0.0.jar");
+
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
+            new URL[] { bizUrl });
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizModel.setDeclaredLibraries("sample-ark-plugin,com.springsource.org.aopalliance");
+
+        PluginModel pluginA = new PluginModel();
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportClasses("")
+            .setExportPackages(ClassUtils.getPackageName(ITest.class.getName()))
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+
+        PluginModel pluginB = new PluginModel();
+        pluginB
+            .setPluginName("plugin B")
+            .setClassPath(new URL[] { pluginUrl1, pluginUrl2, pluginUrl3, pluginUrl4 })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportClasses("com.alipay.sofa.ark.sample.common.SampleClassExported,org.aopalliance.aop.Advice")
+            .setExportPackages("")
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("Sample_Resource_Exported, META-INF/spring/service.xml")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+
+        pluginManagerService.registerPlugin(pluginA);
+        pluginManagerService.registerPlugin(pluginB);
+        pluginDeployService.deploy();
+        classloaderService.prepareExportClassAndResourceCache();
+
+        bizManagerService.registerBiz(bizModel);
+
+        // case 1: find class from multiple libs in plugin classloader
+        Class<?> adviceClazz = bizModel.getBizClassLoader().loadClass("org.aopalliance.aop.Advice");
+        Assert.assertEquals(adviceClazz.getClassLoader(), pluginB.getPluginClassLoader());
+
+        // case 2: find class from plugin but not set provided in biz model
+        Assert.assertThrows(ArkLoaderException.class, () -> bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.facade.SampleService"));
+
+        // case 3: find class from plugin in classpath
+        Class<?> itest = bizModel.getBizClassLoader().loadClass(ITest.class.getName());
+        Assert.assertEquals(itest.getClassLoader(), pluginA.getPluginClassLoader());
+
+        // case 4: find class from plugin in jar
+        Class<?> sampleClassExported = bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.common.SampleClassExported");
+        Assert.assertEquals(sampleClassExported.getClassLoader(), pluginB.getPluginClassLoader());
+
+        // case 5: find class but not exported
+        Assert.assertThrows(ArkLoaderException.class, () -> bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.common.SampleClassNotExported"));
+
+        // case 6: find resources from plugin but not set provided in biz model
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("META-INF/spring/service.xml"));
+
+        // case 7: find resource from plugin in classpath
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB"));
+
+
+        // case 8: find resource from plugin in jar
+        Assert.assertNotNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Exported"));
+
+        // case 9: find resource but not exproted
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Not_Exported"));
+
+        // case 10: find resources from plugin but not set provided in biz model
+        Assert.assertFalse(bizModel.getBizClassLoader().getResources("META-INF/spring/service.xml").hasMoreElements());
+
+        // case 11: find resource from plugin in classpath
+        Assert.assertTrue(bizModel.getBizClassLoader().getResources("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB").hasMoreElements());
+
+
+        // case 12: find resource from plugin in jar
+        Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported").hasMoreElements());
+
+        // case 13: find resource but not exproted
+        Assert.assertFalse(bizModel.getBizClassLoader().getResources("Sample_Resource_Not_Exported").hasMoreElements());
     }
 
     @Test
@@ -139,13 +233,10 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[0])
-            .setDenyImportClasses(StringUtils.EMPTY_STRING)
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[0]);
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING)
             .setDenyImportResources(StringUtils.EMPTY_STRING)
-            .setDenyImportPackages(StringUtils.EMPTY_STRING)
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
-
+            .setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizManagerService.registerBiz(bizModel);
 
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
@@ -154,9 +245,7 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testLoadClassFromAgentClassLoader() throws ClassNotFoundException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("MockBiz").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("MockBiz", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
@@ -187,9 +276,7 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("bizA", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
@@ -238,9 +325,7 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("bizA").setBizVersion("1.0.0").setClassPath(new URL[0])
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("bizA", "1.0.0", BizState.RESOLVED, new URL[0]);
         bizModel.setDenyImportResources("export/folderA/*,export/folderB/test3.xml");
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
@@ -264,11 +349,14 @@ public class BizClassLoaderTest extends BaseTest {
     @Test
     public void testSlashResource() throws Throwable {
         registerMockBiz();
-        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
-        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
-        ucpFiled.setAccessible(true);
-        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
-        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ucp.getURLs());
+        //        URLClassLoader urlClassLoader = (URLClassLoader) this.getClass().getClassLoader();
+        //        Field ucpFiled = URLClassLoader.class.getDeclaredField("ucp");
+        //        ucpFiled.setAccessible(true);
+        //        URLClassPath ucp = (URLClassPath) ucpFiled.get(urlClassLoader);
+        //        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0", ucp.getURLs());
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0",
+            ClassLoaderUtils.getURLs(classLoader));
         URL url = bizClassLoader.getResource("");
         Assert.assertNotNull(url);
         Assert.assertEquals(url, this.getClass().getResource("/"));
@@ -276,13 +364,12 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testGetJdkResource() throws IOException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
-        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        //        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        String name = "javax/lang/model/element/Modifier.class";
 
         URL res1 = cl.getResource(name);
         Assert.assertNotNull(res1);
@@ -301,13 +388,12 @@ public class BizClassLoaderTest extends BaseTest {
 
     @Test
     public void testCacheResource() throws NoSuchFieldException, IllegalAccessException {
-        BizModel bizModel = new BizModel().setBizState(BizState.RESOLVED);
-        bizModel.setBizName("biz A").setBizVersion("1.0.0").setClassPath(new URL[] {})
-            .setClassLoader(new BizClassLoader(bizModel.getIdentity(), bizModel.getClassPath()));
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
         bizManagerService.registerBiz(bizModel);
 
         ClassLoader cl = bizModel.getBizClassLoader();
-        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        //        String name = "META-INF/services/javax.script.ScriptEngineFactory";
+        String name = "javax/lang/model/element/Modifier.class";
         URL res1 = cl.getResource(name);
         Assert.assertNotNull(res1);
         Assert.assertNotNull(cl.getResource(name));
@@ -322,6 +408,20 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertNull(cl.getResource(notExistingName));
         Assert.assertNotNull(urlResourceCache.getIfPresent(notExistingName));
         Assert.assertFalse(urlResourceCache.getIfPresent(notExistingName).isPresent());
+    }
+
+    @Test
+    public void testPublicDefineClass() {
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, new URL[] {});
+        bizManagerService.registerBiz(bizModel);
+
+        BizClassLoader cl = (BizClassLoader) bizModel.getBizClassLoader();
+        try {
+            cl.publicDefineClass("NoExistClass", new byte[] {}, null);
+            Assert.fail();
+        } catch (Throwable t) {
+            Assert.assertTrue(t instanceof java.lang.ClassFormatError);
+        }
     }
 
     private Cache<String, Optional<URL>> getUrlResourceCache(Object classloader)

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sofa-ark-support</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>2.0.0</version>
+        <version>${sofa.ark.version}</version>
     </parent>
 
     <artifactId>sofa-ark-tools</artifactId>
@@ -37,6 +37,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
         </dependency>
 
     </dependencies>

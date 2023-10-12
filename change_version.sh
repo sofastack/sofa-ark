@@ -7,7 +7,7 @@ else
   	echo "The updated version is $1 !"
 fi
 
-currentVersion=`sed -n '/<project /,/<packaging/p' pom.xml | grep version | cut -d '>' -f2 | cut -d '<' -f1`
+currentVersion=`sed -n '/<revision>/p' pom.xml | cut -d '>' -f2 | cut -d '<' -f1`
 echo "The current version is $currentVersion"
 
 if [ `uname` == "Darwin" ] ;then
@@ -18,18 +18,7 @@ else
  	alias sed='sed -i'
 fi
 
-echo "Change version in root pom.xml ===>"
-sed "/<project /,/<packaging/ s/<version>.*<\/version>/<version>$1<\/version>/" pom.xml
-
-echo "Change version in subproject pom ===>"
-for filename in `find . -name "pom.xml" -mindepth 2`;do
-	echo "Deal with $filename"
-	sed "/<parent>/,/<\/parent>/ s/<version>.*<\/version>/<version>$1<\/version>/" $filename
-
-done
-
 for filename in `find . -name "README*.md"`;do
 	echo "Deal with $filename"
 	sed "/badge\/maven/! s/$currentVersion/$1/" $filename
-
 done

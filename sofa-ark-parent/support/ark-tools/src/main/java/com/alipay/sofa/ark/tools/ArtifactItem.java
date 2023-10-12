@@ -20,6 +20,8 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import org.apache.maven.artifact.Artifact;
 
+import java.util.Objects;
+
 /**
  * @author qilong.zql
  * @since 0.1.0
@@ -37,6 +39,8 @@ public class ArtifactItem {
     private String              classifier;
 
     private String              type      = "jar";
+
+    private String              scope     = "compile";
 
     public String getGroupId() {
         return groupId;
@@ -78,6 +82,14 @@ public class ArtifactItem {
         this.type = type;
     }
 
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
     public String toString() {
         if (this.classifier == null) {
             return String.format("%s%s%s%s%s%s%s", groupId, GAV_SPLIT, artifactId, GAV_SPLIT,
@@ -95,6 +107,17 @@ public class ArtifactItem {
 
         return isSameStr(this.getGroupId(), that.getGroupId())
                && isSameStr(this.getArtifactId(), that.getArtifactId())
+               && isSameStr(this.getClassifier(), that.getClassifier());
+    }
+
+    public boolean isSameWithVersion(ArtifactItem that) {
+        if (that == null) {
+            return false;
+        }
+
+        return isSameStr(this.getGroupId(), that.getGroupId())
+               && isSameStr(this.getArtifactId(), that.getArtifactId())
+               && isSameStr(this.getVersion(), that.getVersion())
                && isSameStr(this.getClassifier(), that.getClassifier());
     }
 
@@ -163,7 +186,31 @@ public class ArtifactItem {
         artifactItem.setClassifier(artifact.getClassifier());
         artifactItem.setVersion(artifact.getVersion());
         artifactItem.setType(artifact.getType());
+        artifactItem.setScope(artifact.getScope());
         return artifactItem;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ArtifactItem artifactItem = (ArtifactItem) o;
+        return Objects.equals(this.groupId, artifactItem.getGroupId())
+               && Objects.equals(this.artifactId, artifactItem.getArtifactId())
+               && Objects.equals(this.type, artifactItem.getType())
+               && Objects.equals(this.version, artifactItem.getVersion())
+               && Objects.equals(this.classifier, artifactItem.getClassifier())
+               && Objects.equals(this.scope, artifactItem.getScope());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects
+            .hash(this.groupId, this.artifactId, this.type, this.version, this.classifier);
+    }
 }

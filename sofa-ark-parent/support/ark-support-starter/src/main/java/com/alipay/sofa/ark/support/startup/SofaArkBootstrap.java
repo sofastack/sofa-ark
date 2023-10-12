@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.support.startup;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.spi.argument.CommandArgument;
 import com.alipay.sofa.ark.support.thread.IsolatedThreadGroup;
 import com.alipay.sofa.ark.support.thread.LaunchRunner;
@@ -88,7 +89,8 @@ public class SofaArkBootstrap {
 
     private static URL[] getURLClassPath() {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        return ((URLClassLoader) classLoader).getURLs();
+        //        return ((URLClassLoader) classLoader).getURLs();
+        return ClassLoaderUtils.getURLs(classLoader);
     }
 
     private static boolean isSofaArkStarted() {

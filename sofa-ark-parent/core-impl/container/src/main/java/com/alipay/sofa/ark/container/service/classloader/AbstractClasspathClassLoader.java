@@ -20,13 +20,14 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
-import sun.misc.CompoundEnumeration;
 
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -35,11 +36,7 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.jar.JarFile;
 
@@ -182,7 +179,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     @Override
     protected Package getPackage(String name) {
         Optional<Package> pkgInCache = packageCache.getIfPresent(name);
-        if (pkgInCache != null) {
+        if (pkgInCache != null && pkgInCache.isPresent()) {
             return pkgInCache.orElse(null);
         }
 
@@ -286,20 +283,60 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     public Enumeration<URL> getResources(String name) throws IOException {
         Handler.setUseFastConnectionExceptions(true);
         try {
-            Enumeration<URL> ret = preFindResources(name);
-            if (ret != null && ret.hasMoreElements()) {
-                return ret;
+            if (isDeclaredMode()) {
+                List<Enumeration<URL>> enumerationList = new ArrayList<>();
+                // 1. get resources from ClassLoaderHook.
+                enumerationList.add(preFindResources(name));
+                // 2. get jdk resources, plugin resources declared by the biz and resources in the biz.
+                enumerationList.add(getResourcesInternal(name));
+                // 3. delegate master biz to get resources declared by the biz.
+                enumerationList.add(postFindResources(name));
+                // unique urls
+                return uniqueUrls(enumerationList, name);
+            } else {
+                Enumeration<URL> ret = preFindResources(name);
+                if (ret != null && ret.hasMoreElements()) {
+                    return ret;
+                }
+                ret = getResourcesInternal(name);
+                if (ret != null && ret.hasMoreElements()) {
+                    return ret;
+                }
+                ret = postFindResources(name);
+                return ret != null ? ret : new CompoundEnumeration<URL>(
+                    (Enumeration<URL>[]) new Enumeration<?>[] {});
             }
-            ret = getResourcesInternal(name);
-            if (ret != null && ret.hasMoreElements()) {
-                return ret;
-            }
-            ret = postFindResources(name);
-            return ret != null ? ret : new CompoundEnumeration<URL>(
-                (Enumeration<URL>[]) new Enumeration<?>[] {});
+
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    private Enumeration<URL> uniqueUrls(List<Enumeration<URL>> enumerationList, String resourceName) {
+        // unique urls
+        Set<String> temp = new HashSet<>();
+        List<URL> uniqueUrls = new ArrayList<>();
+
+        for (Enumeration<URL> e : enumerationList) {
+            while (e != null && e.hasMoreElements()) {
+                URL resourceUrl = e.nextElement();
+                String filePath = resourceUrl.getFile().replace("file:", "");
+
+                if (filePath.endsWith(resourceName)) {
+                    filePath = filePath.substring(0, filePath.lastIndexOf(resourceName));
+                }
+                String artifactId = JarUtils.parseArtifactId(filePath);
+                if (artifactId == null) {
+                    uniqueUrls.add(resourceUrl);
+                } else {
+                    if (!temp.contains(artifactId)) {
+                        uniqueUrls.add(resourceUrl);
+                        temp.add(artifactId);
+                    }
+                }
+            }
+        }
+        return Collections.enumeration(uniqueUrls);
     }
 
     /**
@@ -337,6 +374,10 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      */
     abstract boolean shouldFindExportedResource(String resourceName);
 
+    private boolean isDeclaredMode() {
+        return this instanceof BizClassLoader && ((BizClassLoader) this).checkDeclaredMode();
+    }
+
     /**
      * Load JDK class
      * @param name class name
@@ -361,8 +402,35 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
             if (importClassLoader != null) {
                 try {
-                    return importClassLoader.loadClass(name);
-                } catch (ClassNotFoundException e) {
+                    Class<?> clazz = importClassLoader.loadClass(name);
+                    if (clazz == null) {
+                        return null;
+                    }
+                    URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
+                    if (this instanceof BizClassLoader
+                        && ((BizClassLoader) this).getBizModel() != null) {
+                        BizModel bizModel = ((BizClassLoader) this).getBizModel();
+
+                        if (url != null && bizModel.isDeclared(url, "")) {
+                            return clazz;
+                        }
+                        String classResourceName = name.replace('.', '/') + ".class";
+                        Enumeration<URL> urls = importClassLoader.getResources(classResourceName);
+                        while (urls.hasMoreElements()) {
+                            URL resourceUrl = urls.nextElement();
+                            if (resourceUrl != null
+                                && bizModel.isDeclared(resourceUrl, classResourceName)) {
+                                ArkLoggerFactory.getDefaultLogger().warn(
+                                    String.format(
+                                        "find class %s from %s in multiple dependencies.", name,
+                                        resourceUrl.getFile()));
+                                return clazz;
+                            }
+                        }
+                    } else {
+                        return clazz;
+                    }
+                } catch (ClassNotFoundException | IOException e) {
                     // just log when debug level
                     if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
                         // log debug message
@@ -435,9 +503,14 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             if (exportResourceClassLoadersInOrder != null) {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
                     url = exportResourceClassLoader.getResource(resourceName);
-                    if (url != null) {
-                        return url;
+                    if (url != null && this instanceof BizClassLoader) {
+                        if (((BizClassLoader) (this)).getBizModel().isDeclared(url, resourceName)) {
+                            return url;
+                        } else {
+                            return null;
+                        }
                     }
+                    return url;
                 }
             }
 
@@ -511,8 +584,22 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                         enumerationList.add(exportResourceClassLoader.getResources(resourceName));
                     }
                 }
-                return new CompoundEnumeration<>(
+
+                Enumeration<URL> urls = new CompoundEnumeration<>(
                     enumerationList.toArray((Enumeration<URL>[]) new Enumeration<?>[0]));
+                if (this instanceof BizClassLoader) {
+                    BizModel bizModel = ((BizClassLoader) this).getBizModel();
+                    List<URL> matchedResourceUrls = new ArrayList<>();
+                    while (urls.hasMoreElements()) {
+                        URL resourceUrl = urls.nextElement();
+
+                        if (resourceUrl != null && bizModel.isDeclared(resourceUrl, resourceName)) {
+                            matchedResourceUrls.add(resourceUrl);
+                        }
+                    }
+                    return Collections.enumeration(matchedResourceUrls);
+                }
+                return urls;
             }
         }
         return Collections.emptyEnumeration();

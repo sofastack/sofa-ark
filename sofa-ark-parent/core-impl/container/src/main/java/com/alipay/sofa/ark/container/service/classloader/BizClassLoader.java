@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.service.classloader;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -27,6 +28,7 @@ import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.ProtectionDomain;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,6 +51,16 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     private AtomicBoolean        skipLoadHook      = new AtomicBoolean(false);
     private final Object         lock              = new Object();
 
+    private BizModel             bizModel;
+
+    public void setBizModel(BizModel bizModel) {
+        this.bizModel = bizModel;
+    }
+
+    public BizModel getBizModel() {
+        return this.bizModel;
+    }
+
     static {
         ClassLoader.registerAsParallelCapable();
     }
@@ -61,6 +73,11 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     public BizClassLoader(String bizIdentity, URL[] urls, boolean exploded) {
         this(bizIdentity, urls);
         this.exploded = exploded;
+    }
+
+    // support use biz classloader define app classloader class in org.springframework.cglib.core.ReflectUtils.defineClass
+    public Class<?> publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain) {
+        return defineClass(name, b, 0, b.length, protectionDomain);
     }
 
     @Override
@@ -135,6 +152,14 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     @Override
     boolean shouldFindExportedResource(String resourceName) {
         return !classloaderService.isDeniedImportResource(bizIdentity, resourceName);
+    }
+
+    public boolean checkDeclaredMode() {
+        BizModel biz = this.getBizModel();
+        if (biz == null) {
+            return false;
+        }
+        return biz.isDeclaredMode();
     }
 
     private void loadBizClassLoaderHook() {
@@ -221,11 +246,15 @@ public class BizClassLoader extends AbstractClasspathClassLoader {
     }
 
     /**
-     * Getter method for property <tt>bizIdentity</tt>.
+     * Getter method for property <code>bizIdentity</code>.
      *
      * @return property value of bizIdentity
      */
     public String getBizIdentity() {
         return bizIdentity;
+    }
+
+    public void setBizIdentity(String bizIdentity) {
+        this.bizIdentity = bizIdentity;
     }
 }

@@ -48,4 +48,10 @@ public class LinkedProperties extends Properties {
     public Set<Map.Entry<Object, Object>> entrySet() {
         return linkedHashMap.entrySet();
     }
+
+    @Override
+    public synchronized void putAll(Map<?, ?> t) {
+        for (Map.Entry<?, ?> e : t.entrySet())
+            put(e.getKey(), e.getValue());
+    }
 }

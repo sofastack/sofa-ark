@@ -28,6 +28,7 @@ import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -92,6 +93,7 @@ public class ArkServiceContainer {
                 ArkClient.setBizManagerService(getService(BizManagerService.class));
                 ArkClient.setInjectionService(getService(InjectionService.class));
                 ArkClient.setEventAdminService(getService(EventAdminService.class));
+                ArkClient.setPluginManagerService(getService(PluginManagerService.class));
                 ArkClient.setArguments(arguments);
                 LOGGER.info("Finish to start ArkServiceContainer");
             } finally {

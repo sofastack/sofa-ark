@@ -20,11 +20,11 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.tools.git.GitInfo;
+import com.alipay.sofa.ark.tools.git.JGitParser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
@@ -72,6 +72,7 @@ public class Repackager {
 
     private LinkedHashSet<ArtifactItem>           injectPluginDependencies           = new LinkedHashSet<>();
     private LinkedHashSet<String>                 injectPluginExportPackages         = new LinkedHashSet<>();
+    private LinkedHashSet<String>                 declaredLibraries                  = new LinkedHashSet<>();
 
     private final File                            source;
 
@@ -89,6 +90,8 @@ public class Repackager {
 
     private String                                webContextPath;
 
+    private boolean                               declaredMode;
+
     private String                                arkVersion                         = null;
 
     private Library                               arkContainerLibrary                = null;
@@ -98,6 +101,10 @@ public class Repackager {
     private final List<Library>                   arkPluginLibraries                 = new ArrayList<>();
 
     private final List<Library>                   arkModuleLibraries                 = new ArrayList<>();
+
+    private File                                  gitDirectory;
+
+    private GitInfo                               gitInfo;
 
     public Repackager(File source) {
         if (source == null) {
@@ -184,6 +191,24 @@ public class Repackager {
         }
     }
 
+    public void setGitDirectory(File gitDirectory) {
+        this.gitDirectory = gitDirectory;
+    }
+
+    public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
+        if (!this.declaredMode) {
+            return;
+        }
+        if (artifactItems == null) {
+            return;
+        }
+        for (ArtifactItem artifactItem : artifactItems) {
+            if (artifactItem != null && artifactItem.getArtifactId() != null) {
+                declaredLibraries.add(artifactItem.getArtifactId());
+            }
+        }
+    }
+
     /**
      * Repackage to the given destination so that it can be launched using '
      * {@literal java -jar}'.
@@ -213,7 +238,6 @@ public class Repackager {
         libraries.doWithLibraries(new LibraryCallback() {
             @Override
             public void library(Library library) throws IOException {
-
                 if (LibraryScope.PROVIDED.equals(library.getScope()) && !isPackageProvided()) {
                     return;
                 }
@@ -241,6 +265,9 @@ public class Repackager {
                 }
             }
         });
+
+        // 构建信息
+        gitInfo = JGitParser.parse(gitDirectory);
 
         repackageModule();
         repackageApp();
@@ -428,7 +455,10 @@ public class Repackager {
             setToStr(injectPluginDependencies, MANIFEST_VALUE_SPLIT));
         manifest.getMainAttributes().putValue(INJECT_EXPORT_PACKAGES,
             StringUtils.setToStr(injectPluginExportPackages, MANIFEST_VALUE_SPLIT));
-        return manifest;
+        manifest.getMainAttributes().putValue(DECLARED_LIBRARIES,
+            StringUtils.setToStr(declaredLibraries, MANIFEST_VALUE_SPLIT));
+
+        return appendBuildInfo(manifest);
     }
 
     public static String setToStr(Set<ArtifactItem> artifactItemSet, String delimiter) {
@@ -461,6 +491,28 @@ public class Repackager {
         manifest.getMainAttributes().putValue(ARK_VERSION_ATTRIBUTE, arkVersion);
         manifest.getMainAttributes().putValue(ARK_CONTAINER_ROOT,
             Layouts.Jar.jar().getArkContainerLocation());
+
+        return appendBuildInfo(manifest);
+    }
+
+    private Manifest appendBuildInfo(Manifest manifest) {
+        manifest.getMainAttributes().putValue(BUILD_TIME,
+            new SimpleDateFormat(DATE_FORMAT).format(new Date()));
+
+        if (gitInfo != null) {
+            manifest.getMainAttributes().putValue(REMOTE_ORIGIN_URL, gitInfo.getRepository());
+            manifest.getMainAttributes().putValue(BRANCH, gitInfo.getBranchName());
+            manifest.getMainAttributes().putValue(COMMIT_ID, gitInfo.getLastCommitId());
+            manifest.getMainAttributes().putValue(COMMIT_AUTHOR_NAME, gitInfo.getLastCommitUser());
+            manifest.getMainAttributes()
+                .putValue(COMMIT_AUTHOR_EMAIL, gitInfo.getLastCommitEmail());
+            manifest.getMainAttributes().putValue(COMMIT_TIME, gitInfo.getLastCommitDateTime());
+            manifest.getMainAttributes().putValue(COMMIT_TIMESTAMP,
+                String.valueOf(gitInfo.getLastCommitTime()));
+            manifest.getMainAttributes().putValue(BUILD_USER, gitInfo.getBuildUser());
+            manifest.getMainAttributes().putValue(BUILD_EMAIL, gitInfo.getBuildEmail());
+        }
+
         return manifest;
     }
 
@@ -562,4 +614,13 @@ public class Repackager {
     public void setWebContextPath(String webContextPath) {
         this.webContextPath = webContextPath;
     }
+
+    public void setDeclaredMode(boolean declaredMode) {
+        this.declaredMode = declaredMode;
+    }
+
+    public boolean isDeclaredMode() {
+        return declaredMode;
+    }
+
 }

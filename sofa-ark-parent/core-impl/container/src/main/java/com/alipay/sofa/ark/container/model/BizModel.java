@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -43,9 +44,12 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * Ark Biz Standard Model
@@ -69,6 +73,8 @@ public class BizModel implements Biz {
 
     private URL[]                  urls;
 
+    private URL[]                  pluginUrls;
+
     private ClassLoader            classLoader;
 
     private Map<String, String>    attributes                    = new ConcurrentHashMap<>();
@@ -87,6 +93,9 @@ public class BizModel implements Biz {
 
     private Set<String>            injectPluginDependencies      = new HashSet<>();
     private Set<String>            injectExportPackages          = new HashSet<>();
+
+    private Set<String>            declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean>   declaredCacheMap              = new ConcurrentHashMap<>();
 
     private Set<String>            denyPrefixImportResourceStems = new HashSet<>();
 
@@ -119,6 +128,11 @@ public class BizModel implements Biz {
 
     public BizModel setClassPath(URL[] urls) {
         this.urls = urls;
+        return this;
+    }
+
+    public BizModel setPluginClassPath(URL[] urls) {
+        this.pluginUrls = urls;
         return this;
     }
 
@@ -273,6 +287,7 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
+                LOGGER.info("Ark biz {} start.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
@@ -316,12 +331,18 @@ public class BizModel implements Biz {
             return;
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
-        bizState = BizState.DEACTIVATED;
+        if (bizState == BizState.ACTIVATED) {
+            bizState = BizState.DEACTIVATED;
+        }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
         try {
             // this can trigger uninstall handler
+            long start = System.currentTimeMillis();
+            LOGGER.info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
+            LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
+                (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
@@ -332,9 +353,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            if (bizTempWorkDir != null && bizTempWorkDir.exists()) {
-                bizTempWorkDir.delete();
-            }
+            deleteQuietly(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
@@ -389,5 +408,93 @@ public class BizModel implements Biz {
 
     private boolean isMasterBizAndEmbedEnable() {
         return this == ArkClient.getMasterBiz() && ArkConfigs.isEmbedEnable();
+    }
+
+    public BizModel setDeclaredLibraries(String declaredLibraries) {
+        if (StringUtils.isEmpty(declaredLibraries)) {
+            return this;
+        }
+        this.declaredLibraries = StringUtils.strToSet(declaredLibraries,
+            Constants.MANIFEST_VALUE_SPLIT);
+        return this;
+    }
+
+    /**
+     * check if the resource is defined in classloader, ignore jar version
+     * @param url
+     * @return
+     */
+    public boolean isDeclared(URL url, String resourceName) {
+        // compatibility with no-declaredMode
+        if (!isDeclaredMode()) {
+            return true;
+        }
+        if (url != null) {
+            String libraryFile = url.getFile().replace("file:", "");
+            if (!StringUtils.isEmpty(resourceName) && libraryFile.endsWith(resourceName)) {
+                libraryFile = libraryFile.substring(0, libraryFile.lastIndexOf(resourceName));
+            }
+            return checkDeclaredWithCache(libraryFile);
+        }
+
+        return false;
+    }
+
+    public boolean isDeclaredMode() {
+        if (declaredLibraries == null || declaredLibraries.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkDeclaredWithCache(String libraryFile) {
+        // set key as jar, but need to checkDeclared by specific file.
+        return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
+    }
+
+    private boolean doCheckDeclared(String jarFilePath) {
+        // if from ark plugin, then set as declared
+        if (isFromPlugin(jarFilePath)) {
+            return true;
+        }
+
+        String artifactId = JarUtils.parseArtifactId(jarFilePath);
+        if (artifactId == null) {
+            if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
+                // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
+                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                    jarFilePath));
+                return true;
+            } else {
+                // for not in jar, then default not delegate.
+                LOGGER.info(String.format(
+                    "Can't find artifact id for %s, default as not declared.", jarFilePath));
+                return false;
+            }
+        }
+
+        // some ark related lib which each ark module needed should set declared as default
+        if (StringUtils.startWithToLowerCase(artifactId, "sofa-ark-")) {
+            return true;
+        }
+
+        return declaredLibraries.contains(artifactId);
+    }
+
+    private boolean isFromPlugin(String jarFilePath) {
+        if (pluginUrls == null) {
+            return false;
+        }
+        for (URL pluginUrl : pluginUrls) {
+            String pluginUrlFile = pluginUrl.getFile().replace("file:", "");
+            if (pluginUrlFile.endsWith(JarUtils.JAR_SEPARATOR)) {
+                pluginUrlFile = pluginUrlFile.substring(0, pluginUrlFile.length()
+                                                           - JarUtils.JAR_SEPARATOR.length());
+            }
+            if (jarFilePath.contains(pluginUrlFile)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
