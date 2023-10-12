@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-ark-bom</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>2.0.7</version>
+        <version>${sofa.ark.version}</version>
         <relativePath>../../sofa-ark-bom</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -21,6 +21,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring.boot.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -48,6 +49,8 @@
                                 <packages>
                                     <package>javax.*</package>
                                     <package>org.apache.*</package>
+                                    <!--              fix https://github.com/sofastack/sofa-ark/issues/737                      -->
+                                    <package>com.alipay.sofa.ark.web.embed.*</package>
                                 </packages>
                             </exported>
                         </configuration>

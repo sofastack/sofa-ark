@@ -63,4 +63,17 @@ public class FileUtilsTest {
         File file = new File(sampleBiz.getFile());
         Assert.assertNotNull(FileUtils.unzip(file, file.getAbsolutePath() + "-unpack"));
     }
+
+    @Test
+    public void testMkdir() {
+        Assert.assertNull(FileUtils.mkdir(""));
+        // test recursive creation
+        File newDir = FileUtils.mkdir("C:\\a\\b\\c");
+        Assert.assertNotNull(newDir);
+        // test for exist path
+        Assert.assertNotNull(FileUtils.mkdir("C:\\a\\b\\c"));
+        // del the dir
+        org.apache.commons.io.FileUtils.deleteQuietly(newDir);
+    }
+
 }

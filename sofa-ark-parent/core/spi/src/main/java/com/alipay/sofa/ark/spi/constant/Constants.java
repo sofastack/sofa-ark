@@ -123,6 +123,8 @@ public class Constants {
     public static final String       DATE_FORMAT                                   = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
+
+    public final static String       PACKAGE_PREFIX_MARK_2                         = ".*";
     public final static String       DEFAULT_PACKAGE                               = ".";
     public final static String       MANIFEST_VALUE_SPLIT                          = COMMA_SPLIT;
     public final static String       RESOURCE_STEM_MARK                            = "*";
@@ -175,6 +177,7 @@ public class Constants {
     public final static String       RESOLVE_PARENT_CONTEXT_SERIALIZER_FACTORY     = "hessian.parent.context.create";
     public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
     public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
+    public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
     /**

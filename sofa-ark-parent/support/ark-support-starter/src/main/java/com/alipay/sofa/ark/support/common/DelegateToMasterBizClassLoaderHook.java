@@ -26,7 +26,10 @@ import com.alipay.sofa.ark.spi.service.extension.Extension;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * A default hook for biz classloader. Trying to post load class by master biz if not found
@@ -35,6 +38,8 @@ import java.util.*;
  */
 @Extension("biz-classloader-hook")
 public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> {
+
+    private static String CGLIB_FLAG = "CGLIB$$";
 
     @Override
     public Class<?> preFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
@@ -49,20 +54,24 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
             return null;
         }
+        // The cglib proxy class cannot be delegate to the master, it must be created by the biz's own defineClass
+        // see: spring 6, org.springframework.cglib.core.AbstractClassGenerator.generate
+        if (name.contains(CGLIB_FLAG)) {
+            return null;
+        }
         // if Master Biz contains same class in multi jar, need to check each whether is provided
         Class<?> clazz = bizClassLoader.loadClass(name);
         if (clazz != null) {
-            String location = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
-            if (biz.isDeclared(location)) {
+            if (biz.isDeclared(clazz.getProtectionDomain().getCodeSource().getLocation(), "")) {
                 return clazz;
             }
 
             try {
-                Enumeration<URL> urls = bizClassLoader.getResources(name.replace('.', '/')
-                                                                    + ".class");
+                String classResourceName = name.replace('.', '/') + ".class";
+                Enumeration<URL> urls = bizClassLoader.getResources(classResourceName);
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
-                    if (biz.isDeclared(resourceUrl)) {
+                    if (resourceUrl != null && biz.isDeclared(resourceUrl, classResourceName)) {
                         ArkLoggerFactory.getDefaultLogger().warn(
                             String.format("find class %s from %s in multiple dependencies.", name,
                                 resourceUrl.getFile()));
@@ -94,7 +103,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         }
         try {
             URL resourceUrl = bizClassLoader.getResource(name);
-            if (biz.isDeclared(resourceUrl)) {
+            if (resourceUrl != null && biz.isDeclared(resourceUrl, name)) {
                 return resourceUrl;
             }
             return null;
@@ -125,7 +134,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             while (resourceUrls.hasMoreElements()) {
                 URL resourceUrl = resourceUrls.nextElement();
 
-                if (biz.isDeclared(resourceUrl)) {
+                if (resourceUrl != null && biz.isDeclared(resourceUrl, name)) {
                     matchedResourceUrls.add(resourceUrl);
                 }
             }

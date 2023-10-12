@@ -16,10 +16,12 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizDeployer;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -47,6 +49,9 @@ public class DefaultBizDeployer implements BizDeployer {
     @Override
     public void deploy() {
         for (Biz biz : bizManagerService.getBizInOrder()) {
+            if (isEmbedStaticBizAndIllegalState(biz)) {
+                continue;
+            }
             try {
                 LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
                 biz.start(arguments);
@@ -70,6 +75,10 @@ public class DefaultBizDeployer implements BizDeployer {
                 throw new ArkRuntimeException(e);
             }
         }
+    }
+
+    public boolean isEmbedStaticBizAndIllegalState(Biz biz) {
+        return ArkConfigs.isEmbedStaticBizEnable() && !BizState.RESOLVED.equals(biz.getBizState());
     }
 
     @Override

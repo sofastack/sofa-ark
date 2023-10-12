@@ -159,4 +159,23 @@ public class FileUtils {
             }
         }
     }
+
+    /**
+     * creates a new directory for given path
+     *
+     * @param dirPath dest path
+     * @return Dir
+     */
+    public static File mkdir(String dirPath) {
+        if (StringUtils.isEmpty(dirPath)) {
+            return null;
+        }
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            // Recursive creation
+            dir.mkdirs();
+        }
+        return dir;
+    }
+
 }
