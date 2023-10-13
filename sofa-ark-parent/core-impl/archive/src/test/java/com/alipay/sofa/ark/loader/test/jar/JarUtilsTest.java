@@ -55,7 +55,7 @@ public class JarUtilsTest {
         Assert.assertEquals("sofa-ark-archive", artifactId);
 
         URL testClazzURL = this.getClass().getClassLoader()
-                .getResource("com/alipay/sofa/ark/loader/test/jar/JarUtilsTest.class");
+            .getResource("com/alipay/sofa/ark/loader/test/jar/JarUtilsTest.class");
 
         artifactId = JarUtils.parseArtifactId(testClazzURL.getPath());
         Assert.assertEquals("sofa-ark-archive", artifactId);

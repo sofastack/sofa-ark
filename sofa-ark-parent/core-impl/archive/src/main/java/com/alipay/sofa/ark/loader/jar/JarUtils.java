@@ -56,7 +56,7 @@ public class JarUtils {
     private static final String                        VERSION_REGEX                    = "^([0-9]+\\.)+.+";
 
     private static final MavenXpp3Reader               READER                           = new MavenXpp3Reader();
-  
+
     public static final String                         JAR_SEPARATOR                    = "!/";
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
