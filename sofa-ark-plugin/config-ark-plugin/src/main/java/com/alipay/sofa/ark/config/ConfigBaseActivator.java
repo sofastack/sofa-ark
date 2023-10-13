@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.config;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.EnvironmentUtils;
@@ -35,22 +36,32 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
  */
 public class ConfigBaseActivator implements PluginActivator {
 
-    private final static ArkLogger               LOGGER             = ArkLoggerFactory
-                                                                        .getLogger(ConfigBaseActivator.class);
+    private final static ArkLogger                                     LOGGER             = ArkLoggerFactory
+                                                                                              .getLogger(ConfigBaseActivator.class);
 
-    private boolean                              enableConfigServer = EnvironmentUtils.getProperty(
-                                                                        CONFIG_SERVER_ENABLE,
-                                                                        "true").equalsIgnoreCase(
-                                                                        "true");
+    private boolean                                                    enableConfigServer = EnvironmentUtils
+                                                                                              .getProperty(
+                                                                                                  CONFIG_SERVER_ENABLE,
+                                                                                                  "true")
+                                                                                              .equalsIgnoreCase(
+                                                                                                  "true");
 
-    private String                               configCenterType   = EnvironmentUtils
-                                                                        .getProperty(CONFIG_SERVER_TYPE);
+    private String                                                     configCenterType   = ArkConfigs
+                                                                                              .getStringValue(CONFIG_SERVER_TYPE);
 
-    private Map<ConfigTypeEnum, PluginActivator> configTypeMap      = ImmutableMap
-                                                                        .of(ConfigTypeEnum.zookeeper,
-                                                                            new ZookeeperConfigActivator(),
-                                                                            ConfigTypeEnum.apollo,
-                                                                            new ApolloConfigActivator());
+    private Map<ConfigTypeEnum, LazyActivatorWrapper<PluginActivator>> configTypeMap      = ImmutableMap
+                                                                                              .of(ConfigTypeEnum.zookeeper,
+                                                                                                  new LazyActivatorWrapper(
+                                                                                                      ZookeeperConfigActivator.class),
+                                                                                                  ConfigTypeEnum.apollo,
+                                                                                                  new LazyActivatorWrapper(
+                                                                                                      ApolloConfigActivator.class));
+
+    protected PluginActivator getConfigActivator() {
+        ConfigTypeEnum configType = ConfigTypeEnum.getByNameWithDefault(configCenterType,
+            ConfigTypeEnum.zookeeper);
+        return configTypeMap.get(configType).getLazyActivator();
+    }
 
     @Override
     public void start(PluginContext context) {
@@ -59,17 +70,15 @@ public class ConfigBaseActivator implements PluginActivator {
             return;
         }
 
-        ConfigTypeEnum configType = ConfigTypeEnum.getByNameWithDefault(configCenterType,
-            ConfigTypeEnum.zookeeper);
-        LOGGER.info("use config type={}, sofa.ark.config.server.type={}", configType,
-            configCenterType);
-        configTypeMap.get(configType).start(context);
+        getConfigActivator().start(context);
     }
 
     @Override
     public void stop(PluginContext context) {
-        ConfigTypeEnum configType = ConfigTypeEnum.getByNameWithDefault(configCenterType,
-            ConfigTypeEnum.zookeeper);
-        configTypeMap.get(configType).stop(context);
+        if (!enableConfigServer) {
+            return;
+        }
+
+        getConfigActivator().stop(context);
     }
 }

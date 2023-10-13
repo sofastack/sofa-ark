@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.config.apollo;
 
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
+import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.config.OperationProcessor;
 import com.alipay.sofa.ark.config.util.OperationTransformer;
 import com.alipay.sofa.ark.spi.model.PluginContext;
@@ -39,18 +40,24 @@ public class ApolloConfigActivator implements PluginActivator {
 
     private final static ArkLogger LOGGER = ArkLoggerFactory.getLogger(ApolloConfigActivator.class);
 
+    private ConfigChangeListener   changeListener;
+
     @Override
     public void start(PluginContext context) {
         LOGGER.info("start apollo config activator");
 
         Config config = ConfigService.getConfig(CONFIG_APOLLO_NAMESPACE);
-        config.addChangeListener(new ConfigChangeListener() {
+        changeListener = new ConfigChangeListener() {
             @Override
             public void onChange(ConfigChangeEvent changeEvent) {
                 for (String key : changeEvent.changedKeys()) {
                     if (APOLLO_MASTER_BIZ_KEY.equals(key)) {
                         ConfigChange change = changeEvent.getChange(key);
                         String value = change.getNewValue();
+                        if (StringUtils.isEmpty(value)) {
+                            LOGGER.info("ignore empty masterBiz value");
+                            return;
+                        }
                         LOGGER.info("Start to process masterBiz config: {}", value);
                         OperationProcessor.process(OperationTransformer.transformToBizOperation(
                             value, context));
@@ -62,12 +69,18 @@ public class ApolloConfigActivator implements PluginActivator {
                     }
                 }
             }
-        });
-
+        };
+        config.addChangeListener(changeListener);
     }
 
     @Override
     public void stop(PluginContext context) {
         LOGGER.info("stop apollo config activator");
+
+        Config config = ConfigService.getConfig(CONFIG_APOLLO_NAMESPACE);
+        if (null == changeListener || null == config) {
+            return;
+        }
+        config.removeChangeListener(changeListener);
     }
 }
