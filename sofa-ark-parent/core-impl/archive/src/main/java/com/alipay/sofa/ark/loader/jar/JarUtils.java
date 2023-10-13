@@ -41,9 +41,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class JarUtils {
-    private static final String                        CLASSPATH_ROOT_IDENTITY          = "/target/classes/";
+    private static final String                        CLASSPATH_ROOT_IDENTITY          = "/target/classes";
 
-    private static final String                        TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes/";
+    private static final String                        TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes";
     private static final String                        TARGET_ROOT_IDENTITY             = "/target/";
 
     private static final String                        JAR_POM_PROPERTIES_RELATIVE_PATH = "maven-archiver/pom.properties";
@@ -87,8 +87,11 @@ public class JarUtils {
         // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
-        int classesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
-        int testClassesRootIndex = libraryFile.indexOf(TEST_CLASSPATH_ROOT_IDENTITY);
+        int classesRootIndex = libraryFile.endsWith(CLASSPATH_ROOT_IDENTITY) ? libraryFile
+            .indexOf(CLASSPATH_ROOT_IDENTITY) : libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY + "/");
+        int testClassesRootIndex = libraryFile.endsWith(TEST_CLASSPATH_ROOT_IDENTITY) ? libraryFile
+            .indexOf(TEST_CLASSPATH_ROOT_IDENTITY) : libraryFile
+            .indexOf(TEST_CLASSPATH_ROOT_IDENTITY + "/");
         String pomPropertiesPath;
         String pomXmlPath = null;
         if (classesRootIndex != -1) {
@@ -108,18 +111,23 @@ public class JarUtils {
             if (pomPropertiesFile != null && pomPropertiesFile.exists()) {
                 pomPropertiesPath = pomPropertiesFile.getAbsolutePath();
             } else {
-                return null;
+                // not found pom.properties
+                pomPropertiesPath = null;
             }
         }
 
         String artifactId = null;
-        try (InputStream inputStream = Files.newInputStream(new File(pomPropertiesPath).toPath())) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            artifactId = properties.getProperty(JAR_ARTIFACT_ID);
-        } catch (IOException e) {
-            // ignore
+        if (!StringUtils.isEmpty(pomPropertiesPath)) {
+            try (InputStream inputStream = Files.newInputStream(new File(pomPropertiesPath)
+                .toPath())) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                artifactId = properties.getProperty(JAR_ARTIFACT_ID);
+            } catch (IOException e) {
+                // ignore
+            }
         }
+
         if (StringUtils.isEmpty(artifactId) && !StringUtils.isEmpty(pomXmlPath)) {
             try (FileReader fileReader = new FileReader(pomXmlPath)) {
                 Model model = READER.read(fileReader);
