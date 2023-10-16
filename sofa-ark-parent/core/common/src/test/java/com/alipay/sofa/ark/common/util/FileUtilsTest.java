@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 /**
  * @author guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
@@ -76,4 +77,47 @@ public class FileUtilsTest {
         org.apache.commons.io.FileUtils.deleteQuietly(newDir);
     }
 
+    /**
+     * zip slip fixed
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testUnzipSlipFixed() throws IOException {
+        URL sampleBiz = this.getClass().getClassLoader().getResource("sample-biz.jar");
+        File file = new File(sampleBiz.getFile());
+        Assert.assertNotNull(FileUtils.unzip(file, file.getAbsolutePath() + "-unpack"));
+    }
+
+     /**
+     * zip slip fixed pass
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testCheckZipSlipPass() {
+        try {
+            FileUtils.checkZipSlip("C:\\a\\b\\c", new File("C:\\a\\b\\c"));
+        } catch (ArkRuntimeException e) {
+            Assert.fail("should not throw exception");
+        }
+    }
+
+     /**
+     * zip slip fixed throw pass
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testCheckZipSlipThrow() {
+        try {
+            FileUtils.checkZipSlip("C:\\a\\b\\c", new File("../../../../C:\\a\\b\\c"));
+            Assert.fail("should throw exception");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof ArkRuntimeException);
+            Assert.assertEquals("Bad zip entry, zip slip attempted", e.getMessage());
+
+
+        }
+    }
 }
