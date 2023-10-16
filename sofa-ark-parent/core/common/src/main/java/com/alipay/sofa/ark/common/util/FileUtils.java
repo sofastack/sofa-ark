@@ -110,6 +110,14 @@ public class FileUtils {
         return path;
     }
 
+    /**
+     * Unzip file.
+     *
+     * @param root       the root
+     * @param targetPath the target path
+     * @return the file
+     * @throws IOException the io exception
+     */
     public static File unzip(File root, String targetPath) throws IOException {
         ZipFile zipFile = null;
         try {
@@ -127,6 +135,7 @@ public class FileUtils {
                     try {
                         inputStream = zipFile.getInputStream(entry);
                         File file = new File(targetPath + File.separator + entry.getName());
+                        validateZipEntry(targetPath, file);
                         if (!file.exists()) {
                             File fileParent = file.getParentFile();
                             if (!fileParent.exists()) {
@@ -176,6 +185,20 @@ public class FileUtils {
             dir.mkdirs();
         }
         return dir;
+    }
+
+    /**
+     * Validate zip entry.
+     *
+     * @param targetPath the target path
+     * @param entryFile  the entry file
+     * @throws IOException the io exception
+     */
+    public static void validateZipEntry(String targetPath, File entryFile) throws IOException {
+        String canonicalEntryFilePath = entryFile.getCanonicalPath();
+        if (!canonicalEntryFilePath.startsWith(targetPath)) {
+            throw new ArkRuntimeException("Invalid ZIP entry: " + entryFile.getName());
+        }
     }
 
 }

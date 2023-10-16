@@ -16,14 +16,22 @@
  */
 package com.alipay.sofa.ark.common.util;
 
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author guolei.sgl (guolei.sgl@antfin.com) 2019/7/28 11:24 PM
@@ -76,4 +84,33 @@ public class FileUtilsTest {
         org.apache.commons.io.FileUtils.deleteQuietly(newDir);
     }
 
+    @Test
+    public void testZipSlipBug() throws IOException {
+        String zipFileName = "zipSlipExample.zip";
+        FileOutputStream fos = new FileOutputStream(zipFileName);
+        ZipOutputStream zos = new ZipOutputStream(fos);
+        String goodFileContent = "This is a good file.";
+        String evilFileContent = "This is an evil file.";
+        ZipEntry goodEntry = new ZipEntry("goodfile.txt");
+        zos.putNextEntry(goodEntry);
+        zos.write(goodFileContent.getBytes());
+        zos.closeEntry();
+        ZipEntry evilEntry = new ZipEntry("../evilfile.txt");
+        zos.putNextEntry(evilEntry);
+        zos.write(evilFileContent.getBytes());
+        zos.closeEntry();
+        zos.close();
+        fos.close();
+
+        File zipFile = new File(zipFileName);
+        try {
+            File unzipFile = FileUtils.unzip(zipFile, zipFile.getAbsolutePath() + "-unpack");
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), ArkRuntimeException.class);
+        } finally {
+            if (null != zipFile && zipFile.exists()) {
+                zipFile.delete();
+            }
+        }
+    }
 }
