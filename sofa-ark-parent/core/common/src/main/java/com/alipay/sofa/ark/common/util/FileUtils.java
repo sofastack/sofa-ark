@@ -120,6 +120,7 @@ public class FileUtils {
                 if (entry.isDirectory()) {
                     String dirPath = targetPath + File.separator + entry.getName();
                     File dir = new File(dirPath);
+                    checkZipSlip(targetPath, dir);
                     dir.mkdirs();
                 } else {
                     InputStream inputStream = null;
@@ -127,6 +128,7 @@ public class FileUtils {
                     try {
                         inputStream = zipFile.getInputStream(entry);
                         File file = new File(targetPath + File.separator + entry.getName());
+                        checkZipSlip(targetPath, file);
                         if (!file.exists()) {
                             File fileParent = file.getParentFile();
                             if (!fileParent.exists()) {
@@ -178,4 +180,15 @@ public class FileUtils {
         return dir;
     }
 
+    /**
+     *
+     * @param targetPath
+     * @param dir
+     * @throws IOException
+     */
+    public static void checkZipSlip(String targetPath, File dir) throws ArkRuntimeException {
+        if (!dir.toPath().normalize().startsWith(targetPath)) {
+            throw new ArkRuntimeException("Bad zip entry, zip slip attempted");
+        }
+    }
 }
