@@ -110,16 +110,19 @@ public class ArkTomcatEmbeddedWebappClassLoaderTest {
 
         // 5) Test load class with delegate TRUE.
         arkTomcatEmbeddedWebappClassLoader.setDelegate(true);
-        assertEquals(String.class, arkTomcatEmbeddedWebappClassLoader.loadClass(String.class.getName(), true));
-        assertEquals(this.getClass(), arkTomcatEmbeddedWebappClassLoader.loadClass("a.b", false));  // cover resolve false
+        assertEquals(String.class,
+            arkTomcatEmbeddedWebappClassLoader.loadClass(String.class.getName(), true));
+        assertEquals(this.getClass(), arkTomcatEmbeddedWebappClassLoader.loadClass("a.b", false)); // cover resolve false
 
         // 6) Test load apache class.
         arkTomcatEmbeddedWebappClassLoader.setDelegate(false);
-        assertEquals(WebappClassLoaderBase.class, arkTomcatEmbeddedWebappClassLoader.loadClass(WebappClassLoaderBase.class.getName(), true));
+        assertEquals(WebappClassLoaderBase.class, arkTomcatEmbeddedWebappClassLoader.loadClass(
+            WebappClassLoaderBase.class.getName(), true));
         ResourceEntry resourceEntry = new ResourceEntry();
         resourceEntry.loadedClass = String.class;
         resourceEntries.put("/org/apache.class", resourceEntry);
-        assertEquals(String.class, arkTomcatEmbeddedWebappClassLoader.loadClass("org.apache", false));  // cover resolve false
+        assertEquals(String.class,
+            arkTomcatEmbeddedWebappClassLoader.loadClass("org.apache", false)); // cover resolve false
     }
 
     @Test(expected = ClassNotFoundException.class)
@@ -147,7 +150,7 @@ public class ArkTomcatEmbeddedWebappClassLoaderTest {
             throw new RuntimeException(e);
         }
         arkTomcatEmbeddedWebappClassLoader.checkPackageAccess(String.class.getName());
-        arkTomcatEmbeddedWebappClassLoader.checkPackageAccess("java");  // cover wrong class name
+        arkTomcatEmbeddedWebappClassLoader.checkPackageAccess("java"); // cover wrong class name
     }
 
     @Test(expected = ClassNotFoundException.class)
