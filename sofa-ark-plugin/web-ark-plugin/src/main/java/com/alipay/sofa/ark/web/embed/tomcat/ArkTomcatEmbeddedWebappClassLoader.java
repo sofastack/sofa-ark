@@ -74,6 +74,12 @@ public class ArkTomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoade
     public ArkTomcatEmbeddedWebappClassLoader() {
     }
 
+    /**
+     * NOTE: super web class loader will set parent to systemClassLoader if 'parent' param value is null.
+     * So 'parent' class loader usually would not be null.
+     *
+     * @param parent
+     */
     public ArkTomcatEmbeddedWebappClassLoader(ClassLoader parent) {
         super(parent);
     }
@@ -100,14 +106,29 @@ public class ArkTomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoade
         }
     }
 
+    /**
+     * We try to load class from cache in current class loader chain.
+     *
+     * @param name
+     * @return
+     */
     private Class<?> findExistingLoadedClass(String name) {
         Class<?> resultClass = findLoadedClass0(name);
         resultClass = (resultClass != null) ? resultClass : findLoadedClass(name);
         return resultClass;
     }
 
+    /**
+     * doLoadClass is used to handle class not found from cache, so doLoadClass try to load class from class loader chain and put it into class cache.
+     *
+     * @param name
+     * @return
+     * @throws ClassNotFoundException
+     */
     private Class<?> doLoadClass(String name) throws ClassNotFoundException {
         checkPackageAccess(name);
+        // Note: set delegate TRUE will load class from parent class loader first, otherwise from current class loader first.
+        // If class is javax or apache class, filter will return true, otherwise filter return false.
         if ((this.delegate || filter(name, true))) {
             Class<?> result = loadFromParent(name);
             return (result != null) ? result : findClassIgnoringNotFound(name);
@@ -142,6 +163,15 @@ public class ArkTomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoade
         }
     }
 
+    /**
+     * Invoke findClass in tomcat web class loader.
+     * Note: After Tomcat stopped, Tomcat will construct a IllegalStateException, and then put it into a ClassNotFoundException.
+     * SOFAArk will always treat this inner IllegalStateException as a ClassNotFoundException and return null,
+     * which means this Class was not found and then find this class through parent class loader (e.g. ApplicationClassLoader).
+     *
+     * @param name
+     * @return
+     */
     private Class<?> findClassIgnoringNotFound(String name) {
         try {
             return findClass(name);
@@ -150,7 +180,7 @@ public class ArkTomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoade
         }
     }
 
-    private void checkPackageAccess(String name) throws ClassNotFoundException {
+    void checkPackageAccess(String name) throws ClassNotFoundException {
         if (this.securityManager != null && name.lastIndexOf('.') >= 0) {
             try {
                 this.securityManager.checkPackageAccess(name.substring(0, name.lastIndexOf('.')));
@@ -160,5 +190,4 @@ public class ArkTomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoade
             }
         }
     }
-
 }
