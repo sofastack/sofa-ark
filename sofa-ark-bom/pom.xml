@@ -362,6 +362,18 @@
                 <version>2.14.3</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.taobao.text</groupId>
+                <artifactId>text-ui</artifactId>
+                <version>0.0.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>1.14.4</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

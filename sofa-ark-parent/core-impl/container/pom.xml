@@ -47,6 +47,15 @@
             <artifactId>netty-all</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.taobao.text</groupId>
+            <artifactId>text-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+        </dependency>
+
         <!--test-->
         <dependency>
             <groupId>org.mockito</groupId>
