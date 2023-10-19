@@ -204,7 +204,7 @@ public class RepackageMojoTest {
         artifacts.add(defaultArtifact);
         artifacts.add(defaultArtifact1);
 
-        // TODO: Access github to run unit test, need vpn maybe.
+        // NOTE: Access github to run unit test, need vpn maybe.
         String packExcludesUrl = "https://github.com/sofastack/sofa-ark";
         extensionExcludeArtifactsFromUrl.invoke(repackageMojo, packExcludesUrl, artifacts);
     }
