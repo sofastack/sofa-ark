@@ -148,7 +148,7 @@ public class ArkTomcatWebServer implements WebServer {
 
     private void addInstanceIdToEngineName() {
         int instanceId = containerCounter.incrementAndGet();
-        if (instanceId > 0) {
+        if (instanceId > 0) {    // We already have a tomcat container, so just return the existing tomcat.
             Engine engine = this.tomcat.getEngine();
             engine.setName(engine.getName() + "-" + instanceId);
         }
