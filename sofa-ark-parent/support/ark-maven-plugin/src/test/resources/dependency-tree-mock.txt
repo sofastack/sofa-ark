@@ -1,0 +1,6 @@
+--- dependency:3.6.0:tree (default-cli) @ sofa-ark-springboot-starter ---
+[INFO] com.alipay.sofa:sofa-ark-springboot-starter:jar:2.2.4-SNAPSHOT
+[INFO] +- org.springframework.boot:spring-boot:jar:2.7.14:provided
+[INFO] |  +- org.springframework:spring-core:jar:5.3.29:provided
+[INFO] |  |  \- org.springframework:spring-jcl:jar:5.3.29:provided
+[INFO] |  \- org.springframework:spring-context:jar:5.3.29:provided

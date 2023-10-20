@@ -38,44 +38,26 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.plugins.dependency.tree.TreeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
-import org.apache.maven.shared.invoker.InvocationRequest;
-import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.invoker.Invoker;
-import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.apache.maven.shared.invoker.*;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -210,7 +192,9 @@ public class RepackageMojo extends TreeMojo {
     private ProjectBuildingRequest projectBuildingRequest;
 
     /**
-     * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
+     * Colon separated groupId, artifactId [and classifier] to exclude (exact match). e.g:
+     * group-a:tracer-core:3.0.10
+     * group-b:tracer-core:3.0.10:jdk17
      */
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludes                   = new LinkedHashSet<>();
@@ -327,6 +311,12 @@ public class RepackageMojo extends TreeMojo {
         repackage();
     }
 
+    /**
+     *
+     *
+     * @throws MojoExecutionException
+     * @throws MojoFailureException
+     */
     private void repackage() throws MojoExecutionException, MojoFailureException {
         File source = this.mavenProject.getArtifact().getFile();
         File appTarget = getAppTargetFile();
@@ -441,6 +431,10 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
+    /**
+     * @return sofa-ark-all and all maven project's non-excluded artifacts
+     * @throws MojoExecutionException
+     */
     @SuppressWarnings("unchecked")
     private Set<Artifact> getAdditionalArtifact() throws MojoExecutionException {
         Artifact arkArtifact = repositorySystem.createArtifact(ArkConstants.getGroupId(),
@@ -584,6 +578,14 @@ public class RepackageMojo extends TreeMojo {
         return result;
     }
 
+    /**
+     * This method is core method for excluding artifacts in sofa-ark-maven-plugin &lt;excludeGroupIds&gt;
+     * and &lt;excludeArtifactIds&gt; config.
+     *
+     * @param excludeList
+     * @param artifact
+     * @return
+     */
     private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
         for (ArtifactItem exclude : excludeList) {
             if (exclude.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
@@ -664,6 +666,12 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
+    /**
+     * We support put sofa-ark-maven-plugin exclude config file in remote url location.
+     *
+     * @param packExcludesUrl
+     * @param artifacts
+     */
     protected void extensionExcludeArtifactsFromUrl(String packExcludesUrl, Set<Artifact> artifacts) {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
