@@ -79,9 +79,11 @@ public class MavenUtilsTest {
         artifactItem.setClassifier("ark-biz");
         artifactItems.add(artifactItem);
 
-        assertEquals(artifactItems, convert("[INFO] com.alipay.sofa:sofa-ark-springboot-starter:jar:2.2.4-SNAPSHOT\n" +
-                "[INFO] +- org.springframework.boot:spring-boot:jar:2.7.14:provided\n" +
-                "[INFO] |  |  \\- org.springframework:spring-jcl:jar:ark-biz:5.3.29:provided\n" +
-                "[INFO] |  \\- org.springframework:spring-context:jar:5.3.29"));
+        assertEquals(
+            artifactItems,
+            convert("[INFO] com.alipay.sofa:sofa-ark-springboot-starter:jar:2.2.4-SNAPSHOT\n"
+                    + "[INFO] +- org.springframework.boot:spring-boot:jar:2.7.14:provided\n"
+                    + "[INFO] |  |  \\- org.springframework:spring-jcl:jar:ark-biz:5.3.29:provided\n"
+                    + "[INFO] |  \\- org.springframework:spring-context:jar:5.3.29"));
     }
 }

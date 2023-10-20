@@ -324,36 +324,47 @@ public class RepackageMojoTest {
         field.setAccessible(true);
         field.set(repackageMojo, true);
 
-        DefaultArtifact artifact = new DefaultArtifact("group1", "artifact1", "1.0", "compile", "", null, new DefaultArtifactHandler());
-        artifact.setFile(new File(getClass().getClassLoader().getResource("excludes.txt").getPath()));
+        DefaultArtifact artifact = new DefaultArtifact("group1", "artifact1", "1.0", "compile", "",
+            null, new DefaultArtifactHandler());
+        artifact
+            .setFile(new File(getClass().getClassLoader().getResource("excludes.txt").getPath()));
         mavenProject.setArtifact(artifact);
 
         Set<Artifact> artifacts = new HashSet<>();
-        artifact = new DefaultArtifact("group1", "artifact2", "1.0", "compile", "", "jdk17", new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group1", "artifact2", "1.0", "compile", "", "jdk17",
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group1", "artifact3", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group1", "artifact3", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group2", "artifact1", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group2", "artifact1", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group2.a.b.b", "artifact4", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group2.a.b.b", "artifact4", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group3.c", "artifact5", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group3.c", "artifact5", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group3def", "artifact5", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group3def", "artifact5", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group4", "artifact1.g.h.g", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group4", "artifact1.g.h.g", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group4", "artifact1.i", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group4", "artifact1.i", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group4", "artifact1gkl", "1.0", "compile", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group4", "artifact1gkl", "1.0", "compile", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
         mavenProject.setArtifacts(artifacts);
@@ -400,7 +411,8 @@ public class RepackageMojoTest {
         field.set(repackageMojo, repositorySystem);
 
         MavenSession mavenSession = mock(MavenSession.class);
-        when(mavenSession.getProjectBuildingRequest()).thenReturn(new DefaultProjectBuildingRequest());
+        when(mavenSession.getProjectBuildingRequest()).thenReturn(
+            new DefaultProjectBuildingRequest());
 
         MavenExecutionRequest mavenExecutionRequest = new DefaultMavenExecutionRequest();
         mavenExecutionRequest.setUserSettingsFile(new File("./"));
@@ -447,7 +459,8 @@ public class RepackageMojoTest {
         field.setAccessible(true);
         field.set(repackageMojo, mavenProjectHelper);
 
-        Method method = RepackageMojo.class.getDeclaredMethod("updateArtifact", File.class, File.class);
+        Method method = RepackageMojo.class.getDeclaredMethod("updateArtifact", File.class,
+            File.class);
         method.setAccessible(true);
         method.invoke(repackageMojo, new File("./"), new File("./"));
 
@@ -476,16 +489,20 @@ public class RepackageMojoTest {
         List<String> jarList = new ArrayList<>();
 
         Set<Artifact> artifacts = new HashSet<>();
-        Artifact artifact = new DefaultArtifact("group1.a.b", "artifact1gkl", "1.0", "test", "", null, new DefaultArtifactHandler());
+        Artifact artifact = new DefaultArtifact("group1.a.b", "artifact1gkl", "1.0", "test", "",
+            null, new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group2.c", "artifact1gkl", "1.0", "", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group2.c", "artifact1gkl", "1.0", "", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group3", "artifact1.e", "1.0", "", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group3", "artifact1.e", "1.0", "", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
-        artifact = new DefaultArtifact("group3", "artifact2.g.h", "1.0", "", "", null, new DefaultArtifactHandler());
+        artifact = new DefaultArtifact("group3", "artifact2.g.h", "1.0", "", "", null,
+            new DefaultArtifactHandler());
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
 
