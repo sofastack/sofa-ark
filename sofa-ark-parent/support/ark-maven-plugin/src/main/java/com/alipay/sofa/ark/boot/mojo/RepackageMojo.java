@@ -288,6 +288,9 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "false")
     private boolean                declaredMode;
 
+    @Parameter(defaultValue = "false")
+    private boolean                disableGitInfo;
+
     /*----------------Git 相关参数---------------------*/
     /**
      * The root directory of the repository we want to check.
@@ -352,6 +355,9 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private File getGitDirectory(MavenProject rootProject) {
+        if (disableGitInfo) {
+            return null;
+        }
         if (gitDirectory != null && gitDirectory.exists()) {
             return gitDirectory;
         }
@@ -588,9 +594,16 @@ public class RepackageMojo extends TreeMojo {
         if (excludeGroupIds != null) {
             // 支持通配符
             for (String excludeGroupId : excludeGroupIds) {
-                if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                    excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                        Constants.PACKAGE_PREFIX_MARK);
+                if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                    || excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                    } else if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                            Constants.PACKAGE_PREFIX_MARK_2);
+                    }
+
                     if (artifact.getGroupId().startsWith(excludeGroupId)) {
                         return true;
                     }
@@ -605,9 +618,15 @@ public class RepackageMojo extends TreeMojo {
         if (excludeArtifactIds != null) {
             // 支持通配符
             for (String excludeArtifactId : excludeArtifactIds) {
-                if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                    excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                        Constants.PACKAGE_PREFIX_MARK);
+                if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                    || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                    } else if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK_2);
+                    }
                     if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
                         return true;
                     }
@@ -699,9 +718,16 @@ public class RepackageMojo extends TreeMojo {
                     continue;
                 }
                 for (String jarBlackGroupId : jarGroupIds) {
-                    if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                    if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                        || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                            jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
+                                Constants.PACKAGE_PREFIX_MARK);
+                        } else if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                            jarBlackGroupId = StringUtils.remove(jarBlackGroupId,
+                                Constants.PACKAGE_PREFIX_MARK_2);
+                        }
+
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
                             if (error) {
                                 getLog()
@@ -744,9 +770,15 @@ public class RepackageMojo extends TreeMojo {
                     continue;
                 }
                 for (String jarBlackArtifactId : jarArtifactIds) {
-                    if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                    if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                        || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                            jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
+                                Constants.PACKAGE_PREFIX_MARK);
+                        } else if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                            jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
+                                Constants.PACKAGE_PREFIX_MARK_2);
+                        }
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
                                 getLog()

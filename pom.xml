@@ -15,7 +15,7 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>2.2.1</sofa.ark.version>
+        <sofa.ark.version>2.2.4-SNAPSHOT</sofa.ark.version>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -24,7 +24,7 @@
         <maven.source.plugin>3.0.0</maven.source.plugin>
         <maven.javadoc.plugin>3.2.0</maven.javadoc.plugin>
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
-        <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <maven.gpg.pluign>1.6</maven.gpg.pluign>
         <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
     </properties>
@@ -274,6 +274,12 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
