@@ -28,6 +28,18 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-common</artifactId>
         </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -49,6 +61,8 @@
                                 <packages>
                                     <package>javax.*</package>
                                     <package>org.apache.*</package>
+                                    <!-- fix https://github.com/sofastack/sofa-ark/issues/737 -->
+                                    <package>com.alipay.sofa.ark.web.embed.*</package>
                                 </packages>
                             </exported>
                         </configuration>

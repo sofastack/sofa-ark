@@ -73,6 +73,8 @@ public class BizModel implements Biz {
 
     private URL[]                  urls;
 
+    private URL[]                  pluginUrls;
+
     private ClassLoader            classLoader;
 
     private Map<String, String>    attributes                    = new ConcurrentHashMap<>();
@@ -126,6 +128,11 @@ public class BizModel implements Biz {
 
     public BizModel setClassPath(URL[] urls) {
         this.urls = urls;
+        return this;
+    }
+
+    public BizModel setPluginClassPath(URL[] urls) {
+        this.pluginUrls = urls;
         return this;
     }
 
@@ -446,6 +453,11 @@ public class BizModel implements Biz {
     }
 
     private boolean doCheckDeclared(String jarFilePath) {
+        // if from ark plugin, then set as declared
+        if (isFromPlugin(jarFilePath)) {
+            return true;
+        }
+
         String artifactId = JarUtils.parseArtifactId(jarFilePath);
         if (artifactId == null) {
             if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
@@ -467,5 +479,22 @@ public class BizModel implements Biz {
         }
 
         return declaredLibraries.contains(artifactId);
+    }
+
+    private boolean isFromPlugin(String jarFilePath) {
+        if (pluginUrls == null) {
+            return false;
+        }
+        for (URL pluginUrl : pluginUrls) {
+            String pluginUrlFile = pluginUrl.getFile().replace("file:", "");
+            if (pluginUrlFile.endsWith(JarUtils.JAR_SEPARATOR)) {
+                pluginUrlFile = pluginUrlFile.substring(0, pluginUrlFile.length()
+                                                           - JarUtils.JAR_SEPARATOR.length());
+            }
+            if (jarFilePath.contains(pluginUrlFile)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

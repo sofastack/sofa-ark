@@ -26,6 +26,7 @@
         <maven.core.version>3.8.1</maven.core.version>
         <maven.artifact.version>3.8.1</maven.artifact.version>
         <maven.archiver.version>3.5.1</maven.archiver.version>
+        <maven.model.version>3.8.1</maven.model.version>
         <maven.plugin.api.version>3.8.1</maven.plugin.api.version>
         <maven.plugin.annotations.version>3.6.1</maven.plugin.annotations.version>
         <maven.dependency.plugin.version>3.2.0</maven.dependency.plugin.version>
@@ -46,7 +47,7 @@
         <maven.plugin.plugin>3.6.1</maven.plugin.plugin>
         <surefire.version>2.22.2</surefire.version>
         <netty.version>4.1.90.Final</netty.version>
-        <spring.boot.version>2.5.12</spring.boot.version>
+        <spring.boot.version>2.7.14</spring.boot.version>
     </properties>
 
     <dependencyManagement>
@@ -286,7 +287,11 @@
                 <artifactId>maven-plugin-api</artifactId>
                 <version>${maven.plugin.api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${maven.model.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-artifact</artifactId>
@@ -337,6 +342,7 @@
                 <version>${testng.version}</version>
             </dependency>
 
+            <!-- Test Dependencies -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>

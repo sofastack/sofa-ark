@@ -54,8 +54,14 @@ public class JarUtilsTest {
         String artifactId = JarUtils.parseArtifactId(clazzURL.getPath());
         Assert.assertEquals("sofa-ark-archive", artifactId);
 
+        URL testClazzURL = this.getClass().getClassLoader()
+            .getResource("com/alipay/sofa/ark/loader/test/jar/JarUtilsTest.class");
+
+        artifactId = JarUtils.parseArtifactId(testClazzURL.getPath());
+        Assert.assertEquals("sofa-ark-archive", artifactId);
+
         URI classPathRoot = this.getClass().getClassLoader().getResource("").toURI();
-        String classPath = Paths.get(classPathRoot).getParent().toFile().getAbsolutePath();
+        String classPath = Paths.get(classPathRoot).toFile().getAbsolutePath();
         String artifactId1 = JarUtils.parseArtifactId(classPath);
         Assert.assertNotNull(artifactId1);
     }
