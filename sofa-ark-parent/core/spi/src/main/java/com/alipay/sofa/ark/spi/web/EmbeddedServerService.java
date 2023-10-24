@@ -30,7 +30,9 @@ public interface EmbeddedServerService<T> {
     T getEmbedServer();
 
     /**
-     * set embed tomcat
+     * set embed tomcat.
+     * Once web container instance (e.g. Tomcat, Netty) set to this EmbeddedServerService, it is usually can not be modified!
+     *
      * @param container
      */
     void setEmbedServer(T container);
