@@ -13,7 +13,7 @@
     <artifactId>web-ark-plugin</artifactId>
 
     <properties>
-        <spring.boot.version>2.1.0.RELEASE</spring.boot.version>
+        <spring.boot.version>2.7.14</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -21,12 +21,24 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring.boot.version}</version>
-            <scope>provided</scope>
         </dependency>
+
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-common</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -49,7 +61,7 @@
                                 <packages>
                                     <package>javax.*</package>
                                     <package>org.apache.*</package>
-                                    <!--              fix https://github.com/sofastack/sofa-ark/issues/737                      -->
+                                    <!-- fix https://github.com/sofastack/sofa-ark/issues/737 -->
                                     <package>com.alipay.sofa.ark.web.embed.*</package>
                                 </packages>
                             </exported>

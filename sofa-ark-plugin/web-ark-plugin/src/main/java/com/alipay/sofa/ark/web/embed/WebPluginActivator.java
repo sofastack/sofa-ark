@@ -30,7 +30,7 @@ import org.apache.catalina.startup.Tomcat;
  */
 public class WebPluginActivator implements PluginActivator {
 
-    private EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
+    EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
 
     @Override
     public void start(PluginContext context) {
