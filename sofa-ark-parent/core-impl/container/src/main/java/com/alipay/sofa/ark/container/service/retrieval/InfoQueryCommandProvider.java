@@ -60,9 +60,9 @@ public class InfoQueryCommandProvider implements CommandProvider {
                                                + "  -c  Shows the class info.\n";
 
     class ContainerQueryInfoCommand {
-        private boolean         isValidate;
-        private Set<Character>  options         = new HashSet<>();
-        private Set<String>     parameters      = new HashSet<>();
+        private boolean               isValidate;
+        private Set<Character>        options         = new HashSet<>();
+        private Set<String>           parameters      = new HashSet<>();
         private final Instrumentation instrumentation = ByteBuddyAgent.install();
 
         ContainerQueryInfoCommand(String command) {
@@ -189,16 +189,19 @@ public class InfoQueryCommandProvider implements CommandProvider {
             StringBuilder sb = new StringBuilder();
             for (Class<?> clazz : classSet) {
                 ClassLoader classLoader = clazz.getClassLoader();
-                if (null != ArkClient.getMasterBiz() && classLoader == ArkClient.getMasterBiz().getBizClassLoader()) {
-                    String classInfo = ClassInfoMethod.createClassInfo(clazz, ArkClient.getMasterBiz()
-                        .getIdentity());
+                if (null != ArkClient.getMasterBiz()
+                    && classLoader == ArkClient.getMasterBiz().getBizClassLoader()) {
+                    String classInfo = ClassInfoMethod.createClassInfo(clazz, ArkClient
+                        .getMasterBiz().getIdentity());
                     sb.append(classInfo).append("\n");
-                } else if (null != ArkClient.getMasterBiz() && classLoader instanceof BizClassLoader) {
+                } else if (null != ArkClient.getMasterBiz()
+                           && classLoader instanceof BizClassLoader) {
                     String classInfo = ClassInfoMethod.createClassInfo(clazz,
                         ((BizClassLoader) classLoader).getBizIdentity());
                     sb.append(classInfo).append("\n");
                 } else {
-                    String classInfo = ClassInfoMethod.createClassInfo(clazz, classLoader.toString());
+                    String classInfo = ClassInfoMethod.createClassInfo(clazz,
+                        classLoader.toString());
                     sb.append(classInfo).append("\n");
                 }
             }

@@ -38,16 +38,26 @@ public class ViewRender {
      */
     public static String renderClassInfo(ClassInfoVO clazz) {
         TableElement table = new TableElement().leftCellPadding(1).rightCellPadding(1);
-        table.row(Element.label("class-info").style(Decoration.bold.bold()), Element.label(clazz.getClassInfo()))
-             .row(Element.label("code-source").style(Decoration.bold.bold()), Element.label(clazz.getCodeSource()))
-             .row(Element.label("isInterface").style(Decoration.bold.bold()), Element.label("" + clazz.isInterface()))
-             .row(Element.label("isAnnotation").style(Decoration.bold.bold()), Element.label("" + clazz.isAnnotation()))
-             .row(Element.label("isEnum").style(Decoration.bold.bold()), Element.label("" + clazz.isEnum()))
-             .row(Element.label("container-name").style(Decoration.bold.bold()), Element.label("" + clazz.getContainerName()))
-             .row(Element.label("simple-name").style(Decoration.bold.bold()), Element.label(clazz.getSimpleName()))
-             .row(Element.label("modifier").style(Decoration.bold.bold()), Element.label(clazz.getModifier()))
-             .row(Element.label("super-class").style(Decoration.bold.bold()), drawSuperClass(clazz))
-             .row(Element.label("class-loader").style(Decoration.bold.bold()), drawClassLoader(clazz.getClassloader()));
+        table
+            .row(Element.label("class-info").style(Decoration.bold.bold()),
+                Element.label(clazz.getClassInfo()))
+            .row(Element.label("code-source").style(Decoration.bold.bold()),
+                Element.label(clazz.getCodeSource()))
+            .row(Element.label("isInterface").style(Decoration.bold.bold()),
+                Element.label("" + clazz.isInterface()))
+            .row(Element.label("isAnnotation").style(Decoration.bold.bold()),
+                Element.label("" + clazz.isAnnotation()))
+            .row(Element.label("isEnum").style(Decoration.bold.bold()),
+                Element.label("" + clazz.isEnum()))
+            .row(Element.label("container-name").style(Decoration.bold.bold()),
+                Element.label("" + clazz.getContainerName()))
+            .row(Element.label("simple-name").style(Decoration.bold.bold()),
+                Element.label(clazz.getSimpleName()))
+            .row(Element.label("modifier").style(Decoration.bold.bold()),
+                Element.label(clazz.getModifier()))
+            .row(Element.label("super-class").style(Decoration.bold.bold()), drawSuperClass(clazz))
+            .row(Element.label("class-loader").style(Decoration.bold.bold()),
+                drawClassLoader(clazz.getClassloader()));
         return RenderUtil.render(table);
     }
 

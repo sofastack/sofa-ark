@@ -123,17 +123,11 @@ public class ClassInfoVO {
 
     @Override
     public String toString() {
-        return "ClassDetailVO{" +
-                "classInfo='" + classInfo + '\'' +
-                ", codeSource='" + codeSource + '\'' +
-                ", isInterface=" + isInterface +
-                ", isAnnotation=" + isAnnotation +
-                ", isEnum=" + isEnum +
-                ", containerName='" + containerName + '\'' +
-                ", simpleName='" + simpleName + '\'' +
-                ", modifier='" + modifier + '\'' +
-                ", superClass=" + Arrays.toString(superClass) +
-                ", classloader=" + Arrays.toString(classloader) +
-                '}';
+        return "ClassDetailVO{" + "classInfo='" + classInfo + '\'' + ", codeSource='" + codeSource
+               + '\'' + ", isInterface=" + isInterface + ", isAnnotation=" + isAnnotation
+               + ", isEnum=" + isEnum + ", containerName='" + containerName + '\''
+               + ", simpleName='" + simpleName + '\'' + ", modifier='" + modifier + '\''
+               + ", superClass=" + Arrays.toString(superClass) + ", classloader="
+               + Arrays.toString(classloader) + '}';
     }
 }
