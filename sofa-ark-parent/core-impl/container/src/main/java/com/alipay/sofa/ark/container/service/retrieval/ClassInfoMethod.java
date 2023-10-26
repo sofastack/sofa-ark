@@ -37,7 +37,7 @@ public class ClassInfoMethod {
     /**
      * get code source of class
      */
-    public static String getCodeSource(final CodeSource cs) {
+    private static String getCodeSource(final CodeSource cs) {
         if (null == cs || null == cs.getLocation() || null == cs.getLocation().getFile()) {
             return EMPTY_STRING;
         }
@@ -51,7 +51,7 @@ public class ClassInfoMethod {
      * @param clazz
      * @return
      */
-    public static String getClassName(Class<?> clazz) {
+    private static String getClassName(Class<?> clazz) {
         if (clazz.isArray()) {
             StringBuilder sb = new StringBuilder(clazz.getName());
             sb.delete(0, 2);
@@ -71,7 +71,7 @@ public class ClassInfoMethod {
      * @param mod modifier
      * @return 翻译值
      */
-    public static String getModifier(int mod, char splitter) {
+    private static String getModifier(int mod, char splitter) {
         StringBuilder sb = new StringBuilder();
         if (Modifier.isAbstract(mod)) {
             sb.append("abstract").append(splitter);
@@ -121,7 +121,7 @@ public class ClassInfoMethod {
      * @param clazz
      * @return
      */
-    public static String[] getSuperClass(Class clazz) {
+    private static String[] getSuperClass(Class clazz) {
         List<String> list = new ArrayList<String>();
         Class<?> superClass = clazz.getSuperclass();
         if (null != superClass) {
@@ -143,7 +143,7 @@ public class ClassInfoMethod {
      * @param clazz
      * @return
      */
-    public static String[] getClassloader(Class clazz) {
+    private static String[] getClassloader(Class clazz) {
         List<String> list = new ArrayList<String>();
         ClassLoader loader = clazz.getClassLoader();
         if (null != loader) {
