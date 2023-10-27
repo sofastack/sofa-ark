@@ -42,6 +42,8 @@ import org.springframework.boot.web.server.WebServerException;
 import org.springframework.util.Assert;
 
 /**
+ * NOTE: Tomcat instance will start immediately when create ArkTomcatWebServer object.
+ *
  * @author Brian Clozel
  * @author Kristine Jetzke
  * @author 0.6.0
