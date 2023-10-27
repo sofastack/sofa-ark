@@ -128,6 +128,7 @@ public class FileUtils {
                 if (entry.isDirectory()) {
                     String dirPath = targetPath + File.separator + entry.getName();
                     File dir = new File(dirPath);
+                    validateZipEntry(targetPath, dir);
                     dir.mkdirs();
                 } else {
                     InputStream inputStream = null;

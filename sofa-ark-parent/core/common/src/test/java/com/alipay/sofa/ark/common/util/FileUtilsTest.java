@@ -25,12 +25,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -57,6 +53,15 @@ public class FileUtilsTest {
         Assert.assertTrue(winPath.contains("/"));
         String macPath = FileUtils.getCompatiblePath("/a/b/c");
         Assert.assertTrue(winPath.contains(macPath));
+    }
+
+    @Test
+    public void testGetCompatiblePathLinux() {
+        System.setProperty("os.name", "Linux");
+        String path = "/home/user/Documents";
+        String expected = "/home/user/Documents";
+        String actual = FileUtils.getCompatiblePath(path);
+        Assert.assertEquals(expected, actual);
     }
 
     @Test
@@ -91,8 +96,12 @@ public class FileUtilsTest {
         ZipOutputStream zos = new ZipOutputStream(fos);
         String goodFileContent = "This is a good file.";
         String evilFileContent = "This is an evil file.";
-        ZipEntry goodEntry = new ZipEntry("goodfile.txt");
-        zos.putNextEntry(goodEntry);
+        ZipEntry goodEntry1 = new ZipEntry("goodfile.txt");
+        zos.putNextEntry(goodEntry1);
+        zos.write(goodFileContent.getBytes());
+        zos.closeEntry();
+        ZipEntry goodEntry2 = new ZipEntry("newDir/goodfile.txt");
+        zos.putNextEntry(goodEntry2);
         zos.write(goodFileContent.getBytes());
         zos.closeEntry();
         ZipEntry evilEntry = new ZipEntry("../evilfile.txt");
@@ -111,6 +120,24 @@ public class FileUtilsTest {
             if (null != zipFile && zipFile.exists()) {
                 zipFile.delete();
             }
+            File unzipFileFolder = new File(zipFileName + "-unpack");
+            if (unzipFileFolder.exists()) {
+                deleteFolder(unzipFileFolder);
+            }
         }
+    }
+
+    private static void deleteFolder(File folder) {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteFolder(file); // 递归删除子文件夹
+                } else {
+                    file.delete(); // 删除文件
+                }
+            }
+        }
+        folder.delete(); // 删除文件夹本身
     }
 }
