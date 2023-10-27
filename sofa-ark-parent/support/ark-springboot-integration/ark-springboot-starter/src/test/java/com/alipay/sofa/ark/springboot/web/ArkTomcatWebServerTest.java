@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.web;
 
+import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +52,10 @@ public class ArkTomcatWebServerTest {
 
     @Test
     public void testGetWebServerWithEmbeddedServerServiceNull() {
+        try {
+            BaseSpringApplication.stop();
+        } catch (Exception e) {
+        }
         arkTomcatWebServer.start();
         arkTomcatWebServer.start();
         arkTomcatWebServer.stopSilently();
