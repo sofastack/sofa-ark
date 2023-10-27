@@ -14,26 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.web;
+package com.alipay.sofa.ark.config;
 
 /**
- * Fetch embed tomcat container in ark
- *
- * @author qilong.zql
- * @since 0.6.0
+ * @author zsk
+ * @version $Id: ConfigTypeEnum.java, v 0.1 2023年09月28日 17:16 zsk Exp $
  */
-public interface EmbeddedServerService<T> {
-    /**
-     * get embed tomcat
-     * @return
-     */
-    T getEmbedServer();
+public enum ConfigTypeEnum {
+    zookeeper, apollo, ;
 
-    /**
-     * set embed tomcat.
-     * Once web container instance (e.g. Tomcat, Netty) set to this EmbeddedServerService, it is usually can not be modified!
-     *
-     * @param container
-     */
-    void setEmbedServer(T container);
+    public static ConfigTypeEnum getByNameWithDefault(String name, ConfigTypeEnum defaultValue) {
+        for (ConfigTypeEnum configTypeEnum : ConfigTypeEnum.values()) {
+            if (configTypeEnum.name().equalsIgnoreCase(name)) {
+                return configTypeEnum;
+            }
+        }
+        return defaultValue;
+    }
 }
