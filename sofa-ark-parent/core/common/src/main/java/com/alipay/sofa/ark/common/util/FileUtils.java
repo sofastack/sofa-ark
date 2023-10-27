@@ -196,8 +196,8 @@ public class FileUtils {
      * @throws IOException the io exception
      */
     public static void validateZipEntry(String targetPath, File entryFile) throws IOException {
-        String canonicalEntryFilePath = entryFile.getCanonicalPath();
-        if (!canonicalEntryFilePath.startsWith(targetPath)) {
+        String absolutePath = entryFile.getAbsolutePath();
+        if (!absolutePath.startsWith(targetPath)) {
             throw new ArkRuntimeException("Invalid ZIP entry: " + entryFile.getName());
         }
     }
