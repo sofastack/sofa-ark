@@ -31,18 +31,23 @@ import java.lang.reflect.Field;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 import static com.alipay.sofa.ark.spi.model.BizState.RESOLVED;
+import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertEquals;
 
 public class ArkTomcatServletWebServerFactoryTest {
 
     private ArkTomcatServletWebServerFactory arkTomcatServletWebServerFactory = new ArkTomcatServletWebServerFactory();
 
+    private ClassLoader currentThreadContextClassLoader;
+
     @Before
     public void setUp() {
+        currentThreadContextClassLoader = currentThread().getContextClassLoader();
     }
 
     @After
     public void tearDown() {
+        currentThread().setContextClassLoader(currentThreadContextClassLoader);
     }
 
     @Test
@@ -77,6 +82,7 @@ public class ArkTomcatServletWebServerFactoryTest {
         assertEquals(ROOT_WEB_CONTEXT_PATH, arkTomcatServletWebServerFactory.getContextPath());
 
         biz.setWebContextPath("/ddd");
+        currentThread().setContextClassLoader(biz.getBizClassLoader());
         assertEquals("/ddd", arkTomcatServletWebServerFactory.getContextPath());
 
         arkTomcatServletWebServerFactory.setContextPath("/aaa");
@@ -91,7 +97,7 @@ public class ArkTomcatServletWebServerFactoryTest {
 
         assertEquals(0, host.getChildren().length);
         arkTomcatServletWebServerFactory.setRegisterDefaultServlet(true);
-        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        currentThread().setContextClassLoader(this.getClass().getClassLoader());
         Jsp jsp = new Jsp();
         jsp.setRegistered(true);
         // Otherwise JSP won't be loaded by ApplicationClassLoader, so JSP-relative initialization code won't be executed.
