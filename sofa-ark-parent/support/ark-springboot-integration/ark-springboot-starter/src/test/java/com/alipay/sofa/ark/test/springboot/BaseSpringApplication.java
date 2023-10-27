@@ -31,7 +31,7 @@ import static org.springframework.boot.SpringApplication.exit;
 @SpringBootApplication
 public class BaseSpringApplication {
 
-    private static SpringApplication springApplication;
+    private static SpringApplication  springApplication;
 
     private static ApplicationContext applicationContext;
 
