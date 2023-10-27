@@ -34,6 +34,11 @@ public class EmbeddedServerServiceImpl implements EmbeddedServerService<Tomcat> 
         return tomcat;
     }
 
+    /**
+     * Once tomcat set to this EmbeddedServerService, it will not be allowed to modify!
+     *
+     * @param tomcat
+     */
     @Override
     public void setEmbedServer(Tomcat tomcat) {
         if (this.tomcat == null) {
