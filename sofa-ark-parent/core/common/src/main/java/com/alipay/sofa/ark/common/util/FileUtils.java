@@ -197,6 +197,12 @@ public class FileUtils {
      */
     public static void validateZipEntry(String targetPath, File entryFile) throws IOException {
         String absolutePath = entryFile.getAbsolutePath();
+        // Replacing file separator with system separator.
+        targetPath = targetPath.replace("/", File.separator).replace("\\", File.separator);
+        // Removing leading and trailing separator.
+        if (targetPath.startsWith(File.separator) && !absolutePath.startsWith(File.separator)) {
+            targetPath = targetPath.substring(File.separator.length());
+        }
         if (!absolutePath.startsWith(targetPath)) {
             throw new ArkRuntimeException("Invalid ZIP entry: " + entryFile.getName());
         }
