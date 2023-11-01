@@ -18,7 +18,10 @@ package com.alipay.sofa.ark.springboot.web;
 
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
+import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory.StaticResourceConfigurer;
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.junit.After;
 import org.junit.Before;
@@ -27,7 +30,12 @@ import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.server.Jsp;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 import static com.alipay.sofa.ark.spi.model.BizState.RESOLVED;
@@ -112,5 +120,28 @@ public class ArkTomcatServletWebServerFactoryTest {
         arkTomcatServletWebServerFactory.setBackgroundProcessorDelay(10);
         arkTomcatServletWebServerFactory.setBaseDirectory(null);
         arkTomcatServletWebServerFactory.setProtocol("8888");
+    }
+
+    @Test
+    public void testStaticResourceConfigurer() throws Exception {
+
+        List<URL> urls = new ArrayList<>();
+        urls.add(new URL("file:///aaa.jar!/"));
+        urls.add(new URL("jar:file:///aaa.jar!/"));
+        urls.add(new URL("file:///aaa"));
+        urls.add(new URL("file:///!/aaa!/"));
+
+        try {
+            Constructor<StaticResourceConfigurer> declaredConstructor = StaticResourceConfigurer.class.
+                    getDeclaredConstructor(ArkTomcatServletWebServerFactory.class, Context.class);
+            declaredConstructor.setAccessible(true);
+            StaticResourceConfigurer staticResourceConfigurer = declaredConstructor.newInstance(arkTomcatServletWebServerFactory, new StandardContext());
+
+            Method addResourceJars = StaticResourceConfigurer.class.getDeclaredMethod("addResourceJars", List.class);
+            addResourceJars.setAccessible(true);
+            addResourceJars.invoke(staticResourceConfigurer, urls);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

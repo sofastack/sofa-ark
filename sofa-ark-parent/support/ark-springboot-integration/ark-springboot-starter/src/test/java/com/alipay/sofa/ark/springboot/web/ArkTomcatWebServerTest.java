@@ -50,13 +50,14 @@ public class ArkTomcatWebServerTest {
     @Test
     public void testGetWebServerWithEmbeddedServerServiceNull() {
         //        NOTE: tomcat can not be stopped and restarted due to a Spring context destroy problem.
-        //        Spring community will fix this issue in the future, so comment out this test case now.
-
-        //        arkTomcatWebServer.start();
-        //        arkTomcatWebServer.start();
-        //        arkTomcatWebServer.stopSilently();
-        //        arkTomcatWebServer.start();
-        //        arkTomcatWebServer.stop();
-        //        assertEquals(8080, arkTomcatWebServer.getPort());
+        //        Spring community will fix this issue in the future, so catch all exception now.
+        try {
+            arkTomcatWebServer.stopSilently();
+        } catch (Exception e) {
+        }
+        try {
+            arkTomcatWebServer.stop();
+        } catch (Exception e) {
+        }
     }
 }

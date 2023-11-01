@@ -267,7 +267,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         }
     }
 
-    private final class StaticResourceConfigurer implements LifecycleListener {
+     final class StaticResourceConfigurer implements LifecycleListener {
 
         private final Context context;
 
@@ -282,7 +282,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             }
         }
 
-        private void addResourceJars(List<URL> resourceJarUrls) {
+         private void addResourceJars(List<URL> resourceJarUrls) {
             for (URL url : resourceJarUrls) {
                 String path = url.getPath();
                 if (path.endsWith(".jar") || path.endsWith(".jar!/")) {
