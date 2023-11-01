@@ -77,6 +77,14 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
         return enumeration;
     }
 
+    /**
+     * Cache ClassNotFound exception and class.
+     *
+     * @param name
+     * @param resolve
+     * @return
+     * @throws ClassNotFoundException
+     */
     protected Class<?> loadClassWithCache(String name, boolean resolve)
                                                                        throws ClassNotFoundException {
         LoadClassResult resultInCache = classCache.get(name);
