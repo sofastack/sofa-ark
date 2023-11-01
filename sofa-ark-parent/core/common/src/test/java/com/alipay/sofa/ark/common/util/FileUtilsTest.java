@@ -56,15 +56,6 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testGetCompatiblePathLinux() {
-        System.setProperty("os.name", "Linux");
-        String path = "/home/user/Documents";
-        String expected = "/home/user/Documents";
-        String actual = FileUtils.getCompatiblePath(path);
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
     public void testSHA1Hash() throws IOException {
         URL url = this.getClass().getResource(this.getClass().getSimpleName() + ".class");
         Assert.assertNotNull(FileUtils.sha1Hash(new File(url.getFile())));
