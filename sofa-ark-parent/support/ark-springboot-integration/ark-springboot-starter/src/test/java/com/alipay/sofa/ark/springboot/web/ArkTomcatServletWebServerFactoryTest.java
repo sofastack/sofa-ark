@@ -46,7 +46,7 @@ public class ArkTomcatServletWebServerFactoryTest {
 
     private ArkTomcatServletWebServerFactory arkTomcatServletWebServerFactory = new ArkTomcatServletWebServerFactory();
 
-    private ClassLoader currentThreadContextClassLoader;
+    private ClassLoader                      currentThreadContextClassLoader;
 
     @Before
     public void setUp() {
@@ -132,12 +132,14 @@ public class ArkTomcatServletWebServerFactoryTest {
         urls.add(new URL("file:///!/aaa!/"));
 
         try {
-            Constructor<StaticResourceConfigurer> declaredConstructor = StaticResourceConfigurer.class.
-                    getDeclaredConstructor(ArkTomcatServletWebServerFactory.class, Context.class);
+            Constructor<StaticResourceConfigurer> declaredConstructor = StaticResourceConfigurer.class
+                .getDeclaredConstructor(ArkTomcatServletWebServerFactory.class, Context.class);
             declaredConstructor.setAccessible(true);
-            StaticResourceConfigurer staticResourceConfigurer = declaredConstructor.newInstance(arkTomcatServletWebServerFactory, new StandardContext());
+            StaticResourceConfigurer staticResourceConfigurer = declaredConstructor.newInstance(
+                arkTomcatServletWebServerFactory, new StandardContext());
 
-            Method addResourceJars = StaticResourceConfigurer.class.getDeclaredMethod("addResourceJars", List.class);
+            Method addResourceJars = StaticResourceConfigurer.class.getDeclaredMethod(
+                "addResourceJars", List.class);
             addResourceJars.setAccessible(true);
             addResourceJars.invoke(staticResourceConfigurer, urls);
         } catch (Exception e) {
