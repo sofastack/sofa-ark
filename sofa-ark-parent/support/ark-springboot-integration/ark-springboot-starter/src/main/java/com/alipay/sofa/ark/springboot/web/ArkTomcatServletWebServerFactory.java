@@ -267,7 +267,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         }
     }
 
-    private final class StaticResourceConfigurer implements LifecycleListener {
+    final class StaticResourceConfigurer implements LifecycleListener {
 
         private final Context context;
 

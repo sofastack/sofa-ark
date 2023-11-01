@@ -18,7 +18,10 @@ package com.alipay.sofa.ark.test.springboot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ImportResource;
+
+import static org.springframework.boot.SpringApplication.exit;
 
 /**
  * @author qilong.zql
@@ -27,8 +30,17 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource({ "classpath*:META-INF/sofa-ark-test/*.xml" })
 @SpringBootApplication
 public class BaseSpringApplication {
+
+    private static SpringApplication  springApplication;
+
+    private static ApplicationContext applicationContext;
+
     public static void main(String[] args) {
-        SpringApplication springApplication = new SpringApplication(BaseSpringApplication.class);
-        springApplication.run(args);
+        springApplication = new SpringApplication(BaseSpringApplication.class);
+        applicationContext = springApplication.run(args);
+    }
+
+    public static void stop() {
+        exit(applicationContext, () -> 0);
     }
 }
