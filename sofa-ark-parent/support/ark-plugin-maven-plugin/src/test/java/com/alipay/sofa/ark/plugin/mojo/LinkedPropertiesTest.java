@@ -14,37 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.replay;
+package com.alipay.sofa.ark.plugin.mojo;
 
 import org.junit.Test;
 
-import static com.alipay.sofa.ark.spi.replay.ReplayContext.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
-public class ReplayContextTest {
+public class LinkedPropertiesTest {
+
+    private LinkedProperties linkedProperties = new LinkedProperties();
 
     @Test
-    public void testAllMethods() {
+    public void testLinkedPropertiesAllMethods() {
 
-        assertEquals(null, get());
+        assertEquals(false, linkedProperties.keys().hasMoreElements());
+        linkedProperties.put("a", "b");
+        assertEquals(1, linkedProperties.entrySet().size());
 
-        set("0.0");
-        assertEquals("0.0", get());
+        linkedProperties.remove("a");
+        assertEquals(0, linkedProperties.entrySet().size());
 
-        unset();
-        assertEquals(null, get());
-
-        setPlaceHolder();
-        assertEquals(null, get());
-
-        set("2.0");
-        setPlaceHolder();
-        assertEquals(PLACEHOLDER, get());
-
-        clearPlaceHolder();
-        assertEquals("2.0", get());
-
-        clearPlaceHolder();
-        assertEquals("2.0", get());
+        Map<Object, Object> properties = new HashMap<>();
+        properties.put("c", "d");
+        properties.put("e", "f");
+        linkedProperties.putAll(properties);
+        assertEquals(2, linkedProperties.entrySet().size());
     }
 }
