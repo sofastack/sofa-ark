@@ -14,20 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.plugin.mojo;
+package com.alipay.sofa.ark.spi.constant;
 
-import java.util.Properties;
+import org.junit.Test;
 
-/**
- * @author qilong.zql
- * @since 0.1.0
- */
-public class ImportConfig extends AbstractPropertiesConfig {
+import java.util.ArrayList;
+import java.util.List;
 
-    @Override
-    public void store(Properties prop) {
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_PACKAGES, getPackages());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_RESOURCES, getResources());
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static java.lang.Class.forName;
+import static org.junit.Assert.assertEquals;
+
+public class ConstantsTest {
+
+    @Test
+    public void testAllMethods() throws Exception {
+        forName("com.alipay.sofa.ark.spi.constant.Constants");
+        List<String> channelQuits = new ArrayList<>();
+        channelQuits.add("quit");
+        channelQuits.add("q");
+        channelQuits.add("exit");
+        assertEquals(channelQuits, CHANNEL_QUIT);
+        assertEquals(new String(new byte[] { (byte) 13, (byte) 10 }), TELNET_STRING_END);
+        assertEquals("", DEFAULT_PROFILE);
     }
 }

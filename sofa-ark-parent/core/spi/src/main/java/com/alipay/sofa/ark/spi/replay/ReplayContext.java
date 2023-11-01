@@ -27,7 +27,7 @@ public class ReplayContext {
     private static final ThreadLocal<Stack<String>> moduleVersions = new ThreadLocal<Stack<String>>() {
                                                                        @Override
                                                                        protected Stack<String> initialValue() {
-                                                                           return new Stack<String>();
+                                                                           return new Stack<>();
                                                                        }
                                                                    };
 
@@ -60,5 +60,4 @@ public class ReplayContext {
             moduleVersions.get().pop();
         }
     }
-
 }

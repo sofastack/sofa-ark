@@ -65,20 +65,14 @@ public class ArkTomcatServletWebServerFactoryTest {
     }
 
     @Test
-    public void testGetContextPath() {
+    public void testGetContextPath() throws Exception {
 
         assertEquals("", arkTomcatServletWebServerFactory.getContextPath());
 
         BizManagerServiceImpl bizManagerService = new BizManagerServiceImpl();
-        try {
-            Field field = ArkTomcatServletWebServerFactory.class
-                .getDeclaredField("bizManagerService");
-            field.setAccessible(true);
-            field.set(arkTomcatServletWebServerFactory, bizManagerService);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        Field field = ArkTomcatServletWebServerFactory.class.getDeclaredField("bizManagerService");
+        field.setAccessible(true);
+        field.set(arkTomcatServletWebServerFactory, bizManagerService);
         assertEquals(ROOT_WEB_CONTEXT_PATH, arkTomcatServletWebServerFactory.getContextPath());
 
         BizModel biz = new BizModel();
@@ -131,19 +125,15 @@ public class ArkTomcatServletWebServerFactoryTest {
         urls.add(new URL("file:///aaa"));
         urls.add(new URL("file:///!/aaa!/"));
 
-        try {
-            Constructor<StaticResourceConfigurer> declaredConstructor = StaticResourceConfigurer.class
-                .getDeclaredConstructor(ArkTomcatServletWebServerFactory.class, Context.class);
-            declaredConstructor.setAccessible(true);
-            StaticResourceConfigurer staticResourceConfigurer = declaredConstructor.newInstance(
-                arkTomcatServletWebServerFactory, new StandardContext());
+        Constructor<StaticResourceConfigurer> declaredConstructor = StaticResourceConfigurer.class
+            .getDeclaredConstructor(ArkTomcatServletWebServerFactory.class, Context.class);
+        declaredConstructor.setAccessible(true);
+        StaticResourceConfigurer staticResourceConfigurer = declaredConstructor.newInstance(
+            arkTomcatServletWebServerFactory, new StandardContext());
 
-            Method addResourceJars = StaticResourceConfigurer.class.getDeclaredMethod(
-                "addResourceJars", List.class);
-            addResourceJars.setAccessible(true);
-            addResourceJars.invoke(staticResourceConfigurer, urls);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Method addResourceJars = StaticResourceConfigurer.class.getDeclaredMethod(
+            "addResourceJars", List.class);
+        addResourceJars.setAccessible(true);
+        addResourceJars.invoke(staticResourceConfigurer, urls);
     }
 }

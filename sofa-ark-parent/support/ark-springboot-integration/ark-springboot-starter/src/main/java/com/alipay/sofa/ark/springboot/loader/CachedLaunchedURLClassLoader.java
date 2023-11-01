@@ -27,7 +27,12 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A cached LaunchedURLClassLoader to accelerate load classes and resources
+ * A cached LaunchedURLClassLoader to accelerate load classes and resources.
+ * NOTE:
+ *   1. Not found classes will be cached.
+ *   2. If findResources(name) return null Enumeration, then it will be cached.
+ *   3. findResource(name) will always be cached no matter it was found or not found.
+ *   4. Otherwise, classes or resources-enumeration will not be cached explicitly.
  *
  * @author bingjie.lbj
  */
@@ -77,6 +82,15 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
         return enumeration;
     }
 
+    /**
+     * NOTE: Only cache ClassNotFoundException when class not found.
+     * If class found, do not cache, and just use parent class loader cache.
+     *
+     * @param name
+     * @param resolve
+     * @return
+     * @throws ClassNotFoundException
+     */
     protected Class<?> loadClassWithCache(String name, boolean resolve)
                                                                        throws ClassNotFoundException {
         LoadClassResult resultInCache = classCache.get(name);

@@ -20,10 +20,8 @@ import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.plugin.mojo.ArkPluginMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +29,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author qilong.zql
@@ -59,18 +61,17 @@ public class ArkPluginMojoTest {
         String copyPath = url.getPath() + ".copy";
         File copyFileForTest = new File(copyPath);
 
-        FileInputStream demoJar = new FileInputStream(new File(url.getPath()));
+        FileInputStream demoJar = new FileInputStream(url.getPath());
         FileUtils.copyInputStreamToFile(demoJar, new File(copyPath));
         demoJar.close();
 
         arkPluginMojo.shadeJarIntoArkPlugin(new File(path), copyFileForTest,
             Collections.singleton(artifact));
 
-        Assert.assertTrue(copyFileForTest.delete());
+        assertTrue(copyFileForTest.delete());
         URLClassLoader urlClassLoader = new URLClassLoader(new URL[] { new URL(shadedUrl) }, null);
-        Assert
-            .assertNotNull(urlClassLoader.loadClass("com.alipay.sofa.support.test.SampleService"));
-        Assert.assertNotNull(urlClassLoader.loadClass("org.junit.Test"));
+        assertNotNull(urlClassLoader.loadClass("com.alipay.sofa.support.test.SampleService"));
+        assertNotNull(urlClassLoader.loadClass("org.junit.Test"));
     }
 
     @Test
@@ -97,11 +98,10 @@ public class ArkPluginMojoTest {
         try {
             arkPluginMojo.isShadeJar(artifact);
         } catch (Exception ex) {
-            Assert.assertTrue(ex.getMessage().equals("Can't shade jar-self."));
+            assertTrue(ex.getMessage().equals("Can't shade jar-self."));
         }
 
         arkPluginMojo.setProject(projectTwo);
-        Assert.assertTrue(arkPluginMojo.isShadeJar(artifact));
+        assertTrue(arkPluginMojo.isShadeJar(artifact));
     }
-
 }
