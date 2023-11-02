@@ -16,18 +16,31 @@
  */
 package com.alipay.sofa.ark.plugin.mojo;
 
-import java.util.Properties;
+import org.junit.Test;
 
-/**
- * @author qilong.zql
- * @since 0.1.0
- */
-public class ImportConfig extends AbstractPropertiesConfig {
+import java.util.HashMap;
+import java.util.Map;
 
-    @Override
-    public void store(Properties prop) {
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_PACKAGES, getPackages());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_RESOURCES, getResources());
+import static org.junit.Assert.assertEquals;
+
+public class LinkedPropertiesTest {
+
+    private LinkedProperties linkedProperties = new LinkedProperties();
+
+    @Test
+    public void testLinkedPropertiesAllMethods() {
+
+        assertEquals(false, linkedProperties.keys().hasMoreElements());
+        linkedProperties.put("a", "b");
+        assertEquals(1, linkedProperties.entrySet().size());
+
+        linkedProperties.remove("a");
+        assertEquals(0, linkedProperties.entrySet().size());
+
+        Map<Object, Object> properties = new HashMap<>();
+        properties.put("c", "d");
+        properties.put("e", "f");
+        linkedProperties.putAll(properties);
+        assertEquals(2, linkedProperties.entrySet().size());
     }
 }

@@ -9,3 +9,7 @@ pom.xml.bak
 logs/
 .flattened-pom.xml
 lib/
+sofa-ark-parent/support/ark-plugin-maven-plugin/com/alipay/sofa/ark/plugin/mark
+sofa-ark-parent/support/ark-plugin-maven-plugin/null.ark.plugin
+sofa-ark-parent/support/ark-plugin-maven-plugin/null.ark.plugin.bak
+sofa-ark-parent/support/ark-plugin-maven-plugin/xxx.ark.plugin
