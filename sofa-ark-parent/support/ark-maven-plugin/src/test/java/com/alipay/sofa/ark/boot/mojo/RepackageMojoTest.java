@@ -56,8 +56,7 @@ import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static org.apache.commons.beanutils.BeanUtils.copyProperties;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -93,11 +92,11 @@ public class RepackageMojoTest {
         Object excludesResult = excludes.get(repackageMojo);
         Object excludeGroupIdResult = excludeGroupIds.get(repackageMojo);
         Object excludeArtifactIdsResult = excludeArtifactIds.get(repackageMojo);
-        Assert.assertTrue(excludesResult instanceof LinkedHashSet
-                          && excludeGroupIdResult instanceof LinkedHashSet
-                          && excludeArtifactIdsResult instanceof LinkedHashSet);
-        Assert.assertTrue(((LinkedHashSet) excludesResult).contains("tracer-core:3.0.10")
-                          && ((LinkedHashSet) excludesResult).contains("tracer-core:3.0.11"));
+        assertTrue(excludesResult instanceof LinkedHashSet
+                   && excludeGroupIdResult instanceof LinkedHashSet
+                   && excludeArtifactIdsResult instanceof LinkedHashSet);
+        assertTrue(((LinkedHashSet) excludesResult).contains("tracer-core:3.0.10")
+                   && ((LinkedHashSet) excludesResult).contains("tracer-core:3.0.11"));
     }
 
     /**
@@ -143,7 +142,7 @@ public class RepackageMojoTest {
         parseArtifactItems.setAccessible(true);
         Set<ArtifactItem> artifactItems = new HashSet<>();
         parseArtifactItems.invoke(repackageMojo, bizNode, artifactItems);
-        Assert.assertTrue(artifactItems.size() == 7);
+        assertTrue(artifactItems.size() == 7);
     }
 
     private DefaultDependencyNode buildDependencyNode(DefaultDependencyNode parent, String groupId,
@@ -268,11 +267,11 @@ public class RepackageMojoTest {
         artifactItem1.setGroupId("groupId1");
         artifactItem1.setArtifactId("artifactId");
         artifactItem1.setVersion("1.1.1");
-        Assert.assertTrue(artifactItem.isSameWithVersion(artifactItem1));
+        assertTrue(artifactItem.isSameWithVersion(artifactItem1));
         artifactItem1.setVersion("2.2.2");
         Assert.assertFalse(artifactItem.isSameWithVersion(artifactItem1));
         artifactItem1.setVersion("*");
-        Assert.assertTrue(artifactItem.isSameWithVersion(artifactItem1));
+        assertTrue(artifactItem.isSameWithVersion(artifactItem1));
     }
 
     @Test
@@ -487,7 +486,6 @@ public class RepackageMojoTest {
         jarArtifactIds.add("artifact2.g.*");
 
         List<String> jarList = new ArrayList<>();
-
         Set<Artifact> artifacts = new HashSet<>();
         Artifact artifact = new DefaultArtifact("group1.a.b", "artifact1gkl", "1.0", "test", "",
             null, new DefaultArtifactHandler());

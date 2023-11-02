@@ -14,20 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.plugin.mojo;
+package com.alipay.sofa.ark.spi.replay;
 
-import java.util.Properties;
+import org.junit.Test;
 
-/**
- * @author qilong.zql
- * @since 0.1.0
- */
-public class ImportConfig extends AbstractPropertiesConfig {
+import static com.alipay.sofa.ark.spi.replay.ReplayContext.*;
+import static org.junit.Assert.assertEquals;
 
-    @Override
-    public void store(Properties prop) {
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_PACKAGES, getPackages());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_RESOURCES, getResources());
+public class ReplayContextTest {
+
+    @Test
+    public void testAllMethods() {
+
+        assertEquals(null, get());
+
+        set("0.0");
+        assertEquals("0.0", get());
+
+        unset();
+        assertEquals(null, get());
+
+        setPlaceHolder();
+        assertEquals(null, get());
+
+        set("2.0");
+        setPlaceHolder();
+        assertEquals(PLACEHOLDER, get());
+
+        clearPlaceHolder();
+        assertEquals("2.0", get());
+
+        clearPlaceHolder();
+        assertEquals("2.0", get());
     }
 }

@@ -14,20 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.plugin.mojo;
+package com.alipay.sofa.ark.spi.ext;
 
-import java.util.Properties;
+import org.junit.Test;
 
-/**
- * @author qilong.zql
- * @since 0.1.0
- */
-public class ImportConfig extends AbstractPropertiesConfig {
+import static org.junit.Assert.assertEquals;
+import static org.springframework.beans.BeanUtils.copyProperties;
 
-    @Override
-    public void store(Properties prop) {
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_PACKAGES, getPackages());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
-        storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_RESOURCES, getResources());
+public class ExtResponseTest {
+
+    @Test
+    public void testAllMethods() {
+        copyProperties(new ExtResponse<>(), new ExtResponse<>());
+        ExtResponse<String> extResponse = new ExtResponse<>();
+        extResponse.setSuccess(true);
+        extResponse.setErrorMsg("myMsg");
+        extResponse.setErrorCode("001");
+        extResponse.setData("myData");
+        String extResponseStr = extResponse.toString();
+        assertEquals("ExtResponse{" + "success=true, errorMsg='myMsg'" + ", errorCode='001'"
+                     + ", data=myData}", extResponseStr);
     }
 }
