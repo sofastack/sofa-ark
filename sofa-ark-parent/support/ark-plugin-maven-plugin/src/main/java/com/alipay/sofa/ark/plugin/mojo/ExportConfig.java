@@ -30,5 +30,4 @@ public class ExportConfig extends AbstractPropertiesConfig {
         storeKeyValuePair(prop, KEY_EXPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
         storeKeyValuePair(prop, KEY_EXPORT + KEY_SPLIT + KEY_RESOURCES, getResources());
     }
-
 }
