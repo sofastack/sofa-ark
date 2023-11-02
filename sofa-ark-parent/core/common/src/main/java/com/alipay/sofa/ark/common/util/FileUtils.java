@@ -128,7 +128,6 @@ public class FileUtils {
                 if (entry.isDirectory()) {
                     String dirPath = targetPath + File.separator + entry.getName();
                     File dir = new File(dirPath);
-                    validateZipEntry(targetPath, dir);
                     dir.mkdirs();
                 } else {
                     InputStream inputStream = null;
@@ -197,21 +196,20 @@ public class FileUtils {
      */
     public static void validateZipEntry(String targetPath, File entryFile) throws IOException {
         String entryFilePath = entryFile.getCanonicalPath();
-
-        System.out.println("targetPath: " + targetPath);
-        System.out.println("entryFilePath: " + entryFilePath);
-
         entryFilePath = getCompatiblePath(entryFilePath);
         targetPath = getCompatiblePath(targetPath);
 
-        System.out.println("targetPath: " + targetPath);
-        System.out.println("entryFilePath: " + entryFilePath);
-        System.out.println("================================");
-
-        if (!entryFilePath.startsWith(targetPath)) {
-            throw new ArkRuntimeException("Invalid ZIP entry: " + entryFile.getName());
+        // support cross os in windows, the path would like "/D:/a/sofa-ark/sofa-ark/sofa-ark-parent/" which start with "/"
+        if (targetPath.startsWith("/")) {
+            targetPath = targetPath.substring(1);
+        }
+        if (entryFilePath.startsWith("/")) {
+            entryFilePath = entryFilePath.substring(1);
         }
 
+        if (!entryFilePath.contains(targetPath)) {
+            throw new ArkRuntimeException("Invalid ZIP entry: " + entryFile.getName());
+        }
     }
 
 }
