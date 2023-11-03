@@ -133,4 +133,22 @@ public class ClassLoaderUtilTest {
 
         managementFactoryMockedStatic.close();
     }
+
+    @Test
+    public void testParseSkyWalkingAgentPath() {
+        List<String> mockArguments = new ArrayList<>();
+        String workingPath = this.getClass().getClassLoader()
+                .getResource("sample-skywalking-agent.jar").getPath();
+        mockArguments.add(String.format("-javaagent:%s", workingPath));
+        RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
+        when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
+
+        MockedStatic<ManagementFactory> managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
+
+        URL[] agentUrl = ClassLoaderUtils.getAgentClassPath();
+        Assert.assertEquals(2, agentUrl.length);
+
+        managementFactoryMockedStatic.close();
+    }
 }
