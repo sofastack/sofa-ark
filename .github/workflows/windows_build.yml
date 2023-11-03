@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven
+name: Test for windows
 
 on:
   push:
@@ -32,4 +32,4 @@ jobs:
         && sh ./check_format.sh
         && mvn test
     - name: Codecov
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v4.0.0-beta.3

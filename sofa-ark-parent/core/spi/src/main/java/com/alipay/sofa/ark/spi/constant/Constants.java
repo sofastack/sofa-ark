@@ -243,5 +243,4 @@ public class Constants {
         CHANNEL_QUIT.add("q");
         CHANNEL_QUIT.add("exit");
     }
-
 }
