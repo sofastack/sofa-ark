@@ -152,6 +152,29 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <!--            将依赖的 javax -> jakarta 工具插件-->
+            <!--            构建完毕以后，target 下会有对应的 jakarta 包, 打包的信息都配置在 根目录/conf/javax.json 中-->
+            <!--            https://github.com/sofastack/sofa-jakarta-transformer-->
+            <!--            目前此jar包尚未上传到外部仓库，打包构建时需将如下插件的注释释放-->
+<!--            <plugin>
+                <groupId>org.eclipse.transformer</groupId>
+                <artifactId>jakarta-transformer-maven-plugin</artifactId>
+                <version>0.6.0-sofa-SNAPSHOT</version>
+                <configuration>
+                    <rules>
+                        <pom>conf/javax.json</pom>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jakarta-test</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jakarta</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
         </plugins>
     </build>
 

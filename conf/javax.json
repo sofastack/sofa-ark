@@ -1,0 +1,15 @@
+{
+
+  "modules": [{
+
+    "groupId": "com.alipay.sofa",
+
+    "artifactId": "sofa-ark-springboot-starter",
+
+    "targetGroupId": "com.alipay.sofa",
+
+    "targetArtifactId": "sofa-ark-springboot-starter",
+
+    "targetVersion": "2.2.4-jakarta-SNAPSHOT"
+  }]
+}
