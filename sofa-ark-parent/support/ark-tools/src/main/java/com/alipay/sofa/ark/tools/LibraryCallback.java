@@ -29,6 +29,8 @@ public interface LibraryCallback {
 
     /**
      * Callback for a single library backed by a {@link File}.
+     * NOTE: library name will be appended maven groupId as prefix, if duplicated artifactId+version was found
+     *
      * @param library the library
      * @throws IOException if the operation fails
      */
