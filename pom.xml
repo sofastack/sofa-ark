@@ -221,7 +221,7 @@
         <profile>
             <id>jakarta</id>
             <properties>
-                <sofa.ark.version>${sofa.ark.version.default}-springboot3</sofa.ark.version>
+                <sofa.ark.version>${sofa.ark.version.default}-jdk17</sofa.ark.version>
             </properties>
             <activation>
                 <jdk>17</jdk>
