@@ -15,7 +15,12 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>2.2.4-SNAPSHOT</sofa.ark.version>
+        <!--    JDK 17   打包如下：
+        1. 切换到JDK 17
+        2. 修改 sofa.ark.version.default 和 conf/javax.json 中的 "数字" 版本号 (conf/javax.json 只修改数字版本号)
+        3. (包上传到开源仓库后不需要此步骤)释放 sofa-ark-parent/support/ark-springboot-integration/ark-springboot-starter/pom.xml 插件中的mvn 插件注释
+        4. 开始打包，将所有打出的包都上传，其中包含了 -jakarta 后缀的包-->
+        <sofa.ark.version.default>2.2.4-SNAPSHOT</sofa.ark.version.default>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -214,6 +219,16 @@
 
     <profiles>
         <profile>
+            <id>jakarta</id>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.default}-jdk17</sofa.ark.version>
+            </properties>
+            <activation>
+                <jdk>17</jdk>
+            </activation>
+        </profile>
+
+        <profile>
             <id>release</id>
             <build>
                 <plugins>
@@ -308,6 +323,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.default}</sofa.ark.version>
+            </properties>
             <repositories>
                 <repository>
                     <snapshots>
