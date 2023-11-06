@@ -52,6 +52,5 @@ public class ArkAutoConfiguration {
         public TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
             return new ArkTomcatEmbeddedServletContainerFactory();
         }
-
     }
 }
