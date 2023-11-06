@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Release
+name: Release SNAPSHOT
 
 ## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
 ## trigger manually
@@ -39,7 +39,7 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
       - name: Build with Maven
-        run: mvn --batch-mode deploy -DskipTests -Prelease
+        run: mvn --batch-mode deploy -DskipTests -Psnapshot
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
