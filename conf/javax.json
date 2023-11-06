@@ -10,6 +10,6 @@
 
     "targetArtifactId": "sofa-ark-springboot-starter",
 
-    "targetVersion": "2.2.4-jakarta-SNAPSHOT"
+    "targetVersion": "2.2.4-SNAPSHOT-jdk17-jakarta"
   }]
 }
