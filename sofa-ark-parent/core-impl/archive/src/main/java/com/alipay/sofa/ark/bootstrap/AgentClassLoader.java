@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.service.classloader;
+package com.alipay.sofa.ark.bootstrap;
 
 import java.net.URL;
 import java.net.URLClassLoader;
