@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+
 /**
  * @author qixiaobo
  * @since 0.6.0

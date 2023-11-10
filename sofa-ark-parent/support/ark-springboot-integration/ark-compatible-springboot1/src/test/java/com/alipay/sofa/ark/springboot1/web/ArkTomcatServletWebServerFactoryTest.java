@@ -39,6 +39,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 import static com.alipay.sofa.ark.spi.model.BizState.RESOLVED;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertEquals;
+
 /**
  * @author qixiaobo
  * @since 0.6.0
