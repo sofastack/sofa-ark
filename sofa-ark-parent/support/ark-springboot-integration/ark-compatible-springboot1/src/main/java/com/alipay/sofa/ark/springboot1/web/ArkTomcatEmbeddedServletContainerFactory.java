@@ -274,7 +274,7 @@ public class ArkTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServ
         }
     }
 
-    private final class StaticResourceConfigurer implements LifecycleListener {
+    final class StaticResourceConfigurer implements LifecycleListener {
 
         private final Context context;
 

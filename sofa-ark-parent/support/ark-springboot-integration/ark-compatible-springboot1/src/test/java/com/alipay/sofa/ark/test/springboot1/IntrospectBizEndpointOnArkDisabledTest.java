@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.test.springboot1;
 
+import com.alipay.sofa.ark.springboot1.web.ArkAutoConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class IntrospectBizEndpointOnArkDisabledTest {
     }
 
     @Configuration
-    @EnableAutoConfiguration
+    @EnableAutoConfiguration(exclude = ArkAutoConfiguration.class)
     static class EmptyConfiguration {
     }
 }
