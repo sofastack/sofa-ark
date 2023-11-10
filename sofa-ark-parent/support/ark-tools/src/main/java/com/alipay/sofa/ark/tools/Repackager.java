@@ -563,7 +563,7 @@ public class Repackager {
     /**
      * An {@code EntryTransformer} that renames entries by applying a prefix.
      */
-     static final class RenamingEntryTransformer implements JarWriter.EntryTransformer {
+    static final class RenamingEntryTransformer implements JarWriter.EntryTransformer {
 
         private final String namePrefix;
 

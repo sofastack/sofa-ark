@@ -25,11 +25,11 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static com.alipay.sofa.ark.tools.LibraryScope.CONTAINER;
-import static com.alipay.sofa.ark.tools.LibraryScope.MODULE;
+import static com.alipay.sofa.ark.tools.LibraryScope.*;
 import static com.alipay.sofa.ark.tools.Repackager.isZip;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -44,9 +44,10 @@ public class RepackagerTest {
 
     private Repackager repackager;
 
-    private String jarFilePath = this.getClass().getClassLoader().getResource("test-jar.jar").getFile();
+    private String     jarFilePath = this.getClass().getClassLoader().getResource("test-jar.jar")
+                                       .getFile();
 
-    private File jarFile = new File(jarFilePath);
+    private File       jarFile     = new File(jarFilePath);
 
     @Before
     public void setUp() {
@@ -78,7 +79,7 @@ public class RepackagerTest {
 
         Field field = Repackager.class.getDeclaredField("arkContainerLibrary");
         field.setAccessible(true);
-        field.set(repackager, new Library("sofa-ark-2.0.jar", jarFile, CONTAINER,true));
+        field.set(repackager, new Library("sofa-ark-2.0.jar", jarFile, CONTAINER, true));
 
         repackager.setArkVersion("2.0");
         repackager.setBaseDir(new File(this.getClass().getClassLoader().getResource("").getFile()));
@@ -91,11 +92,15 @@ public class RepackagerTest {
         field.setAccessible(true);
         field.set(repackager, new GitInfo());
 
-        repackager.repackage(new File("./dest"), new File("./module"), callback -> {
-            Library library = new Library(jarFile, MODULE);
+        Library library = new Library(jarFile, PLUGIN);
+        repackager.repackage(new File("./target/dest"), new File("./target/module"), callback -> {
             callback.library(library);
         });
 
+        field = Repackager.class.getDeclaredField("arkModuleLibraries");
+        field.setAccessible(true);
+        assertEquals(newArrayList(library), field.get(repackager));
+        assertEquals(MODULE, ((List<Library>) field.get(repackager)).get(0).getScope());
         assertEquals("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication",
                 repackager.findMainMethodWithTimeoutWarning(new JarFile(jarFile)));
     }
@@ -134,10 +139,11 @@ public class RepackagerTest {
 
     @Test
     public void testRenamingEntryTransformer() {
-        RenamingEntryTransformer renamingEntryTransformer = new RenamingEntryTransformer("my-prefix");
+        RenamingEntryTransformer renamingEntryTransformer = new RenamingEntryTransformer(
+            "my-prefix");
         JarEntry jarEntry = new JarEntry("my-entry");
         jarEntry.setComment("xxx");
-        jarEntry.setExtra(new byte[]{});
+        jarEntry.setExtra(new byte[] {});
         jarEntry.setSize(1);
         jarEntry.setMethod(STORED);
         jarEntry.setCrc(1);

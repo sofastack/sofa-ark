@@ -29,6 +29,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import static com.alipay.sofa.ark.tools.LibraryScope.MODULE;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author lylingzhen
@@ -38,9 +39,10 @@ public class JarWriterTest {
 
     private JarWriter jarWriter;
 
-    private File file = new File("./JarWriterTest");
+    private File      file        = new File("./JarWriterTest");
 
-    private String jarFilePath = this.getClass().getClassLoader().getResource("test-jar.jar").getFile();
+    private String    jarFilePath = this.getClass().getClassLoader().getResource("test-jar.jar")
+                                      .getFile();
 
     @Before
     public void setUp() throws IOException {
@@ -71,7 +73,8 @@ public class JarWriterTest {
         jarWriter.writeNestedLibrary("./", library);
         jarWriter.writeLoaderClasses(new JarInputStream(new FileInputStream(jarFilePath)));
 
-        ZipHeaderPeekInputStream zipHeaderPeekInputStream = new ZipHeaderPeekInputStream(new FileInputStream(jarFilePath));
-        zipHeaderPeekInputStream.read();
+        ZipHeaderPeekInputStream zipHeaderPeekInputStream = new ZipHeaderPeekInputStream(
+            new FileInputStream(jarFilePath));
+        assertEquals(80, zipHeaderPeekInputStream.read());
     }
 }
