@@ -159,6 +159,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             // 打source、jar包
             pomWriter.write("<build>\n");
             pomWriter.write("<plugins>\n");
+            // maven-source-plugin
             pomWriter.write("<plugin>\n");
             pomWriter.write("<groupId>org.apache.maven.plugins</groupId>\n");
             pomWriter.write("<artifactId>maven-source-plugin</artifactId>\n");
@@ -172,11 +173,23 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             pomWriter.write("</execution>\n");
             pomWriter.write("</executions>\n");
             pomWriter.write("</plugin>\n");
+            // maven-jar-plugin
             pomWriter.write("<plugin>\n");
             pomWriter.write("<groupId>org.apache.maven.plugins</groupId>\n");
             pomWriter.write("<artifactId>maven-jar-plugin</artifactId>\n");
             pomWriter.write("<version>2.2</version>\n");
             pomWriter.write("</plugin>\n");
+            // maven-compiler-plugin
+            pomWriter.write("<plugin>\n");
+            pomWriter.write("<groupId>org.apache.maven.plugins</groupId>\n");
+            pomWriter.write("<artifactId>maven-compiler-plugin</artifactId>\n");
+            pomWriter.write("<version>3.8.1</version>\n");
+            pomWriter.write("<configuration>\n");
+            pomWriter.write("<source>1.8</source>\n");
+            pomWriter.write("<target>1.8</target>\n");
+            pomWriter.write("</configuration>\n");
+            pomWriter.write("</plugin>\n");
+
             pomWriter.write("</plugins>\n");
             pomWriter.write("</build>\n");
 
