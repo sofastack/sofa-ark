@@ -195,6 +195,8 @@
                         <exclude>com/alipay/sofa/ark/config/*.class</exclude>
                         <exclude>com/alipay/sofa/ark/config/util/*.class</exclude>
                         <exclude>com/alipay/sofa/ark/config/zk/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/support/listener/ArkTestNG*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/common/log/ArkLogger.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
