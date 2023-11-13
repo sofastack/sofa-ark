@@ -14,32 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot.web;
+package com.alipay.sofa.ark.springboot1.web;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Valve;
-import org.apache.catalina.WebResourceRoot;
-import org.apache.catalina.Wrapper;
+import org.apache.catalina.*;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
-import org.springframework.boot.web.server.WebServer;
+import org.springframework.boot.context.embedded.EmbeddedServletContainer;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -56,18 +48,10 @@ import java.util.Map;
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
 /**
- * @author Phillip Webb
- * @author Dave Syer
- * @author Brock Mills
- * @author Stephane Nicoll
- * @author Andy Wilkinson
- * @author Eddú Meléndez
- * @author Christoffer Sawicki
- * @author qilong.zql
- * @since 0.6.0
+ * @author qixiaobo
+ * @since 2.2.4
  */
-public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory {
-
+public class ArkTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServletContainerFactory {
     private static final Charset          DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     @ArkInject
@@ -83,15 +67,30 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     private int                           backgroundProcessorDelay;
 
     @Override
-    public WebServer getWebServer(ServletContextInitializer... initializers) {
+    public EmbeddedServletContainer getEmbeddedServletContainer(ServletContextInitializer... initializers) {
         if (embeddedServerService == null) {
-            return super.getWebServer(initializers);
+            Tomcat tomcat = new Tomcat();
+            File baseDir = (this.baseDirectory != null) ? this.baseDirectory
+                : createTempDir("tomcat");
+            tomcat.setBaseDir(baseDir.getAbsolutePath());
+            Connector connector = new Connector(this.protocol);
+            tomcat.getService().addConnector(connector);
+            customizeConnector(connector);
+            tomcat.setConnector(connector);
+            tomcat.getHost().setAutoDeploy(false);
+            configureEngine(tomcat.getEngine());
+            for (Connector additionalConnector : this.getAdditionalTomcatConnectors()) {
+                tomcat.getService().addConnector(additionalConnector);
+            }
+            prepareContext(tomcat.getHost(), initializers);
+            return getEmbeddedServletContainer(tomcat);
         } else if (embeddedServerService.getEmbedServer() == null) {
             embeddedServerService.setEmbedServer(initEmbedTomcat());
         }
         Tomcat embedTomcat = embeddedServerService.getEmbedServer();
         prepareContext(embedTomcat.getHost(), initializers);
-        return getWebServer(embedTomcat);
+
+        return getEmbeddedServletContainer(embedTomcat);
     }
 
     @Override
@@ -137,6 +136,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
 
     /**
      * The Tomcat protocol to use when create the {@link Connector}.
+     *
      * @param protocol the protocol
      * @see Connector#Connector(String)
      */
@@ -185,7 +185,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             addLocaleMappings(context);
             context.setUseRelativeRedirects(false);
             configureTldSkipPatterns(context);
-            WebappLoader loader = new WebappLoader();
+            WebappLoader loader = new WebappLoader(context.getParentClassLoader());
             loader
                 .setLoaderClass("com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader");
             loader.setDelegate(true);
@@ -208,6 +208,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     /**
      * Override Tomcat's default locale mappings to align with other servers. See
      * {@code org.apache.catalina.util.CharsetMapperDefault.properties}.
+     *
      * @param context the context to reset
      */
     private void resetDefaultLocaleMapping(StandardContext context) {
@@ -246,15 +247,21 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     private void addJspServlet(Context context) {
         Wrapper jspServlet = context.createWrapper();
         jspServlet.setName("jsp");
-        jspServlet.setServletClass(getJsp().getClassName());
+        jspServlet.setServletClass(getJspServlet().getClassName());
         jspServlet.addInitParameter("fork", "false");
-        for (Map.Entry<String, String> entry : getJsp().getInitParameters().entrySet()) {
-            jspServlet.addInitParameter(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, String> initParameter : getJspServlet().getInitParameters()
+            .entrySet()) {
+            jspServlet.addInitParameter(initParameter.getKey(), initParameter.getValue());
         }
         jspServlet.setLoadOnStartup(3);
         context.addChild(jspServlet);
-        context.addServletMappingDecoded("*.jsp", "jsp");
-        context.addServletMappingDecoded("*.jspx", "jsp");
+        addServletMapping(context, "*.jsp", "jsp");
+        addServletMapping(context, "*.jspx", "jsp");
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addServletMapping(Context context, String pattern, String name) {
+        context.addServletMapping(pattern, name);
     }
 
     private void addJasperInitializer(StandardContext context) {
@@ -320,14 +327,14 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         }
     }
 
-    /**
-     * Factory method called to create the {@link TomcatWebServer}. Subclasses can
-     * override this method to return a different {@link TomcatWebServer} or apply
-     * additional processing to the Tomcat server.
-     * @param tomcat the Tomcat server.
-     * @return a new {@link TomcatWebServer} instance
-     */
-    protected WebServer getWebServer(Tomcat tomcat) {
-        return new ArkTomcatWebServer(tomcat, getPort() >= 0, tomcat);
+    @Override
+    protected TomcatEmbeddedServletContainer getTomcatEmbeddedServletContainer(Tomcat tomcat) {
+        throw new EmbeddedServletContainerException(
+            "not support to invoke getTomcatEmbeddedServletContainer", null);
     }
+
+    protected EmbeddedServletContainer getEmbeddedServletContainer(Tomcat tomcat) {
+        return new ArkTomcatEmbeddedServletContainer(tomcat, getPort() >= 0, tomcat);
+    }
+
 }

@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
-import org.springframework.boot.context.config.ConfigFileApplicationListener;
+import org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -40,6 +40,6 @@ public class PropertiesResetListener implements
     @Override
     public int getOrder() {
         //after ConfigFileApplicationListener
-        return ConfigFileApplicationListener.DEFAULT_ORDER + 1;
+        return ConfigDataEnvironmentPostProcessor.ORDER + 1;
     }
 }

@@ -287,7 +287,7 @@ public class JarWriter implements LoaderClassesWriter {
     /**
      * {@link InputStream} that can peek ahead at zip header bytes.
      */
-    private static class ZipHeaderPeekInputStream extends FilterInputStream {
+    static class ZipHeaderPeekInputStream extends FilterInputStream {
 
         private static final byte[]  ZIP_HEADER = new byte[] { 0x50, 0x4b, 0x03, 0x04 };
 

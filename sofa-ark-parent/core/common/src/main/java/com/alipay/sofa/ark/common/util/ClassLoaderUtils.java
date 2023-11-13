@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.common.util;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,9 +37,13 @@ import java.util.List;
  */
 public class ClassLoaderUtils {
 
-    private static final String JAVA_AGENT_MARK        = "-javaagent:";
+    private static final String   JAVA_AGENT_MARK        = "-javaagent:";
 
-    private static final String JAVA_AGENT_OPTION_MARK = "=";
+    private static final String   JAVA_AGENT_OPTION_MARK = "=";
+
+    private static final String   SKYWALKING_AGENT_JAR   = "skywalking-agent.jar";
+
+    private static final String[] SKYWALKING_MOUNT_DIR   = { "plugins", "activations" };
 
     /**
      * push ContextClassLoader
@@ -80,11 +85,33 @@ public class ClassLoaderUtils {
                 String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
                 URL url = new File(path).getCanonicalFile().toURI().toURL();
                 agentPaths.add(url);
+                processSkyWalking(path, agentPaths);
             } catch (Throwable e) {
                 throw new ArkRuntimeException("Failed to create java agent classloader", e);
             }
         }
         return agentPaths.toArray(new URL[] {});
+    }
+
+    /**
+     * process skywalking agent plugins/activations
+     * @param path
+     * @param agentPaths
+     * @throws MalformedURLException
+     */
+    public static void processSkyWalking(final String path, final List<URL> agentPaths) throws MalformedURLException, IOException {
+        if (path.contains(SKYWALKING_AGENT_JAR)) {
+            for (String mountFolder : SKYWALKING_MOUNT_DIR) {
+                File folder = new File(new File(path).getCanonicalFile().getParentFile(), mountFolder);
+                if (folder.exists() && folder.isDirectory()) {
+                    String[] jarFileNames = folder.list((dir, name) -> name.endsWith(".jar"));
+                    for (String fileName: jarFileNames) {
+                        File jarFile = new File(folder, fileName);
+                        agentPaths.add(jarFile.toURI().toURL());
+                    }
+                }
+            }
+        }
     }
 
     @SuppressWarnings({ "restriction", "unchecked" })
