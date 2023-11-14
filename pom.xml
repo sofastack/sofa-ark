@@ -15,7 +15,8 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>2.2.4-SNAPSHOT</sofa.ark.version>
+<!--     打包JDK 17 的时候, 需要更换conf/json中的 targetVersion 版本内容-->
+        <sofa.ark.version.base>2.2.4</sofa.ark.version.base>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -208,11 +209,78 @@
                     </execution>
                 </executions>
             </plugin>
+
+<!--        将依赖的 javax -> jakarta 工具插件
+            构建完毕以后，target 下会有对应的 jakarta 包, 打包的信息都配置在 根目录/conf/javax.json 中
+            https://github.com/sofastack/sofa-jakarta-transformer
+            目前此jar包尚未上传到外部仓库，打包构建时需将如下插件的注释释放
+-->
+            <plugin>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>jakarta-transformer-maven-plugin</artifactId>
+                <version>0.6.0-sofa-SNAPSHOT</version>
+                <configuration>
+                    <rules>
+                        <pom>conf/javax.json</pom>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jakarta-test</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jakarta</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
 
     <profiles>
+<!--
+       jdk17 打出来的 snapshot 版本
+       sofa-ark的包  2.2.4-jdk17-SNAPSHOT
+-->
+        <profile>
+            <id>17-snapshot</id>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.base}-jdk17-SNAPSHOT</sofa.ark.version>
+            </properties>
+        </profile>
+<!--
+       jdk17 打出来的 release 版本
+       sofa-ark的包  2.2.4-jdk17
+-->
+        <profile>
+            <id>17-release</id>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.base}-jdk17</sofa.ark.version>
+            </properties>
+        </profile>
+
+<!--
+        jdk8 打出来的 snapshot 版本
+        sofa-ark 的包  2.2.4-SNAPSHOT
+-->
+        <profile>
+            <id>8-snapshot</id>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.base}-SNAPSHOT</sofa.ark.version>
+            </properties>
+        </profile>
+
+<!--
+        jdk8 打出来的 release 版本
+        sofa-ark的包  2.2.4
+-->
+        <profile>
+            <id>8-release</id>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.base}</sofa.ark.version>
+            </properties>
+        </profile>
         <profile>
             <id>release</id>
             <build>
