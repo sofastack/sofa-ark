@@ -14,47 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot;
+package com.alipay.sofa.ark.springboot1.web;
 
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
-import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
-import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
-import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
-import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.Servlet;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
+ * @author qixiaobo
+ * @since 2.2.4
  */
 @Configuration
 @ConditionalOnArkEnabled
-@ConditionalOnClass(ServletWebServerFactoryAutoConfiguration.class)
-@AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
+@ConditionalOnClass(EmbeddedServletContainerAutoConfiguration.class)
+@AutoConfigureBefore(EmbeddedServletContainerAutoConfiguration.class)
 public class ArkAutoConfiguration {
-
     @Configuration
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class,
-            ServletWebServerFactory.class }, name = { "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader" })
-    @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
+            ArkTomcatEmbeddedServletContainerFactory.class }, name = {
+            "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
+            "org.springframework.boot.context.embedded.EmbeddedServletContainerFactory" })
+    @ConditionalOnMissingBean(value = { EmbeddedServletContainerFactory.class }, search = SearchStrategy.CURRENT)
     public static class EmbeddedArkTomcat {
-
         @Bean
-        @ConditionalOnMissingBean(ArkTomcatServletWebServerFactory.class)
-        public TomcatServletWebServerFactory tomcatServletWebServerFactory() {
-            return new ArkTomcatServletWebServerFactory();
+        @ConditionalOnMissingBean(ArkTomcatEmbeddedServletContainerFactory.class)
+        public TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
+            return new ArkTomcatEmbeddedServletContainerFactory();
         }
-
     }
 }

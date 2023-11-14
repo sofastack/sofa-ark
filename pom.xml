@@ -15,8 +15,11 @@
     </modules>
 
     <properties>
-<!--     打包JDK 17 的时候, 需要更换conf/json中的 targetVersion 版本内容-->
-        <sofa.ark.version.base>2.2.4</sofa.ark.version.base>
+        <!--    JDK 17   打包如下：
+        1. 切换到JDK 17
+        2. 修改 sofa.ark.version.default 和 conf/javax.json 中的 targetVersion 版本号 (conf/javax.json)
+        3. 开始打包，将所有打出的包都上传，其中包含了 -jakarta 后缀的包-->
+        <sofa.ark.version.default>2.2.4</sofa.ark.version.default>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -24,7 +27,7 @@
         <maven.compiler.plugin>3.1</maven.compiler.plugin>
         <maven.source.plugin>3.0.0</maven.source.plugin>
         <maven.javadoc.plugin>3.2.0</maven.javadoc.plugin>
-        <maven.staging.plugin>1.6.7</maven.staging.plugin>
+        <maven.staging.plugin>1.6.13</maven.staging.plugin>
         <maven.gpg.pluign>1.6</maven.gpg.pluign>
         <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
@@ -191,6 +194,8 @@
                         <exclude>com/alipay/sofa/ark/config/*.class</exclude>
                         <exclude>com/alipay/sofa/ark/config/util/*.class</exclude>
                         <exclude>com/alipay/sofa/ark/config/zk/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/support/listener/ArkTestNG*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/common/log/ArkLogger.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -246,7 +251,7 @@
         <profile>
             <id>17-snapshot</id>
             <properties>
-                <sofa.ark.version>${sofa.ark.version.base}-jdk17-SNAPSHOT</sofa.ark.version>
+                <sofa.ark.version>${sofa.ark.version.default}-jdk17-SNAPSHOT</sofa.ark.version>
             </properties>
         </profile>
 <!--
@@ -256,7 +261,7 @@
         <profile>
             <id>17-release</id>
             <properties>
-                <sofa.ark.version>${sofa.ark.version.base}-jdk17</sofa.ark.version>
+                <sofa.ark.version>${sofa.ark.version.default}-jdk17</sofa.ark.version>
             </properties>
         </profile>
 
@@ -267,7 +272,7 @@
         <profile>
             <id>8-snapshot</id>
             <properties>
-                <sofa.ark.version>${sofa.ark.version.base}-SNAPSHOT</sofa.ark.version>
+                <sofa.ark.version>${sofa.ark.version.default}-SNAPSHOT</sofa.ark.version>
             </properties>
         </profile>
 
@@ -278,9 +283,10 @@
         <profile>
             <id>8-release</id>
             <properties>
-                <sofa.ark.version>${sofa.ark.version.base}</sofa.ark.version>
+                <sofa.ark.version>${sofa.ark.version.default}</sofa.ark.version>
             </properties>
         </profile>
+
         <profile>
             <id>release</id>
             <build>
@@ -376,6 +382,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version.default}</sofa.ark.version>
+            </properties>
             <repositories>
                 <repository>
                     <snapshots>
