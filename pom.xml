@@ -29,6 +29,7 @@
         <maven.javadoc.plugin>3.2.0</maven.javadoc.plugin>
         <maven.staging.plugin>1.6.13</maven.staging.plugin>
         <maven.gpg.pluign>1.6</maven.gpg.pluign>
+        <mockito.version>3.6.0</mockito.version>
         <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
     </properties>
@@ -244,6 +245,15 @@
 
 
     <profiles>
+        <profile>
+            <id>mock</id>
+            <properties>
+                <mockito.version>4.1.0</mockito.version>
+            </properties>
+            <activation>
+                <jdk>17</jdk>
+            </activation>
+        </profile>
 <!--
        jdk17 打出来的 snapshot 版本
        sofa-ark的包  2.2.4-jdk17-SNAPSHOT
