@@ -10,13 +10,13 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  unit_test_for_jdk8:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
+    - name: Set up JDK 8
       uses: actions/setup-java@v1
       with:
         java-version: '8'
@@ -28,3 +28,22 @@ jobs:
         && mvn test
     - name: Codecov
       uses: codecov/codecov-action@v4.0.0-beta.3
+
+  unit_test_for_jdk17:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+          distribution: 'adopt-hotspot'
+          cache: 'maven'
+      - name: Test with Maven
+        run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true -B -U
+          && sh ./check_format.sh
+          && mvn test
+      - name: Codecov
+        uses: codecov/codecov-action@v4.0.0-beta.3
