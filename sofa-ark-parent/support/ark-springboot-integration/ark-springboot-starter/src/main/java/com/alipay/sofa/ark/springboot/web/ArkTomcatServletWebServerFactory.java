@@ -44,7 +44,7 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContainerInitializer;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;

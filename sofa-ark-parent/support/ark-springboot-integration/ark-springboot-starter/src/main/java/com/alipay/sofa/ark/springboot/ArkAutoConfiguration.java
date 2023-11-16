@@ -17,8 +17,6 @@
 package com.alipay.sofa.ark.springboot;
 
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
-import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
-import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
@@ -32,7 +30,7 @@ import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.servlet.Servlet;
+import jakarta.servlet.Servlet;
 
 /**
  * @author qilong.zql
