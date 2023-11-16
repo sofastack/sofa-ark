@@ -21,7 +21,7 @@
         3. 开始打包，将所有打出的包都上传，其中包含了 -jakarta 后缀的包-->
         <sofa.ark.version.default>3.0.0</sofa.ark.version.default>
         <project.encoding>UTF-8</project.encoding>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
         <maven.java.formatter.plugin>0.4</maven.java.formatter.plugin>
         <maven.compiler.plugin>3.1</maven.compiler.plugin>
