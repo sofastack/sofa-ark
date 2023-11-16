@@ -624,7 +624,7 @@ public class RepackageMojo extends TreeMojo {
                     || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                     if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK_2);
+                                Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
                             Constants.PACKAGE_PREFIX_MARK);
