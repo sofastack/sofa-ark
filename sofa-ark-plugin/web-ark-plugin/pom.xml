@@ -13,7 +13,7 @@
     <artifactId>web-ark-plugin</artifactId>
 
     <properties>
-        <spring.boot.version>2.7.14</spring.boot.version>
+        <spring.boot.version>3.0.9</spring.boot.version>
     </properties>
 
     <dependencies>
