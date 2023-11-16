@@ -603,7 +603,7 @@ public class RepackageMojo extends TreeMojo {
                             Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                            Constants.PACKAGE_PREFIX_MARK);
                     }
 
                     if (artifact.getGroupId().startsWith(excludeGroupId)) {
@@ -624,7 +624,7 @@ public class RepackageMojo extends TreeMojo {
                     || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                     if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
+                            Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
                             Constants.PACKAGE_PREFIX_MARK);
@@ -733,7 +733,7 @@ public class RepackageMojo extends TreeMojo {
                                 Constants.PACKAGE_PREFIX_MARK_2);
                         } else if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                             jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                                    Constants.PACKAGE_PREFIX_MARK);
+                                Constants.PACKAGE_PREFIX_MARK);
                         }
 
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
@@ -785,7 +785,7 @@ public class RepackageMojo extends TreeMojo {
                                 Constants.PACKAGE_PREFIX_MARK_2);
                         } else if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                             jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                    Constants.PACKAGE_PREFIX_MARK);
+                                Constants.PACKAGE_PREFIX_MARK);
                         }
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
