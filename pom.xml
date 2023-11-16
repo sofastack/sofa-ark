@@ -19,7 +19,7 @@
         1. 切换到JDK 17
         2. 修改 sofa.ark.version.default 和 conf/javax.json 中的 targetVersion 版本号 (conf/javax.json)
         3. 开始打包，将所有打出的包都上传，其中包含了 -jakarta 后缀的包-->
-        <sofa.ark.version.default>2.2.4</sofa.ark.version.default>
+        <sofa.ark.version.default>3.0.0</sofa.ark.version.default>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
