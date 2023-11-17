@@ -1,1 +1,2 @@
 com.alipay.sofa.ark.springboot.ArkAutoConfiguration
+com.alipay.sofa.ark.springboot.ArkAutoProcessorConfiguration
