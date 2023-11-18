@@ -333,12 +333,6 @@
         </profile>
 
         <profile>
-            <id>8-snapshot</id>
-            <properties>
-                <sofa.ark.version>${sofa.ark.version}</sofa.ark.version>
-            </properties>
-        </profile>
-        <profile>
             <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
