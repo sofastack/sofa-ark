@@ -15,7 +15,7 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>3.0.0</sofa.ark.version>
+        <sofa.ark.version>3.0.1</sofa.ark.version>
         <project.encoding>UTF-8</project.encoding>
         <java.version>17</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -332,6 +332,12 @@
             </pluginRepositories>
         </profile>
 
+        <profile>
+            <id>8-snapshot</id>
+            <properties>
+                <sofa.ark.version>${sofa.ark.version}</sofa.ark.version>
+            </properties>
+        </profile>
         <profile>
             <id>default</id>
             <activation>
