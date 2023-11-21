@@ -36,7 +36,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -112,7 +111,7 @@ public class ClasspathLauncherTest {
         URLClassLoader classLoader = new URLClassLoader(classPathArchive.getContainerArchive().getUrls());
         try {
             Class clazz = classLoader.loadClass("com.alipay.sofa.ark.bootstrap.ArkLauncher");
-            Assert.assertTrue(clazz != null);
+            Assert.assertNotNull(clazz);
         } catch (Exception e){
             Assert.assertTrue("loadClass class failed ",false);
         }

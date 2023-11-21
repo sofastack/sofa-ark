@@ -40,21 +40,13 @@ import javax.servlet.Servlet;
  */
 @Configuration
 @ConditionalOnArkEnabled
+@ConditionalOnClass(ServletWebServerFactoryAutoConfiguration.class)
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
 public class ArkAutoConfiguration {
 
-    @Bean
-    public static ArkServiceInjectProcessor serviceInjectProcessor() {
-        return new ArkServiceInjectProcessor();
-    }
-
-    @Bean
-    public static ArkEventHandlerProcessor arkEventHandlerProcessor() {
-        return new ArkEventHandlerProcessor();
-    }
-
     @Configuration
-    @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = { "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader" })
+    @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class,
+            ServletWebServerFactory.class }, name = { "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader" })
     @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
     public static class EmbeddedArkTomcat {
 

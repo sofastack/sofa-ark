@@ -30,5 +30,4 @@ public class ImportConfig extends AbstractPropertiesConfig {
         storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
         storeKeyValuePair(prop, KEY_IMPORT + KEY_SPLIT + KEY_RESOURCES, getResources());
     }
-
 }

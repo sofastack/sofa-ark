@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
@@ -137,7 +138,11 @@ public abstract class AbstractLauncher {
                                                                                        throws Exception {
         List<URL> classpath = getExecutableArchive().getConfClasspath();
         classpath.addAll(Arrays.asList(containerArchive.getUrls()));
-        return createContainerClassLoader(classpath.toArray(new URL[] {}), null);
+        URL[] agentUrls = ClassLoaderUtils.getAgentClassPath();
+        // set parent as app class loader to ensure agent like skywalking works well
+        ClassLoader agentClassLoader = (agentUrls.length > 0 ? new AgentClassLoader(agentUrls,
+            Thread.currentThread().getContextClassLoader()) : null);
+        return createContainerClassLoader(classpath.toArray(new URL[] {}), null, agentClassLoader);
     }
 
     /**
@@ -146,9 +151,11 @@ public abstract class AbstractLauncher {
      * @param parent the parent
      * @return the classloader load ark container
      */
-    protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent) {
+    protected ClassLoader createContainerClassLoader(URL[] urls, ClassLoader parent,
+                                                     ClassLoader agentClassLoader) {
         return isEmbedEnable() ? new ContainerClassLoader(urls, parent, this.getClass()
-            .getClassLoader()) : new ContainerClassLoader(urls, parent);
+            .getClassLoader(), agentClassLoader) : new ContainerClassLoader(urls, parent,
+            agentClassLoader);
     }
 
     private boolean isEmbedEnable() {

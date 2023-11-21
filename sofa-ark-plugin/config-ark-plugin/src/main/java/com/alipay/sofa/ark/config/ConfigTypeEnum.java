@@ -14,29 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.tools.test;
-
-import com.alipay.sofa.ark.tools.Repackager;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.io.File;
-import java.net.URL;
+package com.alipay.sofa.ark.config;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
+ * @author zsk
+ * @version $Id: ConfigTypeEnum.java, v 0.1 2023年09月28日 17:16 zsk Exp $
  */
-public class RepackagerTest {
+public enum ConfigTypeEnum {
+    zookeeper, apollo, ;
 
-    @Test
-    public void testZipFile() {
-        URL testJarUrl = this.getClass().getClassLoader().getResource("test-jar.jar");
-        URL testPomUrl = this.getClass().getClassLoader().getResource("test-pom.xml");
-        Assert.assertNotNull(testJarUrl);
-        Assert.assertNotNull(testPomUrl);
-        Assert.assertTrue(Repackager.isZip(new File(testJarUrl.getFile())));
-        Assert.assertFalse(Repackager.isZip(new File(testPomUrl.getFile())));
+    public static ConfigTypeEnum getByNameWithDefault(String name, ConfigTypeEnum defaultValue) {
+        for (ConfigTypeEnum configTypeEnum : ConfigTypeEnum.values()) {
+            if (configTypeEnum.name().equalsIgnoreCase(name)) {
+                return configTypeEnum;
+            }
+        }
+        return defaultValue;
     }
-
 }
