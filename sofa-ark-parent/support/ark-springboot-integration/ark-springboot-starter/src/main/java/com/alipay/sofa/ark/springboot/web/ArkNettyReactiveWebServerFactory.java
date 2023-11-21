@@ -39,7 +39,13 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
@@ -103,7 +109,11 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
             if (StringUtils.isEmpty(biz.getWebContextPath())) {
                 return ROOT_WEB_CONTEXT_PATH;
             }
-            return biz.getWebContextPath();
+            contextPath = biz.getWebContextPath();
+            if (!contextPath.startsWith("/")) {
+                contextPath = "/" + contextPath;
+            }
+            return contextPath;
         } else {
             return ROOT_WEB_CONTEXT_PATH;
         }
