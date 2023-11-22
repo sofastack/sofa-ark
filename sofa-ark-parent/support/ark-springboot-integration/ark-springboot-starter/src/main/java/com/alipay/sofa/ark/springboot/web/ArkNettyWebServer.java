@@ -47,7 +47,7 @@ public class ArkNettyWebServer implements WebServer {
     private static final Predicate<HttpServerRequest> ALWAYS = (request) -> {
         return true;
     };
-    private HttpServer arkHttpServer;
+    private static HttpServer arkHttpServer;
     private static final Log logger = LogFactory.getLog(ArkNettyWebServer.class);
     private final HttpServer httpServer;
     private final BiFunction<? super HttpServerRequest, ? super HttpServerResponse, ? extends Publisher<Void>> handler;
@@ -64,14 +64,10 @@ public class ArkNettyWebServer implements WebServer {
         this.lifecycleTimeout = lifecycleTimeout;
         this.handler = handlerAdapter;
         this.httpServer = httpServer.channelGroup(new DefaultChannelGroup(new DefaultEventExecutor()));
-
+        if (arkHttpServer == null) {
+            arkHttpServer = this.httpServer;
+        }
     }
-
-//    public ArkNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout, HttpServer arkhttpServer){
-//        this(httpServer, handlerAdapter, lifecycleTimeout);
-//        this.arkHttpServer = arkHttpServer;
-//
-//    }
 
     public void setRouteProviders(List<NettyRouteProvider> routeProviders) {
         this.routeProviders = routeProviders;
@@ -95,29 +91,35 @@ public class ArkNettyWebServer implements WebServer {
         }
 
         if (disposableServer != null) {
-            logger.info("Netty started" + this.getStartedOnMessage(disposableServer));
+            logger.info("Netty started" + this.getStartedOnMessage(disposableServer) + " with context path " + contextPath);
         }
     }
 
     @Override
     public void stop() throws WebServerException {
-        if (handler instanceof ArkCompositeReactorHttpHandlerAdapter) {
-            ArkCompositeReactorHttpHandlerAdapter adapter = (ArkCompositeReactorHttpHandlerAdapter) handler;
-            adapter.unregisterBizReactorHttpHandlerAdapter(contextPath);
+        if (!(this.handler instanceof ArkCompositeReactorHttpHandlerAdapter)) {
+            return;
         }
-//        if (this.disposableServer != null && arkHttpServer != httpServer) {
-//            try {
-//                if (this.lifecycleTimeout != null) {
-//                    this.disposableServer.disposeNow(this.lifecycleTimeout);
-//                } else {
-//                    this.disposableServer.disposeNow();
-//                }
-//                awaitThread.stop();
-//            } catch (IllegalStateException var2) {
-//            }
-//
-//            this.disposableServer = null;
-//        }
+
+        ((ArkCompositeReactorHttpHandlerAdapter) this.handler).unregisterBizReactorHttpHandlerAdapter(contextPath);
+
+        if (disposableServer != null && this.httpServer == arkHttpServer) {
+            try {
+                if (this.lifecycleTimeout != null) {
+                    disposableServer.disposeNow(this.lifecycleTimeout);
+                } else {
+                    disposableServer.disposeNow();
+                }
+                awaitThread.stop();
+            } catch (IllegalStateException ignore) {
+
+            }
+
+            logger.info("Netty stoped" + this.getStartedOnMessage(disposableServer));
+
+            disposableServer = null;
+        }
+
     }
 
     @Override
@@ -177,8 +179,6 @@ public class ArkNettyWebServer implements WebServer {
         return false;
     }
 
-
-
     private void applyRouteProviders(HttpServerRoutes routes) {
         NettyRouteProvider provider;
         for(Iterator var2 = this.routeProviders.iterator(); var2.hasNext(); routes = (HttpServerRoutes)provider.apply(routes)) {
@@ -189,7 +189,7 @@ public class ArkNettyWebServer implements WebServer {
     }
 
     private void startDaemonAwaitThread(DisposableServer disposableServer) {
-            awaitThread = new Thread("server") {
+        awaitThread = new Thread("server") {
             public void run() {
                 disposableServer.onDispose().block();
             }

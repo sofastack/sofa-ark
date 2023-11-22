@@ -37,19 +37,6 @@ public class ArkCompositeReactorHttpHandlerAdapter extends ReactorHttpHandlerAda
         super(httpHandler);
     }
 
-    public void registerBizReactorHttpHandlerAdapter(String contextPath,
-                                                     ReactorHttpHandlerAdapter reactorHttpHandlerAdapter) {
-        ReactorHttpHandlerAdapter old = bizReactorHttpHandlerAdapters.putIfAbsent(contextPath,
-            reactorHttpHandlerAdapter);
-        if (old != null) {
-            throw new ArkRuntimeException("Duplicated context path");
-        }
-    }
-
-    public void unregisterBizReactorHttpHandlerAdapter(String contextPath) {
-        bizReactorHttpHandlerAdapters.remove(contextPath);
-    }
-
     @Override
     public Mono<Void> apply(HttpServerRequest reactorRequest, HttpServerResponse reactorResponse) {
         String uri = reactorRequest.uri();
@@ -63,4 +50,16 @@ public class ArkCompositeReactorHttpHandlerAdapter extends ReactorHttpHandlerAda
         return super.apply(reactorRequest, reactorResponse);
     }
 
+    public void registerBizReactorHttpHandlerAdapter(String contextPath,
+                                                     ReactorHttpHandlerAdapter reactorHttpHandlerAdapter) {
+        ReactorHttpHandlerAdapter old = bizReactorHttpHandlerAdapters.putIfAbsent(contextPath,
+            reactorHttpHandlerAdapter);
+        if (old != null) {
+            throw new ArkRuntimeException("Duplicated context path");
+        }
+    }
+
+    public void unregisterBizReactorHttpHandlerAdapter(String contextPath) {
+        bizReactorHttpHandlerAdapters.remove(contextPath);
+    }
 }
