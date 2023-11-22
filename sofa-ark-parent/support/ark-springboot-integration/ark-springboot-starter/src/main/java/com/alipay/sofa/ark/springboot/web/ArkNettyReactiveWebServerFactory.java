@@ -26,6 +26,7 @@ import org.springframework.boot.web.embedded.netty.NettyServerCustomizer;
 import org.springframework.boot.web.embedded.netty.SslServerCustomizer;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.http.client.reactive.ReactorResourceFactory;
+import org.springframework.http.server.reactive.ContextPathCompositeHandler;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.util.Assert;
@@ -39,9 +40,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
@@ -75,20 +78,24 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
 
     @Override
     public WebServer getWebServer(HttpHandler httpHandler) {
-        String contextPath = getContextPath();
-        //        Map<String, HttpHandler> handlerMap = new HashMap<>();
-        //        handlerMap.put(contextPath, httpHandler);
-        //        ContextPathCompositeHandler contextHandler = new ContextPathCompositeHandler(handlerMap);
-
         if (embeddedNettyService == null) {
             return super.getWebServer(httpHandler);
         } else if (embeddedNettyService.getEmbedServer() == null) {
             embeddedNettyService.setEmbedServer(initEmbedNetty());
-            adapter = new ArkCompositeReactorHttpHandlerAdapter(httpHandler);
+        }
+
+        String contextPath = getContextPath();
+        Map<String, HttpHandler> handlerMap = new HashMap<>();
+        handlerMap.put(contextPath, httpHandler);
+        ContextPathCompositeHandler contextHandler = new ContextPathCompositeHandler(handlerMap);
+
+        if (adapter == null) {
+            adapter = new ArkCompositeReactorHttpHandlerAdapter(contextHandler);
         } else {
             adapter.registerBizReactorHttpHandlerAdapter(contextPath,
-                new ReactorHttpHandlerAdapter(httpHandler));
+                new ReactorHttpHandlerAdapter(contextHandler));
         }
+
         HttpServer httpServer = (HttpServer) embeddedNettyService.getEmbedServer();
 
         //        ReactorHttpHandlerAdapter handlerAdapter = new ReactorHttpHandlerAdapter(contextHandler);

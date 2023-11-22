@@ -50,7 +50,9 @@ public class ArkReactiveAutoConfiguration {
         @Bean
         @ConditionalOnMissingBean
         ReactorResourceFactory reactorServerResourceFactory() {
-            return new ReactorResourceFactory();
+            ReactorResourceFactory reactorResourceFactory = new ReactorResourceFactory();
+            reactorResourceFactory.setUseGlobalResources(false);
+            return reactorResourceFactory;
         }
 
         @Bean
