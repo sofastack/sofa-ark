@@ -63,25 +63,4 @@ public class ArkCompositeReactorHttpHandlerAdapter extends ReactorHttpHandlerAda
         return super.apply(reactorRequest, reactorResponse);
     }
 
-    //    private static String resolveRequestUri(HttpServerRequest request) {
-    //        String uri = request.uri();
-    //        for (int i = 0; i < uri.length(); i++) {
-    //            char c = uri.charAt(i);
-    //            if (c == '/' || c == '?' || c == '#') {
-    //                break;
-    //            }
-    //            if (c == ':' && (i + 2 < uri.length())) {
-    //                if (uri.charAt(i + 1) == '/' && uri.charAt(i + 2) == '/') {
-    //                    for (int j = i + 3; j < uri.length(); j++) {
-    //                        c = uri.charAt(j);
-    //                        if (c == '/' || c == '?' || c == '#') {
-    //                            return uri.substring(j);
-    //                        }
-    //                    }
-    //                    return "";
-    //                }
-    //            }
-    //        }
-    //        return uri;
-    //    }
 }
