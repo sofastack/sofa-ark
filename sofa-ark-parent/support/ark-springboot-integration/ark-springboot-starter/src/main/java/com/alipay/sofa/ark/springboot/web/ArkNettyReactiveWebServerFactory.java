@@ -99,8 +99,8 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
         HttpServer httpServer = (HttpServer) embeddedNettyService.getEmbedServer();
 
         //        ReactorHttpHandlerAdapter handlerAdapter = new ReactorHttpHandlerAdapter(contextHandler);
-        ArkNettyWebServer webServer = (ArkNettyWebServer) createNettyWebServer(httpServer, adapter,
-            lifecycleTimeout);
+        ArkNettyWebServer webServer = (ArkNettyWebServer) createNettyWebServer(contextPath,
+            httpServer, adapter, lifecycleTimeout);
         webServer.setRouteProviders(this.routeProviders);
 
         return webServer;
@@ -130,9 +130,10 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
         }
     }
 
-    WebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
+    WebServer createNettyWebServer(String contextPath, HttpServer httpServer,
+                                   ReactorHttpHandlerAdapter handlerAdapter,
                                    Duration lifecycleTimeout) {
-        return new ArkNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout);
+        return new ArkNettyWebServer(contextPath, httpServer, handlerAdapter, lifecycleTimeout);
     }
 
     private HttpServer  initEmbedNetty(){

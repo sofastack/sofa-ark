@@ -46,6 +46,10 @@ public class ArkCompositeReactorHttpHandlerAdapter extends ReactorHttpHandlerAda
         }
     }
 
+    public void unregisterBizReactorHttpHandlerAdapter(String contextPath) {
+        bizReactorHttpHandlerAdapters.remove(contextPath);
+    }
+
     @Override
     public Mono<Void> apply(HttpServerRequest reactorRequest, HttpServerResponse reactorResponse) {
         String uri = reactorRequest.uri();
