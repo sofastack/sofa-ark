@@ -34,7 +34,7 @@ public class JarLauncher extends org.springframework.boot.loader.launch.JarLaunc
 
     @Override
     protected ClassLoader createClassLoader(Collection<URL> urls) throws Exception {
-        return new CachedLaunchedURLClassLoader(isExploded(), getArchive(), urls.toArray(new URL[0]), getClass()
-            .getClassLoader());
+        return new CachedLaunchedURLClassLoader(isExploded(), getArchive(),
+            urls.toArray(new URL[0]), getClass().getClassLoader());
     }
 }
