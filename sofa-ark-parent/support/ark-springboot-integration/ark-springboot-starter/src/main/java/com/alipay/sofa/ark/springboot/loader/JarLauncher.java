@@ -17,20 +17,24 @@
 package com.alipay.sofa.ark.springboot.loader;
 
 import java.net.URL;
+import java.util.Collection;
 
 /**
  * A JarLauncher to load classes with CachedLaunchedURLClassLoader
  *
  * @author bingjie.lbj
  */
-public class JarLauncher extends org.springframework.boot.loader.JarLauncher {
+public class JarLauncher extends org.springframework.boot.loader.launch.JarLauncher {
+    public JarLauncher() throws Exception {
+    }
+
     public static void main(String[] args) throws Exception {
         new JarLauncher().launch(args);
     }
 
     @Override
-    protected ClassLoader createClassLoader(URL[] urls) throws Exception {
-        return new CachedLaunchedURLClassLoader(isExploded(), getArchive(), urls, getClass()
+    protected ClassLoader createClassLoader(Collection<URL> urls) throws Exception {
+        return new CachedLaunchedURLClassLoader(isExploded(), getArchive(), urls.toArray(new URL[0]), getClass()
             .getClassLoader());
     }
 }
