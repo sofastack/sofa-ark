@@ -46,7 +46,7 @@ public class EmbedSofaArkBootstrap {
             getOrSetDefault(
                 Constants.MASTER_BIZ,
                 environment.getProperty(Constants.MASTER_BIZ,
-                    environment.getProperty("spring.application.name")));
+                    environment.getProperty("spring.application.name", "master biz")));
             getOrSetDefault(Constants.BIZ_CLASS_LOADER_HOOK_DIR,
                 environment.getProperty(Constants.BIZ_CLASS_LOADER_HOOK_DIR));
             getOrSetDefault(Constants.PLUGIN_EXPORT_CLASS_ENABLE,
