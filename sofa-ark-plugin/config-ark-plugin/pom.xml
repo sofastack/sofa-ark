@@ -13,7 +13,7 @@
     <artifactId>config-ark-plugin</artifactId>
 
     <properties>
-        <curator.version>2.9.1</curator.version>
+        <curator.version>5.1.0</curator.version>
     </properties>
 
     <dependencies>
