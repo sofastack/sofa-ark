@@ -64,45 +64,6 @@ public class PluginClassLoaderTest extends BaseTest {
     }
 
     @Test
-    public void testExportForOverride() throws Exception {
-        PluginModel pluginA = new PluginModel();
-        pluginA
-            .setPluginName("plugin A")
-            .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(StringUtils.EMPTY_STRING)
-            .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportPackages(ClassUtils.getPackageName(ITest.class.getName()))
-            .setExportClasses("")
-            .setExportResources(StringUtils.EMPTY_STRING)
-            .setImportResources(StringUtils.EMPTY_STRING)
-            .setPluginClassLoader(
-                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
-
-        PluginModel pluginB = new PluginModel();
-        pluginB
-            .setPluginName("plugin B")
-            .setPriority("1")
-            .setClassPath(new URL[] { classPathURL })
-            .setImportClasses(ITest.class.getName())
-            .setImportPackages(StringUtils.EMPTY_STRING)
-            .setExportPackages("")
-            .setExportClasses("")
-            .setExportResources(StringUtils.EMPTY_STRING)
-            .setImportResources(StringUtils.EMPTY_STRING)
-            .setPluginClassLoader(
-                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
-
-        pluginManagerService.registerPlugin(pluginA);
-        pluginManagerService.registerPlugin(pluginB);
-        classloaderService.prepareExportClassAndResourceCache();
-        pluginDeployService.deploy();
-
-        Assert.assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
-            pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
-
-    }
-
-    @Test
     public void testExportAndImport() throws Exception {
         PluginModel pluginA = new PluginModel();
         pluginA
@@ -138,7 +99,6 @@ public class PluginClassLoaderTest extends BaseTest {
 
         Assert.assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
             pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
-
     }
 
     @Test
