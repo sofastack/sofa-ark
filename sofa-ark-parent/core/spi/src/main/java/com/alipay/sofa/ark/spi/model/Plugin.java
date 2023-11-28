@@ -88,6 +88,14 @@ public interface Plugin extends PriorityOrdered {
     PluginContext getPluginContext();
 
     /**
+     * get Plugin Export Mode
+     * default exportMode = classLoader, means export class to load in this plugin classLoader
+     * exportMode = override, means export class to file only, and usually will be reload in another classLoader
+     * @return
+     */
+    String getExportMode();
+
+    /**
      * get Plugin Export Packages Config
      * @return plugin export packages
      */

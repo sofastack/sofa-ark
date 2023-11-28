@@ -242,20 +242,20 @@ public class JarUtils {
 
     private static String parseArtifactIdFromJarInJarInJarMore(String jarLocation)
                                                                                   throws IOException {
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = getTemporaryRootJarFromJarLocation(jarLocation);
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = getNestedRootJarFromJarLocation(jarLocation);
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         return jarFileArchive.getPomProperties().getProperty(JAR_ARTIFACT_ID);
     }
 
-    public static com.alipay.sofa.ark.loader.jar.JarFile getTemporaryRootJarFromJarLocation(String jarLocation)
-                                                                                                               throws IOException {
+    public static com.alipay.sofa.ark.loader.jar.JarFile getNestedRootJarFromJarLocation(String jarLocation)
+                                                                                                            throws IOException {
         //  /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar
         String[] js = jarLocation.split(JAR_SEPARATOR, -1);
         com.alipay.sofa.ark.loader.jar.JarFile rJarFile = new com.alipay.sofa.ark.loader.jar.JarFile(
             FileUtils.file(js[0]));
         for (int i = 1; i < js.length; i++) {
             String jPath = js[i];
-            if (jPath == null || jPath.isEmpty()) {
+            if (StringUtils.isEmpty(jPath) || !jPath.endsWith(".jar")) {
                 break;
             }
             try {
