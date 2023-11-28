@@ -418,7 +418,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             if (url != null) {
                 String filePath = url.getFile().replaceFirst("file:", "");
                 try {
-                    byte[] bytes = getClassBytesFromJar(filePath, name.replace('.', '/') + ".class");
+                    byte[] bytes;
+                    if (filePath.contains(".jar")) {
+                        bytes = getClassBytesFromJar(filePath, name.replace('.', '/') + ".class");
+                    } else {
+                        bytes = FileUtils.readFileToByteArray(new File(filePath));
+                    }
                     return defineClass(name, bytes, 0, bytes.length);
                 } catch (Exception e) {
                     ArkLoggerFactory.getDefaultLogger().warn(
@@ -433,9 +438,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     }
 
     private byte[] getClassBytesFromJar(String jarFilePath, String className) throws IOException {
-
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = JarUtils
-            .getNestedRootJarFromJarLocation(jarFilePath);
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = JarUtils.getNestedRootJarFromJarLocation(jarFilePath);
         try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             int bufferSize = 4096;
