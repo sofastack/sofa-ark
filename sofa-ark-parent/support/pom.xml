@@ -18,8 +18,6 @@
         <module>ark-support-starter</module>
         <module>ark-tools</module>
         <module>ark-springboot-integration/ark-springboot-starter</module>
-        <module>ark-springboot-integration/ark-compatible-springboot1</module>
-        <module>ark-springboot-integration/ark-compatible-springboot2</module>
         <module>ark-springboot-integration/ark-common-springboot</module>
     </modules>
 
