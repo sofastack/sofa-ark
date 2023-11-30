@@ -17,8 +17,6 @@
 package com.alipay.sofa.ark.springboot;
 
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
-import com.alipay.sofa.ark.springboot.processor.ArkEventHandlerProcessor;
-import com.alipay.sofa.ark.springboot.processor.ArkServiceInjectProcessor;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
@@ -42,7 +40,7 @@ import jakarta.servlet.Servlet;
 @ConditionalOnArkEnabled
 @ConditionalOnClass(ServletWebServerFactoryAutoConfiguration.class)
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
-public class ArkAutoConfiguration {
+public class ArkServletAutoConfiguration {
 
     @Configuration
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class,
