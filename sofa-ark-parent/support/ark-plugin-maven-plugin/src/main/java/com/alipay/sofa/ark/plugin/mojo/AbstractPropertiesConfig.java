@@ -98,6 +98,13 @@ public abstract class AbstractPropertiesConfig {
         prop.setProperty(name, join(value.iterator(), VALUE_SPLIT));
     }
 
+    public void addClasses(Collection<String> extraClasses) {
+        if (classes == null) {
+            classes = new LinkedHashSet<>();
+        }
+        classes.addAll(extraClasses);
+    }
+
     public static String join(Iterator iterator, String separator) {
         if (separator == null) {
             separator = "";

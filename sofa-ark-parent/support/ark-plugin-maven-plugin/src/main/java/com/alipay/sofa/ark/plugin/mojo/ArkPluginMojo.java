@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.JarWriter;
 import com.alipay.sofa.ark.tools.Repackager;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -142,6 +144,12 @@ public class ArkPluginMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "")
     private String                  classifier;
+
+    /**
+     * Export plugin project classes by default
+     */
+    @Parameter(defaultValue = "true")
+    private Boolean                 exportProjectClasses;
 
     private static final String     ARCHIVE_MODE       = "zip";
     private static final String     PLUGIN_SUFFIX      = ".ark.plugin";
@@ -399,6 +407,16 @@ public class ArkPluginMojo extends AbstractMojo {
     }
 
     /**
+     * check whether to export plugin project classes
+     * default true.
+     *
+     * @return whether to export plugin project classes
+     */
+    protected boolean isExportProjectClasses() {
+        return exportProjectClasses;
+    }
+
+    /**
      * generate ark.plugin configuration file
      * archive
      * @param archiver
@@ -425,13 +443,50 @@ public class ArkPluginMojo extends AbstractMojo {
         addArkPluginConfig(archiver, "META-INF/MANIFEST.MF", properties);
     }
 
-    private Properties collectArkPluginExport() {
+    private Properties collectArkPluginExport() throws MojoExecutionException {
         Properties properties = new LinkedProperties();
         if (exported == null) {
             exported = new ExportConfig();
         }
+        if (exportProjectClasses) {
+            List<String> projectClasses = collectProjectClasses();
+            exported.addClasses(projectClasses);
+        }
         exported.store(properties);
         return properties;
+    }
+
+
+    private List<String> collectProjectClasses() throws MojoExecutionException {
+        try {
+            List<String> projectClasses = new ArrayList<>();
+            // Accessing the target/classes directory where compiled classes are located
+            File outputDirectory = new File(project.getBuild().getOutputDirectory());
+            // Ensure the directory exists
+            if (outputDirectory.exists()) {
+                Collection<File> classFiles = FileUtils.listFiles(outputDirectory, new String[]{"class"}, true);
+                String basePath = outputDirectory.getCanonicalPath();
+
+                for (File classFile : classFiles) {
+                    // Get the relative file path starting after the classes directory
+                    String relativePath = classFile.getCanonicalPath().substring(basePath.length() + 1);
+
+                    // Convert file path to class name (replace file separators with dots and remove .class extension)
+                    String className = relativePath.replace(File.separatorChar, '.').replaceAll("\\.class$", "");
+
+                    // skip inner, anonymous and local classes
+                    if (!className.contains("$")) {
+                        projectClasses.add(className);
+                    }
+                }
+                return projectClasses;
+            } else {
+                getLog().warn("Output directory does not exist! Have classes been compiled?");
+                throw new MojoExecutionException("Error finding compiled classes");
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error finding compiled classes", e);
+        }
     }
 
     private Properties collectArkPluginImport() {

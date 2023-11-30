@@ -103,6 +103,7 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.config.ConfigBaseActivator</activator>
+                            <exportProjectClasses>false</exportProjectClasses>
                         </configuration>
                     </execution>
                 </executions>
