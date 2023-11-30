@@ -47,28 +47,26 @@ public class ArkNettyWebServer implements WebServer {
     private static final Predicate<HttpServerRequest> ALWAYS = (request) -> {
         return true;
     };
-    private HttpServer arkHttpServer;
+    private static HttpServer arkHttpServer;
     private static final Log logger = LogFactory.getLog(ArkNettyWebServer.class);
     private final HttpServer httpServer;
     private final BiFunction<? super HttpServerRequest, ? super HttpServerResponse, ? extends Publisher<Void>> handler;
     private final Duration lifecycleTimeout;
     private List<NettyRouteProvider> routeProviders = Collections.emptyList();
-    private volatile DisposableServer disposableServer;
+    private static volatile DisposableServer disposableServer;
     private Thread awaitThread;
+    private String contextPath;
 
-    public ArkNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout) {
+    public ArkNettyWebServer(String contextPath, HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout) {
         Assert.notNull(httpServer, "HttpServer must not be null");
         Assert.notNull(handlerAdapter, "HandlerAdapter must not be null");
+        this.contextPath = contextPath;
         this.lifecycleTimeout = lifecycleTimeout;
         this.handler = handlerAdapter;
         this.httpServer = httpServer.channelGroup(new DefaultChannelGroup(new DefaultEventExecutor()));
-
-    }
-
-    public ArkNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout, HttpServer arkhttpServer){
-        this(httpServer, handlerAdapter, lifecycleTimeout);
-        this.arkHttpServer = arkHttpServer;
-
+        if (arkHttpServer == null) {
+            arkHttpServer = this.httpServer;
+        }
     }
 
     public void setRouteProviders(List<NettyRouteProvider> routeProviders) {
@@ -77,9 +75,9 @@ public class ArkNettyWebServer implements WebServer {
 
     @Override
     public void start() throws WebServerException {
-        if (this.disposableServer == null) {
+        if (disposableServer == null) {
             try {
-                this.disposableServer = this.startHttpServer();
+                disposableServer = this.startHttpServer();
             } catch (Exception var2) {
                 PortInUseException.ifCausedBy(var2, ChannelBindException.class, (bindException) -> {
                     if (bindException.localPort() > 0 && !this.isPermissionDenied(bindException.getCause())) {
@@ -89,36 +87,46 @@ public class ArkNettyWebServer implements WebServer {
                 throw new WebServerException("Unable to start Netty", var2);
             }
 
-            if (this.disposableServer != null) {
-                logger.info("Netty started" + this.getStartedOnMessage(this.disposableServer));
-            }
+            this.startDaemonAwaitThread(disposableServer);
+        }
 
-            this.startDaemonAwaitThread(this.disposableServer);
+        if (disposableServer != null) {
+            logger.info("Netty started" + this.getStartedOnMessage(disposableServer) + " with context path " + contextPath);
         }
     }
 
     @Override
     public void stop() throws WebServerException {
-        if (this.disposableServer != null && arkHttpServer != httpServer) {
+        if (!(this.handler instanceof ArkCompositeReactorHttpHandlerAdapter)) {
+            return;
+        }
+
+        ((ArkCompositeReactorHttpHandlerAdapter) this.handler).unregisterBizReactorHttpHandlerAdapter(contextPath);
+
+        if (disposableServer != null && this.httpServer == arkHttpServer) {
             try {
                 if (this.lifecycleTimeout != null) {
-                    this.disposableServer.disposeNow(this.lifecycleTimeout);
+                    disposableServer.disposeNow(this.lifecycleTimeout);
                 } else {
-                    this.disposableServer.disposeNow();
+                    disposableServer.disposeNow();
                 }
                 awaitThread.stop();
-            } catch (IllegalStateException var2) {
+            } catch (IllegalStateException ignore) {
+
             }
 
-            this.disposableServer = null;
+            logger.info("Netty stoped" + this.getStartedOnMessage(disposableServer));
+
+            disposableServer = null;
         }
+
     }
 
     @Override
     public int getPort() {
-        if (this.disposableServer != null) {
+        if (disposableServer != null) {
             try {
-                return this.disposableServer.port();
+                return disposableServer.port();
             } catch (UnsupportedOperationException var2) {
                 return -1;
             }
@@ -171,8 +179,6 @@ public class ArkNettyWebServer implements WebServer {
         return false;
     }
 
-
-
     private void applyRouteProviders(HttpServerRoutes routes) {
         NettyRouteProvider provider;
         for(Iterator var2 = this.routeProviders.iterator(); var2.hasNext(); routes = (HttpServerRoutes)provider.apply(routes)) {
@@ -183,7 +189,7 @@ public class ArkNettyWebServer implements WebServer {
     }
 
     private void startDaemonAwaitThread(DisposableServer disposableServer) {
-            awaitThread = new Thread("server") {
+        awaitThread = new Thread("server") {
             public void run() {
                 disposableServer.onDispose().block();
             }

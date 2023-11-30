@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  unit_test_for_jdk8:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -27,4 +27,4 @@ jobs:
         && sh ./check_format.sh
         && mvn test
     - name: Codecov
-      uses: codecov/codecov-action@v4.0.0-beta.3
+      uses: codecov/codecov-action@v3.1.4
