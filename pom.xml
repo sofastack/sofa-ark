@@ -209,6 +209,20 @@
                             <goal>report-aggregate</goal>
                         </goals>
                     </execution>
+                    <!-- 插桩 maven-plugin 类型的模块 -->
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>com.alipay.sofa:sofa-ark-maven-plugin</include>
+                                <include>com.alipay.sofa:sofa-ark-plugin-maven-plugin</include>
+                            </includes>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
