@@ -149,7 +149,7 @@ public class ArkPluginMojo extends AbstractMojo {
      * Export plugin project classes by default
      */
     @Parameter(defaultValue = "true")
-    private Boolean                 exportProjectClasses;
+    protected Boolean               exportProjectClasses;
 
     private static final String     ARCHIVE_MODE       = "zip";
     private static final String     PLUGIN_SUFFIX      = ".ark.plugin";
@@ -481,11 +481,10 @@ public class ArkPluginMojo extends AbstractMojo {
                         projectClasses.add(className);
                     }
                 }
-                return projectClasses;
             } else {
-                getLog().warn("Output directory does not exist! Have classes been compiled?");
-                throw new MojoExecutionException("Error finding compiled classes");
+                getLog().warn("Output directory does not exist!");
             }
+            return projectClasses;
         } catch (IOException e) {
             throw new MojoExecutionException("Error finding compiled classes", e);
         }
