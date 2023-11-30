@@ -456,7 +456,6 @@ public class ArkPluginMojo extends AbstractMojo {
         return properties;
     }
 
-
     private List<String> collectProjectClasses() throws MojoExecutionException {
         try {
             List<String> projectClasses = new ArrayList<>();
@@ -464,15 +463,18 @@ public class ArkPluginMojo extends AbstractMojo {
             File outputDirectory = new File(project.getBuild().getOutputDirectory());
             // Ensure the directory exists
             if (outputDirectory.exists()) {
-                Collection<File> classFiles = FileUtils.listFiles(outputDirectory, new String[]{"class"}, true);
+                Collection<File> classFiles = FileUtils.listFiles(outputDirectory,
+                    new String[] { "class" }, true);
                 String basePath = outputDirectory.getCanonicalPath();
 
                 for (File classFile : classFiles) {
                     // Get the relative file path starting after the classes directory
-                    String relativePath = classFile.getCanonicalPath().substring(basePath.length() + 1);
+                    String relativePath = classFile.getCanonicalPath().substring(
+                        basePath.length() + 1);
 
                     // Convert file path to class name (replace file separators with dots and remove .class extension)
-                    String className = relativePath.replace(File.separatorChar, '.').replaceAll("\\.class$", "");
+                    String className = relativePath.replace(File.separatorChar, '.').replaceAll(
+                        "\\.class$", "");
 
                     // skip inner, anonymous and local classes
                     if (!className.contains("$")) {
