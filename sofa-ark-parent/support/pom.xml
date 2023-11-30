@@ -17,8 +17,8 @@
         <module>ark-maven-plugin</module>
         <module>ark-support-starter</module>
         <module>ark-tools</module>
-        <module>ark-springboot-integration/ark-springboot-starter</module>
         <module>ark-springboot-integration/ark-common-springboot</module>
+        <module>ark-springboot-integration/ark-springboot-starter</module>
     </modules>
 
 </project>
