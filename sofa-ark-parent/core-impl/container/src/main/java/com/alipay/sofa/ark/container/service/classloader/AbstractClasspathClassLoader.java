@@ -439,7 +439,8 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     }
 
     private byte[] getClassBytesFromJar(String jarFilePath, String className) throws IOException {
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = JarUtils.getNestedRootJarFromJarLocation(jarFilePath);
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = JarUtils
+            .getNestedRootJarFromJarLocation(jarFilePath);
         try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             int bufferSize = 4096;
