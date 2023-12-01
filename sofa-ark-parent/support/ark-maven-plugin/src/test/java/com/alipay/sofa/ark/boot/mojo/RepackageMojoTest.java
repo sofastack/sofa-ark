@@ -165,8 +165,10 @@ public class RepackageMojoTest {
                                       + "user-settings-test.xml";
         String globalSettingsFilePath = System.getProperty("user.home") + File.separator
                                         + "global-settings-test.xml";
-        File userSettingsFile = new File(userSettingsFilePath);
-        File globalSettingsFile = new File(globalSettingsFilePath);
+        File userSettingsFile = com.alipay.sofa.ark.common.util.FileUtils
+            .file(userSettingsFilePath);
+        File globalSettingsFile = com.alipay.sofa.ark.common.util.FileUtils
+            .file(globalSettingsFilePath);
         InvocationRequest request = new DefaultInvocationRequest();
         invokeSetSettingsLocation(request, userSettingsFilePath, globalSettingsFilePath);
         Assert.assertNull(request.getUserSettingsFile());
@@ -190,8 +192,10 @@ public class RepackageMojoTest {
                                            String globalSettingsFilePath) throws Exception {
         RepackageMojo repackageMojo = new RepackageMojo();
         MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
-        executionRequest.setUserSettingsFile(new File(userSettingsFilePath));
-        executionRequest.setGlobalSettingsFile(new File(globalSettingsFilePath));
+        executionRequest.setUserSettingsFile(com.alipay.sofa.ark.common.util.FileUtils
+            .file(userSettingsFilePath));
+        executionRequest.setGlobalSettingsFile(com.alipay.sofa.ark.common.util.FileUtils
+            .file(globalSettingsFilePath));
         // 构造对象
         MavenSession mavenSession = new MavenSession(null, executionRequest, null,
             new ArrayList<>());
@@ -325,8 +329,8 @@ public class RepackageMojoTest {
 
         DefaultArtifact artifact = new DefaultArtifact("group1", "artifact1", "1.0", "compile", "",
             null, new DefaultArtifactHandler());
-        artifact
-            .setFile(new File(getClass().getClassLoader().getResource("excludes.txt").getPath()));
+        artifact.setFile(com.alipay.sofa.ark.common.util.FileUtils.file(getClass().getClassLoader()
+            .getResource("excludes.txt").getPath()));
         mavenProject.setArtifact(artifact);
 
         Set<Artifact> artifacts = new HashSet<>();

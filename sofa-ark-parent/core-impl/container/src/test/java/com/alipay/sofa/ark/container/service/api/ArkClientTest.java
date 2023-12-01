@@ -188,7 +188,7 @@ public class ArkClientTest extends BaseTest {
     public void testSwitchBiz() throws Throwable {
         testUninstallBiz();
         // test switch biz
-        ClientResponse response = ArkClient.installBiz(new File(bizUrl1.getFile()));
+        ClientResponse response = ArkClient.installBiz(FileUtils.file(bizUrl1.getFile()));
         Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
         BizInfo bizInfo = response.getBizInfos().iterator().next();
         Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());

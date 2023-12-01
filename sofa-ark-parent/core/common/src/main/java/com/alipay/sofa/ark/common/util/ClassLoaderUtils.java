@@ -83,7 +83,7 @@ public class ClassLoaderUtils {
             argument = argument.substring(JAVA_AGENT_MARK.length());
             try {
                 String path = argument.split(JAVA_AGENT_OPTION_MARK)[0];
-                URL url = new File(path).getCanonicalFile().toURI().toURL();
+                URL url = FileUtils.file(path).getCanonicalFile().toURI().toURL();
                 agentPaths.add(url);
                 processSkyWalking(path, agentPaths);
             } catch (Throwable e) {
@@ -91,6 +91,7 @@ public class ClassLoaderUtils {
             }
         }
         return agentPaths.toArray(new URL[] {});
+
     }
 
     /**
@@ -102,7 +103,7 @@ public class ClassLoaderUtils {
     public static void processSkyWalking(final String path, final List<URL> agentPaths) throws MalformedURLException, IOException {
         if (path.contains(SKYWALKING_AGENT_JAR)) {
             for (String mountFolder : SKYWALKING_MOUNT_DIR) {
-                File folder = new File(new File(path).getCanonicalFile().getParentFile(), mountFolder);
+                File folder = new File(FileUtils.file(path).getCanonicalFile().getParentFile(), mountFolder);
                 if (folder.exists() && folder.isDirectory()) {
                     String[] jarFileNames = folder.list((dir, name) -> name.endsWith(".jar"));
                     for (String fileName: jarFileNames) {
@@ -128,7 +129,7 @@ public class ClassLoaderUtils {
         for (String classpathEntry : classpathEntries) {
             URL url = null;
             try {
-                url = new File(classpathEntry).toURI().toURL();
+                url = FileUtils.file(classpathEntry).toURI().toURL();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 throw new ArkRuntimeException("Failed to get urls from " + classLoader, e);

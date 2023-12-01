@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -63,11 +64,11 @@ public class BizFactoryServiceTest extends BaseTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
         URL samplePlugin = cl.getResource("sample-plugin.jar");
-        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         pluginManagerService.registerPlugin(plugin);
 
         URL sampleBiz = cl.getResource("sample-biz.jar");
-        Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
+        Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
         bizManagerService.registerBiz(biz);
         Assert.assertNotNull(biz);
         Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
@@ -86,7 +87,7 @@ public class BizFactoryServiceTest extends BaseTest {
         BizOperation bizOperation = new BizOperation();
         String mockVersion = "mock version";
         bizOperation.setBizVersion(mockVersion);
-        Biz biz = bizFactoryService.createBiz(bizOperation, new File(sampleBiz.getFile()));
+        Biz biz = bizFactoryService.createBiz(bizOperation, FileUtils.file(sampleBiz.getFile()));
         Assert.assertEquals(biz.getBizVersion(), mockVersion);
     }
 
@@ -94,7 +95,7 @@ public class BizFactoryServiceTest extends BaseTest {
     public void testPackageInfo() throws Throwable {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL samplePlugin = cl.getResource("sample-ark-plugin.jar");
-        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         ClassLoader pluginClassLoader = plugin.getPluginClassLoader();
         pluginManagerService.registerPlugin(plugin);
         Class mdc = pluginClassLoader.loadClass("org.slf4j.MDC");

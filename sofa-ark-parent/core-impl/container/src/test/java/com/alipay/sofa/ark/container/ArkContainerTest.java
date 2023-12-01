@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -56,7 +57,7 @@ public class ArkContainerTest extends BaseTest {
     @Test
     public void testStop() throws Exception {
         ArkContainer arkContainer = new ArkContainer(new ExecutableArkBizJar(new JarFileArchive(
-            new File((jarURL.getFile())))));
+            FileUtils.file((jarURL.getFile())))));
         arkContainer.start();
         arkContainer.stop();
         Assert.assertFalse(arkContainer.isRunning());

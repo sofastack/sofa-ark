@@ -109,7 +109,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     public Biz createBiz(File file) throws IOException {
         BizArchive bizArchive;
         if (ArkConfigs.isEmbedEnable()) {
-            File unpackFile = new File(file.getAbsolutePath() + "-unpack");
+            File unpackFile = FileUtils.file(file.getAbsolutePath() + "-unpack");
             if (!unpackFile.exists()) {
                 unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
             }

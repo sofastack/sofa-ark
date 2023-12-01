@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
@@ -52,7 +53,7 @@ public class ClasspathLauncherTest {
         List<String> mockArguments = new ArrayList<>();
         String filePath = ClasspathLauncherTest.class.getClassLoader()
             .getResource("SampleClass.class").getPath();
-        String workingPath = new File(filePath).getParent();
+        String workingPath = FileUtils.file(filePath).getParent();
         mockArguments.add(String.format("-javaagent:%s", workingPath));
 
         RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
@@ -92,7 +93,7 @@ public class ClasspathLauncherTest {
         Assert.assertEquals(1, agentUrl.length);
 
         List<URL> urls = new ArrayList<>();
-        JarFileArchive jarFileArchive = new JarFileArchive(new File(url.getFile()));
+        JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(url.getFile()));
         List<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive);
         for (Archive archive : archives) {
             urls.add(archive.getUrl());
