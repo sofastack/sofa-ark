@@ -81,13 +81,9 @@
 
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-compatible-springboot1</artifactId>
+            <artifactId>sofa-ark-common-springboot</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-compatible-springboot2</artifactId>
-        </dependency>
 
         <!--test-->
         <dependency>
