@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
@@ -73,7 +74,8 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
                 }
 
             } else {
-                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives
+                    .add(new JarBizArchive(new JarFileArchive(FileUtils.file(url.getFile()))));
             }
         }
         return bizArchives;
@@ -88,7 +90,7 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
     private Archive getArchiveFromJarEntry(URL jarUrl) throws IOException {
         String jarPath = jarUrl.getPath().substring(0, jarUrl.getPath().indexOf("!"));
         String bizPath = jarUrl.getPath().substring(jarUrl.getPath().indexOf("!") + 2);
-        List<Archive> nestedArchives = new JarFileArchive(new File(jarPath))
+        List<Archive> nestedArchives = new JarFileArchive(FileUtils.file(jarPath))
                 .getNestedArchives(entry -> entry.getName().equals(bizPath));
         if (nestedArchives.isEmpty()) {
             return null;
@@ -127,13 +129,13 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
         String file = url.getFile();
         if (file.contains(FILE_IN_JAR)) {
             int pos = file.indexOf(FILE_IN_JAR);
-            File fatJarFile = new File(file.substring(0, pos));
+            File fatJarFile = FileUtils.file(file.substring(0, pos));
             String nestedJar = file.substring(file.lastIndexOf("/") + 1);
             JarFileArchive fatJarFileArchive = new JarFileArchive(fatJarFile);
             List<Archive> matched = fatJarFileArchive.getNestedArchives(entry -> entry.getName().contains(nestedJar));
             return (JarFileArchive) matched.get(0);
         } else {
-            return new JarFileArchive(new File(file));
+            return new JarFileArchive(FileUtils.file(file));
         }
     }
 }

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
@@ -76,7 +77,7 @@ public class BaseTest {
         List<String> mockArguments = new ArrayList<>();
         String filePath = this.getClass().getClassLoader()
                 .getResource("SampleClass.class").getPath();
-        String workingPath = new File(filePath).getParent();
+        String workingPath = FileUtils.file(filePath).getParent();
         mockArguments.add(String.format("javaaget:%s", workingPath));
         mockArguments.add(String.format("-javaagent:%s", workingPath));
         mockArguments.add(String.format("-javaagent:%s=xx", workingPath));

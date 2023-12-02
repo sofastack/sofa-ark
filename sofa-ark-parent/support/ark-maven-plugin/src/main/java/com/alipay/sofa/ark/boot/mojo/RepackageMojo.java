@@ -351,7 +351,8 @@ public class RepackageMojo extends TreeMojo {
         if (gitDirectory != null && gitDirectory.exists()) {
             return gitDirectory;
         }
-        return new File(rootProject.getBasedir().getAbsolutePath() + "/.git");
+        return com.alipay.sofa.ark.common.util.FileUtils.file(rootProject.getBasedir()
+            .getAbsolutePath() + "/.git");
     }
 
     private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
@@ -383,7 +384,7 @@ public class RepackageMojo extends TreeMojo {
         // dependency:tree
         String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
+        request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
         List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
             "-DoutputFile=" + outputPath).collect(Collectors.toList());
@@ -413,7 +414,7 @@ public class RepackageMojo extends TreeMojo {
         } catch (MavenInvocationException | IOException e) {
             throw new MojoExecutionException("execute dependency:tree failed", e);
         } finally {
-            File outputFile = new File(outputPath);
+            File outputFile = com.alipay.sofa.ark.common.util.FileUtils.file(outputPath);
             if (outputFile.exists()) {
                 outputFile.delete();
             }
@@ -645,7 +646,7 @@ public class RepackageMojo extends TreeMojo {
 
     protected void extensionExcludeArtifacts(String extraResources) {
         try {
-            File configFile = new File(extraResources);
+            File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
             if (configFile.exists()) {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
                 String dataLine;

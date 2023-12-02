@@ -145,7 +145,7 @@ public class JarUtilsTest {
         String fullPath = root.getPath() + "space directory";
         String jarLocation = fullPath + "/junit-4.12.jar";
         FileUtils.mkdir(fullPath);
-        Files.copy(new File(jar.getFile()), new File(jarLocation));
+        Files.copy(FileUtils.file(jar.getFile()), FileUtils.file(jarLocation));
 
         URL url = JarUtilsTest.class.getResource("/space directory/junit-4.12.jar");
         Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJar", String.class);

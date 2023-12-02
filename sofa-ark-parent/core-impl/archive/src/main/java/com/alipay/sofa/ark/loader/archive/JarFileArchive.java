@@ -24,6 +24,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.loader.data.RandomAccessData.ResourceAccess;
 import com.alipay.sofa.ark.spi.archive.Archive;
@@ -125,7 +126,7 @@ public class JarFileArchive implements Archive {
 
     private File getTempUnpackFolder() {
         if (this.tempUnpackFolder == null) {
-            File tempFolder = new File(System.getProperty("java.io.tmpdir"));
+            File tempFolder = FileUtils.file(System.getProperty("java.io.tmpdir"));
             this.tempUnpackFolder = createUnpackFolder(tempFolder);
         }
         return this.tempUnpackFolder;
@@ -134,7 +135,7 @@ public class JarFileArchive implements Archive {
     private File createUnpackFolder(File parent) {
         int attempts = 0;
         while (attempts++ < 1000) {
-            String fileName = new File(this.jarFile.getName()).getName();
+            String fileName = FileUtils.file(this.jarFile.getName()).getName();
             File unpackFolder = new File(parent, fileName + "-spring-boot-libs-"
                                                  + UUID.randomUUID());
             if (unpackFolder.mkdirs()) {

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -66,7 +67,7 @@ public abstract class BaseExecutableArchiveLauncher extends AbstractLauncher {
         if (path == null) {
             throw new IllegalStateException("Unable to determine code source archive");
         }
-        File root = new File(path);
+        File root = FileUtils.file(path);
         if (!root.exists()) {
             throw new IllegalStateException("Unable to determine code source archive from " + root);
         }

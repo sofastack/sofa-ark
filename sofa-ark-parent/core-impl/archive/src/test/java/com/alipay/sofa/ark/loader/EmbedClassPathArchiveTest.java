@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.loader;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class EmbedClassPathArchiveTest {
     public void testGetContainerArchive() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("sample-springboot-fat-biz.jar");
-        JarFileArchive jarFileArchive = new JarFileArchive(new File(springbootFatJar.getFile()));
+        JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
         Iterator<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
         List<URL> urls = new ArrayList<>();
         while (archives.hasNext()){
@@ -75,7 +76,7 @@ public class EmbedClassPathArchiveTest {
     public void testStaticCombineGetBizArchives() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("static-combine-demo.jar");
-        JarFileArchive jarFileArchive = new JarFileArchive(new File(springbootFatJar.getFile()));
+        JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
         Iterator<org.springframework.boot.loader.archive.Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
         List<URL> urls = new ArrayList<>();
         while (archives.hasNext()){
