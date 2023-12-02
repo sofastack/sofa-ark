@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
@@ -107,7 +108,7 @@ public class JarUtils {
         } else {
             // is not from test classpath, for example install uncompressed modules, just return null
             // search for pom.properties
-            File pomPropertiesFile = searchPomProperties(new File(libraryFile));
+            File pomPropertiesFile = searchPomProperties(FileUtils.file(libraryFile));
             if (pomPropertiesFile != null && pomPropertiesFile.exists()) {
                 pomPropertiesPath = pomPropertiesFile.getAbsolutePath();
             } else {
@@ -118,7 +119,7 @@ public class JarUtils {
 
         String artifactId = null;
         if (!StringUtils.isEmpty(pomPropertiesPath)) {
-            try (InputStream inputStream = Files.newInputStream(new File(pomPropertiesPath)
+            try (InputStream inputStream = Files.newInputStream(FileUtils.file(pomPropertiesPath)
                 .toPath())) {
                 Properties properties = new Properties();
                 properties.load(inputStream);
@@ -227,7 +228,7 @@ public class JarUtils {
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
         String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SEPARATOR));
         String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf(JAR_SEPARATOR) + 2);
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(new File(rootPath));
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(FileUtils.file(rootPath));
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
 
@@ -251,7 +252,7 @@ public class JarUtils {
         //  /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar
         String[] js = jarLocation.split(JAR_SEPARATOR, -1);
         com.alipay.sofa.ark.loader.jar.JarFile rJarFile = new com.alipay.sofa.ark.loader.jar.JarFile(
-            new File(js[0]));
+            FileUtils.file(js[0]));
         for (int i = 1; i < js.length; i++) {
             String jPath = js[i];
             if (jPath == null || jPath.isEmpty()) {
@@ -269,7 +270,7 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
-        jarLocation = URLDecoder.decode(jarLocation, "UTF-8");
+        jarLocation = FileUtils.decodePath(jarLocation);
         try (JarFile jarFile = new JarFile(jarLocation)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {

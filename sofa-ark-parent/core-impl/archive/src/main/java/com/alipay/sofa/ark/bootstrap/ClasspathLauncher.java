@@ -16,10 +16,7 @@
  */
 package com.alipay.sofa.ark.bootstrap;
 
-import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.common.util.ClassUtils;
-import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.common.util.*;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.*;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
@@ -115,7 +112,8 @@ public class ClasspathLauncher extends ArkLauncher {
                 throw new ArkRuntimeException("Duplicate Container Jar File Found.");
             }
 
-            return new JarContainerArchive(new JarFileArchive(new File(urlList.get(0).getFile())));
+            return new JarContainerArchive(new JarFileArchive(FileUtils.file(urlList.get(0)
+                .getFile())));
         }
 
         @Override
@@ -128,7 +126,8 @@ public class ClasspathLauncher extends ArkLauncher {
             }
 
             for (URL url : urlList) {
-                bizArchives.add(new JarBizArchive(new JarFileArchive(new File(url.getFile()))));
+                bizArchives
+                    .add(new JarBizArchive(new JarFileArchive(FileUtils.file(url.getFile()))));
             }
 
             return bizArchives;
@@ -140,8 +139,8 @@ public class ClasspathLauncher extends ArkLauncher {
 
             List<PluginArchive> pluginArchives = new ArrayList<>();
             for (URL url : urlList) {
-                pluginArchives
-                    .add(new JarPluginArchive(new JarFileArchive(new File(url.getFile()))));
+                pluginArchives.add(new JarPluginArchive(new JarFileArchive(FileUtils.file(url
+                    .getFile()))));
             }
 
             return pluginArchives;
@@ -177,9 +176,10 @@ public class ClasspathLauncher extends ArkLauncher {
                 if (classLocation.startsWith("file:")) {
                     classLocation = classLocation.substring("file:".length());
                 }
-                File file = classLocation == null ? null : new File(classLocation);
+                File file = classLocation == null ? null : FileUtils.file(classLocation);
                 while (file != null) {
-                    arkConfDir = new File(file.getPath() + File.separator + ARK_CONF_BASE_DIR);
+                    arkConfDir = FileUtils
+                        .file(file.getPath() + File.separator + ARK_CONF_BASE_DIR);
                     if (arkConfDir.exists() && arkConfDir.isDirectory()) {
                         break;
                     }

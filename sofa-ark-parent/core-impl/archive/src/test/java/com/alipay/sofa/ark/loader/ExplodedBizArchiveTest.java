@@ -35,7 +35,7 @@ public class ExplodedBizArchiveTest {
     public void testCreate() throws IOException {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL arkBizJar = cl.getResource("sample-biz-withjar.jar");
-        File unpack = FileUtils.unzip(new File(arkBizJar.getFile()), arkBizJar.getFile()
+        File unpack = FileUtils.unzip(FileUtils.file(arkBizJar.getFile()), arkBizJar.getFile()
                                                                      + "-unpack");
         ExplodedBizArchive archive = new ExplodedBizArchive(unpack);
         Assert.assertNotNull(archive.getManifest());

@@ -117,13 +117,14 @@ public abstract class BaseTest {
 
     private static byte[] fetchResource(String resourceName) throws IOException {
         URL resource = BaseTest.class.getClassLoader().getResource(resourceName);
-        RandomAccessDataFile dataFile = new RandomAccessDataFile(new File(resource.getFile()));
+        RandomAccessDataFile dataFile = new RandomAccessDataFile(
+            com.alipay.sofa.ark.common.util.FileUtils.file(resource.getFile()));
         return Bytes.get(dataFile);
     }
 
     public static File getTmpDir() {
         String tmpPath = System.getProperty("java.io.tmpdir");
-        return new File(tmpPath);
+        return com.alipay.sofa.ark.common.util.FileUtils.file(tmpPath);
     }
 
     public static File getWorkspace() {
