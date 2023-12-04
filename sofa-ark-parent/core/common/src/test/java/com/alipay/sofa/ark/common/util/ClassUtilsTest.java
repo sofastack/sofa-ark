@@ -38,6 +38,7 @@ public class ClassUtilsTest {
 
     @Test
     public void testFindCommonPackage() {
+        Assert.assertEquals(ClassUtils.findCommonPackage(null), "");
         List<String> classNames = new ArrayList<>();
         classNames.add("com.example.project.subpackage1.classE");
         classNames.add("com.example.project.classA");
