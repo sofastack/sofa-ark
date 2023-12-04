@@ -54,6 +54,13 @@ public abstract class AbstractPropertiesConfig {
      */
     protected LinkedHashSet<String> resources;
 
+    public void addPackage(String pack) {
+        if (packages == null) {
+            packages = new LinkedHashSet<>();
+        }
+        packages.add(pack);
+    }
+
     public String getMode() {
         return mode;
     }
@@ -96,13 +103,6 @@ public abstract class AbstractPropertiesConfig {
             value = new LinkedHashSet<>();
         }
         prop.setProperty(name, join(value.iterator(), VALUE_SPLIT));
-    }
-
-    public void addClasses(Collection<String> extraClasses) {
-        if (classes == null) {
-            classes = new LinkedHashSet<>();
-        }
-        classes.addAll(extraClasses);
     }
 
     public static String join(Iterator iterator, String separator) {

@@ -31,6 +31,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -149,7 +151,7 @@ public class ArkPluginMojo extends AbstractMojo {
      * Export plugin project classes by default
      */
     @Parameter(defaultValue = "true")
-    protected Boolean               exportProjectClasses;
+    protected Boolean               exportPackage;
 
     private static final String     ARCHIVE_MODE       = "zip";
     private static final String     PLUGIN_SUFFIX      = ".ark.plugin";
@@ -407,13 +409,13 @@ public class ArkPluginMojo extends AbstractMojo {
     }
 
     /**
-     * check whether to export plugin project classes
+     * check whether to export plugin project
      * default true.
      *
-     * @return whether to export plugin project classes
+     * @return whether to export plugin project
      */
-    protected boolean isExportProjectClasses() {
-        return exportProjectClasses;
+    protected boolean isExportPackage() {
+        return exportPackage;
     }
 
     /**
@@ -448,43 +450,27 @@ public class ArkPluginMojo extends AbstractMojo {
         if (exported == null) {
             exported = new ExportConfig();
         }
-        if (exportProjectClasses) {
-            List<String> projectClasses = collectProjectClasses();
-            exported.addClasses(projectClasses);
+        if (exportPackage) {
+            String projectPackage = findProjectPackage();
+            if (!StringUtils.isEmpty(projectPackage)) {
+                exported.addPackage(projectPackage + ".*");
+            }
         }
         exported.store(properties);
         return properties;
     }
 
-    private List<String> collectProjectClasses() throws MojoExecutionException {
+    private String findProjectPackage() throws MojoExecutionException {
         try {
-            List<String> projectClasses = new ArrayList<>();
             // Accessing the target/classes directory where compiled classes are located
             File outputDirectory = new File(project.getBuild().getOutputDirectory());
             // Ensure the directory exists
             if (outputDirectory.exists()) {
-                Collection<File> classFiles = FileUtils.listFiles(outputDirectory,
-                    new String[] { "class" }, true);
-                String basePath = outputDirectory.getCanonicalPath();
-
-                for (File classFile : classFiles) {
-                    // Get the relative file path starting after the classes directory
-                    String relativePath = classFile.getCanonicalPath().substring(
-                        basePath.length() + 1);
-
-                    // Convert file path to class name (replace file separators with dots and remove .class extension)
-                    String className = relativePath.replace(File.separatorChar, '.').replaceAll(
-                        "\\.class$", "");
-
-                    // skip inner, anonymous and local classes
-                    if (!className.contains("$")) {
-                        projectClasses.add(className);
-                    }
-                }
+                return ClassUtils.findCommonPackage(ClassUtils.collectClasses(outputDirectory));
             } else {
                 getLog().warn("Output directory does not exist!");
             }
-            return projectClasses;
+            return "";
         } catch (IOException e) {
             throw new MojoExecutionException("Error finding compiled classes", e);
         }

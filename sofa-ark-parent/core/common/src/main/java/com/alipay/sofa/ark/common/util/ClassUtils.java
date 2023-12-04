@@ -17,10 +17,16 @@
 package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author qilong.zql
@@ -41,6 +47,74 @@ public class ClassUtils {
             return className.substring(0, index);
         }
         return Constants.DEFAULT_PACKAGE;
+    }
+
+    /**
+     * find common package among classes
+     * @param classNames class name list
+     * @return common package path
+     */
+    public static String findCommonPackage(List<String> classNames) {
+        if (classNames == null || classNames.isEmpty()) {
+            return ""; // 没有类名时返回空字符串
+        }
+
+        // 分割第一个类的包名，作为初始比较基础
+        String[] base = classNames.get(0).split("\\.");
+        int commonLength = base.length;
+
+        // 遍历剩余类名列表
+        for (int i = 1; i < classNames.size(); i++) {
+            String[] compare = classNames.get(i).split("\\.");
+            int j = 0;
+            // 比较每个包名级别直到发现不同点
+            while (j < commonLength && j < compare.length && base[j].equals(compare[j])) {
+                j++;
+            }
+            // 更新最长公共部分的长度
+            if (j < commonLength) {
+                commonLength = j;
+            }
+        }
+
+        // 构建最长公共package路径
+        StringBuilder longestCommonPath = new StringBuilder();
+        if (commonLength > 0) {
+            for (int i = 0; i < commonLength; i++) {
+                longestCommonPath.append(base[i]);
+                if (i < commonLength - 1) {
+                    longestCommonPath.append(".");
+                }
+            }
+        }
+
+        return longestCommonPath.toString();
+    }
+
+    /**
+     * find all compiled classes in dir, ignore inner, anonymous and local classes
+     * @param dir directory that stores class files
+     * @return compiled class names
+     */
+    public static List<String> collectClasses(File dir) throws IOException {
+        List<String> classNames = new ArrayList<>();
+        Collection<File> classFiles = FileUtils.listFiles(dir, new String[] { "class" }, true);
+        String basePath = dir.getCanonicalPath();
+
+        for (File classFile : classFiles) {
+            // Get the relative file path starting after the classes directory
+            String relativePath = classFile.getCanonicalPath().substring(basePath.length() + 1);
+
+            // Convert file path to class name (replace file separators with dots and remove .class extension)
+            String className = relativePath.replace(File.separatorChar, '.').replaceAll(
+                "\\.class$", "");
+
+            // skip inner, anonymous and local classes
+            if (!className.contains("$")) {
+                classNames.add(className);
+            }
+        }
+        return classNames;
     }
 
     public static String getCodeBase(Class<?> cls) {
