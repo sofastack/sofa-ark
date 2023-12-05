@@ -449,16 +449,18 @@ public class ArkPluginMojo extends AbstractMojo {
             exported = new ExportConfig();
         }
         if (exportPackage) {
-            String projectPackage = findProjectPackage();
-            if (!StringUtils.isEmpty(projectPackage)) {
-                exported.addPackage(projectPackage + ".*");
+            List<String> projectPackages = findProjectPackages();
+            for (String projectPackage : projectPackages) {
+                if (!StringUtils.isEmpty(projectPackage)) {
+                    exported.addPackage(projectPackage + ".*");
+                }
             }
         }
         exported.store(properties);
         return properties;
     }
 
-    private String findProjectPackage() throws MojoExecutionException {
+    private List<String> findProjectPackages() throws MojoExecutionException {
         try {
             // Accessing the target/classes directory where compiled classes are located
             File outputDirectory = new File(project.getBuild().getOutputDirectory());
@@ -468,7 +470,7 @@ public class ArkPluginMojo extends AbstractMojo {
             } else {
                 getLog().warn("Output directory does not exist!");
             }
-            return "";
+            return new ArrayList<>();
         } catch (IOException e) {
             throw new MojoExecutionException("Error finding compiled classes", e);
         }

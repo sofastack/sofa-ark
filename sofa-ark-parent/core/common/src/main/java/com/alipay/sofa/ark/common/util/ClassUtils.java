@@ -26,7 +26,9 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author qilong.zql
@@ -54,41 +56,17 @@ public class ClassUtils {
      * @param classNames class name list
      * @return common package path
      */
-    public static String findCommonPackage(List<String> classNames) {
+    public static List<String> findCommonPackage(List<String> classNames) {
+        Set<String> packages = new HashSet<>();
+
         if (classNames == null || classNames.isEmpty()) {
-            return ""; // 没有类名时返回空字符串
+            return new ArrayList<>(packages);
         }
 
-        // 分割第一个类的包名，作为初始比较基础
-        String[] base = classNames.get(0).split("\\.");
-        int commonLength = base.length;
-
-        // 遍历剩余类名列表
-        for (int i = 1; i < classNames.size(); i++) {
-            String[] compare = classNames.get(i).split("\\.");
-            int j = 0;
-            // 比较每个包名级别直到发现不同点
-            while (j < commonLength && j < compare.length && base[j].equals(compare[j])) {
-                j++;
-            }
-            // 更新最长公共部分的长度
-            if (j < commonLength) {
-                commonLength = j;
-            }
-        }
-
-        // 构建最长公共package路径
-        StringBuilder longestCommonPath = new StringBuilder();
-        if (commonLength > 0) {
-            for (int i = 0; i < commonLength; i++) {
-                longestCommonPath.append(base[i]);
-                if (i < commonLength - 1) {
-                    longestCommonPath.append(".");
-                }
-            }
-        }
-
-        return longestCommonPath.toString();
+        classNames.forEach(className -> packages.add(getPackageName(className)));
+        // delete default package
+        packages.remove(".");
+        return new ArrayList<>(packages);
     }
 
     /**
