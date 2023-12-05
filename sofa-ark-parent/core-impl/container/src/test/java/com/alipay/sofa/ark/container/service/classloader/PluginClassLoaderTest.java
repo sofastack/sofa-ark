@@ -99,7 +99,6 @@ public class PluginClassLoaderTest extends BaseTest {
 
         Assert.assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
             pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
-
     }
 
     @Test

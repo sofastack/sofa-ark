@@ -9,6 +9,7 @@ activator:
 import-packages: 
 import-classes: 
 import-resources: 
+export-mode: null
 export-packages: 
 export-classes: 
 export-resources: 

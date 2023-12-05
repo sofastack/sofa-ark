@@ -138,7 +138,7 @@ public class ArkPluginMojoTest {
         classes.add("b");
         exportConfig.setClasses(classes);
         exportConfig.store(properties);
-        assertEquals("{export-classes=a,b, export-resources=, export-packages=}",
+        assertEquals("{export-resources=, export-mode=null, export-classes=a,b, export-packages=}",
             properties.toString());
     }
 

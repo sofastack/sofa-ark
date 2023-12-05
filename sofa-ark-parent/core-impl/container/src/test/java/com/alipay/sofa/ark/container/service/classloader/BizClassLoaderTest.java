@@ -214,6 +214,65 @@ public class BizClassLoaderTest extends BaseTest {
     }
 
     @Test
+    public void testLoadOverrideClassFromPluginClassLoader() throws Exception {
+        URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
+        URL pluginUrl1 = this.getClass().getClassLoader()
+            .getResource("sample-ark-plugin-0.5.0.jar");
+        URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz-0.3.0.jar");
+
+        BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
+            new URL[] { bizUrl });
+        bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
+        bizModel.setDeclaredLibraries("sample-ark-plugin, sample-biz");
+
+        PluginModel pluginA = new PluginModel();
+        pluginA
+            .setPluginName("plugin A")
+            .setClassPath(new URL[] { classPathURL, pluginUrl1, pluginUrl2 })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportMode(PluginModel.EXPORTMODE_OVERRIDE)
+            .setExportClasses("com.alipay.sofa.ark.sample.common.SampleClassExported")
+            .setExportPackages("")
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
+
+        PluginModel pluginB = new PluginModel();
+        pluginB
+            .setPluginName("plugin B")
+            .setClassPath(new URL[] { classPathURL, pluginUrl1, pluginUrl2 })
+            .setImportClasses(StringUtils.EMPTY_STRING)
+            .setImportPackages(StringUtils.EMPTY_STRING)
+            .setExportMode(PluginModel.EXPORTMODE_CLASSLOADER)
+            .setExportClasses("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication")
+            .setExportPackages("")
+            .setImportResources(StringUtils.EMPTY_STRING)
+            .setExportResources("")
+            .setPluginClassLoader(
+                new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
+
+        pluginManagerService.registerPlugin(pluginA);
+        pluginManagerService.registerPlugin(pluginB);
+        pluginDeployService.deploy();
+        classloaderService.prepareExportClassAndResourceCache();
+
+        bizManagerService.registerBiz(bizModel);
+
+        // case 1: find class from multiple libs in plugin classloader
+        Class<?> adviceClazz1 = bizModel.getBizClassLoader().loadClass(
+            "com.alipay.sofa.ark.sample.common.SampleClassExported");
+        Assert.assertEquals(adviceClazz1.getClassLoader(), bizModel.getBizClassLoader());
+
+        Class<?> adviceClazz2 = bizModel.getBizClassLoader().loadClass(
+            "com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication");
+        Assert.assertEquals(adviceClazz2.getClassLoader(), pluginB.getPluginClassLoader());
+    }
+
+    @Test
     public void testGetPluginClassResource() {
         PluginModel pluginA = new PluginModel();
         pluginA
