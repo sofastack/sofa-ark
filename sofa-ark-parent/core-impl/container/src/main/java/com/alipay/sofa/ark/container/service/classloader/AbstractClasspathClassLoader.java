@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.bootstrap.UseFastConnectionExceptionsEnumeration;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
 import com.alipay.sofa.ark.loader.jar.Handler;
@@ -28,15 +29,25 @@ import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.google.common.cache.Cache;
+import org.apache.commons.io.FileUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.jar.JarFile;
 
@@ -217,7 +228,9 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
             return resultInCache.getClazz();
         } catch (ExecutionException e) {
-            throw new ArkLoaderException(String.format("[Ark Loader] unexpected exception when load class: %s", name), e.getCause());
+            throw new ArkLoaderException(
+                    String.format("[Ark Loader] unexpected exception when load class: %s", name),
+                    e.getCause());
         }
     }
 
@@ -398,6 +411,51 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      * @return
      */
     protected Class<?> resolveExportClass(String name) {
+        if (!PluginModel.EXPORTMODE_OVERRIDE.equals(classloaderService.getExportMode(name))) {
+            return doResolveExportClass(name);
+        } else {
+            ClassLoader classLoader = classloaderService.findExportClassLoader(name);
+            URL url = classLoader.getResource(name.replace('.', '/') + ".class");
+            if (url != null) {
+                String filePath = url.getFile().replaceFirst("file:", "");
+                try {
+                    byte[] bytes;
+                    if (filePath.contains(".jar")) {
+                        bytes = getClassBytesFromJar(filePath, name.replace('.', '/') + ".class");
+                    } else {
+                        bytes = FileUtils.readFileToByteArray(new File(filePath));
+                    }
+                    return defineClass(name, bytes, 0, bytes.length);
+                } catch (Exception e) {
+                    ArkLoggerFactory.getDefaultLogger().warn(
+                        String.format("can't convert class to reLoad by bizClassLoader: %s",
+                            e.getMessage()));
+                    throw new RuntimeException(e);
+                }
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private byte[] getClassBytesFromJar(String jarFilePath, String className) throws IOException {
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = JarUtils
+            .getNestedRootJarFromJarLocation(jarFilePath);
+        try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            int bufferSize = 4096;
+            byte[] buffer = new byte[bufferSize];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer, 0, bufferSize)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+
+            return byteArrayOutputStream.toByteArray();
+        }
+    }
+
+    private Class<?> doResolveExportClass(String name) {
         if (shouldFindExportedClass(name)) {
             ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
             if (importClassLoader != null) {
@@ -430,7 +488,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
                     } else {
                         return clazz;
                     }
-                } catch (ClassNotFoundException | IOException e) {
+                } catch (ClassNotFoundException | NoClassDefFoundError | IOException e) {
                     // just log when debug level
                     if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
                         // log debug message
