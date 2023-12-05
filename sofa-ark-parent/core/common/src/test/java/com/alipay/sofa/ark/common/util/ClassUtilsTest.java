@@ -61,6 +61,7 @@ public class ClassUtilsTest {
 
         List<String> classNames = ClassUtils.collectClasses(dir2);
         Assert.assertTrue(classNames.contains("com.alipay.sofa.ark.common.util.ClassUtils"));
-        Assert.assertTrue(ClassUtils.findCommonPackage(classNames).contains("com.alipay.sofa.ark.common.util"));
+        Assert.assertTrue(ClassUtils.findCommonPackage(classNames).contains(
+            "com.alipay.sofa.ark.common.util"));
     }
 }
