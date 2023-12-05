@@ -17,10 +17,18 @@
 package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author qilong.zql
@@ -41,6 +49,50 @@ public class ClassUtils {
             return className.substring(0, index);
         }
         return Constants.DEFAULT_PACKAGE;
+    }
+
+    /**
+     * find common package among classes
+     * @param classNames class name list
+     * @return common package path
+     */
+    public static List<String> findCommonPackage(List<String> classNames) {
+        Set<String> packages = new HashSet<>();
+
+        if (classNames == null || classNames.isEmpty()) {
+            return new ArrayList<>(packages);
+        }
+
+        classNames.forEach(className -> packages.add(getPackageName(className)));
+        // delete default package
+        packages.remove(".");
+        return new ArrayList<>(packages);
+    }
+
+    /**
+     * find all compiled classes in dir, ignore inner, anonymous and local classes
+     * @param dir directory that stores class files
+     * @return compiled class names
+     */
+    public static List<String> collectClasses(File dir) throws IOException {
+        List<String> classNames = new ArrayList<>();
+        Collection<File> classFiles = FileUtils.listFiles(dir, new String[] { "class" }, true);
+        String basePath = dir.getCanonicalPath();
+
+        for (File classFile : classFiles) {
+            // Get the relative file path starting after the classes directory
+            String relativePath = classFile.getCanonicalPath().substring(basePath.length() + 1);
+
+            // Convert file path to class name (replace file separators with dots and remove .class extension)
+            String className = relativePath.replace(File.separatorChar, '.').replaceAll(
+                "\\.class$", "");
+
+            // skip inner, anonymous and local classes
+            if (!className.contains("$")) {
+                classNames.add(className);
+            }
+        }
+        return classNames;
     }
 
     public static String getCodeBase(Class<?> cls) {

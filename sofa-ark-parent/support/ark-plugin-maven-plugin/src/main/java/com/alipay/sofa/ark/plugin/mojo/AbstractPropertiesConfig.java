@@ -54,6 +54,13 @@ public abstract class AbstractPropertiesConfig {
      */
     protected LinkedHashSet<String> resources;
 
+    public void addPackage(String pack) {
+        if (packages == null) {
+            packages = new LinkedHashSet<>();
+        }
+        packages.add(pack);
+    }
+
     public String getMode() {
         return mode;
     }
