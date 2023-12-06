@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <log4j.version>1.7.32</log4j.version>
+        <log4j.version>2.0.7</log4j.version>
         <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
         <logback.version>1.2.9</logback.version>
 
@@ -40,7 +40,7 @@
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
-        <mockito.version>3.6.0</mockito.version>
+        <mockito.version>4.1.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
