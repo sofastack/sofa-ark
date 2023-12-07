@@ -852,6 +852,50 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
+    public void setExcludes(String str) {
+        this.excludes = parseToSet(str);
+    }
+
+    public void setExcludeGroupIds(String str) {
+        this.excludeGroupIds = parseToSet(str);
+    }
+
+    public void setExcludeArtifactIds(String str) {
+        this.excludeArtifactIds = parseToSet(str);
+    }
+
+    public void setDenyImportPackages(String str) {
+        this.denyImportPackages = parseToSet(str);
+    }
+
+    public void setDenyImportClasses(String str) {
+        this.denyImportClasses = parseToSet(str);
+    }
+
+    public void setDenyImportResources(String str) {
+        this.denyImportResources = parseToSet(str);
+    }
+
+    public void setInjectPluginDependencies(String str) {
+        this.injectPluginDependencies = parseToSet(str);
+    }
+
+    public void setInjectPluginExportPackages(String str) {
+        this.injectPluginExportPackages = parseToSet(str);
+    }
+
+    private LinkedHashSet<String> parseToSet(String str) {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        if (StringUtils.isBlank(str)) {
+            return set;
+        }
+        Arrays.stream(str.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .forEach(set::add);
+        return set;
+    }
+
     public static class ExcludeConfigResponse {
 
         private boolean       success;
