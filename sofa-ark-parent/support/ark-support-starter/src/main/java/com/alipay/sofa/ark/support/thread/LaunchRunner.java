@@ -71,6 +71,10 @@ public class LaunchRunner implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param threadGroup
+     */
     public static void join(ThreadGroup threadGroup) {
         boolean hasNonDaemonThreads;
         do {

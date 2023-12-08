@@ -218,7 +218,7 @@ public class ArkTomcatWebServer implements WebServer {
         }
     }
 
-    private void checkThatConnectorsHaveStarted() {
+    void checkThatConnectorsHaveStarted() {
         checkConnectorHasStarted(this.tomcat.getConnector());
         for (Connector connector : this.tomcat.getService().findConnectors()) {
             checkConnectorHasStarted(connector);
@@ -252,7 +252,7 @@ public class ArkTomcatWebServer implements WebServer {
         awaitThread.stop();
     }
 
-    private void addPreviouslyRemovedConnectors() {
+    void addPreviouslyRemovedConnectors() {
         Service[] services = this.tomcat.getServer().findServices();
         for (Service service : services) {
             Connector[] connectors = this.serviceConnectors.get(service);

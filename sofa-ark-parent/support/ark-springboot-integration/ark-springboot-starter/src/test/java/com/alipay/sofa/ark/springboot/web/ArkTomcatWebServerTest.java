@@ -23,6 +23,8 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 
+import static org.junit.Assert.assertEquals;
+
 public class ArkTomcatWebServerTest {
 
     private ArkTomcatServletWebServerFactory arkTomcatServletWebServerFactory;
@@ -55,5 +57,12 @@ public class ArkTomcatWebServerTest {
             arkTomcatWebServer.stop();
         } catch (Exception e) {
         }
+    }
+
+    @Test
+    public void testOtherMethods() {
+        assertEquals(8080, arkTomcatWebServer.getPort());
+        arkTomcatWebServer.checkThatConnectorsHaveStarted();
+        arkTomcatWebServer.addPreviouslyRemovedConnectors();
     }
 }
