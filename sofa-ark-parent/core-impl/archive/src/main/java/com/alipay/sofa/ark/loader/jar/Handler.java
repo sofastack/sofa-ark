@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 
 import java.io.File;
@@ -289,7 +290,7 @@ public class Handler extends URLStreamHandler {
                 throw new IllegalStateException("Not a file URL");
             }
             String path = name.substring(FILE_PROTOCOL.length());
-            File file = new File(URLDecoder.decode(path, "UTF-8"));
+            File file = FileUtils.file(path);
             Map<File, JarFile> cache = rootFileCache.get();
             JarFile result = (cache == null ? null : cache.get(file));
             if (result == null) {

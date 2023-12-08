@@ -54,13 +54,13 @@ public class FileUtilsTest {
     @Test
     public void testSHA1Hash() throws IOException {
         URL url = this.getClass().getResource(this.getClass().getSimpleName() + ".class");
-        Assert.assertNotNull(FileUtils.sha1Hash(new File(url.getFile())));
+        Assert.assertNotNull(FileUtils.sha1Hash(FileUtils.file(url.getFile())));
     }
 
     @Test
     public void testUnzip() throws IOException {
         URL sampleBiz = this.getClass().getClassLoader().getResource("sample-biz.jar");
-        File file = new File(sampleBiz.getFile());
+        File file = FileUtils.file(sampleBiz.getFile());
         Assert.assertNotNull(FileUtils.unzip(file, file.getAbsolutePath() + "-unpack"));
     }
 
@@ -74,6 +74,28 @@ public class FileUtilsTest {
         Assert.assertNotNull(FileUtils.mkdir("C:\\a\\b\\c"));
         // del the dir
         org.apache.commons.io.FileUtils.deleteQuietly(newDir);
+    }
+
+    @Test
+    public void testDecodePath() {
+        String path = "C:\\temp dir\\b\\c";
+        String encodedPath = "C:\\temp%20dir\\b\\c";
+        Assert.assertEquals(path, FileUtils.decodePath(path));
+        Assert.assertEquals(path, FileUtils.decodePath(encodedPath));
+    }
+
+    @Test
+    public void testNewFile() throws IOException {
+        String dir = "C:\\temp dir\\b\\c";
+        String encodedPath = "C:\\temp%20dir\\b\\c";
+        FileUtils.mkdir(dir);
+        org.apache.commons.io.FileUtils.touch(new File(dir, "test.txt"));
+        File file = FileUtils.file(encodedPath, "test.txt");
+        Assert.assertNotNull(file);
+        Assert.assertTrue(file.exists());
+
+        file = new File(encodedPath, "test.txt");
+        Assert.assertFalse(file.exists());
     }
 
 }

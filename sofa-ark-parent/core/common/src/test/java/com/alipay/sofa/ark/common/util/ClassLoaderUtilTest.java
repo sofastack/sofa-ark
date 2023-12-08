@@ -99,7 +99,7 @@ public class ClassLoaderUtilTest {
             for (String classpathEntry : classpathEntries) {
                 URL url = null;
                 try {
-                    url = new File(classpathEntry).toURI().toURL();
+                    url = FileUtils.file(classpathEntry).toURI().toURL();
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                     throw new ArkRuntimeException("Failed to get urls from " + appClassLoader, e);

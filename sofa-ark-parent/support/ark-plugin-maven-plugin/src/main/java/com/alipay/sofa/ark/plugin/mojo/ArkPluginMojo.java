@@ -30,6 +30,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -142,6 +144,12 @@ public class ArkPluginMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "")
     private String                  classifier;
+
+    /**
+     * Export plugin project classes by default
+     */
+    @Parameter(defaultValue = "true")
+    protected Boolean               exportPackage;
 
     private static final String     ARCHIVE_MODE       = "zip";
     private static final String     PLUGIN_SUFFIX      = ".ark.plugin";
@@ -399,6 +407,16 @@ public class ArkPluginMojo extends AbstractMojo {
     }
 
     /**
+     * check whether to export plugin project
+     * default true.
+     *
+     * @return whether to export plugin project
+     */
+    protected boolean isExportPackage() {
+        return exportPackage;
+    }
+
+    /**
      * generate ark.plugin configuration file
      * archive
      * @param archiver
@@ -425,13 +443,37 @@ public class ArkPluginMojo extends AbstractMojo {
         addArkPluginConfig(archiver, "META-INF/MANIFEST.MF", properties);
     }
 
-    private Properties collectArkPluginExport() {
+    private Properties collectArkPluginExport() throws MojoExecutionException {
         Properties properties = new LinkedProperties();
         if (exported == null) {
             exported = new ExportConfig();
         }
+        if (exportPackage) {
+            List<String> projectPackages = findProjectPackages();
+            for (String projectPackage : projectPackages) {
+                if (!StringUtils.isEmpty(projectPackage)) {
+                    exported.addPackage(projectPackage + ".*");
+                }
+            }
+        }
         exported.store(properties);
         return properties;
+    }
+
+    private List<String> findProjectPackages() throws MojoExecutionException {
+        try {
+            // Accessing the target/classes directory where compiled classes are located
+            File outputDirectory = new File(project.getBuild().getOutputDirectory());
+            // Ensure the directory exists
+            if (outputDirectory.exists()) {
+                return ClassUtils.findCommonPackage(ClassUtils.collectClasses(outputDirectory));
+            } else {
+                getLog().warn("Output directory does not exist!");
+            }
+            return new ArrayList<>();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error finding compiled classes", e);
+        }
     }
 
     private Properties collectArkPluginImport() {

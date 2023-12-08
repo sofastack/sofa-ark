@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.pipeline.DeployBizStage;
 import com.alipay.sofa.ark.container.pipeline.HandleArchiveStage;
@@ -92,8 +93,7 @@ public class ArkContainer {
             LaunchCommand launchCommand = LaunchCommand.parse(args);
             if (launchCommand.isExecutedByCommandLine()) {
                 ExecutableArkBizJar executableArchive;
-                File rootFile = new File(URLDecoder.decode(launchCommand.getExecutableArkBizJar()
-                    .getFile()));
+                File rootFile = FileUtils.file(launchCommand.getExecutableArkBizJar().getFile());
                 if (rootFile.isDirectory()) {
                     executableArchive = new ExecutableArkBizJar(new ExplodedArchive(rootFile));
                 } else {

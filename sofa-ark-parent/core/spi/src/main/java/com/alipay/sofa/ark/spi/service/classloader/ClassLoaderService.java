@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service.classloader;
 
+import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.ArkService;
 
 import java.util.List;
@@ -77,11 +78,20 @@ public interface ClassLoaderService extends ArkService {
     boolean isClassInImport(String pluginName, String className);
 
     /**
+     * Find export mode for class className
+     * @param className
+     * @return
+     */
+    String getExportMode(String className);
+
+    /**
      * Find classloader which export class for import class
      * @param className class name
      * @return
      */
     ClassLoader findExportClassLoader(String className);
+
+    Plugin findExportPlugin(String className);
 
     /**
      * Whether resource is in import-resources
