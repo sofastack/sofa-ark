@@ -24,6 +24,7 @@ import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.jar.Handler;
 import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -32,9 +33,11 @@ import com.google.common.cache.Cache;
 import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -48,6 +51,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.jar.JarFile;
 
@@ -63,21 +67,23 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
-    protected static final String              CLASS_RESOURCE_SUFFIX = ".class";
+    protected static final String                CLASS_RESOURCE_SUFFIX = ".class";
 
-    protected ClassLoaderService               classloaderService    = ArkServiceContainerHolder
-                                                                         .getContainer()
-                                                                         .getService(
-                                                                             ClassLoaderService.class);
+    protected ClassLoaderService                 classloaderService    = ArkServiceContainerHolder
+                                                                           .getContainer()
+                                                                           .getService(
+                                                                               ClassLoaderService.class);
 
-    protected Cache<String, LoadClassResult>   classCache;
+    protected Cache<String, LoadClassResult>     classCache;
 
-    protected Cache<String, Optional<Package>> packageCache;
+    protected Cache<String, Optional<Package>>   packageCache;
 
-    protected Cache<String, Optional<URL>>     urlResourceCache      = newBuilder()
-                                                                         .expireAfterWrite(10,
-                                                                             SECONDS).build();
-    protected boolean                          exploded              = false;
+    protected Cache<String, Optional<URL>>       urlResourceCache      = newBuilder()
+                                                                           .expireAfterWrite(10,
+                                                                               SECONDS).build();
+    protected boolean                            exploded              = false;
+
+    protected final WeakHashMap<Closeable, Void> closeables;
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -85,6 +91,16 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     public AbstractClasspathClassLoader(URL[] urls) {
         super(urls, null);
+
+        try {
+            Field field = URLClassLoader.class.getDeclaredField("closeables");
+            field.setAccessible(true);
+            closeables = (WeakHashMap<Closeable, Void>) field.get(this);
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
+            throw new ArkRuntimeException(String.format(
+                "[Ark Runtime] Failed to init ClassLoader: %s", this), e.getCause());
+        }
+
         classCache = newBuilder()
             .initialCapacity(
                 ArkConfigs.getIntValue(Constants.ARK_CLASSLOADER_CACHE_CLASS_SIZE_INITIAL, 2500))
@@ -262,6 +278,42 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             return url;
         } finally {
             Handler.setUseFastConnectionExceptions(false);
+        }
+    }
+
+    /**
+     * override the implementation from base URLClassLoader to use getResource in this AbstractClasspathClassLoader
+     * this method should exactly same with the implementation in base URLClassLoader
+     * @param name The resource name
+     *
+     * @return
+     */
+    @Override
+    public InputStream getResourceAsStream(String name) {
+        URL url = getResource(name);
+        try {
+            if (url == null) {
+                return null;
+            }
+            URLConnection urlc = url.openConnection();
+            InputStream is = urlc.getInputStream();
+
+            if (urlc instanceof JarURLConnection) {
+                JarURLConnection juc = (JarURLConnection) urlc;
+                JarFile jar = juc.getJarFile();
+                synchronized (closeables) {
+                    if (!closeables.containsKey(jar)) {
+                        closeables.put(jar, null);
+                    }
+                }
+            } else if (urlc instanceof sun.net.www.protocol.file.FileURLConnection) {
+                synchronized (closeables) {
+                    closeables.put(is, null);
+                }
+            }
+            return is;
+        } catch (IOException e) {
+            return null;
         }
     }
 
