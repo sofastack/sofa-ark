@@ -72,6 +72,7 @@ public class LaunchRunner implements Runnable {
     }
 
     /**
+     * Ark container main thread can exit only other threads exit.
      *
      * @param threadGroup
      */
@@ -93,5 +94,4 @@ public class LaunchRunner implements Runnable {
             }
         } while (hasNonDaemonThreads);
     }
-
 }

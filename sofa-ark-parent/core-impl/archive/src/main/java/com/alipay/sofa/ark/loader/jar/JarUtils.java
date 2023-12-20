@@ -62,7 +62,7 @@ public class JarUtils {
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
-    private static File searchPomProperties(File dirOrFile) {
+    static File searchPomProperties(File dirOrFile) {
         if (dirOrFile == null || !dirOrFile.exists()) {
             return null;
         }
@@ -84,8 +84,8 @@ public class JarUtils {
         return null;
     }
 
-    private static String getArtifactIdFromLocalClassPath(String fileClassPath) {
-        // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
+    static String getArtifactIdFromLocalClassPath(String fileClassPath) {
+
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
         int classesRootIndex = libraryFile.endsWith(CLASSPATH_ROOT_IDENTITY) ? libraryFile

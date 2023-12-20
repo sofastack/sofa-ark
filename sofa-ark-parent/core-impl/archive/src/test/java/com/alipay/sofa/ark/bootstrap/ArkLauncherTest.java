@@ -21,7 +21,6 @@ import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.MockedStatic;
@@ -35,6 +34,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.alipay.sofa.ark.bootstrap.ArkLauncher.main;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 /**
@@ -46,7 +48,8 @@ public class ArkLauncherTest {
     static MockedStatic<ManagementFactory> managementFactoryMockedStatic;
 
     @BeforeClass
-    public static void setup(){
+    public static void setup() {
+
         List<String> mockArguments = new ArrayList<>();
         String filePath = ClasspathLauncherTest.class.getClassLoader()
                 .getResource("SampleClass.class").getPath();
@@ -56,9 +59,8 @@ public class ArkLauncherTest {
         RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
         when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
 
-        managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic = mockStatic(ManagementFactory.class);
         managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
-
     }
 
     @AfterClass
@@ -68,9 +70,10 @@ public class ArkLauncherTest {
 
     @Test
     public void testContainerClassLoader() throws Exception {
+
         URL url = this.getClass().getClassLoader().getResource("sample-springboot-fat-biz.jar");
         URL[] agentUrl = ClassLoaderUtils.getAgentClassPath();
-        Assert.assertEquals(1, agentUrl.length);
+        assertEquals(1, agentUrl.length);
 
         List<URL> urls = new ArrayList<>();
         JarFileArchive jarFileArchive = new JarFileArchive(new File(url.getFile()));
@@ -80,25 +83,31 @@ public class ArkLauncherTest {
         }
         urls.addAll(Arrays.asList(agentUrl));
 
-
         EmbedClassPathArchive classPathArchive = new EmbedClassPathArchive(
-                this.getClass().getCanonicalName(), null, urls.toArray(new URL[] {}));
+                this.getClass().getCanonicalName(), null, urls.toArray(new URL[]{}));
         ArkLauncher arkLauncher = new ArkLauncher(classPathArchive);
         ClassLoader classLoader = arkLauncher.createContainerClassLoader(classPathArchive.getContainerArchive());
-        Assert.assertNotNull(classLoader);
+        assertNotNull(classLoader);
+
         try {
             Class clazz = classLoader.loadClass("com.alipay.sofa.ark.bootstrap.ArkLauncher");
-            Assert.assertNotNull(clazz);
+            assertNotNull(clazz);
             clazz = classLoader.loadClass("SampleClass");
-            Assert.assertNotNull(clazz);
-        } catch (Exception e){
-            Assert.assertTrue("loadClass class failed ",false);
+            assertNotNull(clazz);
+        } catch (Exception e) {
+            assertTrue("loadClass class failed ", false);
         }
-        Assert.assertThrows(ClassNotFoundException.class, () -> classLoader.loadClass("NotExistClass"));
+
+        assertThrows(ClassNotFoundException.class, () -> classLoader.loadClass("NotExistClass"));
     }
 
     protected boolean isNestedArchive(Archive.Entry entry) {
         return entry.isDirectory() ? entry.getName().equals("BOOT-INF/classes/") : entry.getName()
             .startsWith("BOOT-INF/lib/");
+    }
+
+    @Test(expected = Exception.class)
+    public void testMain() throws Exception {
+        main(null);
     }
 }
