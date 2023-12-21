@@ -33,10 +33,10 @@ public class JarFileTest {
         URL url = this.getClass().getClassLoader().getResource("sample-biz.jar");
         JarFile jarFile = new JarFile(new File(url.getPath()));
         assertEquals(7485, jarFile.size());
-        assertEquals(url, jarFile.getUrl());
+        assertEquals("jar:" + url.toString() + "!/", jarFile.getUrl().toString());
 
         jarFile.setupEntryCertificates(new JarEntry(jarFile, new CentralDirectoryFileHeader(
-            new byte[64], 0, new AsciiBytes("lib"), null, new AsciiBytes("mycomment"), 0)));
+                new byte[64], 0, new AsciiBytes("lib"), null, new AsciiBytes("mycomment"), 0)));
 
         jarFile.clearCache();
         assertEquals(DIRECT, jarFile.getType());

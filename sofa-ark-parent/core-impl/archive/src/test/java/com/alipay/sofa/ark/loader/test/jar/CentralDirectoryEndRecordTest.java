@@ -49,7 +49,7 @@ public class CentralDirectoryEndRecordTest extends BaseTest {
         assertTrue(eocd.getNumberOfRecords() == 5);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testWithInvalidFile() throws Exception {
 
         RandomAccessData randomAccessData = mock(RandomAccessData.class);

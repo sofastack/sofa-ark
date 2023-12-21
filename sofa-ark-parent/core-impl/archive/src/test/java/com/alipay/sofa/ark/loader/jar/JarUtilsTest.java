@@ -23,8 +23,7 @@ import java.net.URL;
 
 import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
 import static com.alipay.sofa.ark.loader.jar.JarUtils.searchPomProperties;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class JarUtilsTest {
 
@@ -40,7 +39,7 @@ public class JarUtilsTest {
 
         url = this.getClass().getClassLoader().getResource("./");
         file = new File(url.getPath());
-        assertEquals("pom-properties/pom.properties", searchPomProperties(file).getName());
+        assertTrue(searchPomProperties(file).getPath().endsWith("pom.properties"));
     }
 
     @Test

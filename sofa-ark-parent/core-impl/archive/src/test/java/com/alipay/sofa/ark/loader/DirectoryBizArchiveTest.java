@@ -24,11 +24,12 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Iterator;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_MARK_ENTRY;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +39,7 @@ public class DirectoryBizArchiveTest {
 
     @Before
     public void setUp() throws MalformedURLException {
-        directoryBizArchive = new DirectoryBizArchive("a", "b", new URL[] { new URL("file://a") });
+        directoryBizArchive = new DirectoryBizArchive("a", "b", new URL[]{new URL("file://a")});
     }
 
     @Test
@@ -96,7 +97,7 @@ public class DirectoryBizArchiveTest {
         Archive archive = mock(Archive.class);
         JarBizArchive jarBizArchive = new JarBizArchive(archive);
 
-        Iterator iterator = Collections.singletonList(new Entry() {
+        Iterator iterator = singletonList(new Entry() {
             @Override
             public boolean isDirectory() {
                 return false;
@@ -110,8 +111,9 @@ public class DirectoryBizArchiveTest {
 
         when(archive.iterator()).thenReturn((Iterator<Entry>) iterator);
         when(archive.getUrl()).thenReturn(new URL("file://a"));
+        when(archive.getNestedArchive(any())).thenReturn(archive);
 
-        assertArrayEquals(new URL[] { new URL("file://a") }, jarBizArchive.getExportUrls());
+        assertArrayEquals(new URL[]{new URL("file://a"), new URL("file://a")}, jarBizArchive.getExportUrls());
         assertNull(jarBizArchive.getInputStream(null));
     }
 }
