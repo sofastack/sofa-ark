@@ -39,7 +39,7 @@ public class DirectoryBizArchiveTest {
 
     @Before
     public void setUp() throws MalformedURLException {
-        directoryBizArchive = new DirectoryBizArchive("a", "b", new URL[]{new URL("file://a")});
+        directoryBizArchive = new DirectoryBizArchive("a", "b", new URL[] { new URL("file://a") });
     }
 
     @Test
@@ -113,7 +113,8 @@ public class DirectoryBizArchiveTest {
         when(archive.getUrl()).thenReturn(new URL("file://a"));
         when(archive.getNestedArchive(any())).thenReturn(archive);
 
-        assertArrayEquals(new URL[]{new URL("file://a"), new URL("file://a")}, jarBizArchive.getExportUrls());
+        assertArrayEquals(new URL[] { new URL("file://a"), new URL("file://a") },
+            jarBizArchive.getExportUrls());
         assertNull(jarBizArchive.getInputStream(null));
     }
 }

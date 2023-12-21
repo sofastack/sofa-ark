@@ -36,7 +36,7 @@ public class JarFileTest {
         assertEquals("jar:" + url.toString() + "!/", jarFile.getUrl().toString());
 
         jarFile.setupEntryCertificates(new JarEntry(jarFile, new CentralDirectoryFileHeader(
-                new byte[64], 0, new AsciiBytes("lib"), null, new AsciiBytes("mycomment"), 0)));
+            new byte[64], 0, new AsciiBytes("lib"), null, new AsciiBytes("mycomment"), 0)));
 
         jarFile.clearCache();
         assertEquals(DIRECT, jarFile.getType());
