@@ -252,7 +252,7 @@ public class ArkTomcatWebServer implements WebServer {
         awaitThread.stop();
     }
 
-    private void addPreviouslyRemovedConnectors() {
+    void addPreviouslyRemovedConnectors() {
         Service[] services = this.tomcat.getServer().findServices();
         for (Service service : services) {
             Connector[] connectors = this.serviceConnectors.get(service);
