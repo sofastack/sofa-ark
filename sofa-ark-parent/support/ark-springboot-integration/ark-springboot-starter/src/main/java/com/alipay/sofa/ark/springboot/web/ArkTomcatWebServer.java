@@ -52,7 +52,7 @@ import org.springframework.util.Assert;
 public class ArkTomcatWebServer implements WebServer {
 
     private static final Log                logger            = LogFactory
-            .getLog(TomcatWebServer.class);
+                                                                  .getLog(TomcatWebServer.class);
 
     private static final AtomicInteger      containerCounter  = new AtomicInteger(-1);
 
@@ -140,7 +140,7 @@ public class ArkTomcatWebServer implements WebServer {
         for (Container child : this.tomcat.getHost().findChildren()) {
             if (child instanceof Context) {
                 if (child.getParentClassLoader().equals(
-                        Thread.currentThread().getContextClassLoader())) {
+                    Thread.currentThread().getContextClassLoader())) {
                     return (Context) child;
                 }
             }
@@ -204,7 +204,7 @@ public class ArkTomcatWebServer implements WebServer {
                 checkThatConnectorsHaveStarted();
                 this.started = true;
                 logger.info("Tomcat started on port(s): " + getPortsDescription(true)
-                        + " with context path '" + getContextPath() + "'");
+                            + " with context path '" + getContextPath() + "'");
             } catch (ConnectorStartFailedException ex) {
                 stopSilently();
                 throw ex;
@@ -213,7 +213,7 @@ public class ArkTomcatWebServer implements WebServer {
             } finally {
                 Context context = findContext();
                 ContextBindings.unbindClassLoader(context, context.getNamingToken(), getClass()
-                        .getClassLoader());
+                    .getClassLoader());
             }
         }
     }
