@@ -56,4 +56,17 @@ public class ArkTomcatWebServerTest {
         } catch (Exception e) {
         }
     }
+
+    @Test
+    public void testOtherMethods() {
+        arkTomcatWebServer.getPort();
+        try {
+            arkTomcatWebServer.checkThatConnectorsHaveStarted();
+        } catch (Exception e) {
+        }
+        try {
+            arkTomcatWebServer.addPreviouslyRemovedConnectors();
+        } catch (Exception e) {
+        }
+    }
 }

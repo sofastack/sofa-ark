@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.container;
 
-import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.pipeline.RegisterServiceStage;
@@ -28,7 +27,6 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
-import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.After;
@@ -37,13 +35,14 @@ import org.junit.BeforeClass;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alipay.sofa.ark.common.util.FileUtils.file;
+import static com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader.setExtensionLoaderService;
 import static org.mockito.Mockito.when;
 
 /**
@@ -52,6 +51,7 @@ import static org.mockito.Mockito.when;
  * @since 0.1.0
  */
 public class BaseTest {
+
     private URL                     jarURL              = ArkContainerTest.class.getClassLoader()
                                                             .getResource("test.jar");
     protected ArkServiceContainer   arkServiceContainer = new ArkServiceContainer(new String[] {});
@@ -74,10 +74,10 @@ public class BaseTest {
 
     @Before
     public void before() {
+
         List<String> mockArguments = new ArrayList<>();
-        String filePath = this.getClass().getClassLoader()
-                .getResource("SampleClass.class").getPath();
-        String workingPath = FileUtils.file(filePath).getParent();
+        String filePath = this.getClass().getClassLoader().getResource("SampleClass.class").getPath();
+        String workingPath = file(filePath).getParent();
         mockArguments.add(String.format("javaaget:%s", workingPath));
         mockArguments.add(String.format("-javaagent:%s", workingPath));
         mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
@@ -91,12 +91,12 @@ public class BaseTest {
 
         arkServiceContainer.start();
         arkServiceContainer.getService(RegisterServiceStage.class).process(null);
-        ArkServiceLoader.setExtensionLoaderService(arkServiceContainer
-            .getService(ExtensionLoaderService.class));
+        setExtensionLoaderService(arkServiceContainer.getService(ExtensionLoaderService.class));
     }
 
     @After
     public void after() {
+
         arkServiceContainer.stop();
         if (arkContainer != null) {
             arkContainer.stop();
@@ -106,7 +106,6 @@ public class BaseTest {
 
     @BeforeClass
     public static void beforeClass() {
-
     }
 
     protected void registerMockPlugin() {

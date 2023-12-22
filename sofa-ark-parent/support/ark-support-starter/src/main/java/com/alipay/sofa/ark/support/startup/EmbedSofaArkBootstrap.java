@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EmbedSofaArkBootstrap {
     private static AtomicBoolean started = new AtomicBoolean(false);
 
-    private static Object        arkContainer;
+    static Object                arkContainer;
 
     public static void launch(Environment environment) {
         if (started.compareAndSet(false, true)) {
@@ -106,6 +106,5 @@ public class EmbedSofaArkBootstrap {
             throw new RuntimeException(
                 "Meet exception when deploying biz after embed master biz started!", e);
         }
-
     }
 }
