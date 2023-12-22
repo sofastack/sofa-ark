@@ -16,30 +16,52 @@
  */
 package com.alipay.sofa.ark.spi.model;
 
-import org.junit.Assert;
+import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
 import org.junit.Test;
 
+import static com.alipay.sofa.ark.spi.model.BizOperation.createBizOperation;
+import static com.alipay.sofa.ark.spi.model.BizState.*;
+import static org.junit.Assert.*;
+import static org.springframework.beans.BeanUtils.copyProperties;
+
 public class BizOperationTest {
+
     @Test
     public void testOperationEqual() {
-        BizOperation op1 = BizOperation.createBizOperation();
+
+        BizOperation op1 = createBizOperation();
         op1.setBizName("biz A").setBizVersion("1.0.0")
             .setOperationType(BizOperation.OperationType.INSTALL);
-        BizOperation op2 = BizOperation.createBizOperation();
+        BizOperation op2 = createBizOperation();
         op2.setBizName("biz A").setBizVersion("1.0.0")
             .setOperationType(BizOperation.OperationType.INSTALL);
 
-        Assert.assertEquals(op1, op1);
-        Assert.assertEquals(op1, op2);
+        assertEquals(op1, op1);
+        assertEquals(op1, op2);
         op2.setOperationType(BizOperation.OperationType.UNINSTALL);
-        Assert.assertNotEquals(op1, op2);
+        assertNotEquals(op1, op2);
         op2.setBizVersion("2.0.0");
-        Assert.assertNotEquals(op1, op2);
+        assertNotEquals(op1, op2);
         op2.setBizName("biz B");
-        Assert.assertNotEquals(op1, op2);
+        assertNotEquals(op1, op2);
 
-        Assert.assertFalse(op1.equals(""));
-        Assert.assertFalse(op1.equals(null));
+        assertFalse(op1.equals(""));
+        assertFalse(op1.equals(null));
+    }
 
+    @Test
+    public void testAbstractArkEvent() {
+        AbstractArkEvent abstractArkEvent = new AbstractArkEvent("") {
+        };
+        copyProperties(abstractArkEvent, abstractArkEvent);
+    }
+
+    @Test
+    public void testBizState() {
+        assertEquals(UNRESOLVED, BizState.of("UNRESOLVED"));
+        assertEquals(RESOLVED, BizState.of("RESOLVED"));
+        assertEquals(ACTIVATED, BizState.of("ACTIVATED"));
+        assertEquals(DEACTIVATED, BizState.of("DEACTIVATED"));
+        assertEquals(BROKEN, BizState.of("aaa"));
     }
 }

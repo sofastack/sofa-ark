@@ -202,7 +202,7 @@ public class Handler extends URLStreamHandler {
             .append(file.substring(0, afterLastSeparatorIndex)).append(afterSeparator).toString();
     }
 
-    private String replaceParentDir(String file) {
+    String replaceParentDir(String file) {
         int parentDirIndex;
         while ((parentDirIndex = file.indexOf("/../")) >= 0) {
             int precedingSlashIndex = file.lastIndexOf('/', parentDirIndex - 1);

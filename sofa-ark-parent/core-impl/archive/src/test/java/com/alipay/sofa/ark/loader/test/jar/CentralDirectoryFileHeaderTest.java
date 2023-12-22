@@ -18,16 +18,19 @@ package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.data.RandomAccessData;
 import com.alipay.sofa.ark.loader.data.RandomAccessDataFile;
+import com.alipay.sofa.ark.loader.jar.AsciiBytes;
 import com.alipay.sofa.ark.loader.jar.Bytes;
 import com.alipay.sofa.ark.loader.jar.CentralDirectoryEndRecord;
 import com.alipay.sofa.ark.loader.jar.CentralDirectoryFileHeader;
 import com.alipay.sofa.ark.loader.test.base.BaseTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author qilong.zql
@@ -39,10 +42,10 @@ public class CentralDirectoryFileHeaderTest extends BaseTest {
 
     @Test
     public void testCDFH() throws IOException {
+
         RandomAccessDataFile dataFile = new RandomAccessDataFile(getTempDemoZip());
         CentralDirectoryEndRecord eocd = new CentralDirectoryEndRecord(dataFile);
         RandomAccessData cdfhBlock = eocd.getCentralDirectory(dataFile);
-
         List<CentralDirectoryFileHeader> cdfhList = new ArrayList<>();
 
         int dataOffset = 0;
@@ -54,11 +57,18 @@ public class CentralDirectoryFileHeaderTest extends BaseTest {
             cdfhList.add(cdfh);
         }
 
-        Assert.assertTrue(cdfhList.size() == 5);
-        Assert.assertTrue(cdfhList.get(4).getName().toString().equals(TEST_ENTRY));
-        Assert.assertTrue(cdfhList.get(4).getComment().toString().equals(TEST_ENTRY_COMMENT));
-        Assert
-            .assertTrue(compareByteArray(cdfhList.get(4).getExtra(), TEST_ENTRY_EXTRA.getBytes()));
+        assertTrue(cdfhList.size() == 5);
+        assertTrue(cdfhList.get(4).getName().toString().equals(TEST_ENTRY));
+        assertTrue(cdfhList.get(4).getComment().toString().equals(TEST_ENTRY_COMMENT));
+        assertTrue(compareByteArray(cdfhList.get(4).getExtra(), TEST_ENTRY_EXTRA.getBytes()));
+    }
 
+    @Test
+    public void testOtherMethods() {
+        CentralDirectoryFileHeader centralDirectoryFileHeader = new CentralDirectoryFileHeader(
+            new byte[64], 0, new AsciiBytes("a/"), null, null, 0);
+        assertEquals(true, centralDirectoryFileHeader.isDirectory());
+        CentralDirectoryFileHeader centralDirectoryFileHeader2 = centralDirectoryFileHeader.clone();
+        assertEquals(new AsciiBytes("a/"), centralDirectoryFileHeader2.getName());
     }
 }

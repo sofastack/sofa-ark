@@ -86,7 +86,19 @@ public class LaunchRunnerTest {
                 LaunchRunnerTest.count += Integer.valueOf(args[0]);
             }
         }
-
     }
 
+    @Test
+    public void testRunWithException() {
+        new LaunchRunner(MainClass.class.getName(), "a", null).run();
+        new LaunchRunner("a", null).run();
+    }
+
+    @Test
+    public void testJoin() {
+        ThreadGroup threadGroup = new ThreadGroup("test_thread_group");
+        new Thread(threadGroup, "thread_1").start();
+        new Thread(threadGroup, "thread_2").start();
+        new LaunchRunner(MainClass.class.getName(), null).join(threadGroup);
+    }
 }
