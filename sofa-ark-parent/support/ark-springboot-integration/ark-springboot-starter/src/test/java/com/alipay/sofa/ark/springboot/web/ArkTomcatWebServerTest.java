@@ -64,9 +64,5 @@ public class ArkTomcatWebServerTest {
             arkTomcatWebServer.checkThatConnectorsHaveStarted();
         } catch (Exception e) {
         }
-        try {
-            arkTomcatWebServer.addPreviouslyRemovedConnectors();
-        } catch (Exception e) {
-        }
     }
 }
