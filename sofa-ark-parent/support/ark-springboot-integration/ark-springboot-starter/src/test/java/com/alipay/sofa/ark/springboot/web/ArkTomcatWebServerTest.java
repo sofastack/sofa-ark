@@ -32,7 +32,8 @@ public class ArkTomcatWebServerTest {
     @Before
     public void setUp() throws Exception {
         arkTomcatServletWebServerFactory = new ArkTomcatServletWebServerFactory();
-        Field field = ArkTomcatServletWebServerFactory.class.getDeclaredField("embeddedServerService");
+        Field field = ArkTomcatServletWebServerFactory.class
+            .getDeclaredField("embeddedServerService");
         field.setAccessible(true);
         field.set(arkTomcatServletWebServerFactory, new EmbeddedServerServiceImpl());
         arkTomcatWebServer = (ArkTomcatWebServer) arkTomcatServletWebServerFactory.getWebServer();
