@@ -134,5 +134,4 @@ public class ArkLogbackContextSelector implements ContextSelector {
     public List<String> getContextNames() {
         return CLASS_LOADER_LOGGER_CONTEXT.values().stream().map(LoggerContext::getName).collect(Collectors.toList());
     }
-
 }
