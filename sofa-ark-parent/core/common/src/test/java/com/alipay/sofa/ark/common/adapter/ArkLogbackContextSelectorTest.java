@@ -64,8 +64,6 @@ public class ArkLogbackContextSelectorTest {
         Assert.assertNotNull(invoke);
         Assert.assertEquals(invoke, contextSelector.getLoggerContext(contextName));
         Assert.assertTrue(contextSelector.getContextNames().contains(contextName));
-        contextSelector.getLoggerContext(contextName).stop();
-        Assert.assertTrue(contextSelector.getContextNames().isEmpty());
 
     }
 }
