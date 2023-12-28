@@ -579,7 +579,7 @@ public class RepackageMojo extends TreeMojo {
                                       + packExcludesConfig);
         } else {
             extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                    + DEFAULT_EXCLUDE_RULES);
+                                      + DEFAULT_EXCLUDE_RULES);
         }
 
         // extension from url
