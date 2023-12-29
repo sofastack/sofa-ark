@@ -50,8 +50,8 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
     @Override
     public Class<?> postFindClass(String name, ClassLoaderService classLoaderService, Biz biz)
                                                                                               throws ClassNotFoundException {
-        ClassLoader masterClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz == null || (biz.getBizClassLoader() == masterClassLoader)) {
+        ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        if (biz == null || (biz.getBizClassLoader() == bizClassLoader)) {
             return null;
         }
         // The cglib proxy class cannot be delegate to the master, it must be created by the biz's own defineClass
@@ -60,7 +60,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             return null;
         }
         // if Master Biz contains same class in multi jar, need to check each whether is provided
-        Class<?> clazz = masterClassLoader.loadClass(name);
+        Class<?> clazz = bizClassLoader.loadClass(name);
         if (clazz != null) {
             if (biz.isDeclared(clazz.getProtectionDomain().getCodeSource().getLocation(), "")) {
                 return clazz;
@@ -68,7 +68,7 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
 
             try {
                 String classResourceName = name.replace('.', '/') + ".class";
-                Enumeration<URL> urls = masterClassLoader.getResources(classResourceName);
+                Enumeration<URL> urls = bizClassLoader.getResources(classResourceName);
                 while (urls.hasMoreElements()) {
                     URL resourceUrl = urls.nextElement();
                     if (resourceUrl != null && biz.isDeclared(resourceUrl, classResourceName)) {
@@ -97,12 +97,12 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             return null;
         }
 
-        ClassLoader masterClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz.getBizClassLoader() == masterClassLoader) {
+        ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
-            URL resourceUrl = masterClassLoader.getResource(name);
+            URL resourceUrl = bizClassLoader.getResource(name);
             if (resourceUrl != null && biz.isDeclared(resourceUrl, name)) {
                 return resourceUrl;
             }
@@ -124,12 +124,12 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
         if (biz == null || (!biz.isDeclaredMode() && shouldSkip(name))) {
             return null;
         }
-        ClassLoader masterClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
-        if (biz.getBizClassLoader() == masterClassLoader) {
+        ClassLoader bizClassLoader = ArkClient.getMasterBiz().getBizClassLoader();
+        if (biz.getBizClassLoader() == bizClassLoader) {
             return null;
         }
         try {
-            Enumeration<URL> resourceUrls = masterClassLoader.getResources(name);
+            Enumeration<URL> resourceUrls = bizClassLoader.getResources(name);
             List<URL> matchedResourceUrls = new ArrayList<>();
             while (resourceUrls.hasMoreElements()) {
                 URL resourceUrl = resourceUrls.nextElement();
