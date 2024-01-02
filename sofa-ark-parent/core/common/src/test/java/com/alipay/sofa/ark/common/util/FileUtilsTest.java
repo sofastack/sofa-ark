@@ -98,4 +98,8 @@ public class FileUtilsTest {
         Assert.assertFalse(file.exists());
     }
 
+    @Test
+    public void testOtherMethods() {
+
+    }
 }
