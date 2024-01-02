@@ -18,10 +18,15 @@ package com.alipay.sofa.ark.common.thread;
 
 import org.junit.Test;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.PriorityBlockingQueue;
+
 import static com.alipay.sofa.ark.common.thread.ThreadPoolManager.*;
+import static com.alipay.sofa.ark.common.util.ThreadPoolUtils.buildQueue;
+import static java.lang.Integer.MAX_VALUE;
 import static org.apache.commons.beanutils.BeanUtils.copyProperties;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class CommonThreadPoolTest {
 
@@ -39,5 +44,25 @@ public class CommonThreadPoolTest {
         assertNotNull(getThreadPool("a"));
         unRegisterUserThread("a");
         assertNull(getThreadPool("a"));
+    }
+
+    @Test
+    public void testBuildQueue() {
+
+        BlockingQueue<Runnable> queue = buildQueue(5, true);
+        assertEquals(PriorityBlockingQueue.class, queue.getClass());
+        assertEquals(MAX_VALUE, queue.remainingCapacity());
+
+        queue = buildQueue(-1, true);
+        assertEquals(PriorityBlockingQueue.class, queue.getClass());
+        assertEquals(0, queue.size());
+
+        queue = buildQueue(5, false);
+        assertEquals(LinkedBlockingDeque.class, queue.getClass());
+        assertEquals(5, queue.remainingCapacity());
+
+        queue = buildQueue(-1, false);
+        assertEquals(LinkedBlockingDeque.class, queue.getClass());
+        assertEquals(0, queue.size());
     }
 }
