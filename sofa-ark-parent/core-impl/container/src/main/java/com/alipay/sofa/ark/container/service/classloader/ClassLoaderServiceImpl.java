@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.bootstrap.AgentClassLoader;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
@@ -283,6 +284,12 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     @Override
     public ClassLoader getBizClassLoader(String bizIdentity) {
         Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        return biz == null ? null : biz.getBizClassLoader();
+    }
+
+    @Override
+    public ClassLoader getMasterBizClassLoader() {
+        Biz biz = ArkClient.getMasterBiz();
         return biz == null ? null : biz.getBizClassLoader();
     }
 
