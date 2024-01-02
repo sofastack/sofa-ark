@@ -56,17 +56,17 @@ public class ClassUtils {
      * @param classNames class name list
      * @return common package path
      */
-    public static List<String> findCommonPackage(List<String> classNames) {
+    public static Set<String> findCommonPackage(Set<String> classNames) {
         Set<String> packages = new HashSet<>();
 
         if (classNames == null || classNames.isEmpty()) {
-            return new ArrayList<>(packages);
+            return new HashSet<>(packages);
         }
 
         classNames.forEach(className -> packages.add(getPackageName(className)));
         // delete default package
         packages.remove(".");
-        return new ArrayList<>(packages);
+        return new HashSet<>(packages);
     }
 
     /**
