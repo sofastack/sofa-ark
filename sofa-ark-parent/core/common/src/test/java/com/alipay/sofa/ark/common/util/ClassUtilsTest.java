@@ -19,8 +19,8 @@ package com.alipay.sofa.ark.common.util;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.alipay.sofa.ark.common.util.ClassUtils.*;
 import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PACKAGE;
@@ -42,7 +42,7 @@ public class ClassUtilsTest {
     @Test
     public void testFindCommonPackage() {
         assertEquals(findCommonPackage(null).size(), 0);
-        List<String> classNames = new ArrayList<>();
+        Set<String> classNames = new HashSet<>();
         classNames.add("com.example.project.subpackage1.classE");
         classNames.add("com.example.project.classA");
         classNames.add("com.example.project.classB");
@@ -63,7 +63,7 @@ public class ClassUtilsTest {
             return;
         }
 
-        List<String> classNames = collectClasses(dir2);
+        Set<String> classNames = new HashSet<>(collectClasses(dir2));
         assertTrue(classNames.contains("com.alipay.sofa.ark.common.util.ClassUtils"));
         assertTrue(findCommonPackage(classNames).contains("com.alipay.sofa.ark.common.util"));
     }
