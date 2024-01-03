@@ -56,7 +56,6 @@
                                     <package>org.apache.*</package>
                                 </packages>
                             </exported>
-                            <exportPackage>false</exportPackage>
                         </configuration>
                     </execution>
                 </executions>
