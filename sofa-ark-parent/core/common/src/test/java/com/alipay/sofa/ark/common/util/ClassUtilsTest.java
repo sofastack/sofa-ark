@@ -19,10 +19,11 @@ package com.alipay.sofa.ark.common.util;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import static com.alipay.sofa.ark.common.util.ClassUtils.*;
+import static com.alipay.sofa.ark.common.util.ClassUtils.collectClasses;
+import static com.alipay.sofa.ark.common.util.ClassUtils.getPackageName;
 import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PACKAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,20 +41,6 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testFindCommonPackage() {
-        assertEquals(findCommonPackage(null).size(), 0);
-        List<String> classNames = new ArrayList<>();
-        classNames.add("com.example.project.subpackage1.classE");
-        classNames.add("com.example.project.classA");
-        classNames.add("com.example.project.classB");
-        classNames.add("com.example.project.subpackage.classC");
-        classNames.add("com.example.project.subpackage.classD");
-        assertEquals(findCommonPackage(classNames).size(), 3);
-        classNames.add("org.apache.util.ClassF");
-        assertEquals(findCommonPackage(classNames).size(), 4);
-    }
-
-    @Test
     public void testCollectClasses() throws Exception {
 
         File dir = new File("target/classes");
@@ -63,8 +50,7 @@ public class ClassUtilsTest {
             return;
         }
 
-        List<String> classNames = collectClasses(dir2);
+        Set<String> classNames = new HashSet<>(collectClasses(dir2));
         assertTrue(classNames.contains("com.alipay.sofa.ark.common.util.ClassUtils"));
-        assertTrue(findCommonPackage(classNames).contains("com.alipay.sofa.ark.common.util"));
     }
 }
