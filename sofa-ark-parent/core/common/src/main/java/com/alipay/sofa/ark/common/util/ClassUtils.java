@@ -52,24 +52,6 @@ public class ClassUtils {
     }
 
     /**
-     * find common package among classes
-     * @param classNames class name list
-     * @return common package path
-     */
-    public static Set<String> findCommonPackage(Set<String> classNames) {
-        Set<String> packages = new HashSet<>();
-
-        if (classNames == null || classNames.isEmpty()) {
-            return new HashSet<>(packages);
-        }
-
-        classNames.forEach(className -> packages.add(getPackageName(className)));
-        // delete default package
-        packages.remove(".");
-        return new HashSet<>(packages);
-    }
-
-    /**
      * find all compiled classes in dir, ignore inner, anonymous and local classes
      * @param dir directory that stores class files
      * @return compiled class names
