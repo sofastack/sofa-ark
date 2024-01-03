@@ -40,20 +40,6 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testFindCommonPackage() {
-        assertEquals(findCommonPackage(null).size(), 0);
-        Set<String> classNames = new HashSet<>();
-        classNames.add("com.example.project.subpackage1.classE");
-        classNames.add("com.example.project.classA");
-        classNames.add("com.example.project.classB");
-        classNames.add("com.example.project.subpackage.classC");
-        classNames.add("com.example.project.subpackage.classD");
-        assertEquals(findCommonPackage(classNames).size(), 3);
-        classNames.add("org.apache.util.ClassF");
-        assertEquals(findCommonPackage(classNames).size(), 4);
-    }
-
-    @Test
     public void testCollectClasses() throws Exception {
 
         File dir = new File("target/classes");
@@ -65,6 +51,5 @@ public class ClassUtilsTest {
 
         Set<String> classNames = new HashSet<>(collectClasses(dir2));
         assertTrue(classNames.contains("com.alipay.sofa.ark.common.util.ClassUtils"));
-        assertTrue(findCommonPackage(classNames).contains("com.alipay.sofa.ark.common.util"));
     }
 }

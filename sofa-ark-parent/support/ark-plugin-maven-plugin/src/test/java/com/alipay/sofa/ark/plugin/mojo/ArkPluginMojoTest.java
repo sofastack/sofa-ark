@@ -129,7 +129,7 @@ public class ArkPluginMojoTest {
         arkPluginMojo.pluginName = "xxx";
         arkPluginMojo.description = "yyy";
         arkPluginMojo.workDirectory = new File("./");
-        arkPluginMojo.exportPackage = true;
+        arkPluginMojo.exportPluginClass = true;
         arkPluginMojo.execute();
         assertEquals(6, finalResourcesCountInJar.get());
     }
