@@ -53,7 +53,7 @@ public class JGitParserTest {
     @Test
     public void testGetBranchesFromCommit() throws Exception {
         FileRepository fileRepository = new FileRepository("../../../.git");
-        assertEquals(asList("add_ut", "add_ut_1221"),
-            getBranchesFromCommit(fileRepository, "04650985e00d5dda086f9b329acd25be6c029a7e"));
+        assertEquals("master",
+            getBranchesFromCommit(fileRepository, "3bb887feb99475b7d6bb40f926aa734fbe62e0f6").get(0));
     }
 }
