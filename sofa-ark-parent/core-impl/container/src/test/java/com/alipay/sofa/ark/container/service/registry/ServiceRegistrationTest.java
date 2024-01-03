@@ -19,22 +19,23 @@ package com.alipay.sofa.ark.container.service.registry;
 import com.alipay.sofa.ark.common.util.ClassUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.model.PluginContextImpl;
+import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.registry.ContainerServiceProvider;
 import com.alipay.sofa.ark.container.registry.DefaultServiceFilter;
+import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
+import com.alipay.sofa.ark.container.registry.ServiceMetadataImpl;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
+import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.testdata.activator.PluginActivatorA;
 import com.alipay.sofa.ark.container.testdata.activator.PluginActivatorADup;
+import com.alipay.sofa.ark.container.testdata.activator.PluginActivatorB;
 import com.alipay.sofa.ark.container.testdata.activator.PluginActivatorC;
-import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.container.testdata.impl.TestObjectA;
 import com.alipay.sofa.ark.container.testdata.impl.TestObjectB;
 import com.alipay.sofa.ark.container.testdata.impl.TestObjectC;
-import com.alipay.sofa.ark.container.model.PluginContextImpl;
-import com.alipay.sofa.ark.container.model.PluginModel;
-import com.alipay.sofa.ark.container.registry.PluginServiceProvider;
-import com.alipay.sofa.ark.container.service.ArkServiceContainer;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.container.service.classloader.PluginClassLoader;
-import com.alipay.sofa.ark.container.testdata.activator.PluginActivatorB;
+import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.registry.ServiceFilter;
 import com.alipay.sofa.ark.spi.registry.ServiceProvider;
 import com.alipay.sofa.ark.spi.registry.ServiceProviderType;
@@ -49,9 +50,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author ruoshan
@@ -99,7 +102,7 @@ public class ServiceRegistrationTest extends BaseTest {
         ServiceReference<ITest> iTestServiceReference = registryService.publishService(ITest.class,
             new TestObjectA(), new ContainerServiceProvider());
         Assert.assertNotNull(iTestServiceReference);
-        Assert.assertEquals(TestObjectA.OUTPUT, iTestServiceReference.getService().test());
+        assertEquals(TestObjectA.OUTPUT, iTestServiceReference.getService().test());
 
         int c = registryService.unPublishServices(new DefaultServiceFilter().setServiceInterface(
             ITest.class).setProviderType(ServiceProviderType.ARK_CONTAINER));
@@ -116,7 +119,7 @@ public class ServiceRegistrationTest extends BaseTest {
         ServiceReference<ITest> iTestServiceReference = registryService
             .referenceService(ITest.class);
         Assert.assertNotNull(iTestServiceReference);
-        Assert.assertEquals(TestObjectA.OUTPUT, iTestServiceReference.getService().test());
+        assertEquals(TestObjectA.OUTPUT, iTestServiceReference.getService().test());
     }
 
     @Test
@@ -128,28 +131,28 @@ public class ServiceRegistrationTest extends BaseTest {
             new ContainerServiceProvider());
 
         // 只有第一个服务发布成功
-        Assert.assertEquals(1, registryService.referenceServices(ITest.class).size());
-        Assert.assertEquals(TestObjectA.OUTPUT, registryService.referenceService(ITest.class)
-            .getService().test());
+        assertEquals(1, registryService.referenceServices(ITest.class).size());
+        assertEquals(TestObjectA.OUTPUT, registryService.referenceService(ITest.class).getService()
+            .test());
 
         registryService.unPublishServices(new DefaultServiceFilter()
             .setServiceInterface(ITest.class));
 
-        Assert.assertEquals(0, registryService.referenceServices(ITest.class).size());
+        assertEquals(0, registryService.referenceServices(ITest.class).size());
 
         registryService.publishService(ITest.class, new TestObjectA(), "testA",
             new ContainerServiceProvider());
         registryService.publishService(ITest.class, new TestObjectB(), "testB",
             new ContainerServiceProvider());
 
-        Assert.assertEquals(
+        assertEquals(
             2,
             registryService.referenceServices(
                 new DefaultServiceFilter().setServiceInterface(ITest.class)).size());
-        Assert.assertEquals(TestObjectA.OUTPUT,
-            registryService.referenceService(ITest.class, "testA").getService().test());
-        Assert.assertEquals(TestObjectB.OUTPUT,
-            registryService.referenceService(ITest.class, "testB").getService().test());
+        assertEquals(TestObjectA.OUTPUT, registryService.referenceService(ITest.class, "testA")
+            .getService().test());
+        assertEquals(TestObjectB.OUTPUT, registryService.referenceService(ITest.class, "testB")
+            .getService().test());
 
         int c = registryService.unPublishServices(new DefaultServiceFilter().setUniqueId("testA"));
         Assert.assertTrue(c == 1);
@@ -158,7 +161,7 @@ public class ServiceRegistrationTest extends BaseTest {
             ServiceProviderType.ARK_CONTAINER).setServiceInterface(ITest.class));
         Assert.assertTrue(c == 1);
 
-        Assert.assertEquals(0, registryService.referenceServices(ITest.class).size());
+        assertEquals(0, registryService.referenceServices(ITest.class).size());
     }
 
     @Test
@@ -183,7 +186,7 @@ public class ServiceRegistrationTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
-        Assert.assertEquals(
+        assertEquals(
             1,
             registryService.referenceServices(
                 pluginA.getPluginClassLoader().loadClass(ITest.class.getCanonicalName())).size());
@@ -256,7 +259,7 @@ public class ServiceRegistrationTest extends BaseTest {
         pluginDeployService.deploy();
 
         Class iTest = pluginA.getPluginClassLoader().loadClass(ITest.class.getCanonicalName());
-        Assert.assertEquals(
+        assertEquals(
             3,
             pluginA.getPluginContext()
                 .referenceServices(new DefaultServiceFilter().setServiceInterface(iTest)).size());
@@ -265,14 +268,14 @@ public class ServiceRegistrationTest extends BaseTest {
         ServiceReference reference = pluginC.getPluginContext().referenceService(iTest);
         PluginServiceProvider provider = (PluginServiceProvider) reference.getServiceMetadata()
             .getServiceProvider();
-        Assert.assertEquals(pluginB.getPluginName(), provider.getPluginName());
+        assertEquals(pluginB.getPluginName(), provider.getPluginName());
 
         List<ServiceReference> references = pluginC.getPluginContext().referenceServices(
             new DefaultServiceFilter().setServiceInterface(iTest));
 
         provider = (PluginServiceProvider) references.get(0).getServiceMetadata()
             .getServiceProvider();
-        Assert.assertEquals(pluginB.getPluginName(), provider.getPluginName());
+        assertEquals(pluginB.getPluginName(), provider.getPluginName());
 
     }
 
@@ -304,7 +307,7 @@ public class ServiceRegistrationTest extends BaseTest {
 
         PluginServiceProvider provider = (PluginServiceProvider) references.get(0)
             .getServiceMetadata().getServiceProvider();
-        Assert.assertEquals(pluginB.getPluginName(), provider.getPluginName());
+        assertEquals(pluginB.getPluginName(), provider.getPluginName());
 
         references = registryService.referenceServices(new ServiceFilter() {
             @Override
@@ -323,7 +326,7 @@ public class ServiceRegistrationTest extends BaseTest {
         Assert.assertTrue(1 == references.size());
         provider = (PluginServiceProvider) references.get(0).getServiceMetadata()
             .getServiceProvider();
-        Assert.assertEquals(pluginA.getPluginName(), provider.getPluginName());
+        assertEquals(pluginA.getPluginName(), provider.getPluginName());
 
         references = registryService.referenceServices(new DefaultServiceFilter()
             .setServiceInterface(ITest.class));
@@ -333,8 +336,7 @@ public class ServiceRegistrationTest extends BaseTest {
             ServiceProviderType.ARK_CONTAINER).setServiceInterface(ITest.class));
         Assert.assertTrue(1 == references.size());
 
-        Assert.assertEquals("TestObject C", ((TestObjectC) references.get(0).getService()).test());
-
+        assertEquals("TestObject C", ((TestObjectC) references.get(0).getService()).test());
     }
 
     @Test
@@ -346,9 +348,25 @@ public class ServiceRegistrationTest extends BaseTest {
         registryService.publishService(ITest.class, new TestObjectC(),
             new ContainerServiceProvider(200));
 
-        Assert.assertEquals(TestObjectB.OUTPUT, registryService.referenceService(ITest.class)
-            .getService().test());
-        Assert.assertEquals(3, registryService.referenceServices(ITest.class).size());
+        assertEquals(TestObjectB.OUTPUT, registryService.referenceService(ITest.class).getService()
+            .test());
+        assertEquals(3, registryService.referenceServices(ITest.class).size());
     }
 
+    @Test
+    public void testEqualsHashCode() {
+
+        ContainerServiceProvider containerServiceProvider = new ContainerServiceProvider();
+        containerServiceProvider.hashCode();
+        assertEquals(containerServiceProvider, containerServiceProvider);
+
+        ServiceMetadataImpl serviceMetadataImpl = new ServiceMetadataImpl(this.getClass(), "a",
+            containerServiceProvider);
+        serviceMetadataImpl.hashCode();
+        assertEquals(serviceMetadataImpl, serviceMetadataImpl);
+        assertFalse(serviceMetadataImpl.equals(null));
+
+        PluginServiceProvider pluginServiceProvider = new PluginServiceProvider(mock(Plugin.class));
+        pluginServiceProvider.hashCode();
+    }
 }

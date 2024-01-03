@@ -76,7 +76,5 @@
             <artifactId>system-rules</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
 </project>

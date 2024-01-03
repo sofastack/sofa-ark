@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.spi.argument;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,10 +25,16 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.alipay.sofa.ark.spi.argument.CommandArgument.*;
+import static com.alipay.sofa.ark.spi.argument.LaunchCommand.parse;
+import static java.lang.Integer.valueOf;
+import static java.lang.String.format;
+import static java.net.URLDecoder.decode;
+import static org.junit.Assert.*;
 
 /**
  * @author qilong.zql 18/3/9
@@ -47,7 +52,6 @@ public class LaunchCommandTest {
     public void init() {
 
         try {
-
             classpath = getClasspath(Objects.requireNonNull(getURLs(this.getClass()
                 .getClassLoader())));
             method = MainClass.class.getMethod("main", String[].class);
@@ -56,14 +60,14 @@ public class LaunchCommandTest {
             throw new RuntimeException(ex);
         }
 
-        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
-            CommandArgument.FAT_JAR_ARGUMENT_KEY, fatJarUrl));
-        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_CONTAINER_ARGUMENTS_MARK,
-            CommandArgument.CLASSPATH_ARGUMENT_KEY, classpath));
-        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_CLASS_NAME_ARGUMENT_KEY, method.getDeclaringClass().getName()));
-        arkCommand.add(String.format("%s%s=%s", CommandArgument.ARK_BIZ_ARGUMENTS_MARK,
-            CommandArgument.ENTRY_METHOD_NAME_ARGUMENT_KEY, method.getName()));
+        arkCommand.add(format("%s%s=%s", ARK_CONTAINER_ARGUMENTS_MARK, FAT_JAR_ARGUMENT_KEY,
+            fatJarUrl));
+        arkCommand.add(format("%s%s=%s", ARK_CONTAINER_ARGUMENTS_MARK, CLASSPATH_ARGUMENT_KEY,
+            classpath));
+        arkCommand.add(format("%s%s=%s", ARK_BIZ_ARGUMENTS_MARK, ENTRY_CLASS_NAME_ARGUMENT_KEY,
+            method.getDeclaringClass().getName()));
+        arkCommand.add(format("%s%s=%s", ARK_BIZ_ARGUMENTS_MARK, ENTRY_METHOD_NAME_ARGUMENT_KEY,
+            method.getName()));
         LaunchCommandTest.count = 0;
     }
 
@@ -74,36 +78,35 @@ public class LaunchCommandTest {
             args.addAll(arkCommand);
             args.add("p1");
             args.add("p2");
-            LaunchCommand launchCommand = LaunchCommand.parse(args.toArray(new String[] {}));
+            LaunchCommand launchCommand = parse(args.toArray(new String[] {}));
 
-            Assert.assertTrue(launchCommand.getEntryClassName().equals(
+            assertTrue(launchCommand.getEntryClassName().equals(
                 method.getDeclaringClass().getName()));
-            Assert.assertTrue(launchCommand.getEntryMethodName().equals(method.getName()));
-            Assert.assertTrue(launchCommand.getExecutableArkBizJar().equals(fatJarUrl));
-            Assert.assertTrue(launchCommand.getClasspath().length == classpath
-                .split(CommandArgument.CLASSPATH_SPLIT).length);
+            assertTrue(launchCommand.getEntryMethodName().equals(method.getName()));
+            assertTrue(launchCommand.getExecutableArkBizJar().equals(fatJarUrl));
+            assertTrue(launchCommand.getClasspath().length == classpath.split(CLASSPATH_SPLIT).length);
             for (URL url : launchCommand.getClasspath()) {
-                Assert.assertTrue(classpath.contains(url.toExternalForm()));
+                assertTrue(classpath.contains(url.toExternalForm()));
             }
-            Assert.assertTrue(2 == launchCommand.getLaunchArgs().length);
+            assertTrue(2 == launchCommand.getLaunchArgs().length);
         } catch (Exception ex) {
-            Assert.assertNull(ex);
+            assertNull(ex);
         }
     }
 
     @Test
     public void testEncodedURL() {
         File file = new File(fatJarUrl.getFile());
-        Assert.assertFalse(file.exists());
-        file = new File(URLDecoder.decode(fatJarUrl.getFile()));
-        Assert.assertTrue(file.exists());
+        assertFalse(file.exists());
+        file = new File(decode(fatJarUrl.getFile()));
+        assertTrue(file.exists());
     }
 
     public static class MainClass {
 
         public static void main(String[] args) {
             if (args.length > 0) {
-                LaunchCommandTest.count += Integer.valueOf(args[0]);
+                LaunchCommandTest.count += valueOf(args[0]);
             }
         }
 
@@ -113,13 +116,14 @@ public class LaunchCommandTest {
 
         StringBuilder sb = new StringBuilder();
         for (URL url : urls) {
-            sb.append(url.toExternalForm()).append(CommandArgument.CLASSPATH_SPLIT);
+            sb.append(url.toExternalForm()).append(CLASSPATH_SPLIT);
         }
 
         return sb.toString();
     }
 
     private URL[] getURLs(ClassLoader classLoader) {
+
         // https://stackoverflow.com/questions/46519092/how-to-get-all-jars-loaded-by-a-java-application-in-java9
         if (classLoader instanceof URLClassLoader) {
             return ((URLClassLoader) classLoader).getURLs();
@@ -129,6 +133,7 @@ public class LaunchCommandTest {
         String classpath = System.getProperty("java.class.path");
         String[] classpathEntries = classpath.split(System.getProperty("path.separator"));
         List<URL> classpathURLs = new ArrayList<>();
+
         for (String classpathEntry : classpathEntries) {
             URL url = null;
             try {
@@ -141,6 +146,18 @@ public class LaunchCommandTest {
         }
 
         return classpathURLs.toArray(new URL[0]);
+    }
 
+    @Test
+    public void testOtherMethods() throws MalformedURLException {
+
+        List<String> args = new ArrayList<>();
+        args.addAll(arkCommand);
+        args.add("p1");
+        args.add("p2");
+        LaunchCommand launchCommand = parse(args.toArray(new String[] {}));
+        launchCommand.setProfiles(new String[] { "1" });
+        assertArrayEquals(new String[] { "1" }, launchCommand.getProfiles());
+        assertEquals("ab", LaunchCommand.toString(new String[] { "a", "b" }));
     }
 }

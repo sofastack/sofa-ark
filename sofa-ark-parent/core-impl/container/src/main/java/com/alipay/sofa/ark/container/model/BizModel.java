@@ -452,7 +452,8 @@ public class BizModel implements Biz {
         return declaredCacheMap.computeIfAbsent(libraryFile, this::doCheckDeclared);
     }
 
-    private boolean doCheckDeclared(String jarFilePath) {
+    boolean doCheckDeclared(String jarFilePath) {
+
         // if from ark plugin, then set as declared
         if (isFromPlugin(jarFilePath)) {
             return true;

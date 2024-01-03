@@ -14,36 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.tools.test;
+package com.alipay.sofa.ark.tools.git;
 
 import com.alipay.sofa.ark.tools.Repackager;
-import com.alipay.sofa.ark.tools.git.GitInfo;
-import com.alipay.sofa.ark.tools.git.JGitParser;
-import org.junit.Assert;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.junit.Test;
 
 import java.io.File;
+
+import static com.alipay.sofa.ark.tools.git.JGitParser.getBranchesFromCommit;
+import static com.alipay.sofa.ark.tools.git.JGitParser.parse;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
 
 public class JGitParserTest {
 
     @Test
     public void testParse() {
+
         File gitFile = new File("../../../.git");
-        GitInfo gitInfo = JGitParser.parse(gitFile);
-        Assert.assertNotNull(gitInfo);
+        GitInfo gitInfo = parse(gitFile);
+        assertNotNull(gitInfo);
         gitInfo.getBuildUser();
         gitInfo.getBuildEmail();
-        Assert.assertNotNull(gitInfo.getLastCommitId());
-        Assert.assertNotEquals(gitInfo.getLastCommitTime(), 0L);
-        Assert.assertNotNull(gitInfo.getLastCommitDateTime());
-        Assert.assertNotNull(gitInfo.getLastCommitUser());
-        Assert.assertNotNull(gitInfo.getLastCommitEmail());
-        Assert.assertNotNull(gitInfo.getBranchName());
-        Assert.assertNotNull(gitInfo.getRepository());
-        Assert.assertNotNull(gitInfo.toString());
+        assertNotNull(gitInfo.getLastCommitId());
+        assertNotEquals(gitInfo.getLastCommitTime(), 0L);
+        assertNotNull(gitInfo.getLastCommitDateTime());
+        assertNotNull(gitInfo.getLastCommitUser());
+        assertNotNull(gitInfo.getLastCommitEmail());
+        assertNotNull(gitInfo.getBranchName());
+        assertNotNull(gitInfo.getRepository());
+        assertNotNull(gitInfo.toString());
 
         Repackager repackager = new Repackager(new File("../../../pom.xml"));
         repackager.setGitDirectory(gitFile);
+    }
 
+    @Test
+    public void testGetBranchesFromCommit() throws Exception {
+        FileRepository fileRepository = new FileRepository("../../../.git");
+        assertEquals(asList("add_ut", "add_ut_1221"),
+            getBranchesFromCommit(fileRepository, "04650985e00d5dda086f9b329acd25be6c029a7e"));
     }
 }
