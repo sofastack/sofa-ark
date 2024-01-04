@@ -22,7 +22,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.alipay.sofa.ark.common.util.ClassUtils.*;
+import static com.alipay.sofa.ark.common.util.ClassUtils.collectClasses;
+import static com.alipay.sofa.ark.common.util.ClassUtils.getPackageName;
 import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PACKAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
