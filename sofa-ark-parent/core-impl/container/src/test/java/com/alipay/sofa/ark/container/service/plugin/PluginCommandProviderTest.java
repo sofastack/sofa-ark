@@ -18,17 +18,20 @@ package com.alipay.sofa.ark.container.service.plugin;
 
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.container.model.PluginModel;
+import com.alipay.sofa.ark.container.service.plugin.PluginCommandProvider.PluginCommand;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author qilong.zql
@@ -38,21 +41,22 @@ public class PluginCommandProviderTest {
 
     @Test
     public void testPluginCommandFormat() {
-        PluginCommandProvider pluginCommandProvider = new PluginCommandProvider();
-        Assert.assertFalse(pluginCommandProvider.validate(" plugin "));
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin -h "));
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin -m pluginA "));
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin -s pluginB pluginA "));
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin -d plugin* "));
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin -m -d -s plugin* "));
-        Assert.assertTrue(pluginCommandProvider.validate(" plugin -msd pluginA "));
 
-        Assert.assertFalse(pluginCommandProvider.validate(" plu"));
-        Assert.assertFalse(pluginCommandProvider.validate(" plugin -h pluginA "));
-        Assert.assertFalse(pluginCommandProvider.validate(" plugin -hm pluginA "));
-        Assert.assertFalse(pluginCommandProvider.validate(" plugin -mb pluginA "));
-        Assert.assertFalse(pluginCommandProvider.validate(" plugin -m -b pluginA "));
-        Assert.assertFalse(pluginCommandProvider.validate(" plugin -m  "));
+        PluginCommandProvider pluginCommandProvider = new PluginCommandProvider();
+        assertFalse(pluginCommandProvider.validate(" plugin "));
+        assertTrue(pluginCommandProvider.validate(" plugin -h "));
+        assertTrue(pluginCommandProvider.validate(" plugin -m pluginA "));
+        assertTrue(pluginCommandProvider.validate(" plugin -s pluginB pluginA "));
+        assertTrue(pluginCommandProvider.validate(" plugin -d plugin* "));
+        assertTrue(pluginCommandProvider.validate(" plugin -m -d -s plugin* "));
+        assertTrue(pluginCommandProvider.validate(" plugin -msd pluginA "));
+
+        assertFalse(pluginCommandProvider.validate(" plu"));
+        assertFalse(pluginCommandProvider.validate(" plugin -h pluginA "));
+        assertFalse(pluginCommandProvider.validate(" plugin -hm pluginA "));
+        assertFalse(pluginCommandProvider.validate(" plugin -mb pluginA "));
+        assertFalse(pluginCommandProvider.validate(" plugin -m -b pluginA "));
+        assertFalse(pluginCommandProvider.validate(" plugin -m  "));
     }
 
     @Test
@@ -79,7 +83,7 @@ public class PluginCommandProviderTest {
         set.add("pluginA");
         set.add("pluginB");
 
-        PluginManagerService pluginManagerService = Mockito.mock(PluginManagerService.class);
+        PluginManagerService pluginManagerService = mock(PluginManagerService.class);
         when(pluginManagerService.getAllPluginNames()).thenReturn(set);
         when(pluginManagerService.getPluginByName("pluginA")).thenReturn(pluginA);
         when(pluginManagerService.getPluginByName("pluginB")).thenReturn(pluginB);
@@ -95,31 +99,54 @@ public class PluginCommandProviderTest {
 
         String errorMessage = "Error command format. Pls type 'plugin -h' to get help message\n";
 
-        Assert.assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
-        Assert.assertTrue(errorMessage.equals(pluginCommandProvider
+        assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
+        assertTrue(errorMessage.equals(pluginCommandProvider
             .handleCommand("plugin -h pluginA")));
-        Assert.assertTrue(errorMessage.equals(pluginCommandProvider
+        assertTrue(errorMessage.equals(pluginCommandProvider
             .handleCommand("plugin -b pluginA")));
-        Assert.assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
+        assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
 
-        Assert.assertTrue(pluginCommandProvider.getHelp().equals(
+        assertTrue(pluginCommandProvider.getHelp().equals(
             pluginCommandProvider.handleCommand("plugin -h")));
-        Assert.assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plugin ")));
+        assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plugin ")));
 
         String details = pluginCommandProvider.handleCommand("plugin -m -d -s pluginA");
-        Assert.assertTrue(details.contains("Activator"));
-        Assert.assertTrue(details.contains("GroupId"));
+        assertTrue(details.contains("Activator"));
+        assertTrue(details.contains("GroupId"));
 
         details = pluginCommandProvider.handleCommand("plugin -d pluginB");
-        Assert.assertTrue(details.contains("GroupId"));
-        Assert.assertFalse(details.contains("Activator"));
+        assertTrue(details.contains("GroupId"));
+        assertFalse(details.contains("Activator"));
 
         details = pluginCommandProvider.handleCommand("plugin -m plugin.");
-        Assert.assertTrue(details.contains("pluginA"));
-        Assert.assertTrue(details.contains("pluginB"));
+        assertTrue(details.contains("pluginA"));
+        assertTrue(details.contains("pluginB"));
 
         details = pluginCommandProvider.handleCommand("plugin -m pluginC");
-        Assert.assertTrue(details.contains("no matched plugin candidates."));
+        assertTrue(details.contains("no matched plugin candidates."));
     }
 
+    @Test
+    public void testPluginList() {
+
+        PluginCommandProvider pluginCommandProvider = new PluginCommandProvider();
+        PluginCommand pluginCommand = pluginCommandProvider.new PluginCommand(null);
+        assertFalse(pluginCommand.isValidate());
+        pluginCommand = pluginCommandProvider.new PluginCommand("plugin -");
+        assertFalse(pluginCommand.isValidate());
+        pluginCommand = pluginCommandProvider.new PluginCommand("plugin -a");
+
+        PluginManagerService pluginManagerService = mock(PluginManagerService.class);
+        try {
+            Field field = PluginCommandProvider.class.getDeclaredField("pluginManagerService");
+            field.setAccessible(true);
+            field.set(pluginCommandProvider, pluginManagerService);
+        } catch (Throwable throwable) {
+            // ignore
+        }
+
+        assertEquals("no plugins.\nplugin count = 0\n", pluginCommand.process());
+        when(pluginManagerService.getAllPluginNames()).thenReturn(newHashSet("a"));
+        assertEquals("a\nplugin count = 1\n", pluginCommand.process());
+    }
 }

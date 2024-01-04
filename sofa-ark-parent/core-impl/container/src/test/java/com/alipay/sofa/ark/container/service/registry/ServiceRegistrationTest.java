@@ -52,6 +52,7 @@ import org.junit.Test;
 import java.net.URL;
 import java.util.List;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
@@ -166,7 +167,9 @@ public class ServiceRegistrationTest extends BaseTest {
 
     @Test
     public void testPublishDuplicateServiceInPlugin() throws Exception {
+
         PluginModel pluginA = new PluginModel();
+        PluginContextImpl pluginContext = new PluginContextImpl(pluginA);
         pluginA
             .setPluginName("plugin A")
             .setPriority("10")
@@ -180,7 +183,7 @@ public class ServiceRegistrationTest extends BaseTest {
             .setPluginActivator(PluginActivatorADup.class.getName())
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()))
-            .setPluginContext(new PluginContextImpl(pluginA));
+            .setPluginContext(pluginContext);
 
         pluginManagerService.registerPlugin(pluginA);
         classloaderService.prepareExportClassAndResourceCache();
@@ -193,7 +196,12 @@ public class ServiceRegistrationTest extends BaseTest {
 
         int c = registryService.unPublishServices(new DefaultServiceFilter()
             .setProviderType(ServiceProviderType.ARK_PLUGIN));
-        Assert.assertTrue(c == 1);
+        assertEquals(1, c);
+
+        assertEquals(pluginA, pluginContext.getPlugin());
+        assertEquals(null, pluginContext.getPlugin("notexists"));
+        assertEquals(PluginClassLoader.class, pluginContext.getClassLoader().getClass());
+        assertEquals(newHashSet("plugin A"), pluginContext.getPluginNames());
     }
 
     @Test
