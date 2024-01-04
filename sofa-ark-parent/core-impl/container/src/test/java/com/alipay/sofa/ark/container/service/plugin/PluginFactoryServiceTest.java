@@ -76,7 +76,8 @@ public class PluginFactoryServiceTest extends BaseTest {
         exportPackages.add("com.alipay.test.export.*");
         putStringValue(format(PLUGIN_EXTENSION_FORMAT, "sample-ark-plugin"), "tracer-core:3.0.10");
 
-        Plugin plugin = pluginFactoryService.createPlugin(jarPluginArchive, extensions, exportPackages);
+        Plugin plugin = pluginFactoryService.createPlugin(jarPluginArchive, extensions,
+            exportPackages);
         assertNotNull(plugin);
         assertEquals(plugin.getExportPackages().size(), 2);
         assertTrue(asList(plugin.getClassPath()).contains(bizFile.getUrl()));
@@ -86,8 +87,10 @@ public class PluginFactoryServiceTest extends BaseTest {
     public void testCreateEmbedPlugin() throws IOException {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL samplePlugin = cl.getResource("sample-plugin.jar");
-        PluginArchive archive = new JarPluginArchive(new JarFileArchive(new File(samplePlugin.getFile())));
-        Plugin plugin = pluginFactoryService.createEmbedPlugin(archive, this.getClass().getClassLoader());
+        PluginArchive archive = new JarPluginArchive(new JarFileArchive(new File(
+            samplePlugin.getFile())));
+        Plugin plugin = pluginFactoryService.createEmbedPlugin(archive, this.getClass()
+            .getClassLoader());
         assertNotNull(plugin);
     }
 

@@ -100,10 +100,8 @@ public class PluginCommandProviderTest {
         String errorMessage = "Error command format. Pls type 'plugin -h' to get help message\n";
 
         assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
-        assertTrue(errorMessage.equals(pluginCommandProvider
-            .handleCommand("plugin -h pluginA")));
-        assertTrue(errorMessage.equals(pluginCommandProvider
-            .handleCommand("plugin -b pluginA")));
+        assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plugin -h pluginA")));
+        assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plugin -b pluginA")));
         assertTrue(errorMessage.equals(pluginCommandProvider.handleCommand("plu")));
 
         assertTrue(pluginCommandProvider.getHelp().equals(
