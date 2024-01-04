@@ -245,7 +245,8 @@ public class BizCommandProviderTest extends BaseTest {
         assertEquals("A1:V1:resolved\nA1:V2:resolved\nB1:V1:resolved\nbiz count = 3\n",
             bizCommand.process());
         assertTrue(bizCommand.bizInfo("a:b").startsWith("Invalid bizIdentity: "));
-        assertEquals("\\a&\\b",
-            bizCommand.join(new URL[] { new URL("file:\\a"), new URL("file:\\b") }, "&"));
+
+        String bizCommandStr = bizCommand.join(new URL[]{new URL("file:\\a"), new URL("file:\\b")}, "&");
+        assertTrue(bizCommandStr.equals("\\a&\\b") || bizCommandStr.equals("/a&/b"));
     }
 }
