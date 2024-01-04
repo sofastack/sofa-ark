@@ -16,18 +16,16 @@
  */
 package com.alipay.sofa.ark.container.service.api;
 
-import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ClientResponse;
-import com.alipay.sofa.ark.api.ResponseCode;
-import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
-import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.BizOperation;
+import com.alipay.sofa.ark.spi.replay.Replay;
+import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,6 +33,19 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.alipay.sofa.ark.api.ArkClient.*;
+import static com.alipay.sofa.ark.api.ResponseCode.REPEAT_BIZ;
+import static com.alipay.sofa.ark.api.ResponseCode.SUCCESS;
+import static com.alipay.sofa.ark.common.util.FileUtils.copyInputStreamToFile;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.*;
+import static com.alipay.sofa.ark.spi.model.BizState.ACTIVATED;
+import static com.alipay.sofa.ark.spi.model.BizState.DEACTIVATED;
+import static java.lang.System.setProperty;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author qilong.zql
@@ -62,59 +73,62 @@ public class ArkClientTest extends BaseTest {
 
     @Test
     public void testCreateBizSaveFile() {
-        File bizFile = ArkClient.createBizSaveFile("test-biz-demo", "1.0.0", "suffix");
-        Assert.assertTrue(bizFile.getName().contains("test-biz-demo-1.0.0-suffix"));
+        File bizFile = createBizSaveFile("test-biz-demo", "1.0.0", "suffix");
+        assertTrue(bizFile.getName().contains("test-biz-demo-1.0.0-suffix"));
     }
 
     @Test
     public void testInstallBiz() throws Throwable {
-        ClientResponse response = ArkClient.checkBiz();
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(0, response.getBizInfos().size());
+
+        ClientResponse response = checkBiz();
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(0, response.getBizInfos().size());
 
         // test install
-        File bizFile = ArkClient.createBizSaveFile("biz-demo", "1.0.0");
-        FileUtils.copyInputStreamToFile(bizUrl1.openStream(), bizFile);
-        response = ArkClient.installBiz(bizFile);
+        File bizFile = createBizSaveFile("biz-demo", "1.0.0");
+        copyInputStreamToFile(bizUrl1.openStream(), bizFile);
+        response = installBiz(bizFile);
 
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        assertEquals(SUCCESS, response.getCode());
         BizInfo bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
+        assertEquals(ACTIVATED, bizInfo.getBizState());
 
         // test install biz with same bizName and bizVersion
         // test install
-        File bizFile1 = ArkClient.createBizSaveFile("biz-demo", "1.0.0");
-        FileUtils.copyInputStreamToFile(bizUrl1.openStream(), bizFile1);
-        response = ArkClient.installBiz(bizFile1);
-        Assert.assertEquals(ResponseCode.REPEAT_BIZ, response.getCode());
+        File bizFile1 = createBizSaveFile("biz-demo", "1.0.0");
+        copyInputStreamToFile(bizUrl1.openStream(), bizFile1);
+        response = installBiz(bizFile1);
+        assertEquals(REPEAT_BIZ, response.getCode());
 
         // test install biz with same bizName and different bizVersion
         //        response = ArkClient.installBiz(new File(bizUrl2.getFile()));
-        File bizFile2 = ArkClient.createBizSaveFile("biz-demo", "2.0.0");
-        FileUtils.copyInputStreamToFile(bizUrl2.openStream(), bizFile2);
-        response = ArkClient.installBiz(bizFile2);
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        File bizFile2 = createBizSaveFile("biz-demo", "2.0.0");
+        copyInputStreamToFile(bizUrl2.openStream(), bizFile2);
+        response = installBiz(bizFile2);
+        assertEquals(SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
+        assertEquals(DEACTIVATED, bizInfo.getBizState());
 
         // test install biz with same bizName and different bizVersion and active latest
-        System.setProperty(Constants.ACTIVATE_NEW_MODULE, "true");
-        System.setProperty(Constants.EMBED_ENABLE, "true");
-        File bizFile3 = ArkClient.createBizSaveFile("biz-demo", "3.0.0");
-        FileUtils.copyInputStreamToFile(bizUrl3.openStream(), bizFile3);
-        response = ArkClient.installBiz(bizFile3);
-        System.setProperty(Constants.ACTIVATE_NEW_MODULE, "");
-        System.setProperty(Constants.EMBED_ENABLE, "");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        setProperty(ACTIVATE_NEW_MODULE, "true");
+        setProperty(EMBED_ENABLE, "true");
+        File bizFile3 = createBizSaveFile("biz-demo", "3.0.0");
+        copyInputStreamToFile(bizUrl3.openStream(), bizFile3);
+        response = installBiz(bizFile3);
+        setProperty(ACTIVATE_NEW_MODULE, "");
+        setProperty(EMBED_ENABLE, "");
+        assertEquals(SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
+        assertEquals(ACTIVATED, bizInfo.getBizState());
     }
 
     @Test
     public void testBizArguments() throws Throwable {
+
         EventAdminService eventAdminService = arkServiceContainer
             .getService(EventAdminService.class);
         List<String> topicList = new ArrayList<>();
+
         EventHandler eventHandler = new EventHandler<ArkEvent>() {
             @Override
             public void handleEvent(ArkEvent event) {
@@ -128,93 +142,160 @@ public class ArkClientTest extends BaseTest {
         };
         eventAdminService.register(eventHandler);
 
-        File bizFile3 = ArkClient.createBizSaveFile("biz-demo", "3.0.0");
-        FileUtils.copyInputStreamToFile(bizUrl3.openStream(), bizFile3);
-        ArkClient.installBiz(bizFile3);
+        File bizFile3 = createBizSaveFile("biz-demo", "3.0.0");
+        copyInputStreamToFile(bizUrl3.openStream(), bizFile3);
+        installBiz(bizFile3);
         //        ArkClient.installBiz(new File(bizUrl3.getFile()));
-        ArkClient.uninstallBiz("biz-demo", "3.0.0");
+        uninstallBiz("biz-demo", "3.0.0");
 
-        File bizFile33 = ArkClient.createBizSaveFile("biz-demo", "3.0.0");
-        FileUtils.copyInputStreamToFile(bizUrl3.openStream(), bizFile33);
-        ArkClient.installBiz(bizFile33, new String[] { "demo" });
-        ArkClient.uninstallBiz("biz-demo", "3.0.0");
-        Assert.assertEquals("BEFORE-INVOKE-BIZ-START", topicList.get(0));
-        Assert.assertEquals("No arguments", topicList.get(1));
-        Assert.assertEquals("AFTER-INVOKE-BIZ-START", topicList.get(2));
+        File bizFile33 = createBizSaveFile("biz-demo", "3.0.0");
+        copyInputStreamToFile(bizUrl3.openStream(), bizFile33);
+        installBiz(bizFile33, new String[] { "demo" });
+        uninstallBiz("biz-demo", "3.0.0");
+        assertEquals("BEFORE-INVOKE-BIZ-START", topicList.get(0));
+        assertEquals("No arguments", topicList.get(1));
+        assertEquals("AFTER-INVOKE-BIZ-START", topicList.get(2));
         // new event
-        Assert.assertEquals("BEFORE-RECYCLE-BIZ", topicList.get(4));
-        Assert.assertEquals("demo", topicList.get(7));
+        assertEquals("BEFORE-RECYCLE-BIZ", topicList.get(4));
+        assertEquals("demo", topicList.get(7));
     }
 
     @Test
     public void testCheckBiz() throws Throwable {
+
         testInstallBiz();
         // test check all biz
-        ClientResponse response = ArkClient.checkBiz();
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(3, response.getBizInfos().size());
+        ClientResponse response = checkBiz();
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(3, response.getBizInfos().size());
 
         // test check specified bizName
-        response = ArkClient.checkBiz("biz-demo");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(3, response.getBizInfos().size());
+        response = checkBiz("biz-demo");
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(3, response.getBizInfos().size());
 
         // test check specified bizName and version
-        response = ArkClient.checkBiz("biz-demo", "2.0.0");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(1, response.getBizInfos().size());
-        response = ArkClient.checkBiz("biz-demo", "3.0.0");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(1, response.getBizInfos().size());
+        response = checkBiz("biz-demo", "2.0.0");
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(1, response.getBizInfos().size());
+        response = checkBiz("biz-demo", "3.0.0");
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(1, response.getBizInfos().size());
 
-        response = ArkClient.checkBiz("biz-demo", "4.0.0");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(0, response.getBizInfos().size());
+        response = checkBiz("biz-demo", "4.0.0");
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(0, response.getBizInfos().size());
     }
 
     @Test
     public void testUninstallBiz() throws Throwable {
+
         testCheckBiz();
         // test uninstall biz
-        ClientResponse response = ArkClient.uninstallBiz("biz-demo", "1.0.0");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        ClientResponse response = uninstallBiz("biz-demo", "1.0.0");
+        assertEquals(SUCCESS, response.getCode());
 
         // test check all biz
-        response = ArkClient.checkBiz();
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(2, response.getBizInfos().size());
+        response = checkBiz();
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(2, response.getBizInfos().size());
     }
 
-    public void testSwitchBiz() throws Throwable {
-        testUninstallBiz();
-        // test switch biz
-        ClientResponse response = ArkClient.installBiz(FileUtils.file(bizUrl1.getFile()));
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        BizInfo bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
+    @Test
+    public void testInstallBizWithThrowable() throws Throwable {
 
-        response = ArkClient.checkBiz("biz-demo", "2.0.0");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
-        Assert.assertEquals(1, response.getBizInfos().size());
-        bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
+        File bizFile = createBizSaveFile("biz-demo", "1.0.0");
+        copyInputStreamToFile(bizUrl1.openStream(), bizFile);
+        BizFactoryService bizFactoryService = getBizFactoryService();
+        BizFactoryService bizFactoryServiceMock = mock(BizFactoryService.class);
+        setBizFactoryService(bizFactoryServiceMock);
+        Biz biz = mock(Biz.class);
+        doThrow(new IllegalArgumentException()).when(biz).start(any());
+        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
 
-        response = ArkClient.switchBiz("biz-demo", "2.0.0");
-        Assert.assertEquals(ResponseCode.SUCCESS, response.getCode());
+        try {
+            installBiz(bizFile, null);
+            assertTrue(false);
+        } catch (Throwable e) {
+            setBizFactoryService(bizFactoryService);
+            assertEquals(IllegalArgumentException.class, e.getClass());
+        }
 
-        response = ArkClient.switchBiz("biz-demo", "3.0.0");
-        Assert.assertEquals(ResponseCode.NOT_FOUND_BIZ, response.getCode());
-
-        response = ArkClient.checkBiz("biz-demo", "2.0.0");
-        bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.ACTIVATED, bizInfo.getBizState());
-        response = ArkClient.checkBiz("biz-demo", "1.0.0");
-        bizInfo = response.getBizInfos().iterator().next();
-        Assert.assertEquals(BizState.DEACTIVATED, bizInfo.getBizState());
-
-        // Uninstall biz
-        ArkClient.uninstallBiz("biz-demo", "1.0.0");
-        ArkClient.uninstallBiz("biz-demo", "2.0.0");
+        assertNotNull(getBizManagerService());
+        assertNotNull(getBizFactoryService());
+        assertNotNull(getPluginManagerService());
+        assertNotNull(getArguments());
     }
 
+    @Test
+    public void testInstallOperation() throws Throwable {
+
+        BizOperation bizOperation = new BizOperation();
+        bizOperation.setOperationType(INSTALL);
+        bizOperation.getParameters().put(CONFIG_BIZ_URL, bizUrl1.toString());
+        bizOperation.setBizName("biz-demo");
+        bizOperation.setBizVersion("1.0.0");
+
+        ClientResponse response = installOperation(bizOperation, new String[] {});
+        assertEquals(SUCCESS, response.getCode());
+    }
+
+    @Test
+    public void testUninstallOperation() throws Throwable {
+
+        BizOperation bizOperation = new BizOperation();
+        bizOperation.setOperationType(INSTALL);
+        bizOperation.getParameters().put(CONFIG_BIZ_URL, bizUrl1.toString());
+        bizOperation.setBizName("biz-demo");
+        bizOperation.setBizVersion("1.0.0");
+        installOperation(bizOperation, new String[] {});
+
+        bizOperation.setOperationType(UNINSTALL);
+        ClientResponse response = uninstallOperation(bizOperation);
+        assertEquals(SUCCESS, response.getCode());
+    }
+
+    @Test
+    public void testSwitchOperation() throws Throwable {
+
+        BizOperation bizOperation = new BizOperation();
+        bizOperation.setOperationType(INSTALL);
+        bizOperation.getParameters().put(CONFIG_BIZ_URL, bizUrl1.toString());
+        bizOperation.setBizName("biz-demo");
+        bizOperation.setBizVersion("1.0.0");
+        installOperation(bizOperation, new String[] {});
+
+        bizOperation.setOperationType(SWITCH);
+        ClientResponse response = switchOperation(bizOperation);
+        assertEquals(SUCCESS, response.getCode());
+    }
+
+    @Test
+    public void testCheckOperation() throws Throwable {
+
+        BizOperation bizOperation = new BizOperation();
+        bizOperation.setOperationType(INSTALL);
+        bizOperation.getParameters().put(CONFIG_BIZ_URL, bizUrl1.toString());
+        bizOperation.setBizName("biz-demo");
+        bizOperation.setBizVersion("1.0.0");
+        installOperation(bizOperation, new String[] {});
+
+        bizOperation.setOperationType(CHECK);
+        ClientResponse response = checkOperation(bizOperation);
+        assertEquals(SUCCESS, response.getCode());
+
+        bizOperation.setBizVersion("2.0.0");
+        response = checkOperation(bizOperation);
+        assertEquals(SUCCESS, response.getCode());
+    }
+
+    @Test
+    public void testInvocationReplay() throws Throwable {
+        assertEquals("1", invocationReplay("1.0.0", new Replay() {
+            @Override
+            public Object invoke() {
+                return "1";
+            }
+        }));
+    }
 }

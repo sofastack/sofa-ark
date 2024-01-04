@@ -62,17 +62,17 @@ public class BizCommandProvider implements CommandProvider {
         return new BizCommand(command).isValidate();
     }
 
-    private static final String HELP_MESSAGE = "Biz Command Tips:\n"
-                                               + "  USAGE: biz [option...] [arguments...]\n"
-                                               + "  SAMPLE: biz -m bizIdentityA bizIdentityB.\n"
-                                               + "  -h  Shows the help message.\n"
-                                               + "  -a  Shows all biz.\n"
-                                               + "  -m  Shows the meta info of specified bizIdentity.\n"
-                                               + "  -s  Shows the service info of specified bizIdentity.\n"
-                                               + "  -d  Shows the detail info of specified bizIdentity.\n"
-                                               + "  -i  Install biz of specified bizIdentity or bizUrl.\n"
-                                               + "  -u  Uninstall biz of specified bizIdentity.\n"
-                                               + "  -o  Switch biz of specified bizIdentity.\n";
+    static final String HELP_MESSAGE = "Biz Command Tips:\n"
+                                       + "  USAGE: biz [option...] [arguments...]\n"
+                                       + "  SAMPLE: biz -m bizIdentityA bizIdentityB.\n"
+                                       + "  -h  Shows the help message.\n"
+                                       + "  -a  Shows all biz.\n"
+                                       + "  -m  Shows the meta info of specified bizIdentity.\n"
+                                       + "  -s  Shows the service info of specified bizIdentity.\n"
+                                       + "  -d  Shows the detail info of specified bizIdentity.\n"
+                                       + "  -i  Install biz of specified bizIdentity or bizUrl.\n"
+                                       + "  -u  Uninstall biz of specified bizIdentity.\n"
+                                       + "  -o  Switch biz of specified bizIdentity.\n";
 
     class BizCommand {
         private boolean        isValidate;
