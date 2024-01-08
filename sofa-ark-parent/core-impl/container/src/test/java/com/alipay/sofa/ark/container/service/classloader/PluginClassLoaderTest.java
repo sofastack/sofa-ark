@@ -102,8 +102,8 @@ public class PluginClassLoaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
-        assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()),
-            pluginB.getPluginClassLoader().loadClass(ITest.class.getName()));
+        assertEquals(pluginA.getPluginClassLoader().loadClass(ITest.class.getName()), pluginB
+            .getPluginClassLoader().loadClass(ITest.class.getName()));
     }
 
     @Test
@@ -179,8 +179,7 @@ public class PluginClassLoaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
         pluginDeployService.deploy();
 
-        assertNotNull(pluginB.getPluginClassLoader().getResource(
-            "pluginA_export_resource1.xml"));
+        assertNotNull(pluginB.getPluginClassLoader().getResource("pluginA_export_resource1.xml"));
         Assert.assertNull(pluginB.getPluginClassLoader()
             .getResource("pluginA_export_resource2.xml"));
         Assert.assertNull(pluginB.getPluginClassLoader().getResource(
@@ -339,13 +338,15 @@ public class PluginClassLoaderTest extends BaseTest {
     public void testGetJdkResource() throws IOException {
 
         PluginModel mockPlugin = new PluginModel();
-        mockPlugin.setPluginName("Mock plugin")
+        mockPlugin
+            .setPluginName("Mock plugin")
             .setClassPath(new URL[] {})
             .setImportResources(EMPTY_STRING)
             .setImportClasses(EMPTY_STRING)
             .setImportPackages(EMPTY_STRING)
             .setExportPackages(ITest.class.getCanonicalName())
-            .setPluginClassLoader(new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
+            .setPluginClassLoader(
+                new PluginClassLoader(mockPlugin.getPluginName(), mockPlugin.getClassPath()));
         pluginManagerService.registerPlugin(mockPlugin);
 
         ClassLoader cl = mockPlugin.getPluginClassLoader();
@@ -369,11 +370,12 @@ public class PluginClassLoaderTest extends BaseTest {
     @Test
     public void testSlashResource() throws Throwable {
         ClassLoader classLoader = this.getClass().getClassLoader();
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("pluginName", getURLs(classLoader));
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("pluginName",
+            getURLs(classLoader));
         PluginModel mockPlugin = new PluginModel();
         mockPlugin.setPluginName("pluginName").setClassPath(new URL[] {})
-            .setImportResources(EMPTY_STRING)
-            .setImportClasses(EMPTY_STRING).setImportPackages(EMPTY_STRING)
+            .setImportResources(EMPTY_STRING).setImportClasses(EMPTY_STRING)
+            .setImportPackages(EMPTY_STRING)
             .setExportPackages(getPackageName(ITest.class.getCanonicalName()))
             .setExportClasses(EMPTY_STRING).setPluginClassLoader(pluginClassLoader);
         pluginManagerService.registerPlugin(mockPlugin);
@@ -384,27 +386,31 @@ public class PluginClassLoaderTest extends BaseTest {
 
     @Test(expected = ArkLoaderException.class)
     public void testLoadClassInternalWithSunClass() throws Exception {
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this.getClass().getResource("/") });
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this
+            .getClass().getResource("/") });
         assertEquals("a", pluginClassLoader.getPluginName());
         pluginClassLoader.loadClassInternal("sun.reflect.GeneratedMethodAccessor", true);
     }
 
     @Test(expected = ArkLoaderException.class)
     public void testLoadClassInternalWithResolve() throws Exception {
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this.getClass().getResource("/") });
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this
+            .getClass().getResource("/") });
         assertEquals("a", pluginClassLoader.getPluginName());
         pluginClassLoader.loadClassInternal("java.lang.a", true);
     }
 
     @Test(expected = ArkLoaderException.class)
     public void testPreLoadClassWithException() throws Exception {
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this.getClass().getResource("/") });
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this
+            .getClass().getResource("/") });
         pluginClassLoader.preLoadClass("a");
     }
 
     @Test(expected = ArkLoaderException.class)
     public void testPostLoadClassWithException() throws Exception {
-        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this.getClass().getResource("/") });
+        PluginClassLoader pluginClassLoader = new PluginClassLoader("a", new URL[] { this
+            .getClass().getResource("/") });
         pluginClassLoader.postLoadClass("a");
     }
 }

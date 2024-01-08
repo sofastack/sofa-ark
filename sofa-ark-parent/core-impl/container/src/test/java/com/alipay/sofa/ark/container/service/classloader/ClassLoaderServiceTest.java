@@ -55,9 +55,12 @@ public class ClassLoaderServiceTest extends BaseTest {
     @Before
     public void before() {
         super.before();
-        classloaderService = ArkServiceContainerHolder.getContainer().getService(ClassLoaderService.class);
-        bizManagerService = ArkServiceContainerHolder.getContainer().getService(BizManagerService.class);
-        pluginManagerService = ArkServiceContainerHolder.getContainer().getService(PluginManagerService.class);
+        classloaderService = ArkServiceContainerHolder.getContainer().getService(
+            ClassLoaderService.class);
+        bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        pluginManagerService = ArkServiceContainerHolder.getContainer().getService(
+            PluginManagerService.class);
     }
 
     @Test
@@ -122,14 +125,18 @@ public class ClassLoaderServiceTest extends BaseTest {
             .setDenyImportPackages("a.c, a.b.c.*, a.b.c").setDenyImportClasses("")
             .setBizState(RESOLVED);
         bizManagerService.registerBiz(biz);
-        isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c"),
-            "Exception error");
+        isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c"), "Exception error");
 
-        isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.E"), "Exception error");
-        isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.e.G"), "Exception error");
-        isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.E"), "Exception error");
-        isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.e.G"), "Exception error");
-        isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c"), "Exception error");
+        isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.E"),
+            "Exception error");
+        isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.c.e.G"),
+            "Exception error");
+        isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.E"),
+            "Exception error");
+        isTrue(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c.e.G"),
+            "Exception error");
+        isFalse(classloaderService.isDeniedImportClass(biz.getIdentity(), "a.b.c"),
+            "Exception error");
     }
 
     @Test
@@ -198,7 +205,8 @@ public class ClassLoaderServiceTest extends BaseTest {
     @Test
     public void testFindExportResourceClassLoadersInOrder() throws Exception {
 
-        Field field = ClassLoaderServiceImpl.class.getDeclaredField("exportSuffixStemResourceAndClassLoaderMap");
+        Field field = ClassLoaderServiceImpl.class
+            .getDeclaredField("exportSuffixStemResourceAndClassLoaderMap");
         field.setAccessible(true);
         ConcurrentHashMap exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
         Plugin plugin = mock(Plugin.class);
