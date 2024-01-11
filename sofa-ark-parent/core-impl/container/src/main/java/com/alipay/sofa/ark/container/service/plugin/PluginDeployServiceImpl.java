@@ -37,10 +37,8 @@ import java.util.List;
 @Singleton
 public class PluginDeployServiceImpl implements PluginDeployService {
 
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
-
     @Inject
-    PluginManagerService           pluginManagerService;
+    PluginManagerService pluginManagerService;
 
     @Override
     public void deploy() throws ArkRuntimeException {
@@ -48,8 +46,8 @@ public class PluginDeployServiceImpl implements PluginDeployService {
             try {
                 deployPlugin(plugin);
             } catch (ArkRuntimeException e) {
-                LOGGER.error(String.format("Deploy plugin: %s meet error", plugin.getPluginName()),
-                    e);
+                ArkLoggerFactory.getDefaultLogger().error(
+                    String.format("Deploy plugin: %s meet error", plugin.getPluginName()), e);
                 throw e;
             }
         }
@@ -57,11 +55,14 @@ public class PluginDeployServiceImpl implements PluginDeployService {
 
     private void deployPlugin(Plugin plugin) throws ArkRuntimeException {
         try {
-            LOGGER.info(String.format("Start to deploy plugin: %s", plugin.getPluginName()));
+            ArkLoggerFactory.getDefaultLogger().info(
+                String.format("Start to deploy plugin: %s", plugin.getPluginName()));
             plugin.start();
-            LOGGER.info(String.format("Finish to deploy plugin: %s", plugin.getPluginName()));
+            ArkLoggerFactory.getDefaultLogger().info(
+                String.format("Finish to deploy plugin: %s", plugin.getPluginName()));
         } catch (ArkRuntimeException e) {
-            LOGGER.error(String.format("Start plugin: %s meet error", plugin.getPluginName()), e);
+            ArkLoggerFactory.getDefaultLogger().error(
+                String.format("Start plugin: %s meet error", plugin.getPluginName()), e);
             throw e;
         }
     }
@@ -74,7 +75,7 @@ public class PluginDeployServiceImpl implements PluginDeployService {
             try {
                 unDeployPlugin(plugin);
             } catch (ArkRuntimeException e) {
-                LOGGER.error(
+                ArkLoggerFactory.getDefaultLogger().error(
                     String.format("UnDeploy plugin: %s meet error", plugin.getPluginName()), e);
                 throw e;
             }
@@ -83,13 +84,16 @@ public class PluginDeployServiceImpl implements PluginDeployService {
 
     private void unDeployPlugin(Plugin plugin) throws ArkRuntimeException {
         try {
-            LOGGER.info(String.format("Start to unDeploy plugin: %s", plugin.getPluginName())
+            ArkLoggerFactory.getDefaultLogger().info(
+                String.format("Start to unDeploy plugin: %s", plugin.getPluginName())
                         + plugin.getPluginName());
             plugin.stop();
-            LOGGER.info(String.format("Stop to unDeploy plugin: %s", plugin.getPluginName())
+            ArkLoggerFactory.getDefaultLogger().info(
+                String.format("Stop to unDeploy plugin: %s", plugin.getPluginName())
                         + plugin.getPluginName());
         } catch (ArkRuntimeException e) {
-            LOGGER.error(String.format("Stop plugin: %s meet error", plugin.getPluginName()), e);
+            ArkLoggerFactory.getDefaultLogger().error(
+                String.format("Stop plugin: %s meet error", plugin.getPluginName()), e);
             throw e;
         }
     }

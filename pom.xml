@@ -26,7 +26,7 @@
         <maven.javadoc.plugin>3.6.2</maven.javadoc.plugin>
         <maven.staging.plugin>1.6.13</maven.staging.plugin>
         <maven.gpg.pluign>1.6</maven.gpg.pluign>
-        <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
+        <jacoco.maven.plugin>0.8.11</jacoco.maven.plugin>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
     </properties>
 

@@ -13,9 +13,10 @@
     <packaging>pom</packaging>
 
     <properties>
-        <log4j.version>2.0.7</log4j.version>
-        <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
-        <logback.version>1.2.9</logback.version>
+        <log4j.version>2.0.11</log4j.version>
+        <log.sofa.starter.version>3.9.1</log.sofa.starter.version>
+        <sofa.common.tools.version>2.0.3</sofa.common.tools.version>
+        <logback.version>1.4.14</logback.version>
 
         <guice.version>6.0.0</guice.version>
         <asm.version>9.4</asm.version>
@@ -248,6 +249,11 @@
                         <artifactId>spring-boot</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa.common</groupId>
+                <artifactId>sofa-common-tools</artifactId>
+                <version>${sofa.common.tools.version}</version>
             </dependency>
 
             <!-- maven -->

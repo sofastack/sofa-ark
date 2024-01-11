@@ -20,10 +20,11 @@ import ch.qos.logback.classic.ClassicConstants;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.selector.ContextSelector;
 import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,14 +38,16 @@ import java.net.URLClassLoader;
  */
 public class ArkLogbackContextSelectorTest {
 
+    @Before
+    public void initContextSelector() {
+        System.setProperty(ClassicConstants.LOGBACK_CONTEXT_SELECTOR,
+            "com.alipay.sofa.ark.common.adapter.ArkLogbackContextSelector");
+    }
+
     @Test
     public void testContextSelector() throws NoSuchMethodException, InvocationTargetException,
                                      IllegalAccessException {
-        System.setProperty(ClassicConstants.LOGBACK_CONTEXT_SELECTOR,
-            "com.alipay.sofa.ark.common.adapter.ArkLogbackContextSelector");
-        Logger logger = LoggerFactory.getLogger(ArkLogbackContextSelectorTest.class);
-        System.clearProperty(ClassicConstants.LOGBACK_CONTEXT_SELECTOR);
-
+        LoggerFactory.getLogger(ArkLogbackContextSelectorTest.class);
         ILoggerFactory iLoggerFactory = LoggerFactory.getILoggerFactory();
         LoggerContext loggerContext = (LoggerContext) iLoggerFactory;
         ContextSelectorStaticBinder selectorStaticBinder = ContextSelectorStaticBinder
@@ -64,6 +67,10 @@ public class ArkLogbackContextSelectorTest {
         Assert.assertNotNull(invoke);
         Assert.assertEquals(invoke, contextSelector.getLoggerContext(contextName));
         Assert.assertTrue(contextSelector.getContextNames().contains(contextName));
+    }
 
+    @After
+    public void resetContextSelector() {
+        System.clearProperty(ClassicConstants.LOGBACK_CONTEXT_SELECTOR);
     }
 }
