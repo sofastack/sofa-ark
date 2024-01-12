@@ -52,8 +52,8 @@ import org.junit.Test;
 import java.net.URL;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -106,7 +106,7 @@ public class ServiceRegistrationTest extends BaseTest {
 
         int c = registryService.unPublishServices(new DefaultServiceFilter().setServiceInterface(
             ITest.class).setProviderType(ServiceProviderType.ARK_CONTAINER));
-        Assert.assertTrue(c == 1);
+        assertTrue(c == 1);
 
         iTestServiceReference = registryService.referenceService(ITest.class);
         Assert.assertNull(iTestServiceReference);
@@ -155,18 +155,20 @@ public class ServiceRegistrationTest extends BaseTest {
             .getService().test());
 
         int c = registryService.unPublishServices(new DefaultServiceFilter().setUniqueId("testA"));
-        Assert.assertTrue(c == 1);
+        assertTrue(c == 1);
 
         c = registryService.unPublishServices(new DefaultServiceFilter().setProviderType(
             ServiceProviderType.ARK_CONTAINER).setServiceInterface(ITest.class));
-        Assert.assertTrue(c == 1);
+        assertTrue(c == 1);
 
         assertEquals(0, registryService.referenceServices(ITest.class).size());
     }
 
     @Test
     public void testPublishDuplicateServiceInPlugin() throws Exception {
+
         PluginModel pluginA = new PluginModel();
+        PluginContextImpl pluginContext = new PluginContextImpl(pluginA);
         pluginA
             .setPluginName("plugin A")
             .setPriority("10")
@@ -193,7 +195,12 @@ public class ServiceRegistrationTest extends BaseTest {
 
         int c = registryService.unPublishServices(new DefaultServiceFilter()
             .setProviderType(ServiceProviderType.ARK_PLUGIN));
-        Assert.assertTrue(c == 1);
+        assertEquals(1, c);
+
+        assertEquals(pluginA, pluginContext.getPlugin());
+        assertEquals(null, pluginContext.getPlugin("notexists"));
+        assertEquals(PluginClassLoader.class, pluginContext.getClassLoader().getClass());
+        assertEquals(newHashSet("plugin A"), pluginContext.getPluginNames());
     }
 
     @Test
@@ -303,7 +310,7 @@ public class ServiceRegistrationTest extends BaseTest {
         List<ServiceReference> references = registryService
             .referenceServices(new DefaultServiceFilter().setServiceInterface(ITest.class)
                 .setProviderType(ServiceProviderType.ARK_PLUGIN));
-        Assert.assertTrue(2 == references.size());
+        assertTrue(2 == references.size());
 
         PluginServiceProvider provider = (PluginServiceProvider) references.get(0)
             .getServiceMetadata().getServiceProvider();
@@ -323,18 +330,18 @@ public class ServiceRegistrationTest extends BaseTest {
                 return false;
             }
         });
-        Assert.assertTrue(1 == references.size());
+        assertTrue(1 == references.size());
         provider = (PluginServiceProvider) references.get(0).getServiceMetadata()
             .getServiceProvider();
         assertEquals(pluginA.getPluginName(), provider.getPluginName());
 
         references = registryService.referenceServices(new DefaultServiceFilter()
             .setServiceInterface(ITest.class));
-        Assert.assertTrue(3 == references.size());
+        assertTrue(3 == references.size());
 
         references = registryService.referenceServices(new DefaultServiceFilter().setProviderType(
             ServiceProviderType.ARK_CONTAINER).setServiceInterface(ITest.class));
-        Assert.assertTrue(1 == references.size());
+        assertTrue(1 == references.size());
 
         assertEquals("TestObject C", ((TestObjectC) references.get(0).getService()).test());
     }

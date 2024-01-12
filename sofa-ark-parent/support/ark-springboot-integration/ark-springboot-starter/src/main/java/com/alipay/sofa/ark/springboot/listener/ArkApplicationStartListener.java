@@ -27,7 +27,6 @@ import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
-import org.springframework.boot.loader.LaunchedURLClassLoader;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -40,15 +39,32 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
 
     private static final String LAUNCH_CLASSLOADER_NAME    = "sun.misc.Launcher$AppClassLoader";
     private static final String SPRING_BOOT_LOADER         = "org.springframework.boot.loader.LaunchedURLClassLoader";
+    //SpringBoot 3.2.0 support
+    private static final String SPRING_BOOT_NEW_LOADER     = "org.springframework.boot.loader.launch.LaunchedClassLoader";
     private static final String APPLICATION_STARTED_EVENT  = "org.springframework.boot.context.event.ApplicationStartedEvent";
     private static final String APPLICATION_STARTING_EVENT = "org.springframework.boot.context.event.ApplicationStartingEvent";
+    private static Class<?>     SPRING_BOOT_LOADER_CLASS;
+    private static Class<?>     SPRING_BOOT_NEW_LOADER_CLASS;
+
+    static {
+        try {
+            SPRING_BOOT_LOADER_CLASS = ApplicationListener.class.getClassLoader().loadClass(
+                SPRING_BOOT_LOADER);
+        } catch (Throwable t) {
+            // ignore
+        }
+        try {
+            SPRING_BOOT_NEW_LOADER_CLASS = ApplicationListener.class.getClassLoader().loadClass(
+                SPRING_BOOT_NEW_LOADER);
+        } catch (Throwable t) {
+            // ignore
+        }
+    }
 
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
-            if (ArkConfigs.isEmbedEnable()
-                || LaunchedURLClassLoader.class.isAssignableFrom(this.getClass().getClassLoader()
-                    .getClass())) {
+            if (isEmbedEnable()) {
                 ArkConfigs.setEmbedEnable(true);
                 startUpArkEmbed(event);
                 return;
@@ -65,6 +81,23 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         } catch (Throwable e) {
             throw new RuntimeException("Meet exception when determine whether to start SOFAArk!", e);
         }
+    }
+
+    private boolean isEmbedEnable() {
+        if (ArkConfigs.isEmbedEnable()) {
+            return true;
+        }
+        if (SPRING_BOOT_LOADER_CLASS != null
+            && SPRING_BOOT_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
+                .getClass())) {
+            return true;
+        }
+        if (SPRING_BOOT_NEW_LOADER_CLASS != null
+            && SPRING_BOOT_NEW_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
+                .getClass())) {
+            return true;
+        }
+        return false;
     }
 
     public void startUpArk(SpringApplicationEvent event) {

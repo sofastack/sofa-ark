@@ -22,6 +22,8 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 /**
  *
  * @author ruoshan
@@ -36,9 +38,8 @@ public class PluginManagerServiceTest {
         PluginModel plugin = new PluginModel();
         plugin.setPluginName("plugin A");
         pluginManagerService.registerPlugin(plugin);
-        Assert.assertNotNull(pluginManagerService.getPluginByName(plugin.getPluginName()));
-        Assert.assertNull(pluginManagerService.getPluginByName("test"));
-
+        assertNotNull(pluginManagerService.getPluginByName(plugin.getPluginName()));
+        assertNull(pluginManagerService.getPluginByName("test"));
     }
 
     @Test
@@ -51,15 +52,14 @@ public class PluginManagerServiceTest {
         pluginB.setPluginName("plugin B");
         pluginManagerService.registerPlugin(pluginB);
 
-        Assert.assertTrue(pluginManagerService.getAllPluginNames()
-            .contains(pluginA.getPluginName()));
-        Assert.assertTrue(pluginManagerService.getAllPluginNames()
-            .contains(pluginB.getPluginName()));
-        Assert.assertEquals(2, pluginManagerService.getAllPluginNames().size());
+        assertTrue(pluginManagerService.getAllPluginNames().contains(pluginA.getPluginName()));
+        assertTrue(pluginManagerService.getAllPluginNames().contains(pluginB.getPluginName()));
+        assertEquals(2, pluginManagerService.getAllPluginNames().size());
     }
 
     @Test
     public void testGetPluginsInOrder() {
+
         PluginModel pluginA = new PluginModel();
         pluginA.setPluginName("plugin A").setPriority("100");
         pluginManagerService.registerPlugin(pluginA);
@@ -72,9 +72,9 @@ public class PluginManagerServiceTest {
         pluginC.setPluginName("plugin C").setPriority("1000");
         pluginManagerService.registerPlugin(pluginC);
 
-        Assert.assertEquals(3, pluginManagerService.getPluginsInOrder().size());
-        Assert.assertEquals(pluginB, pluginManagerService.getPluginsInOrder().get(0));
-        Assert.assertEquals(pluginA, pluginManagerService.getPluginsInOrder().get(1));
-        Assert.assertEquals(pluginC, pluginManagerService.getPluginsInOrder().get(2));
+        assertEquals(3, pluginManagerService.getPluginsInOrder().size());
+        assertEquals(pluginB, pluginManagerService.getPluginsInOrder().get(0));
+        assertEquals(pluginA, pluginManagerService.getPluginsInOrder().get(1));
+        assertEquals(pluginC, pluginManagerService.getPluginsInOrder().get(2));
     }
 }
