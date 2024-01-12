@@ -44,8 +44,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Singleton
 public class RegistryServiceImpl implements RegistryService {
 
-    private static final ArkLogger                   LOGGER          = ArkLoggerFactory
-                                                                         .getDefaultLogger();
     private CopyOnWriteArraySet<ServiceReference<?>> services        = new CopyOnWriteArraySet<>();
 
     private OrderComparator                          orderComparator = new OrderComparator();
@@ -72,7 +70,7 @@ public class RegistryServiceImpl implements RegistryService {
             serviceProvider);
         for (ServiceReference<?> serviceReference : services) {
             if (serviceMetadata.equals(serviceReference.getServiceMetadata())) {
-                LOGGER.warn(String.format("Service: %s publish by: %s already exist",
+                ArkLoggerFactory.getDefaultLogger().warn(String.format("Service: %s publish by: %s already exist",
                     serviceMetadata.getServiceName(), serviceProvider));
                 return (ServiceReference<T>) serviceReference;
             }
@@ -82,7 +80,7 @@ public class RegistryServiceImpl implements RegistryService {
             implObject);
         injectionService.inject(serviceReference);
 
-        LOGGER.info(String.format("Service: %s publish by: %s succeed",
+        ArkLoggerFactory.getDefaultLogger().info(String.format("Service: %s publish by: %s succeed",
             serviceMetadata.getServiceName(), serviceProvider));
 
         services.add(serviceReference);

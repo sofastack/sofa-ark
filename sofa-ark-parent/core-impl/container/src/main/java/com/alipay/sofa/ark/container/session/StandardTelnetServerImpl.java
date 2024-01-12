@@ -44,8 +44,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_SERVER_ENABLE;
 @Singleton
 public class StandardTelnetServerImpl implements TelnetServerService {
 
-    private static final ArkLogger LOGGER                  = ArkLoggerFactory.getDefaultLogger();
-
     private static final int       WORKER_THREAD_POOL_SIZE = 2;
 
     private int                    port                    = -1;
@@ -69,7 +67,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                         DEFAULT_SELECT_PORT_SIZE);
                 }
             } catch (NumberFormatException e) {
-                LOGGER.error(String.format("Invalid port in %s", telnetPort), e);
+                ArkLoggerFactory.getDefaultLogger().error(String.format("Invalid port in %s", telnetPort), e);
                 throw new ArkRuntimeException(e);
             }
         }
@@ -79,7 +77,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
     public void run() {
         AssertUtils.isTrue(port > 0, "Telnet port should be positive integer.");
         try {
-            LOGGER.info("Listening on port: " + port);
+            ArkLoggerFactory.getDefaultLogger().info("Listening on port: " + port);
             CommonThreadPool workerPool = new CommonThreadPool()
                 .setCorePoolSize(WORKER_THREAD_POOL_SIZE).setDaemon(true)
                 .setThreadPoolName(Constants.TELNET_SERVER_WORKER_THREAD_POOL_NAME);
@@ -88,7 +86,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
             nettyTelnetServer = new NettyTelnetServer(port, workerPool.getExecutor());
             nettyTelnetServer.open();
         } catch (InterruptedException e) {
-            LOGGER.error("Unable to open netty telnet server.", e);
+            ArkLoggerFactory.getDefaultLogger().error("Unable to open netty telnet server.", e);
             throw new ArkRuntimeException(e);
         }
     }
@@ -102,7 +100,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                     nettyTelnetServer = null;
                 }
             } catch (Throwable t) {
-                LOGGER.error("An error occurs when shutdown telnet server.", t);
+                ArkLoggerFactory.getDefaultLogger().error("An error occurs when shutdown telnet server.", t);
                 throw new ArkRuntimeException(t);
             }
         }
@@ -113,7 +111,7 @@ public class StandardTelnetServerImpl implements TelnetServerService {
         if (enableTelnetServer) {
             run();
         } else {
-            LOGGER.warn("Telnet server is disabled.");
+            ArkLoggerFactory.getDefaultLogger().warn("Telnet server is disabled.");
         }
     }
 

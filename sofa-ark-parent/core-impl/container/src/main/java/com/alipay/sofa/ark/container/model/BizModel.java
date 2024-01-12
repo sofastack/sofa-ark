@@ -58,9 +58,6 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
-    private final static ArkLogger LOGGER                        = ArkLoggerFactory
-                                                                     .getDefaultLogger();
-
     private String                 bizName;
 
     private String                 bizVersion;
@@ -287,12 +284,12 @@ public class BizModel implements Biz {
             resetProperties();
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
-                LOGGER.info("Ark biz {} start.", getIdentity());
+                ArkLoggerFactory.getDefaultLogger().info("Ark biz {} start.", getIdentity());
                 MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
                 eventAdminService.sendEvent(new AfterBizStartupEvent(this));
-                LOGGER.info("Ark biz {} started in {} ms", getIdentity(),
+                ArkLoggerFactory.getDefaultLogger().info("Ark biz {} started in {} ms", getIdentity(),
                     (System.currentTimeMillis() - start));
             }
         } catch (Throwable e) {
@@ -339,9 +336,9 @@ public class BizModel implements Biz {
         try {
             // this can trigger uninstall handler
             long start = System.currentTimeMillis();
-            LOGGER.info("Ark biz {} stops.", getIdentity());
+            ArkLoggerFactory.getDefaultLogger().info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
-            LOGGER.info("Ark biz {} stopped in {} ms", getIdentity(),
+            ArkLoggerFactory.getDefaultLogger().info("Ark biz {} stopped in {} ms", getIdentity(),
                 (System.currentTimeMillis() - start));
         } finally {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
@@ -463,12 +460,12 @@ public class BizModel implements Biz {
         if (artifactId == null) {
             if (jarFilePath.contains(".jar!") || jarFilePath.endsWith(".jar")) {
                 // if in jar, and can't get artifactId from jar file, then just rollback to all delegate.
-                LOGGER.info(String.format("Can't find artifact id for %s, default as declared.",
+                ArkLoggerFactory.getDefaultLogger().info(String.format("Can't find artifact id for %s, default as declared.",
                     jarFilePath));
                 return true;
             } else {
                 // for not in jar, then default not delegate.
-                LOGGER.info(String.format(
+                ArkLoggerFactory.getDefaultLogger().info(String.format(
                     "Can't find artifact id for %s, default as not declared.", jarFilePath));
                 return false;
             }

@@ -28,7 +28,6 @@ import com.alipay.sofa.ark.spi.service.event.EventHandler;
 import com.alipay.sofa.ark.spi.service.registry.RegistryService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -47,9 +46,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class EventAdminServiceImpl implements EventAdminService, EventHandler {
 
     private final static ConcurrentMap<ClassLoader, CopyOnWriteArraySet<EventHandler>> SUBSCRIBER_MAP = new ConcurrentHashMap<>();
-
-    private final static Logger                                                        LOGGER         = ArkLoggerFactory
-                                                                                                          .getDefaultLogger();
 
     @Inject
     private RegistryService                                                            registryService;
@@ -89,7 +85,7 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
             }
         }
         set.add(eventHandler);
-        LOGGER.debug(String.format("Register event handler: %s.", eventHandler));
+        ArkLoggerFactory.getDefaultLogger().debug(String.format("Register event handler: %s.", eventHandler));
     }
 
     @Override
@@ -98,14 +94,14 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
             .getClassLoader());
         if (set != null) {
             set.remove(eventHandler);
-            LOGGER.debug(String.format("Unregister event handler: %s.", eventHandler));
+            ArkLoggerFactory.getDefaultLogger().debug(String.format("Unregister event handler: %s.", eventHandler));
         }
     }
 
     @Override
     public void unRegister(ClassLoader classLoader) {
         SUBSCRIBER_MAP.remove(classLoader);
-        LOGGER.debug(String.format("Unregister event handler of classLoader: %s.", classLoader));
+        ArkLoggerFactory.getDefaultLogger().debug(String.format("Unregister event handler of classLoader: %s.", classLoader));
 
     }
 

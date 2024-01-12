@@ -51,9 +51,6 @@ import java.util.stream.Collectors;
 @Singleton
 public class ClassLoaderServiceImpl implements ClassLoaderService {
 
-    private static final ArkLogger                  LOGGER                                    = ArkLoggerFactory
-                                                                                                  .getDefaultLogger();
-
     private static final String                     ARK_SPI_PACKAGES                          = "com.alipay.sofa.ark.spi";
     private static final String                     ARK_API_PACKAGES                          = "com.alipay.sofa.ark.api";
     private static final String                     ARK_LOG_PACKAGES                          = "com.alipay.sofa.ark.common.log";
@@ -315,14 +312,14 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             URL[] urls = ClassLoaderUtils.getURLs(systemClassLoader);
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(String.format("Find JDK Url: %s", url));
+                    if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
+                        ArkLoggerFactory.getDefaultLogger().debug(String.format("Find JDK Url: %s", url));
                     }
                     jdkUrls.add(url);
                 }
             }
         } catch (Throwable e) {
-            LOGGER.warn("Meet exception when parse JDK urls", e);
+            ArkLoggerFactory.getDefaultLogger().warn("Meet exception when parse JDK urls", e);
         }
 
         jdkClassLoader = new JDKDelegateClassLoader(jdkUrls.toArray(new URL[0]), extClassLoader);

@@ -38,7 +38,6 @@ import java.util.List;
 @Singleton
 public class StandardPipeline implements Pipeline {
 
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
     private List<PipelineStage>    stages = new ArrayList<>();
 
     public StandardPipeline() {
@@ -70,13 +69,13 @@ public class StandardPipeline implements Pipeline {
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
         for (PipelineStage pipelineStage : stages) {
             try {
-                LOGGER.info(String.format("Start to process pipeline stage: %s", pipelineStage
+                ArkLoggerFactory.getDefaultLogger().info(String.format("Start to process pipeline stage: %s", pipelineStage
                     .getClass().getName()));
                 pipelineStage.process(pipelineContext);
-                LOGGER.info(String.format("Finish to process pipeline stage: %s", pipelineStage
+                ArkLoggerFactory.getDefaultLogger().info(String.format("Finish to process pipeline stage: %s", pipelineStage
                     .getClass().getName()));
             } catch (Throwable e) {
-                LOGGER.error(String.format("Process pipeline stage fail: %s", pipelineStage
+                ArkLoggerFactory.getDefaultLogger().error(String.format("Process pipeline stage fail: %s", pipelineStage
                     .getClass().getName()), e);
                 throw new ArkRuntimeException(e);
             }

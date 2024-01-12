@@ -36,8 +36,6 @@ import javax.inject.Singleton;
 @Singleton
 public class BizDeployServiceImpl implements BizDeployService {
 
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
-
     @Inject
     private RegistryService        registryService;
 
@@ -49,7 +47,7 @@ public class BizDeployServiceImpl implements BizDeployService {
             .referenceService(BizDeployer.class);
         bizDeployer = serviceReference.getService();
 
-        LOGGER.info(String.format("BizDeployer=\'%s\' is starting.", bizDeployer.getDesc()));
+        ArkLoggerFactory.getDefaultLogger().info(String.format("BizDeployer=\'%s\' is starting.", bizDeployer.getDesc()));
 
         bizDeployer.init(args);
         bizDeployer.deploy();
@@ -58,7 +56,7 @@ public class BizDeployServiceImpl implements BizDeployService {
     @Override
     public void unDeploy() throws ArkRuntimeException {
         if (bizDeployer != null) {
-            LOGGER.info(String.format("BizDeployer=\'%s\' is stopping.", bizDeployer.getDesc()));
+            ArkLoggerFactory.getDefaultLogger().info(String.format("BizDeployer=\'%s\' is stopping.", bizDeployer.getDesc()));
             bizDeployer.unDeploy();
         }
     }

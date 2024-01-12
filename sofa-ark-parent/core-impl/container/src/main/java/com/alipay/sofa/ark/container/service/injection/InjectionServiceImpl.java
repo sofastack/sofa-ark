@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.container.service.injection;
 
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ReflectionUtils;
 import com.alipay.sofa.ark.common.util.ReflectionUtils.FieldCallback;
@@ -38,8 +37,6 @@ import java.lang.reflect.Field;
  */
 @Singleton
 public class InjectionServiceImpl implements InjectionService {
-
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
 
     @Inject
     private RegistryService        registryService;
@@ -68,14 +65,14 @@ public class InjectionServiceImpl implements InjectionService {
                 Object value = getService(serviceType, arkInject.uniqueId());
 
                 if (value == null) {
-                    LOGGER.warn(String.format("Inject {field= %s} of {service= %s} fail!",
+                    ArkLoggerFactory.getDefaultLogger().warn(String.format("Inject {field= %s} of {service= %s} fail!",
                         field.getName(), type));
                     return;
                 }
                 ReflectionUtils.makeAccessible(field);
                 try {
                     field.set(instance, value);
-                    LOGGER.info(String.format("Inject {field= %s} of {service= %s} success!",
+                    ArkLoggerFactory.getDefaultLogger().info(String.format("Inject {field= %s} of {service= %s} success!",
                         field.getName(), type));
                 } catch (Throwable throwable) {
                     throw new ArkRuntimeException(throwable);
