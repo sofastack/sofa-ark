@@ -28,7 +28,6 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.session.CommandProvider;
-import org.slf4j.Logger;
 
 import java.net.URL;
 import java.util.HashSet;
