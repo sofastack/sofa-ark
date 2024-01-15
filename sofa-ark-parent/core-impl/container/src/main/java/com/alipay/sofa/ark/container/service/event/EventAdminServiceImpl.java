@@ -85,7 +85,8 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
             }
         }
         set.add(eventHandler);
-        ArkLoggerFactory.getDefaultLogger().debug(String.format("Register event handler: %s.", eventHandler));
+        ArkLoggerFactory.getDefaultLogger().debug(
+            String.format("Register event handler: %s.", eventHandler));
     }
 
     @Override
@@ -94,14 +95,16 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
             .getClassLoader());
         if (set != null) {
             set.remove(eventHandler);
-            ArkLoggerFactory.getDefaultLogger().debug(String.format("Unregister event handler: %s.", eventHandler));
+            ArkLoggerFactory.getDefaultLogger().debug(
+                String.format("Unregister event handler: %s.", eventHandler));
         }
     }
 
     @Override
     public void unRegister(ClassLoader classLoader) {
         SUBSCRIBER_MAP.remove(classLoader);
-        ArkLoggerFactory.getDefaultLogger().debug(String.format("Unregister event handler of classLoader: %s.", classLoader));
+        ArkLoggerFactory.getDefaultLogger().debug(
+            String.format("Unregister event handler of classLoader: %s.", classLoader));
 
     }
 

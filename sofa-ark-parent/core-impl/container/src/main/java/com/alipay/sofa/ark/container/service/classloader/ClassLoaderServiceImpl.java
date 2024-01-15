@@ -313,7 +313,8 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
                     if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
-                        ArkLoggerFactory.getDefaultLogger().debug(String.format("Find JDK Url: %s", url));
+                        ArkLoggerFactory.getDefaultLogger().debug(
+                            String.format("Find JDK Url: %s", url));
                     }
                     jdkUrls.add(url);
                 }

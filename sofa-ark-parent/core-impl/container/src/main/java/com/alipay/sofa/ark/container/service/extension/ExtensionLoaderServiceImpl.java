@@ -91,8 +91,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 }
             }
         } catch (Throwable throwable) {
-            ArkLoggerFactory.getDefaultLogger().error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
-                throwable);
+            ArkLoggerFactory.getDefaultLogger()
+                .error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
+                    throwable);
             throw new ArkRuntimeException(throwable);
         }
         return extensionClass == null ? null : extensionClass.getObject();
@@ -164,8 +165,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
             return extensionClassSet;
         } catch (Throwable throwable) {
-            ArkLoggerFactory.getDefaultLogger()
-                .error("Loading extension files from {} occurs an error {}.", location, throwable);
+            ArkLoggerFactory.getDefaultLogger().error(
+                "Loading extension files from {} occurs an error {}.", location, throwable);
             throw throwable;
         } finally {
             if (reader != null) {

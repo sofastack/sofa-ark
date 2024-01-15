@@ -47,14 +47,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ArkServiceContainer {
 
-    private Injector               injector;
+    private Injector         injector;
 
-    private List<ArkService>       arkServiceList = new ArrayList<>();
+    private List<ArkService> arkServiceList = new ArrayList<>();
 
-    private AtomicBoolean          started        = new AtomicBoolean(false);
-    private AtomicBoolean          stopped        = new AtomicBoolean(false);
+    private AtomicBoolean    started        = new AtomicBoolean(false);
+    private AtomicBoolean    stopped        = new AtomicBoolean(false);
 
-    private final String[]         arguments;
+    private final String[]   arguments;
 
     public ArkServiceContainer(String[] arguments) {
         this.arguments = arguments;
@@ -81,7 +81,8 @@ public class ArkServiceContainer {
                 Collections.sort(arkServiceList, new OrderComparator());
 
                 for (ArkService arkService : arkServiceList) {
-                    ArkLoggerFactory.getDefaultLogger().info(String.format("Init Service: %s", arkService.getClass().getName()));
+                    ArkLoggerFactory.getDefaultLogger().info(
+                        String.format("Init Service: %s", arkService.getClass().getName()));
                     arkService.init();
                 }
 
@@ -138,8 +139,8 @@ public class ArkServiceContainer {
             try {
                 Collections.reverse(arkServiceList);
                 for (ArkService arkService : arkServiceList) {
-                    ArkLoggerFactory.getDefaultLogger().info(String.format("Dispose service: %s", arkService.getClass()
-                        .getName()));
+                    ArkLoggerFactory.getDefaultLogger().info(
+                        String.format("Dispose service: %s", arkService.getClass().getName()));
                     arkService.dispose();
                 }
                 ArkLoggerFactory.getDefaultLogger().info("Finish to stop ArkServiceContainer");

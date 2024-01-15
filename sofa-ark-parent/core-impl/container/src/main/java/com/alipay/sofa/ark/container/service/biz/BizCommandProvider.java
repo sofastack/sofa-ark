@@ -236,7 +236,8 @@ public class BizCommandProvider implements CommandProvider {
                         } catch (Throwable t) {
                             String[] nameAndVersion = param.split(Constants.STRING_COLON);
                             if (nameAndVersion.length != 2) {
-                                ArkLoggerFactory.getDefaultLogger().error("Invalid telnet biz install command {}", param);
+                                ArkLoggerFactory.getDefaultLogger().error(
+                                    "Invalid telnet biz install command {}", param);
                                 return;
                             }
                             bizOperation.setBizName(nameAndVersion[0]).setBizVersion(
@@ -245,8 +246,8 @@ public class BizCommandProvider implements CommandProvider {
                         try {
                             ArkClient.installOperation(bizOperation);
                         } catch (Throwable throwable) {
-                            ArkLoggerFactory.getDefaultLogger().error("Fail to process telnet install command: " + param,
-                                throwable);
+                            ArkLoggerFactory.getDefaultLogger().error(
+                                "Fail to process telnet install command: " + param, throwable);
                         }
                     }
                 });
@@ -266,14 +267,15 @@ public class BizCommandProvider implements CommandProvider {
                         String param = parameters.toArray(new String[] {})[0];
                         String[] nameAndVersion = param.split(Constants.STRING_COLON);
                         if (nameAndVersion.length != 2) {
-                            ArkLoggerFactory.getDefaultLogger().error("Invalid telnet biz uninstall command {}", param);
+                            ArkLoggerFactory.getDefaultLogger().error(
+                                "Invalid telnet biz uninstall command {}", param);
                             return;
                         }
                         try {
                             ArkClient.uninstallBiz(nameAndVersion[0], nameAndVersion[1]);
                         } catch (Throwable throwable) {
-                            ArkLoggerFactory.getDefaultLogger().error("Fail to process telnet uninstall command: " + param,
-                                throwable);
+                            ArkLoggerFactory.getDefaultLogger().error(
+                                "Fail to process telnet uninstall command: " + param, throwable);
                         }
                     }
                 });
@@ -288,14 +290,15 @@ public class BizCommandProvider implements CommandProvider {
                         String param = parameters.toArray(new String[] {})[0];
                         String[] nameAndVersion = param.split(Constants.STRING_COLON);
                         if (nameAndVersion.length != 2) {
-                            ArkLoggerFactory.getDefaultLogger().error("Invalid telnet biz switch command {}", param);
+                            ArkLoggerFactory.getDefaultLogger().error(
+                                "Invalid telnet biz switch command {}", param);
                             return;
                         }
                         try {
                             ArkClient.switchBiz(nameAndVersion[0], nameAndVersion[1]);
                         } catch (Throwable throwable) {
-                            ArkLoggerFactory.getDefaultLogger().error("Fail to process telnet switch command: " + param,
-                                throwable);
+                            ArkLoggerFactory.getDefaultLogger().error(
+                                "Fail to process telnet switch command: " + param, throwable);
                         }
                     }
                 });

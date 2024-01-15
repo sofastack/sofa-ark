@@ -70,8 +70,9 @@ public class RegistryServiceImpl implements RegistryService {
             serviceProvider);
         for (ServiceReference<?> serviceReference : services) {
             if (serviceMetadata.equals(serviceReference.getServiceMetadata())) {
-                ArkLoggerFactory.getDefaultLogger().warn(String.format("Service: %s publish by: %s already exist",
-                    serviceMetadata.getServiceName(), serviceProvider));
+                ArkLoggerFactory.getDefaultLogger().warn(
+                    String.format("Service: %s publish by: %s already exist",
+                        serviceMetadata.getServiceName(), serviceProvider));
                 return (ServiceReference<T>) serviceReference;
             }
         }
@@ -80,8 +81,9 @@ public class RegistryServiceImpl implements RegistryService {
             implObject);
         injectionService.inject(serviceReference);
 
-        ArkLoggerFactory.getDefaultLogger().info(String.format("Service: %s publish by: %s succeed",
-            serviceMetadata.getServiceName(), serviceProvider));
+        ArkLoggerFactory.getDefaultLogger().info(
+            String.format("Service: %s publish by: %s succeed", serviceMetadata.getServiceName(),
+                serviceProvider));
 
         services.add(serviceReference);
 

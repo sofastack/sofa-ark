@@ -44,17 +44,17 @@ import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_SERVER_ENABLE;
 @Singleton
 public class StandardTelnetServerImpl implements TelnetServerService {
 
-    private static final int       WORKER_THREAD_POOL_SIZE = 2;
+    private static final int  WORKER_THREAD_POOL_SIZE = 2;
 
-    private int                    port                    = -1;
+    private int               port                    = -1;
 
-    private AtomicBoolean          shutdown                = new AtomicBoolean(false);
+    private AtomicBoolean     shutdown                = new AtomicBoolean(false);
 
-    private boolean                enableTelnetServer      = EnvironmentUtils.getProperty(
-                                                               TELNET_SERVER_ENABLE, "true")
-                                                               .equalsIgnoreCase("true");
+    private boolean           enableTelnetServer      = EnvironmentUtils.getProperty(
+                                                          TELNET_SERVER_ENABLE, "true")
+                                                          .equalsIgnoreCase("true");
 
-    private NettyTelnetServer      nettyTelnetServer;
+    private NettyTelnetServer nettyTelnetServer;
 
     public StandardTelnetServerImpl() {
         if (enableTelnetServer) {
@@ -67,7 +67,8 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                         DEFAULT_SELECT_PORT_SIZE);
                 }
             } catch (NumberFormatException e) {
-                ArkLoggerFactory.getDefaultLogger().error(String.format("Invalid port in %s", telnetPort), e);
+                ArkLoggerFactory.getDefaultLogger().error(
+                    String.format("Invalid port in %s", telnetPort), e);
                 throw new ArkRuntimeException(e);
             }
         }
@@ -100,7 +101,8 @@ public class StandardTelnetServerImpl implements TelnetServerService {
                     nettyTelnetServer = null;
                 }
             } catch (Throwable t) {
-                ArkLoggerFactory.getDefaultLogger().error("An error occurs when shutdown telnet server.", t);
+                ArkLoggerFactory.getDefaultLogger().error(
+                    "An error occurs when shutdown telnet server.", t);
                 throw new ArkRuntimeException(t);
             }
         }

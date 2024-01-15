@@ -39,7 +39,7 @@ import java.lang.reflect.Field;
 public class InjectionServiceImpl implements InjectionService {
 
     @Inject
-    private RegistryService        registryService;
+    private RegistryService registryService;
 
     @Override
     public void inject(final ServiceReference reference) {
@@ -65,15 +65,17 @@ public class InjectionServiceImpl implements InjectionService {
                 Object value = getService(serviceType, arkInject.uniqueId());
 
                 if (value == null) {
-                    ArkLoggerFactory.getDefaultLogger().warn(String.format("Inject {field= %s} of {service= %s} fail!",
-                        field.getName(), type));
+                    ArkLoggerFactory.getDefaultLogger().warn(
+                        String.format("Inject {field= %s} of {service= %s} fail!", field.getName(),
+                            type));
                     return;
                 }
                 ReflectionUtils.makeAccessible(field);
                 try {
                     field.set(instance, value);
-                    ArkLoggerFactory.getDefaultLogger().info(String.format("Inject {field= %s} of {service= %s} success!",
-                        field.getName(), type));
+                    ArkLoggerFactory.getDefaultLogger().info(
+                        String.format("Inject {field= %s} of {service= %s} success!",
+                            field.getName(), type));
                 } catch (Throwable throwable) {
                     throw new ArkRuntimeException(throwable);
                 }
