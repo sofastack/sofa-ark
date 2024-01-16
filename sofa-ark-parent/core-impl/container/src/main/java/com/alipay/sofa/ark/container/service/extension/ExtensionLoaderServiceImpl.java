@@ -49,8 +49,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
  */
 @Singleton
 public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
-    private static final Logger  LOGGER               = ArkLoggerFactory.getDefaultLogger();
-
     private PluginManagerService pluginManagerService = ArkServiceContainerHolder.getContainer()
                                                           .getService(PluginManagerService.class);
 
@@ -93,8 +91,9 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                 }
             }
         } catch (Throwable throwable) {
-            LOGGER.error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
-                throwable);
+            ArkLoggerFactory.getDefaultLogger()
+                .error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
+                    throwable);
             throw new ArkRuntimeException(throwable);
         }
         return extensionClass == null ? null : extensionClass.getObject();
@@ -120,8 +119,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                                                                        + fileName);
             while (enumeration.hasMoreElements()) {
                 URL url = enumeration.nextElement();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(
+                if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
+                    ArkLoggerFactory.getDefaultLogger().debug(
                         "Loading extension of extensible: {} from location: {} and file: {}",
                         interfaceType, location, url);
                 }
@@ -166,8 +165,8 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
             }
             return extensionClassSet;
         } catch (Throwable throwable) {
-            LOGGER
-                .error("Loading extension files from {} occurs an error {}.", location, throwable);
+            ArkLoggerFactory.getDefaultLogger().error(
+                "Loading extension files from {} occurs an error {}.", location, throwable);
             throw throwable;
         } finally {
             if (reader != null) {
