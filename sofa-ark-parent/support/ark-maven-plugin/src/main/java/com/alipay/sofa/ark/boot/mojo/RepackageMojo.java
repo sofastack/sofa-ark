@@ -408,7 +408,7 @@ public class RepackageMojo extends TreeMojo {
         request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
         List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-            "-DoutputFile=" + outputPath).collect(Collectors.toList());
+            "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
         if (userProperties != null) {
