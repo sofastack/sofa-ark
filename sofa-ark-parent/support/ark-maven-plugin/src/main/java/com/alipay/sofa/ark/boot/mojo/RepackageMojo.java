@@ -48,6 +48,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -92,6 +94,8 @@ public class RepackageMojo extends TreeMojo {
 
     private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
 
+    private static final String DEFAULT_COPIED_POM_TREE = "copied-pom-tree";
+
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject           mavenProject;
 
@@ -106,6 +110,9 @@ public class RepackageMojo extends TreeMojo {
 
     @Component
     private RepositorySystem       repositorySystem;
+
+    @Component
+    private DependencyGraphBuilder dependencyGraphBuilder;
 
     /**
      * Directory containing the generated archive
@@ -349,11 +356,11 @@ public class RepackageMojo extends TreeMojo {
         try {
             if (repackager.isDeclaredMode()) {
                 Set<ArtifactItem> artifactItems;
-                if (MavenUtils.isRootProject(this.mavenProject)) {
-                    artifactItems = getAllArtifact();
-                } else {
-                    artifactItems = getAllArtifactByMavenTree();
-                }
+                //                if (MavenUtils.isRootProject(this.mavenProject)) {
+                artifactItems = getAllArtifact();
+                //                } else {
+                //                    artifactItems = getAllArtifactByMavenTree();
+                //                }
                 repackager.prepareDeclaredLibraries(artifactItems);
             }
             MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
@@ -391,8 +398,16 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private Set<ArtifactItem> getAllArtifact() throws MojoExecutionException, MojoFailureException {
-        super.execute();
-        DependencyNode dependencyNode = super.getDependencyGraph();
+        //        super.execute();
+        DependencyNode dependencyNode;
+        try {
+            MavenUtils.copyProject(mavenProject, DEFAULT_COPIED_POM_TREE);
+            dependencyNode = dependencyGraphBuilder.buildDependencyGraph(projectBuildingRequest,
+                null);
+        } catch (Exception exception) {
+            throw new MojoExecutionException("execute dependency:tree failed", exception);
+        }
+
         Set<ArtifactItem> results = new HashSet<>();
         parseArtifactItems(dependencyNode, results);
         return results;
