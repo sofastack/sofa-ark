@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.container.pipeline;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
@@ -56,19 +55,17 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
  */
 @Singleton
 public class HandleArchiveStage implements PipelineStage {
-    private final static ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
+    @Inject
+    private PluginManagerService pluginManagerService;
 
     @Inject
-    private PluginManagerService   pluginManagerService;
+    private PluginFactoryService pluginFactoryService;
 
     @Inject
-    private PluginFactoryService   pluginFactoryService;
+    private BizManagerService    bizManagerService;
 
     @Inject
-    private BizManagerService      bizManagerService;
-
-    @Inject
-    private BizFactoryService      bizFactoryService;
+    private BizFactoryService    bizFactoryService;
 
     @Override
     public void process(PipelineContext pipelineContext) throws ArkRuntimeException {
@@ -101,7 +98,8 @@ public class HandleArchiveStage implements PipelineStage {
                         bizManagerService.registerBiz(biz);
                         bizCount += 1;
                     } else {
-                        LOGGER.warn("The biz of {} is ignored when using dynamic config.",
+                        ArkLoggerFactory.getDefaultLogger().warn(
+                            "The biz of {} is ignored when using dynamic config.",
                             biz.getIdentity());
                     }
                 } else {
@@ -109,7 +107,8 @@ public class HandleArchiveStage implements PipelineStage {
                         bizManagerService.registerBiz(biz);
                         bizCount += 1;
                     } else {
-                        LOGGER.warn(String.format("The biz of %s is excluded.", biz.getIdentity()));
+                        ArkLoggerFactory.getDefaultLogger().warn(
+                            String.format("The biz of %s is excluded.", biz.getIdentity()));
                     }
                 }
             }
@@ -156,8 +155,8 @@ public class HandleArchiveStage implements PipelineStage {
                 if (!isPluginExcluded(plugin)) {
                     pluginManagerService.registerPlugin(plugin);
                 } else {
-                    LOGGER.warn(String.format("The plugin of %s is excluded.",
-                        plugin.getPluginName()));
+                    ArkLoggerFactory.getDefaultLogger().warn(
+                        String.format("The plugin of %s is excluded.", plugin.getPluginName()));
                 }
             }
 
@@ -180,7 +179,8 @@ public class HandleArchiveStage implements PipelineStage {
             if (!isPluginExcluded(plugin)) {
                 pluginManagerService.registerPlugin(plugin);
             } else {
-                LOGGER.warn(String.format("The plugin of %s is excluded.", plugin.getPluginName()));
+                ArkLoggerFactory.getDefaultLogger().warn(
+                    String.format("The plugin of %s is excluded.", plugin.getPluginName()));
             }
         }
     }

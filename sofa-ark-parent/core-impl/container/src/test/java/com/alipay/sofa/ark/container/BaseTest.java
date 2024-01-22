@@ -33,7 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -43,7 +42,7 @@ import java.util.List;
 
 import static com.alipay.sofa.ark.common.util.FileUtils.file;
 import static com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader.setExtensionLoaderService;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -82,11 +81,11 @@ public class BaseTest {
         mockArguments.add(String.format("-javaagent:%s", workingPath));
         mockArguments.add(String.format("-javaagent:%s=xx", workingPath));
 
-        RuntimeMXBean runtimeMXBean = Mockito.mock(RuntimeMXBean.class);
+        RuntimeMXBean runtimeMXBean = mock(RuntimeMXBean.class);
         when(runtimeMXBean.getInputArguments()).thenReturn(mockArguments);
         when(runtimeMXBean.getName()).thenReturn("");
 
-        managementFactoryMockedStatic = Mockito.mockStatic(ManagementFactory.class);
+        managementFactoryMockedStatic = mockStatic(ManagementFactory.class);
         managementFactoryMockedStatic.when(ManagementFactory::getRuntimeMXBean).thenReturn(runtimeMXBean);
 
         arkServiceContainer.start();

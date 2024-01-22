@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
+import com.alipay.sofa.ark.container.service.biz.BizCommandProvider.BizCommand;
 import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
@@ -26,7 +27,11 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import org.junit.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
+import static com.alipay.sofa.ark.container.service.biz.BizCommandProvider.HELP_MESSAGE;
 import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 import static com.alipay.sofa.ark.spi.model.BizState.ACTIVATED;
 import static com.alipay.sofa.ark.spi.model.BizState.DEACTIVATED;
@@ -217,5 +222,32 @@ public class BizCommandProviderTest extends BaseTest {
                 bizManagerService.unRegisterBiz(this.getBizName(), this.getBizVersion());
             }
         }
+    }
+
+    @Test
+    public void testBizCommandInvalidate() throws MalformedURLException {
+
+        BizCommand bizCommand = bizCommandProvider.new BizCommand("");
+        assertFalse(bizCommand.isValidate());
+        bizCommand = bizCommandProvider.new BizCommand("biz -");
+        assertFalse(bizCommand.isValidate());
+        bizCommand = bizCommandProvider.new BizCommand("biz -x");
+        assertFalse(bizCommand.isValidate());
+        bizCommand = bizCommandProvider.new BizCommand("biz -h a");
+        assertFalse(bizCommand.isValidate());
+        assertTrue(bizCommand.process().startsWith("Error command format"));
+
+        bizCommand = bizCommandProvider.new BizCommand("biz -h");
+        assertEquals(HELP_MESSAGE, bizCommand.process());
+
+        mockBiz();
+        bizCommand = bizCommandProvider.new BizCommand("biz -a");
+        assertEquals("A1:V1:resolved\nA1:V2:resolved\nB1:V1:resolved\nbiz count = 3\n",
+            bizCommand.process());
+        assertTrue(bizCommand.bizInfo("a:b").startsWith("Invalid bizIdentity: "));
+
+        String bizCommandStr = bizCommand.join(
+            new URL[] { new URL("file:\\a"), new URL("file:\\b") }, "&");
+        assertTrue(bizCommandStr.equals("\\a&\\b") || bizCommandStr.equals("/a&/b"));
     }
 }

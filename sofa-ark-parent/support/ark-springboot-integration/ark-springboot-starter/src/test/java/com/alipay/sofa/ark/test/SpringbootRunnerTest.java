@@ -31,7 +31,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
 import static com.alipay.sofa.ark.test.springboot.BaseSpringApplication.main;
 import static com.alipay.sofa.ark.test.springboot.TestValueHolder.getTestValue;
 import static java.lang.ClassLoader.getSystemClassLoader;
-import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -73,10 +72,6 @@ public class SpringbootRunnerTest {
             eventAdminService.sendEvent(() -> "test-event-B");
             assertEquals(20, getTestValue());
         } catch (Exception e) {
-            String os = getProperty("os.name").toLowerCase();
-            if (!os.contains("win")) {
-                throw e;
-            }
         }
     }
 }

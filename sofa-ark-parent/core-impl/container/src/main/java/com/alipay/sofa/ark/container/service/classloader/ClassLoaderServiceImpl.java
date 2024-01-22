@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.bootstrap.AgentClassLoader;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
@@ -49,9 +50,6 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class ClassLoaderServiceImpl implements ClassLoaderService {
-
-    private static final ArkLogger                  LOGGER                                    = ArkLoggerFactory
-                                                                                                  .getDefaultLogger();
 
     private static final String                     ARK_SPI_PACKAGES                          = "com.alipay.sofa.ark.spi";
     private static final String                     ARK_API_PACKAGES                          = "com.alipay.sofa.ark.api";
@@ -287,6 +285,12 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     }
 
     @Override
+    public ClassLoader getMasterBizClassLoader() {
+        Biz biz = ArkClient.getMasterBiz();
+        return biz == null ? null : biz.getBizClassLoader();
+    }
+
+    @Override
     public ClassLoader getPluginClassLoader(String pluginName) {
         Plugin plugin = pluginManagerService.getPluginByName(pluginName);
         return plugin == null ? null : plugin.getPluginClassLoader();
@@ -308,14 +312,15 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             URL[] urls = ClassLoaderUtils.getURLs(systemClassLoader);
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(String.format("Find JDK Url: %s", url));
+                    if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
+                        ArkLoggerFactory.getDefaultLogger().debug(
+                            String.format("Find JDK Url: %s", url));
                     }
                     jdkUrls.add(url);
                 }
             }
         } catch (Throwable e) {
-            LOGGER.warn("Meet exception when parse JDK urls", e);
+            ArkLoggerFactory.getDefaultLogger().warn("Meet exception when parse JDK urls", e);
         }
 
         jdkClassLoader = new JDKDelegateClassLoader(jdkUrls.toArray(new URL[0]), extClassLoader);

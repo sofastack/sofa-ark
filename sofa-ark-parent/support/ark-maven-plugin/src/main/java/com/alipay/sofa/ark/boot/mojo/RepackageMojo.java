@@ -38,26 +38,45 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.plugins.dependency.tree.TreeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.shared.invoker.*;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -70,6 +89,8 @@ import static com.alipay.sofa.ark.spi.constant.Constants.*;
 public class RepackageMojo extends TreeMojo {
 
     private static final String    BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
+
+    private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject           mavenProject;
@@ -387,7 +408,7 @@ public class RepackageMojo extends TreeMojo {
         request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
         List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-            "-DoutputFile=" + outputPath).collect(Collectors.toList());
+            "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
         if (userProperties != null) {
@@ -556,6 +577,9 @@ public class RepackageMojo extends TreeMojo {
         if (!StringUtils.isEmpty(packExcludesConfig)) {
             extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
                                       + packExcludesConfig);
+        } else {
+            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                                      + DEFAULT_EXCLUDE_RULES);
         }
 
         // extension from url
