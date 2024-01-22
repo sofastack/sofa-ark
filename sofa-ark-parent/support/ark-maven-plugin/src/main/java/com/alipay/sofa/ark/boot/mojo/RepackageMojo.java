@@ -404,7 +404,9 @@ public class RepackageMojo extends TreeMojo {
 
         //  run  maven dependency:tree
         try {
-            return doGetAllArtifactByMavenTree(this.mavenProject);
+            if (this.mavenProject.getBasedir() != null) {
+                return doGetAllArtifactByMavenTree(this.mavenProject);
+            }
         } catch (MojoExecutionException e) {
             getLog().warn(
                 "execute dependency:tree failed, try to execute dependency:tree in root project");
