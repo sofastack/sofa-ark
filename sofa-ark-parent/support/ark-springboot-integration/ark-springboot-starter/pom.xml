@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <spring.boot.version>3.0.9</spring.boot.version>
+        <spring.boot.version>3.2.1</spring.boot.version>
     </properties>
 
     <artifactId>sofa-ark-springboot-starter</artifactId>

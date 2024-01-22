@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import org.springframework.boot.ssl.SslBundle;
 import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.embedded.netty.NettyRouteProvider;
 import org.springframework.boot.web.embedded.netty.NettyServerCustomizer;
@@ -35,6 +36,8 @@ import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
 import reactor.netty.resources.LoopResources;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +49,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 
@@ -150,9 +154,29 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
     }
 
     private HttpServer customizeSslConfiguration(HttpServer httpServer) {
-        SslServerCustomizer sslServerCustomizer = new SslServerCustomizer(this.getSsl(),
-            this.getHttp2(), this.getSslStoreProvider());
-        return sslServerCustomizer.apply(httpServer);
+        SslServerCustomizer customizer = new SslServerCustomizer(this.getHttp2(), this.getSsl().getClientAuth(), this.getSslBundle());
+        String bundleName = this.getSsl().getBundle();
+        if (StringUtils.hasText(bundleName)) {
+            try{
+                // 找到类 SslServerCustomizer 的updateSslBundle方法
+                Method updateSslBundleMethod = SslServerCustomizer.class.getDeclaredMethod("updateSslBundle", SslBundle.class);
+                updateSslBundleMethod.setAccessible(true);
+
+                // 使用反射创建Consumer<SslBundle>
+                Consumer<SslBundle> consumer = sslBundle -> {
+                    try {
+                        // 通过反射调用updateSslBundle方法
+                        updateSslBundleMethod.invoke(customizer, sslBundle);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                };
+                this.getSslBundles().addBundleUpdateHandler(bundleName, consumer);
+            }catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+        return customizer.apply(httpServer);
     }
 
     private HttpProtocol[] listProtocols() {
