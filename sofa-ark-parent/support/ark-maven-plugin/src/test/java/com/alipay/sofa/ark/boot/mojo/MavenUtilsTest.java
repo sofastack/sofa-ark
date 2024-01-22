@@ -86,15 +86,4 @@ public class MavenUtilsTest {
                     + "[INFO] |  |  \\- org.springframework:spring-jcl:jar:ark-biz:5.3.29:provided\n"
                     + "[INFO] |  \\- org.springframework:spring-context:jar:5.3.29"));
     }
-
-    @Test
-    public void testCopyProjects() throws Exception {
-        MavenProject parentMavenProject = new MavenProject();
-        parentMavenProject.setFile(new File(
-            "/Users/youji.zzl/Documents/workspace/bgrowthcrowd/pom.xml"));
-
-        MavenProject mavenProject = new MavenProject();
-        mavenProject.setParent(parentMavenProject);
-        MavenUtils.copyProject(mavenProject, "./");
-    }
 }
