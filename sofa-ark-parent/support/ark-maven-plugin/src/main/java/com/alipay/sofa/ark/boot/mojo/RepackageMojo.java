@@ -30,6 +30,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -399,8 +400,22 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private Set<ArtifactItem> getAllArtifactByMavenTree() throws MojoExecutionException {
-        File baseDir = MavenUtils.getRootProject(this.mavenProject).getBasedir();
-        getLog().info("root project path: " + baseDir.getAbsolutePath());
+        MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
+        getLog().info("root project path: " + rootProject.getBasedir().getAbsolutePath());
+
+        //  run  maven dependency:tree
+        try {
+            return doGetAllArtifactByMavenTree(this.mavenProject);
+        } catch (MojoExecutionException e) {
+            getLog().warn(
+                "execute dependency:tree failed, try to execute dependency:tree in root project");
+        }
+        return doGetAllArtifactByMavenTree(MavenUtils.getRootProject(this.mavenProject));
+    }
+
+    private Set<ArtifactItem> doGetAllArtifactByMavenTree(MavenProject project) throws MojoExecutionException {
+        File baseDir = project.getBasedir();
+        getLog().info("project path: " + baseDir.getAbsolutePath());
 
         // dependency:tree
         String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
@@ -408,7 +423,7 @@ public class RepackageMojo extends TreeMojo {
         request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
         List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-            "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
+                "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
         if (userProperties != null) {
@@ -416,7 +431,7 @@ public class RepackageMojo extends TreeMojo {
         }
 
         getLog().info(
-            "execute 'mvn dependency:tree' with command 'mvn " + String.join(" ", goals) + "'");
+                "execute 'mvn dependency:tree' with command 'mvn " + String.join(" ", goals) + "'");
         request.setGoals(goals);
         request.setBatchMode(mavenSession.getSettings().getInteractiveMode());
         request.setProfiles(mavenSession.getSettings().getActiveProfiles());
@@ -426,11 +441,11 @@ public class RepackageMojo extends TreeMojo {
             InvocationResult result = invoker.execute(request);
             if (result.getExitCode() != 0) {
                 throw new MojoExecutionException("execute dependency:tree failed",
-                    result.getExecutionException());
+                        result.getExecutionException());
             }
 
             String depTreeStr = FileUtils.readFileToString(FileUtils.getFile(outputPath),
-                Charset.defaultCharset());
+                    Charset.defaultCharset());
             return MavenUtils.convert(depTreeStr);
         } catch (MavenInvocationException | IOException e) {
             throw new MojoExecutionException("execute dependency:tree failed", e);
