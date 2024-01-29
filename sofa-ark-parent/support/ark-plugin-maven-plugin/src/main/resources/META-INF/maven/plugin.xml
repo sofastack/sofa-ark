@@ -210,12 +210,6 @@
             <version>2.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>log-sofa-boot-starter</artifactId>
-            <type>jar</type>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.alipay.sofa.common</groupId>
             <artifactId>sofa-common-tools</artifactId>
             <type>jar</type>

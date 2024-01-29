@@ -10,23 +10,15 @@
     <artifactId>sofa-ark-common</artifactId>
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.alipay.sofa.common</groupId>
+            <artifactId>sofa-common-tools</artifactId>
+            <version>${sofa.common.tools.version}</version>
+        </dependency>
         <!--SOFAArk modules-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-spi</artifactId>
-        </dependency>
-
-        <!--third party library-->
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>log-sofa-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
