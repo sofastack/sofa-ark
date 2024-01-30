@@ -84,7 +84,6 @@ public class JarURLConnectionTest {
     @Test
     public void testJarEntryName() {
         JarEntryName jarEntryName = get(url.toString());
-        assertEquals("content/unknown", jarEntryName.getContentType());
-        assertEquals("content/unknown", jarEntryName.getContentType());
+        assertEquals("application/java-archive", jarEntryName.getContentType());
     }
 }

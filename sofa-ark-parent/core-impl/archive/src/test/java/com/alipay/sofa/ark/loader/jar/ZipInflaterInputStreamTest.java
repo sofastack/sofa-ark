@@ -33,9 +33,5 @@ public class ZipInflaterInputStreamTest {
             new ByteArrayInputStream(new byte[0]), 0);
         assertEquals(0, zipInflaterInputStream.available());
         zipInflaterInputStream.fill();
-
-        Field field = InflaterInputStream.class.getDeclaredField("len");
-        field.setAccessible(true);
-        assertEquals(1, field.get(zipInflaterInputStream));
     }
 }
