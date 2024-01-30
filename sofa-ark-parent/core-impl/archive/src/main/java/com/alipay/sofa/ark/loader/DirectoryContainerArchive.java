@@ -49,7 +49,7 @@ public class DirectoryContainerArchive implements ContainerArchive {
             "sofa-ark-parent/core-impl/archive/target/classes",
             "sofa-ark-parent/core/spi/target/classes",
             "sofa-ark-parent/core/common/target/classes",
-            "sofa-ark-parent/core/exception/target/classes",
+            "sofa-ark-parent/core/exception/target/classes", "jakarta.inject-api-2.0.1",
             "sofa-ark-parent/core/api/target/classes" };
 
     public DirectoryContainerArchive(URL[] urls) {

@@ -45,14 +45,14 @@ public class ArkJUnit4RunnerTest {
     public void test() {
         ClassLoader testClassLoader = getClass().getClassLoader();
         Assert.assertTrue(testClassLoader.getClass().getCanonicalName()
-                .equals(TestClassLoader.class.getCanonicalName()));
+            .equals(TestClassLoader.class.getCanonicalName()));
 
         Assert.assertTrue("@Before".equals(state));
         state = "@Test";
 
         ClassLoader testClCl = testClassLoader.getClass().getClassLoader();
         Assert.assertTrue(testClCl.getClass().getCanonicalName()
-                .equals(ContainerClassLoader.class.getCanonicalName()));
+            .equals(ContainerClassLoader.class.getCanonicalName()));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ArkJUnit4RunnerTest {
             ArkJUnit4Runner runner = new ArkJUnit4Runner(ArkJUnit4RunnerTest.class);
             ClassLoader loader = runner.getTestClass().getJavaClass().getClassLoader();
             Assert.assertTrue(loader.getClass().getCanonicalName()
-                    .equals(TestClassLoader.class.getCanonicalName()));
+                .equals(TestClassLoader.class.getCanonicalName()));
         } catch (InitializationError error) {
             Assert.fail(error.getMessage());
         }

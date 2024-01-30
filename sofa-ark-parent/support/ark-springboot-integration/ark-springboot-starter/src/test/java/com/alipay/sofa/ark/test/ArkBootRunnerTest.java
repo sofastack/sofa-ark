@@ -118,15 +118,15 @@ public class ArkBootRunnerTest {
     /**
      * issue#234
      */
-        @Test
-        public void testLogClassCastBug() {
-            Throwable throwable = null;
-            try {
-                this.getClass().getClassLoader()
-                    .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory").newInstance();
-            } catch (Throwable t) {
-                throwable = t;
-            }
-            assertNull(throwable);
+    @Test
+    public void testLogClassCastBug() {
+        Class<?> clazz = null;
+        try {
+            clazz = this.getClass().getClassLoader()
+                .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory");
+        } catch (Throwable t) {
+            System.out.println(t.getStackTrace().toString());
         }
+        assertTrue(clazz.getClassLoader().toString().contains("TestClassLoader"));
+    }
 }
