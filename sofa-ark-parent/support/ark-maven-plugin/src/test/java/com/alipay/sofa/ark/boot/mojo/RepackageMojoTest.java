@@ -72,6 +72,10 @@ public class RepackageMojoTest {
     }
 
     @Test
+    public void extensionExcludeArtifactsInProperties(){
+        String path = "/Users/chanyang/Work/sofa-ark/sofa-ark-parent/support/ark-maven-plugin/src/test/resources/application.properties";
+    }
+    @Test
     public void testRepackageMojo() throws NoSuchMethodException, InvocationTargetException,
                                    IllegalAccessException, NoSuchFieldException {
         RepackageMojo repackageMojo = new RepackageMojo();
