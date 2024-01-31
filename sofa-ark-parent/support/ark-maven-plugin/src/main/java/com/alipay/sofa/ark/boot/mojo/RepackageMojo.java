@@ -56,10 +56,7 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,10 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -582,6 +576,9 @@ public class RepackageMojo extends TreeMojo {
                                       + DEFAULT_EXCLUDE_RULES);
         }
 
+        extensionExcludeArtifactsInProperties(baseDir + File.separator + APPLICATION_CONF_BASE_DIR + File.separator
+                + APPLICATION_CONF_FILE_FORMAT);
+
         // extension from url
         if (StringUtils.isNotBlank(packExcludesUrl)) {
             extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
@@ -1048,6 +1045,30 @@ public class RepackageMojo extends TreeMojo {
             return type;
         }
 
+    }
+
+    protected void extensionExcludeArtifactsInProperties(String extraResources) {
+        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
+        if (configFile.exists()) {
+            try (InputStream inputStream = new FileInputStream(configFile)) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                for (Object key : properties.keySet()) {
+                    String dataLine = key.toString();
+                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
+                        ParseUtils.parseExcludeConfInProperties(excludes, properties.getProperty(dataLine), EXTENSION_EXCLUDES);
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConfInProperties(excludeGroupIds, properties.getProperty(dataLine),
+                                EXTENSION_EXCLUDES_GROUPIDS);
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
+                        ParseUtils.parseExcludeConfInProperties(excludeArtifactIds, properties.getProperty(dataLine),
+                                EXTENSION_EXCLUDES_ARTIFACTIDS);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
