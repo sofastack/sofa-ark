@@ -1046,7 +1046,12 @@ public class RepackageMojo extends TreeMojo {
         }
 
     }
-
+    /**
+     * We support put sofa-ark-maven-plugin exclude config by setting config in application.properties
+     * The following are examples, with different sub-items separated by commas.
+     * excludeGroupIds=aopalliance*,asm*,org.springframework*
+     * @param extraResources
+     */
     protected void extensionExcludeArtifactsInProperties(String extraResources) {
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
         if (configFile.exists()) {
