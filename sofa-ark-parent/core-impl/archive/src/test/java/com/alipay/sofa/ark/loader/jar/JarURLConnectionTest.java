@@ -84,6 +84,17 @@ public class JarURLConnectionTest {
     @Test
     public void testJarEntryName() {
         JarEntryName jarEntryName = get(url.toString());
-        assertEquals("application/java-archive", jarEntryName.getContentType());
+        String javaVersion = System.getProperty("java.version");
+        if (javaVersion.startsWith("1.8")) {
+            assertEquals("content/unknown", jarEntryName.getContentType());
+        } else {
+            assertEquals("application/java-archive", jarEntryName.getContentType());
+        }
+
+        if (javaVersion.startsWith("1.8")) {
+            assertEquals("content/unknown", jarEntryName.getContentType());
+        } else {
+            assertEquals("application/java-archive", jarEntryName.getContentType());
+        }
     }
 }

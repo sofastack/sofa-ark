@@ -228,8 +228,8 @@ public class RepackageMojoTest {
         artifacts.add(defaultArtifact);
         artifacts.add(defaultArtifact1);
 
-        // NOTE: Access github to run unit test, need vpn maybe.
-        String packExcludesUrl = "https://github.com/sofastack/sofa-ark";
+        // NOTE: Access httpbin to run unit test, need vpn maybe.
+        String packExcludesUrl = "http://httpbin.org/get";
         extensionExcludeArtifactsFromUrl.invoke(repackageMojo, packExcludesUrl, artifacts);
     }
 

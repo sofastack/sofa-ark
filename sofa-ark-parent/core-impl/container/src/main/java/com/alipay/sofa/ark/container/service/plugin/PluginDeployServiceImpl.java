@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;

@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.container.service;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.guice.AbstractArkGuiceModule;
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.OrderComparator;

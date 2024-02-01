@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.container.service.injection;
 
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.ReflectionUtils;
 import com.alipay.sofa.ark.common.util.ReflectionUtils.FieldCallback;
