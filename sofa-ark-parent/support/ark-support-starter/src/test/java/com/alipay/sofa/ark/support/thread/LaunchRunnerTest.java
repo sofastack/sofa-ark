@@ -89,6 +89,12 @@ public class LaunchRunnerTest {
     }
 
     @Test
+    public void testRunWithException() {
+        new LaunchRunner(MainClass.class.getName(), "a", null).run();
+        new LaunchRunner("a", null).run();
+    }
+
+    @Test
     public void testJoin() {
         ThreadGroup threadGroup = new ThreadGroup("test_thread_group");
         new Thread(threadGroup, "thread_1").start();

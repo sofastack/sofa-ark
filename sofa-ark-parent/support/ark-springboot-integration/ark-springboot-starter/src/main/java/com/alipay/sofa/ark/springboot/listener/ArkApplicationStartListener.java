@@ -27,7 +27,6 @@ import org.springframework.boot.SpringBootVersion;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.SpringApplicationEvent;
-import org.springframework.boot.loader.launch.LaunchedClassLoader;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -65,9 +64,7 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
     @Override
     public void onApplicationEvent(SpringApplicationEvent event) {
         try {
-            if (ArkConfigs.isEmbedEnable()
-                || LaunchedClassLoader.class.isAssignableFrom(this.getClass().getClassLoader()
-                    .getClass())) {
+            if (isEmbedEnable()) {
                 ArkConfigs.setEmbedEnable(true);
                 startUpArkEmbed(event);
                 return;

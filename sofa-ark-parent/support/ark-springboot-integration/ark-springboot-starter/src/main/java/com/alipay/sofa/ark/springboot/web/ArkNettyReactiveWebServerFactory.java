@@ -154,6 +154,7 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
     }
 
     private HttpServer customizeSslConfiguration(HttpServer httpServer) {
+
         SslServerCustomizer customizer = new SslServerCustomizer(this.getHttp2(), this.getSsl().getClientAuth(), this.getSslBundle());
         String bundleName = this.getSsl().getBundle();
         if (StringUtils.hasText(bundleName)) {

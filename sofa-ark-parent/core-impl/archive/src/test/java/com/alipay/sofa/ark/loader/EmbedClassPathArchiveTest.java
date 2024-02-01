@@ -17,7 +17,10 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.common.util.FileUtils;
+<<<<<<< HEAD
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+=======
+>>>>>>> 3.1.x
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import org.junit.Assert;
@@ -42,6 +45,7 @@ public class EmbedClassPathArchiveTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("sample-springboot-fat-biz.jar");
         JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
+
         List<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive);
         List<URL> urls = new ArrayList<>();
         for (Archive archive : archives) {

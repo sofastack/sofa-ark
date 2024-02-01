@@ -243,6 +243,11 @@
                 <artifactId>sofa-common-tools</artifactId>
                 <version>${sofa.common.tools.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa.common</groupId>
+                <artifactId>sofa-common-tools</artifactId>
+                <version>${sofa.common.tools.version}</version>
+            </dependency>
 
             <!-- maven -->
             <dependency>
