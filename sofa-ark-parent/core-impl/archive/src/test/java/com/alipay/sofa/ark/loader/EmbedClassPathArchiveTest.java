@@ -17,17 +17,15 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.common.util.FileUtils;
+import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.archive.Archive;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.boot.loader.archive.Archive;
-import org.springframework.boot.loader.archive.JarFileArchive;
 
-import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,15 +42,16 @@ public class EmbedClassPathArchiveTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("sample-springboot-fat-biz.jar");
         JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
-        Iterator<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
+
+        List<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive);
         List<URL> urls = new ArrayList<>();
-        while (archives.hasNext()){
-            urls.add(archives.next().getUrl());
+        for (Archive archive : archives) {
+            urls.add(archive.getUrl());
         }
 
         EmbedClassPathArchive archive = new EmbedClassPathArchive(
                 "com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication", "main",
-                urls.toArray(new URL[] {}));
+                urls.toArray(new URL[]{}));
         assertTrue(archive.getContainerArchive().getUrls().length != 0);
         assertTrue(archive.getConfClasspath().size() != 0);
         assertTrue(archive.getBizArchives().size() == 0);
@@ -77,15 +76,15 @@ public class EmbedClassPathArchiveTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL springbootFatJar = cl.getResource("static-combine-demo.jar");
         JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
-        Iterator<org.springframework.boot.loader.archive.Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
+        List<Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive);
         List<URL> urls = new ArrayList<>();
-        while (archives.hasNext()){
-            urls.add(archives.next().getUrl());
+        for (Archive archive : archives) {
+            urls.add(archive.getUrl());
         }
         EmbedClassPathArchive archive = new EmbedClassPathArchive("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication",
                 "main",
-                urls.toArray(new URL[] {}));
+                urls.toArray(new URL[]{}));
         List<BizArchive> bizArchives = archive.getBizArchives();
-        Assert.assertFalse(bizArchives==null||bizArchives.isEmpty());
+        Assert.assertFalse(bizArchives == null || bizArchives.isEmpty());
     }
 }

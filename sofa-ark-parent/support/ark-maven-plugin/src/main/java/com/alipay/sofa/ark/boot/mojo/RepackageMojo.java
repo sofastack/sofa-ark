@@ -1065,5 +1065,4 @@ public class RepackageMojo extends TreeMojo {
         }
 
     }
-
 }

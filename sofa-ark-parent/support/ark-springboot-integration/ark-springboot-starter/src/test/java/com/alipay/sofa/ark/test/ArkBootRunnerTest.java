@@ -120,13 +120,13 @@ public class ArkBootRunnerTest {
      */
     @Test
     public void testLogClassCastBug() {
-        Throwable throwable = null;
+        Class<?> clazz = null;
         try {
-            this.getClass().getClassLoader()
-                .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory").newInstance();
+            clazz = this.getClass().getClassLoader()
+                .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory");
         } catch (Throwable t) {
-            throwable = t;
+            System.out.println(t.getStackTrace().toString());
         }
-        assertNull(throwable);
+        assertTrue(clazz.getClassLoader().toString().contains("TestClassLoader"));
     }
 }

@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.ark.springboot.loader;
 
-import org.springframework.boot.loader.LaunchedURLClassLoader;
-import org.springframework.boot.loader.archive.Archive;
+import org.springframework.boot.loader.launch.Archive;
+import org.springframework.boot.loader.launch.LaunchedClassLoader;
 
 import java.io.IOException;
 import java.net.URL;
@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author bingjie.lbj
  */
-public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
+public class CachedLaunchedURLClassLoader extends LaunchedClassLoader {
     private final Map<String, LoadClassResult>            classCache        = new ConcurrentHashMap<>(
                                                                                 3000);
     private final Map<String, Optional<URL>>              resourceUrlCache  = new ConcurrentHashMap<>(
