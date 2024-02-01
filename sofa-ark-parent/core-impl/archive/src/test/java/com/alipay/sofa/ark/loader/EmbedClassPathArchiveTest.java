@@ -17,10 +17,7 @@
 package com.alipay.sofa.ark.loader;
 
 import com.alipay.sofa.ark.common.util.FileUtils;
-<<<<<<< HEAD
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-=======
->>>>>>> 3.1.x
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import org.junit.Assert;
