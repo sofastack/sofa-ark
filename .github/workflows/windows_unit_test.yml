@@ -10,9 +10,11 @@ name: Test for windows
 
 on:
   push:
-    branches: [ springboot3-master ]
+    branches:
+      - '3.0.*'
   pull_request:
-    branches: [ springboot3-master ]
+    branches:
+      - '3.0.*'
 
 jobs:
   unit_test_for_jdk17:
