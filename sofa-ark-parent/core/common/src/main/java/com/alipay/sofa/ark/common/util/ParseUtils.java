@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.spi.constant.Constants;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

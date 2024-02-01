@@ -48,9 +48,6 @@ public class Constants {
     public final static String       ARK_CONF_FILE                                 = "bootstrap.properties";
     public final static String       ARK_CONF_FILE_FORMAT                          = "bootstrap-%s.properties";
 
-    public final static String       APPLICATION_CONF_BASE_DIR                     = "src/main/resources";
-    public final static String       APPLICATION_CONF_FILE_FORMAT                  = "application.properties";
-
     public final static String       PLUGIN_EXTENSION_FORMAT                       = "PLUGIN-EXPORT[%s]";
 
     public final static String       DEFAULT_PROFILE                               = EMPTY_STR;
