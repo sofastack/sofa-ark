@@ -33,7 +33,8 @@ public class JarURLConnectionTest {
 
     private JarURLConnection jarURLConnection;
 
-    private URL url = this.getClass().getClassLoader().getResource("sample-biz-withjar.jar");
+    private URL              url = this.getClass().getClassLoader()
+                                     .getResource("sample-biz-withjar.jar");
 
     @Before
     public void setUp() throws Exception {
@@ -46,12 +47,12 @@ public class JarURLConnectionTest {
         assertTrue(jarURLConnection.getJarFileURL().getFile().endsWith("/sample-biz-withjar.jar"));
         assertNull(jarURLConnection.getJarEntry());
 
-        jarURLConnection = get(
-                new URL("file://a/b/sample-biz-withjar.jar!/lib/slf4j-api-1.7.30.jar!/"),
-                new JarFile(new File(url.getPath())));
+        jarURLConnection = get(new URL(
+            "file://a/b/sample-biz-withjar.jar!/lib/slf4j-api-1.7.30.jar!/"), new JarFile(new File(
+            url.getPath())));
 
         assertEquals("com.alipay.sofa.ark.loader.data.RandomAccessDataFile$DataInputStream",
-                jarURLConnection.getInputStream().getClass().getName());
+            jarURLConnection.getInputStream().getClass().getName());
         assertNull(jarURLConnection.getJarEntry());
         assertEquals("", jarURLConnection.getEntryName());
     }
