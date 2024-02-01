@@ -45,12 +45,12 @@ public class DirectoryContainerArchive implements ContainerArchive {
             "jakarta.inject-api-2.0.1", "logback-core-1.4.14", "logback-classic-1.4.14",
             "slf4j-api-2.0.11", "sofa-common-tools", "netty-all-4.1.94.Final",
             "netty-transport-4.1.94.Final", "netty-common-4.1.94.Final",
-            "netty-handler-4.1.94.Final", "netty-codec-4.1.94.Final", "netty-buffer-4.1.94.Final",
-            "sofa-ark-parent/core-impl/container/target/classes",
+            "jakarta.inject-api-2.0.1", "netty-handler-4.1.94.Final", "netty-codec-4.1.94.Final",
+            "netty-buffer-4.1.94.Final", "sofa-ark-parent/core-impl/container/target/classes",
             "sofa-ark-parent/core-impl/archive/target/classes",
             "sofa-ark-parent/core/spi/target/classes",
             "sofa-ark-parent/core/common/target/classes",
-            "sofa-ark-parent/core/exception/target/classes", "jakarta.inject-api-2.0.1",
+            "sofa-ark-parent/core/exception/target/classes",
             "sofa-ark-parent/core/api/target/classes" };
 
     public DirectoryContainerArchive(URL[] urls) {
