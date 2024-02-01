@@ -576,9 +576,6 @@ public class RepackageMojo extends TreeMojo {
                                       + DEFAULT_EXCLUDE_RULES);
         }
 
-        extensionExcludeArtifactsInProperties(baseDir + File.separator + APPLICATION_CONF_BASE_DIR + File.separator
-                + APPLICATION_CONF_FILE_FORMAT);
-
         // extension from url
         if (StringUtils.isNotBlank(packExcludesUrl)) {
             extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
@@ -1046,34 +1043,4 @@ public class RepackageMojo extends TreeMojo {
         }
 
     }
-    /**
-     * We support put sofa-ark-maven-plugin exclude config by setting config in application.properties
-     * The following are examples, with different sub-items separated by commas.
-     * excludeGroupIds=aopalliance*,asm*,org.springframework*
-     * @param extraResources
-     */
-    protected void extensionExcludeArtifactsInProperties(String extraResources) {
-        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
-        if (configFile.exists()) {
-            try (InputStream inputStream = new FileInputStream(configFile)) {
-                Properties properties = new Properties();
-                properties.load(inputStream);
-                for (Object key : properties.keySet()) {
-                    String dataLine = key.toString();
-                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
-                        ParseUtils.parseExcludeConfInProperties(excludes, properties.getProperty(dataLine), EXTENSION_EXCLUDES);
-                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
-                        ParseUtils.parseExcludeConfInProperties(excludeGroupIds, properties.getProperty(dataLine),
-                                EXTENSION_EXCLUDES_GROUPIDS);
-                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
-                        ParseUtils.parseExcludeConfInProperties(excludeArtifactIds, properties.getProperty(dataLine),
-                                EXTENSION_EXCLUDES_ARTIFACTIDS);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }

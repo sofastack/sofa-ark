@@ -80,12 +80,4 @@ public class ParseUtils {
             }
         }
     }
-
-    public static void parseExcludeConfInProperties(LinkedHashSet<String> targetSet, String origin,
-                                        String confKey) {
-        if (!StringUtils.isEmpty(origin)) {
-            String[] stringArray = origin.split(Constants.COMMA_SPLIT);
-            targetSet.addAll(Arrays.stream(stringArray).toList());
-        }
-    }
 }

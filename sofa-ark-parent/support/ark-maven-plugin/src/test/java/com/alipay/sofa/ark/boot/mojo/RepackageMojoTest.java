@@ -74,32 +74,6 @@ public class RepackageMojoTest {
     }
 
     @Test
-    public void extensionExcludeArtifactsInProperties() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InstantiationException {
-        String path = "/Users/chanyang/Work/sofa-ark/sofa-ark-parent/support/ark-maven-plugin/src/test/resources/application.properties";
-        Class<?> clazz = Class.forName("com.alipay.sofa.ark.boot.mojo.RepackageMojoDemo");
-        RepackageMojoDemo repackageMojoDemo = (RepackageMojoDemo)clazz.newInstance();
-        repackageMojoDemo.extensionExcludeArtifacts(path);
-
-        Field excludesField = clazz.getSuperclass().getDeclaredField("excludes");
-        // 设置私有变量为可访问（重要）
-        excludesField.setAccessible(true);
-        LinkedHashSet<String> excludes = (LinkedHashSet<String>) excludesField.get(repackageMojoDemo);
-        assertEquals(excludes.size(),3);
-
-        Field excludesFieldGroupIds = clazz.getSuperclass().getDeclaredField("excludeGroupIds");
-        // 设置私有变量为可访问（重要）
-        excludesFieldGroupIds.setAccessible(true);
-        LinkedHashSet<String> excludesGroupIds = (LinkedHashSet<String>) excludesFieldGroupIds.get(repackageMojoDemo);
-        assertEquals(excludesGroupIds.size(),83);
-
-
-        Field excludesFieldArtifactIds = clazz.getSuperclass().getDeclaredField("excludeArtifactIds");
-        // 设置私有变量为可访问（重要）
-        excludesFieldArtifactIds.setAccessible(true);
-        LinkedHashSet<String> excludesArtifactIds = (LinkedHashSet<String>) excludesFieldArtifactIds.get(repackageMojoDemo);
-        assertEquals(excludesArtifactIds.size(),0);
-    }
-    @Test
     public void testRepackageMojo() throws NoSuchMethodException, InvocationTargetException,
                                    IllegalAccessException, NoSuchFieldException {
         RepackageMojo repackageMojo = new RepackageMojo();
