@@ -36,8 +36,6 @@ import java.util.Set;
  */
 public class InfoQueryCommandProvider implements CommandProvider {
 
-    private final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
-
     @Override
     public String getHelp() {
         return HELP_MESSAGE;

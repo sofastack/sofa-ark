@@ -93,6 +93,8 @@ public class Constants {
     public final static String       WEB_CONTEXT_PATH                              = "web-context-path";
     public final static String       IMPORT_CLASSES_ATTRIBUTE                      = "import-classes";
     public final static String       IMPORT_PACKAGES_ATTRIBUTE                     = "import-packages";
+
+    public final static String       EXPORT_MODE                                   = "export-mode";
     public final static String       EXPORT_CLASSES_ATTRIBUTE                      = "export-classes";
     public final static String       EXPORT_PACKAGES_ATTRIBUTE                     = "export-packages";
 

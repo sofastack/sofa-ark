@@ -10,9 +10,9 @@ name: Test for windows
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ springboot3-master ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ springboot3-master ]
 
 jobs:
   unit_test_for_jdk17:
@@ -32,4 +32,4 @@ jobs:
         && sh ./check_format.sh
         && mvn test  -DargLine="-Djdk.util.zip.disableZip64ExtraFieldValidation=true"
     - name: Codecov
-      uses: codecov/codecov-action@v4.0.0-beta.3
+      uses: codecov/codecov-action@v3.1.4

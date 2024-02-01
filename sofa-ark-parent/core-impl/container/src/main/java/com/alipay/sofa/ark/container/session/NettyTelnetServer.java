@@ -91,7 +91,6 @@ public class NettyTelnetServer {
             pipeline.addLast(DECODER);
             pipeline.addLast(new NettyTelnetHandler());
         }
-
     }
 
     static class NettyTelnetHandler extends SimpleChannelInboundHandler<String> {

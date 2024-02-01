@@ -27,6 +27,8 @@ import java.util.Properties;
  */
 public abstract class AbstractPropertiesConfig {
 
+    public static final String      KEY_MODE      = "mode";
+
     public static final String      KEY_PACKAGES  = "packages";
     public static final String      KEY_CLASSES   = "classes";
     public static final String      KEY_RESOURCES = "resources";
@@ -34,6 +36,8 @@ public abstract class AbstractPropertiesConfig {
     public static final String      KEY_IMPORT    = "import";
     public static final String      KEY_SPLIT     = "-";
     public static final String      VALUE_SPLIT   = ",";
+
+    protected String                mode;
 
     /**
      * imported or exported packages config
@@ -49,6 +53,21 @@ public abstract class AbstractPropertiesConfig {
      * imported or exported class config
      */
     protected LinkedHashSet<String> resources;
+
+    public void addClass(String className) {
+        if (classes == null) {
+            classes = new LinkedHashSet<>();
+        }
+        classes.add(className);
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 
     public LinkedHashSet<String> getPackages() {
         return packages;

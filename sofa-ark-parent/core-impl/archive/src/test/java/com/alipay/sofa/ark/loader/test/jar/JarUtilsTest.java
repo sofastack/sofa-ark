@@ -19,105 +19,105 @@ package com.alipay.sofa.ark.loader.test.jar;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.google.common.io.Files;
-import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Paths;
+
+import static com.alipay.sofa.ark.loader.jar.JarUtils.parseArtifactId;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class JarUtilsTest {
 
     @Test
     public void getArtifactIdFromTestClassPath() throws IOException {
         URL url = this.getClass().getClassLoader().getResource("sample-biz-withjar.jar");
-        String artifactId = JarUtils.parseArtifactId(url.getPath());
-        Assert.assertEquals("sofa-ark-sample-springboot-ark", artifactId);
+        String artifactId = parseArtifactId(url.getPath());
+        assertEquals("sofa-ark-sample-springboot-ark", artifactId);
     }
 
     @Test
     public void getArtifactIdFromTestClassPath1() throws IOException {
         URL url = this.getClass().getClassLoader().getResource("SampleClass.class");
-        String artifactId = JarUtils.parseArtifactId(url.getPath());
-        Assert.assertEquals("sofa-ark-archive", artifactId);
+        String artifactId = parseArtifactId(url.getPath());
+        assertEquals("sofa-ark-archive", artifactId);
     }
 
     @Test
     public void getArtifactIdFromClassPath() throws IOException, URISyntaxException {
+
         URL clazzURL = this.getClass().getClassLoader()
             .getResource("com/alipay/sofa/ark/loader/jar/JarUtils.class");
-
-        String artifactId = JarUtils.parseArtifactId(clazzURL.getPath());
-        Assert.assertEquals("sofa-ark-archive", artifactId);
+        String artifactId = parseArtifactId(clazzURL.getPath());
+        assertEquals("sofa-ark-archive", artifactId);
 
         URL testClazzURL = this.getClass().getClassLoader()
             .getResource("com/alipay/sofa/ark/loader/test/jar/JarUtilsTest.class");
+        artifactId = parseArtifactId(testClazzURL.getPath());
+        assertEquals("sofa-ark-archive", artifactId);
 
-        artifactId = JarUtils.parseArtifactId(testClazzURL.getPath());
-        Assert.assertEquals("sofa-ark-archive", artifactId);
-
-        URI classPathRoot = this.getClass().getClassLoader().getResource("").toURI();
-        String classPath = Paths.get(classPathRoot).toFile().getAbsolutePath();
-        String artifactId1 = JarUtils.parseArtifactId(classPath);
-        Assert.assertNotNull(artifactId1);
+        String path = this.getClass().getClassLoader().getResource("example-jarinjarinjar.jar")
+            .getPath();
+        String artifactId1 = parseArtifactId(path + "!/lib");
+        assertEquals("example-client", artifactId1);
     }
 
     @Test
     public void testParseArtifactIdFromJarName() throws Exception {
+
         Method method = JarUtils.class.getDeclaredMethod("doGetArtifactIdFromFileName",
             String.class);
         method.setAccessible(Boolean.TRUE);
 
         String filePathPrefix = "file:///home/admin/xxx/xxx/%s.jar";
-
         String artifactId0 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "dafdfa-2-dafdfad"));
-        Assert.assertNull(artifactId0);
+            format(filePathPrefix, "dafdfa-2-dafdfad"));
+        assertNull(artifactId0);
 
         String artifactId2 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "dfadfa-dfadfa-3.0"));
-        Assert.assertEquals(artifactId2, "dfadfa-dfadfa");
+            format(filePathPrefix, "dfadfa-dfadfa-3.0"));
+        assertEquals(artifactId2, "dfadfa-dfadfa");
 
         String artifactId3 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "hessian-4.0.7.bugfix12-tuning3"));
-        Assert.assertEquals(artifactId3, "hessian");
+            format(filePathPrefix, "hessian-4.0.7.bugfix12-tuning3"));
+        assertEquals(artifactId3, "hessian");
 
         String artifactId4 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "hessian-4.0.7"));
-        Assert.assertEquals(artifactId4, "hessian");
+            format(filePathPrefix, "hessian-4.0.7"));
+        assertEquals(artifactId4, "hessian");
     }
 
     @Test
     public void testParseArtifactIdFromJarInJarName() throws Exception {
+
         Method method = JarUtils.class.getDeclaredMethod("doGetArtifactIdFromFileName",
             String.class);
         method.setAccessible(Boolean.TRUE);
 
         String filePathPrefix = "file:///home/admin/xxx/xxx/bootstrap-executable.jar!/META-INF/lib/%s.jar";
-
         String artifactId0 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "dafdfa-2-dafdfad"));
-        Assert.assertNull(artifactId0);
+            format(filePathPrefix, "dafdfa-2-dafdfad"));
+        assertNull(artifactId0);
 
         String artifactId1 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "jar-2-version-suffix"));
-        Assert.assertNull(artifactId1);
+            format(filePathPrefix, "jar-2-version-suffix"));
+        assertNull(artifactId1);
 
         String artifactId2 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "dfadfa-dfadfa-3.0"));
-        Assert.assertEquals(artifactId2, "dfadfa-dfadfa");
+            format(filePathPrefix, "dfadfa-dfadfa-3.0"));
+        assertEquals(artifactId2, "dfadfa-dfadfa");
 
         String artifactId3 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "hessian-4.0.7.bugfix12-tuning3"));
-        Assert.assertEquals(artifactId3, "hessian");
+            format(filePathPrefix, "hessian-4.0.7.bugfix12-tuning3"));
+        assertEquals(artifactId3, "hessian");
 
         String artifactId4 = (String) method.invoke(JarUtils.class,
-            String.format(filePathPrefix, "hessian-4.0.7"));
-        Assert.assertEquals(artifactId4, "hessian");
+            format(filePathPrefix, "hessian-4.0.7"));
+        assertEquals(artifactId4, "hessian");
     }
 
     @Test
@@ -126,44 +126,41 @@ public class JarUtilsTest {
         Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJarInJar",
             String.class);
         method.setAccessible(Boolean.TRUE);
-        Assert.assertEquals("slf4j-api",
+        assertEquals("slf4j-api",
             method.invoke(JarUtils.class, jar.getFile() + "!/lib/slf4j-api-1.7.30.jar"));
     }
 
     @Test
     public void testParseArtifactIdFromJarInJarPom() {
         URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
-        String artifactId0 = JarUtils.parseArtifactId(jar.getFile()
-                                                      + "!/lib/slf4j-api-1.7.30.jar!/");
-        Assert.assertEquals("slf4j-api", artifactId0);
+        String artifactId0 = parseArtifactId(jar.getFile() + "!/lib/slf4j-api-1.7.30.jar!/");
+        assertEquals("slf4j-api", artifactId0);
     }
 
     @Test
     public void testParseArtifactIdFromJarWithBlankPath() throws Exception {
+
         URL jar = JarUtilsTest.class.getResource("/junit-4.12.jar");
         URL root = JarUtilsTest.class.getResource("/");
         String fullPath = root.getPath() + "space directory";
         String jarLocation = fullPath + "/junit-4.12.jar";
         FileUtils.mkdir(fullPath);
-        Files.copy(new File(jar.getFile()), new File(jarLocation));
+        Files.copy(FileUtils.file(jar.getFile()), FileUtils.file(jarLocation));
 
         URL url = JarUtilsTest.class.getResource("/space directory/junit-4.12.jar");
         Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJar", String.class);
         method.setAccessible(Boolean.TRUE);
-        Assert.assertNull(method.invoke(JarUtils.class, url.getPath()));
+        assertNull(method.invoke(JarUtils.class, url.getPath()));
     }
 
     @Test
     public void testParseArtifactIdFromJarInJarInJarMore() {
         URL jar = JarUtilsTest.class.getResource("/example-jarinjarinjar.jar");
-        String artifactId0 = JarUtils
-            .parseArtifactId(jar.getFile()
-                             + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
-        Assert.assertEquals("sofa-ark-spring-guides", artifactId0);
-
-        String artifactId1 = JarUtils
-            .parseArtifactId(jar.getFile()
-                             + "!/BOOT-IN/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
-        Assert.assertEquals("example-client", artifactId1);
+        String artifactId0 = parseArtifactId(jar.getFile()
+                                             + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
+        assertEquals("sofa-ark-spring-guides", artifactId0);
+        String artifactId1 = parseArtifactId(jar.getFile()
+                                             + "!/BOOT-IN/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
+        assertEquals("example-client", artifactId1);
     }
 }

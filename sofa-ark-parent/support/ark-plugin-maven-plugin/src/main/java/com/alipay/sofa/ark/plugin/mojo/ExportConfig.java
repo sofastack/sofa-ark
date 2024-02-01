@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.plugin.mojo;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -26,6 +28,8 @@ public class ExportConfig extends AbstractPropertiesConfig {
 
     @Override
     public void store(Properties prop) {
+        storeKeyValuePair(prop, KEY_EXPORT + KEY_SPLIT + KEY_MODE, getMode() == null ? null
+            : Collections.singletonList(getMode()));
         storeKeyValuePair(prop, KEY_EXPORT + KEY_SPLIT + KEY_PACKAGES, getPackages());
         storeKeyValuePair(prop, KEY_EXPORT + KEY_SPLIT + KEY_CLASSES, getClasses());
         storeKeyValuePair(prop, KEY_EXPORT + KEY_SPLIT + KEY_RESOURCES, getResources());

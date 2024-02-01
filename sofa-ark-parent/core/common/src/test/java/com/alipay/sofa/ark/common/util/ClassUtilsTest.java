@@ -16,9 +16,17 @@
  */
 package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.spi.constant.Constants;
-import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.alipay.sofa.ark.common.util.ClassUtils.collectClasses;
+import static com.alipay.sofa.ark.common.util.ClassUtils.getPackageName;
+import static com.alipay.sofa.ark.spi.constant.Constants.DEFAULT_PACKAGE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author qilong.zql
@@ -28,8 +36,21 @@ public class ClassUtilsTest {
 
     @Test
     public void testGetPackageName() {
-        Assert.assertTrue(ClassUtils.getPackageName("a.b.C").equals("a.b"));
-        Assert.assertTrue(ClassUtils.getPackageName("C").equals(Constants.DEFAULT_PACKAGE));
+        assertEquals("a.b", getPackageName("a.b.C"));
+        assertEquals(DEFAULT_PACKAGE, getPackageName("C"));
     }
 
+    @Test
+    public void testCollectClasses() throws Exception {
+
+        File dir = new File("target/classes");
+        // fix mvn test fail issues
+        File dir2 = new File(dir.getAbsolutePath());
+        if (!dir2.exists()) {
+            return;
+        }
+
+        Set<String> classNames = new HashSet<>(collectClasses(dir2));
+        assertTrue(classNames.contains("com.alipay.sofa.ark.common.util.ClassUtils"));
+    }
 }

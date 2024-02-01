@@ -16,25 +16,29 @@
  */
 package com.alipay.sofa.ark.container.service.plugin;
 
-import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.JarPluginArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
-import org.junit.Assert;
+import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
 import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXTENSION_FORMAT;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author qilong.zql
@@ -48,11 +52,12 @@ public class PluginFactoryServiceTest extends BaseTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL samplePlugin = cl.getResource("sample-plugin.jar");
         Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
-        Assert.assertNotNull(plugin);
+        assertNotNull(plugin);
     }
 
     @Test
     public void testCreatePluginWithExtensions() throws Throwable {
+
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL samplePlugin = cl.getResource("sample-plugin.jar");
         File file = new File(samplePlugin.getFile());
@@ -69,15 +74,13 @@ public class PluginFactoryServiceTest extends BaseTest {
         // export
         Set<String> exportPackages = new HashSet<>();
         exportPackages.add("com.alipay.test.export.*");
-
-        ArkConfigs.putStringValue(String.format(PLUGIN_EXTENSION_FORMAT, "sample-ark-plugin"),
-            "tracer-core:3.0.10");
+        putStringValue(format(PLUGIN_EXTENSION_FORMAT, "sample-ark-plugin"), "tracer-core:3.0.10");
 
         Plugin plugin = pluginFactoryService.createPlugin(jarPluginArchive, extensions,
             exportPackages);
-        Assert.assertNotNull(plugin);
-        Assert.assertEquals(plugin.getExportPackages().size(), 2);
-        Assert.assertTrue(Arrays.asList(plugin.getClassPath()).contains(bizFile.getUrl()));
+        assertNotNull(plugin);
+        assertEquals(plugin.getExportPackages().size(), 2);
+        assertTrue(asList(plugin.getClassPath()).contains(bizFile.getUrl()));
     }
 
     @Test
@@ -88,6 +91,28 @@ public class PluginFactoryServiceTest extends BaseTest {
             samplePlugin.getFile())));
         Plugin plugin = pluginFactoryService.createEmbedPlugin(archive, this.getClass()
             .getClassLoader());
-        Assert.assertNotNull(plugin);
+        assertNotNull(plugin);
+    }
+
+    @Test(expected = ArkRuntimeException.class)
+    public void testDeploy() {
+        PluginDeployServiceImpl pluginDeployServiceImpl = new PluginDeployServiceImpl();
+        PluginManagerService pluginManagerService = mock(PluginManagerService.class);
+        Plugin plugin = mock(Plugin.class);
+        doThrow(new ArkRuntimeException("test")).when(plugin).start();
+        when(pluginManagerService.getPluginsInOrder()).thenReturn(asList(plugin));
+        pluginDeployServiceImpl.pluginManagerService = pluginManagerService;
+        pluginDeployServiceImpl.deploy();
+    }
+
+    @Test(expected = ArkRuntimeException.class)
+    public void testUndeploy() {
+        PluginDeployServiceImpl pluginDeployServiceImpl = new PluginDeployServiceImpl();
+        PluginManagerService pluginManagerService = mock(PluginManagerService.class);
+        Plugin plugin = mock(Plugin.class);
+        doThrow(new ArkRuntimeException("test")).when(plugin).stop();
+        when(pluginManagerService.getPluginsInOrder()).thenReturn(asList(plugin));
+        pluginDeployServiceImpl.pluginManagerService = pluginManagerService;
+        pluginDeployServiceImpl.unDeploy();
     }
 }

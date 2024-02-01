@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.MalformedURLException;
@@ -32,6 +31,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.alipay.sofa.ark.common.util.EnvironmentUtils.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -99,7 +101,7 @@ public class ClassLoaderUtilTest {
             for (String classpathEntry : classpathEntries) {
                 URL url = null;
                 try {
-                    url = new File(classpathEntry).toURI().toURL();
+                    url = FileUtils.file(classpathEntry).toURI().toURL();
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                     throw new ArkRuntimeException("Failed to get urls from " + appClassLoader, e);
@@ -150,5 +152,14 @@ public class ClassLoaderUtilTest {
         Assert.assertEquals(2, agentUrl.length);
 
         managementFactoryMockedStatic.close();
+    }
+
+    @Test
+    public void testEnvironmentUtils() {
+        assertNull(getProperty("not_exists_prop"));
+        setSystemProperty("not_exists_prop", "aaa");
+        assertEquals("aaa", getProperty("not_exists_prop"));
+        clearSystemProperty("not_exists_prop");
+        assertNull(getProperty("not_exists_prop"));
     }
 }

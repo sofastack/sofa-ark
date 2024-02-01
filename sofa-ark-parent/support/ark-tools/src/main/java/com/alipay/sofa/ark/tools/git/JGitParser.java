@@ -72,7 +72,7 @@ public class JGitParser {
 
                 if (lastCommitId.equals(branchName)) {
                     gitInfo.setBranchName(StringUtils.join(
-                            getBranchsFromCommit(repository, lastCommitId), ","));
+                            getBranchesFromCommit(repository, lastCommitId), ","));
                 }
             }
 
@@ -82,8 +82,8 @@ public class JGitParser {
         }
     }
 
-    private static List<String> getBranchsFromCommit(FileRepository repository, String lastCommitId) throws GitAPIException {
-        Git git = new Git(repository);
+    static List<String> getBranchesFromCommit(FileRepository repository, String lastCommitId) throws GitAPIException {
+
         List<Ref> refs = Git.wrap(repository).branchList()
                 .setListMode(ListBranchCommand.ListMode.REMOTE)
                 .setContains(lastCommitId)

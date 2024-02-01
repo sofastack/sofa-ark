@@ -39,10 +39,6 @@
             <artifactId>guice</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-multibindings</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
@@ -76,7 +72,5 @@
             <artifactId>system-rules</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
 </project>

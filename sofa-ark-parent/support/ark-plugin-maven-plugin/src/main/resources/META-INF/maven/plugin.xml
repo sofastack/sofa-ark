@@ -61,6 +61,13 @@
                     <description>default ark plugin artifact classifier: empty</description>
                 </parameter>
                 <parameter>
+                    <name>exportClass</name>
+                    <type>java.lang.Boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>Export plugin project package by default</description>
+                </parameter>
+                <parameter>
                     <name>description</name>
                     <type>java.lang.String</type>
                     <required>false</required>

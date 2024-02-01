@@ -62,7 +62,7 @@
                                     <package>javax.*</package>
                                     <package>org.apache.*</package>
                                     <!-- fix https://github.com/sofastack/sofa-ark/issues/737 -->
-                                    <package>com.alipay.sofa.ark.web.embed.*</package>
+<!--                                    <package>com.alipay.sofa.ark.web.embed.*</package>-->
                                 </packages>
                             </exported>
                         </configuration>
