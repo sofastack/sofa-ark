@@ -44,8 +44,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.annotation.RegEx;
-import javax.annotation.Resource;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
