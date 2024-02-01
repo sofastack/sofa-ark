@@ -143,8 +143,10 @@ public class ArkPluginMojoTest {
         classes.add("b");
         exportConfig.setClasses(classes);
         exportConfig.store(properties);
-        assertEquals("{export-resources=, export-mode=null, export-classes=a,b, export-packages=}",
-            properties.toString());
+        assertEquals("a,b", properties.getProperty("export-classes"));
+        assertEquals("", properties.getProperty("export-mode"));
+        assertEquals("", properties.getProperty("export-resources"));
+        assertEquals("", properties.getProperty("export-packages"));
     }
 
     @Test
@@ -156,7 +158,8 @@ public class ArkPluginMojoTest {
         resources.add("d");
         importConfig.setResources(resources);
         importConfig.store(properties);
-        assertEquals("{import-resources=c,d, import-classes=, import-packages=}",
-            properties.toString());
+        assertEquals("", properties.getProperty("import-classes"));
+        assertEquals("c,d", properties.getProperty("import-resources"));
+        assertEquals("", properties.getProperty("import-packages"));
     }
 }
