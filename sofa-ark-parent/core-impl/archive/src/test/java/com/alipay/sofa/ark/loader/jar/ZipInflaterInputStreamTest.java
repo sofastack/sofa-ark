@@ -34,8 +34,8 @@ public class ZipInflaterInputStreamTest {
         assertEquals(0, zipInflaterInputStream.available());
         zipInflaterInputStream.fill();
 
-        Field field = InflaterInputStream.class.getDeclaredField("len");
+        Field field = ZipInflaterInputStream.class.getDeclaredField("extraBytesWritten");
         field.setAccessible(true);
-        assertEquals(1, field.get(zipInflaterInputStream));
+        assertEquals(true, field.get(zipInflaterInputStream));
     }
 }
