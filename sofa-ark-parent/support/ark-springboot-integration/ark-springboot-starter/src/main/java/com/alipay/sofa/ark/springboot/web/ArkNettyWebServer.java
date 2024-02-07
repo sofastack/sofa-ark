@@ -139,7 +139,7 @@ public class ArkNettyWebServer implements WebServer {
     private String getStartedOnMessage(DisposableServer server) {
         StringBuilder message = new StringBuilder();
         this.tryAppend(message, "port %s", server::port);
-        this.tryAppend(message, "path %s", server::host);
+        this.tryAppend(message, "host %s", server::host);
         return message.length() > 0 ? " on " + message : "";
     }
 
