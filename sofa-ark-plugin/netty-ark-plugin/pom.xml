@@ -56,6 +56,10 @@
                                     <package>org.apache.*</package>
                                 </packages>
                             </exported>
+                            <excludes>
+                                <exclude>*:*:*</exclude>
+                                <exclude>com.alipay.sofa:netty-ark-plugin</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
