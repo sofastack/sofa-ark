@@ -56,10 +56,7 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,10 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -88,83 +82,89 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
 @Mojo(name = "repackage", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class RepackageMojo extends TreeMojo {
 
-    private static final String    BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
+    private static final String BIZ_NAME = "com.alipay.sofa.ark.bizName";
 
-    private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
+    private static final String DEFAULT_EXCLUDE_RULES = "rules.txt";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject           mavenProject;
+    private MavenProject mavenProject;
 
     @Component
-    private MavenProjectHelper     projectHelper;
+    private MavenProjectHelper projectHelper;
 
     @Component
-    private MavenSession           mavenSession;
+    private MavenSession mavenSession;
 
     @Component
-    private ArtifactFactory        artifactFactory;
+    private ArtifactFactory artifactFactory;
 
     @Component
-    private RepositorySystem       repositorySystem;
+    private RepositorySystem repositorySystem;
 
     /**
      * Directory containing the generated archive
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "${project.build.directory}", required = true)
-    private File                   outputDirectory;
+    private File outputDirectory;
 
     @Parameter(defaultValue = "${project.basedir}", required = true)
-    private File                   baseDir;
+    private File baseDir;
 
     @Parameter(defaultValue = "", required = false)
-    private String                 packExcludesConfig;
+    private String packExcludesConfig;
 
     @Parameter(defaultValue = "", required = false)
-    private String                 packExcludesUrl;
+    private String packExcludesUrl;
 
     /**
      * Name of the generated archive
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "${project.build.finalName}", required = true)
-    private String                 finalName;
+    private String finalName;
 
     /**
      * Skip the repackage goal.
+     *
      * @since 0.1.0
      */
     @Parameter(property = "sofa.ark.repackage.skip", defaultValue = "false")
-    private boolean                skip;
+    private boolean skip;
 
     /**
      * Classifier to add to the artifact generated. If attach is set 'true', the
      * artifact will be attached with that classifier. Attaching the artifact
      * allows to deploy it alongside to the main artifact.
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "ark-biz", readonly = true)
-    private String                 bizClassifier;
+    private String bizClassifier;
 
     /**
      *
      */
     @Parameter(defaultValue = "${project.artifactId}")
-    private String                 bizName;
+    private String bizName;
 
     /**
      * ark biz version
+     *
      * @since 0.4.0
      */
     @Parameter(defaultValue = "${project.version}")
-    private String                 bizVersion;
+    private String bizVersion;
 
     /**
      * ark biz version
+     *
      * @since 0.4.0
      */
     @Parameter(defaultValue = "100", property = "sofa.ark.biz.priority")
-    protected Integer              priority;
+    protected Integer priority;
 
     /**
      * Classifier to add to the executable artifact generated, if needed,
@@ -173,39 +173,42 @@ public class RepackageMojo extends TreeMojo {
      * @since 0.1.0
      */
     @Parameter(defaultValue = "ark-executable", readonly = true)
-    private String                 arkClassifier;
+    private String arkClassifier;
 
     /**
      * Attach the module archive to be installed and deployed.
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "false")
-    private boolean                attach;
+    private boolean attach;
 
     /**
      * The name of the main class. If not specified the first compiled class found that
      * contains a 'main' method will be used.
+     *
      * @since 0.1.0
      */
     @Parameter
-    private String                 mainClass;
+    private String mainClass;
 
     /**
      * A list of the libraries that must be unpacked from fat jars in order to run.
      * Specify each library as a <code>&lt;dependency&gt;</code> with a
      * <code>&lt;groupId&gt;</code> and a <code>&lt;artifactId&gt;</code> and they will be
      * unpacked at runtime.
+     *
      * @since 0.1.0
      */
     @Parameter
-    private List<Dependency>       requiresUnpack;
+    private List<Dependency> requiresUnpack;
 
     /**
      * The version of SOFAArk, same with plugin version. when developer
      * want develop a application running on the SOFA-Ark. Just configure
      * sofa-ark-maven-plugin.
      */
-    private String                 arkVersion;
+    private String arkVersion;
 
     /**
      * mvn command user properties
@@ -218,90 +221,90 @@ public class RepackageMojo extends TreeMojo {
      * group-b:tracer-core:3.0.10:jdk17
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  excludes                   = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludes = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  excludeGroupIds            = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeGroupIds = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  excludeArtifactIds         = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeArtifactIds = new LinkedHashSet<>();
 
     /**
      * list of packages denied to be imported
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  denyImportPackages;
+    private LinkedHashSet<String> denyImportPackages;
 
     /**
      * list of classes denied to be imported
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  denyImportClasses;
+    private LinkedHashSet<String> denyImportClasses;
 
     /**
      * list of resources denied to be imported
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  denyImportResources;
+    private LinkedHashSet<String> denyImportResources;
 
     /**
      * list of inject plugin dependencies
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  injectPluginDependencies   = new LinkedHashSet<>();
+    private LinkedHashSet<String> injectPluginDependencies = new LinkedHashSet<>();
 
     /**
      * list of inject plugin export packages
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  injectPluginExportPackages = new LinkedHashSet<>();
+    private LinkedHashSet<String> injectPluginExportPackages = new LinkedHashSet<>();
 
     /**
      * whether package provided dependencies into ark
      */
     @Parameter(defaultValue = "false")
-    private boolean                packageProvided;
+    private boolean packageProvided;
 
     /**
      * whether to skip package ark-executable jar
      */
     @Parameter(defaultValue = "false")
-    private boolean                skipArkExecutable;
+    private boolean skipArkExecutable;
 
     /**
      * whether to keep ark biz jar after package finish, default value is true
      */
     @Parameter(defaultValue = "true")
-    private boolean                keepArkBizJar;
+    private boolean keepArkBizJar;
 
     /**
      * web context path when biz is web app. it must start with "/", default value is "/"
      */
     @Parameter(defaultValue = "/", required = true)
-    private String                 webContextPath;
+    private String webContextPath;
 
     /**
      * the biz jar will record the declared libraries if true,
      * and will filter out only declared libraries when delegate classes and resources to ark-base
      */
     @Parameter(defaultValue = "false")
-    private boolean                declaredMode;
+    private boolean declaredMode;
 
     @Parameter(defaultValue = "false")
-    private boolean                disableGitInfo;
+    private boolean disableGitInfo;
 
     /*----------------Git 相关参数---------------------*/
     /**
      * The root directory of the repository we want to check.
      */
     @Parameter(defaultValue = "")
-    private File                   gitDirectory;
+    private File gitDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -326,15 +329,13 @@ public class RepackageMojo extends TreeMojo {
 
         /* version of ark container packaged into fat jar follows the plugin version */
         PluginDescriptor pluginDescriptor = (PluginDescriptor) getPluginContext().get(
-            "pluginDescriptor");
+                "pluginDescriptor");
         arkVersion = pluginDescriptor.getVersion();
 
         repackage();
     }
 
     /**
-     *
-     *
      * @throws MojoExecutionException
      * @throws MojoFailureException
      */
@@ -345,7 +346,7 @@ public class RepackageMojo extends TreeMojo {
 
         Repackager repackager = getRepackager(source);
         Libraries libraries = new ArtifactsLibraries(getAdditionalArtifact(), this.requiresUnpack,
-            getLog());
+                getLog());
         try {
             if (repackager.isDeclaredMode()) {
                 Set<ArtifactItem> artifactItems;
@@ -373,7 +374,7 @@ public class RepackageMojo extends TreeMojo {
             return gitDirectory;
         }
         return com.alipay.sofa.ark.common.util.FileUtils.file(rootProject.getBasedir()
-            .getAbsolutePath() + "/.git");
+                .getAbsolutePath() + "/.git");
     }
 
     private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
@@ -409,7 +410,7 @@ public class RepackageMojo extends TreeMojo {
             }
         } catch (MojoExecutionException e) {
             getLog().warn(
-                "execute dependency:tree failed, try to execute dependency:tree in root project");
+                    "execute dependency:tree failed, try to execute dependency:tree in root project");
         }
         return doGetAllArtifactByMavenTree(MavenUtils.getRootProject(this.mavenProject));
     }
@@ -476,16 +477,16 @@ public class RepackageMojo extends TreeMojo {
     @SuppressWarnings("unchecked")
     private Set<Artifact> getAdditionalArtifact() throws MojoExecutionException {
         Artifact arkArtifact = repositorySystem.createArtifact(ArkConstants.getGroupId(),
-            ArkConstants.getArtifactId(), arkVersion, ArkConstants.getScope(),
-            ArkConstants.getType());
+                ArkConstants.getArtifactId(), arkVersion, ArkConstants.getScope(),
+                ArkConstants.getType());
 
         try {
             ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();
             artifactResolutionRequest.setArtifact(arkArtifact);
             artifactResolutionRequest.setLocalRepository(projectBuildingRequest
-                .getLocalRepository());
+                    .getLocalRepository());
             artifactResolutionRequest.setRemoteRepositories(this.mavenProject
-                .getRemoteArtifactRepositories());
+                    .getRemoteArtifactRepositories());
             repositorySystem.resolve(artifactResolutionRequest);
             Set<Artifact> artifacts = new HashSet<>(Collections.singleton(arkArtifact));
             artifacts.addAll(filterExcludeArtifacts(this.mavenProject.getArtifacts()));
@@ -504,10 +505,10 @@ public class RepackageMojo extends TreeMojo {
             this.outputDirectory.mkdirs();
         }
         return new File(this.outputDirectory, this.finalName
-                                              + classifier
-                                              + "."
-                                              + this.mavenProject.getArtifact()
-                                                  .getArtifactHandler().getExtension());
+                + classifier
+                + "."
+                + this.mavenProject.getArtifact()
+                .getArtifactHandler().getExtension());
     }
 
     private File getModuleTargetFile() {
@@ -519,10 +520,10 @@ public class RepackageMojo extends TreeMojo {
             this.outputDirectory.mkdirs();
         }
         return new File(this.outputDirectory, this.finalName
-                                              + classifier
-                                              + "."
-                                              + this.mavenProject.getArtifact()
-                                                  .getArtifactHandler().getExtension());
+                + classifier
+                + "."
+                + this.mavenProject.getArtifact()
+                .getArtifactHandler().getExtension());
     }
 
     private Repackager getRepackager(File source) {
@@ -564,20 +565,20 @@ public class RepackageMojo extends TreeMojo {
     private void attachArtifact(File jarFile, String classifier) {
         getLog().info("Attaching archive:" + jarFile + ", with classifier: " + classifier);
         this.projectHelper.attachArtifact(this.mavenProject, this.mavenProject.getPackaging(),
-            classifier, jarFile);
+                classifier, jarFile);
     }
 
     private class LoggingMainClassTimeoutWarningListener implements
-                                                        Repackager.MainClassTimeoutWarningListener {
+            Repackager.MainClassTimeoutWarningListener {
 
         @Override
         public void handleTimeoutWarning(long duration, String mainMethod) {
             getLog()
-                .warn(
-                    String
-                        .format(
-                            "Searching for the main-class is taking some time: %dms, consider using the mainClass configuration parameter",
-                            duration));
+                    .warn(
+                            String
+                                    .format(
+                                            "Searching for the main-class is taking some time: %dms, consider using the mainClass configuration parameter",
+                                            duration));
         }
 
     }
@@ -592,12 +593,14 @@ public class RepackageMojo extends TreeMojo {
         // extension from other resource
         if (!StringUtils.isEmpty(packExcludesConfig)) {
             extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                                      + packExcludesConfig);
+                    + packExcludesConfig);
         } else {
             extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                                      + DEFAULT_EXCLUDE_RULES);
+                    + DEFAULT_EXCLUDE_RULES);
         }
 
+        extensionExcludeArtifactsInProperties(baseDir + File.separator + APPLICATION_CONF_BASE_DIR + File.separator
+                + APPLICATION_CONF_FILE_FORMAT);
         // extension from url
         if (StringUtils.isNotBlank(packExcludesUrl)) {
             extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
@@ -638,13 +641,13 @@ public class RepackageMojo extends TreeMojo {
             // 支持通配符
             for (String excludeGroupId : excludeGroupIds) {
                 if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                    || excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        || excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                     if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                            Constants.PACKAGE_PREFIX_MARK_2);
+                                Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                                Constants.PACKAGE_PREFIX_MARK);
                     }
 
                     if (artifact.getGroupId().startsWith(excludeGroupId)) {
@@ -662,13 +665,13 @@ public class RepackageMojo extends TreeMojo {
             // 支持通配符
             for (String excludeArtifactId : excludeArtifactIds) {
                 if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                    || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                     if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK_2);
+                                Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                                Constants.PACKAGE_PREFIX_MARK);
                     }
                     if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
                         return true;
@@ -695,10 +698,10 @@ public class RepackageMojo extends TreeMojo {
                         ParseUtils.parseExcludeConf(excludes, dataLine, EXTENSION_EXCLUDES);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
                         ParseUtils.parseExcludeConf(excludeGroupIds, dataLine,
-                            EXTENSION_EXCLUDES_GROUPIDS);
+                                EXTENSION_EXCLUDES_GROUPIDS);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
-                            EXTENSION_EXCLUDES_ARTIFACTIDS);
+                                EXTENSION_EXCLUDES_ARTIFACTIDS);
                     }
                 }
             }
@@ -722,11 +725,11 @@ public class RepackageMojo extends TreeMojo {
             if (statusCode == 200 && response.getEntity() != null) {
                 String result = EntityUtils.toString(response.getEntity());
                 getLog().info(
-                    String.format("success to get excludes config from url: %s, response: %s",
-                        packExcludesUrl, result));
+                        String.format("success to get excludes config from url: %s, response: %s",
+                                packExcludesUrl, result));
                 ObjectMapper objectMapper = new ObjectMapper();
                 ExcludeConfigResponse excludeConfigResponse = objectMapper.readValue(result,
-                    ExcludeConfigResponse.class);
+                        ExcludeConfigResponse.class);
                 if (excludeConfigResponse.isSuccess() && excludeConfigResponse.getResult() != null) {
                     ExcludeConfig excludeConfig = excludeConfigResponse.getResult();
                     List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
@@ -742,20 +745,20 @@ public class RepackageMojo extends TreeMojo {
                         excludes.addAll(jarBlackList);
                     }
                     logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
-                        artifacts, true);
+                            artifacts, true);
 
                     List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
                     List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
                     List<String> jarWarnList = excludeConfig.getJarWarnList();
                     logExcludeMessage(jarWarnGroupIds, jarWarnArtifactIds, jarWarnList, artifacts,
-                        false);
+                            false);
                 }
             }
             response.close();
             client.close();
         } catch (Exception e) {
             getLog().error(
-                String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
+                    String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
         }
     }
 
@@ -768,28 +771,28 @@ public class RepackageMojo extends TreeMojo {
                 }
                 for (String jarBlackGroupId : jarGroupIds) {
                     if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                        || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                            || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                             jarBlackGroupId = StringUtils.remove(jarBlackGroupId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
+                                    Constants.PACKAGE_PREFIX_MARK_2);
                         } else if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                             jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                                    Constants.PACKAGE_PREFIX_MARK);
                         }
 
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
                             if (error) {
                                 getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                                artifact, jarBlackGroupId));
+                                        .error(
+                                                String
+                                                        .format(
+                                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                                artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match groupId: %s",
-                                        artifact, jarBlackGroupId));
+                                        String.format(
+                                                "Warn to package jar: %s due to match groupId: %s",
+                                                artifact, jarBlackGroupId));
                             }
 
                         }
@@ -797,16 +800,16 @@ public class RepackageMojo extends TreeMojo {
                         if (artifact.getGroupId().equals(jarBlackGroupId)) {
                             if (error) {
                                 getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                                artifact, jarBlackGroupId));
+                                        .error(
+                                                String
+                                                        .format(
+                                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                                artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match groupId: %s",
-                                        artifact, jarBlackGroupId));
+                                        String.format(
+                                                "Warn to package jar: %s due to match groupId: %s",
+                                                artifact, jarBlackGroupId));
                             }
                         }
                     }
@@ -820,43 +823,43 @@ public class RepackageMojo extends TreeMojo {
                 }
                 for (String jarBlackArtifactId : jarArtifactIds) {
                     if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                        || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                            || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                             jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
+                                    Constants.PACKAGE_PREFIX_MARK_2);
                         } else if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                             jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                                    Constants.PACKAGE_PREFIX_MARK);
                         }
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
                                 getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                                artifact, jarBlackArtifactId));
+                                        .error(
+                                                String
+                                                        .format(
+                                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                                artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match artifactId: %s",
-                                        artifact, jarBlackArtifactId));
+                                        String.format(
+                                                "Warn to package jar: %s due to match artifactId: %s",
+                                                artifact, jarBlackArtifactId));
                             }
                         }
                     } else {
                         if (artifact.getArtifactId().equals(jarBlackArtifactId)) {
                             if (error) {
                                 getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                                artifact, jarBlackArtifactId));
+                                        .error(
+                                                String
+                                                        .format(
+                                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                                artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match artifactId: %s",
-                                        artifact, jarBlackArtifactId));
+                                        String.format(
+                                                "Warn to package jar: %s due to match artifactId: %s",
+                                                artifact, jarBlackArtifactId));
                             }
                         }
                     }
@@ -870,21 +873,21 @@ public class RepackageMojo extends TreeMojo {
                 }
                 for (String jarBlack : jarList) {
                     if (jarBlack.equals(String.join(":", artifact.getGroupId(),
-                        artifact.getArtifactId(), artifact.getVersion()))) {
+                            artifact.getArtifactId(), artifact.getVersion()))) {
                         if (error) {
                             getLog()
-                                .error(
-                                    String
-                                        .format(
-                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
-                                            artifact, jarBlack));
+                                    .error(
+                                            String
+                                                    .format(
+                                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
+                                                            artifact, jarBlack));
                         } else {
                             getLog()
-                                .warn(
-                                    String
-                                        .format(
-                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
-                                            artifact, jarBlack));
+                                    .warn(
+                                            String
+                                                    .format(
+                                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
+                                                            artifact, jarBlack));
                         }
                     }
                 }
@@ -938,7 +941,7 @@ public class RepackageMojo extends TreeMojo {
 
     public static class ExcludeConfigResponse {
 
-        private boolean       success;
+        private boolean success;
 
         private ExcludeConfig result;
 
@@ -961,7 +964,7 @@ public class RepackageMojo extends TreeMojo {
 
     public static class ExcludeConfig {
 
-        private String       app;
+        private String app;
 
         private List<String> jarBlackGroupIds;
 
@@ -1034,15 +1037,15 @@ public class RepackageMojo extends TreeMojo {
 
     public static class ArkConstants {
 
-        private static String groupId    = "com.alipay.sofa";
+        private static String groupId = "com.alipay.sofa";
 
         private static String artifactId = "sofa-ark-all";
 
         private static String classifier = "";
 
-        private static String scope      = "compile";
+        private static String scope = "compile";
 
-        private static String type       = "jar";
+        private static String type = "jar";
 
         public static String getGroupId() {
             return groupId;
@@ -1064,6 +1067,35 @@ public class RepackageMojo extends TreeMojo {
             return type;
         }
 
+    }
+
+    /**
+     * We support put sofa-ark-maven-plugin exclude config by setting config in application.properties
+     * The following are examples, with different sub-items separated by commas.
+     * excludeGroupIds=aopalliance*,asm*,org.springframework*
+     *
+     * @param extraResources
+     */
+    protected void extensionExcludeArtifactsInProperties(String extraResources) {
+        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
+        if (configFile.exists()) {
+            try (InputStream inputStream = new FileInputStream(configFile)) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                for (Object key : properties.keySet()) {
+                    String dataLine = key.toString();
+                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
+                        ParseUtils.parseExcludeConfInProperties(excludes, properties.getProperty(dataLine));
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConfInProperties(excludeGroupIds, properties.getProperty(dataLine));
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
+                        ParseUtils.parseExcludeConfInProperties(excludeArtifactIds, properties.getProperty(dataLine));
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

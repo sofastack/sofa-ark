@@ -31,6 +31,7 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -52,6 +53,7 @@ import java.net.URL;
 import java.util.*;
 
 import static com.alipay.sofa.ark.boot.mojo.RepackageMojo.ArkConstants.getClassifier;
+import static com.alipay.sofa.ark.spi.constant.Constants.APPLICATION_CONF_FILE_FORMAT;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
@@ -97,6 +99,35 @@ public class RepackageMojoTest {
                    && excludeArtifactIdsResult instanceof LinkedHashSet);
         assertTrue(((LinkedHashSet) excludesResult).contains("tracer-core:3.0.10")
                    && ((LinkedHashSet) excludesResult).contains("tracer-core:3.0.11"));
+    }
+
+    @Test
+    public void extensionExcludeArtifactsInProperties() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InstantiationException {
+        String relativePath = System.getProperty("user.dir");
+        String path = relativePath + File.separator + "src/test/resources" + File.separator
+                + APPLICATION_CONF_FILE_FORMAT;
+        Class<?> clazz = Class.forName("com.alipay.sofa.ark.boot.mojo.RepackageMojoDemo");
+        RepackageMojoDemo repackageMojoDemo = (RepackageMojoDemo)clazz.newInstance();
+        repackageMojoDemo.extensionExcludeArtifacts(path);
+
+        Field excludesField = clazz.getSuperclass().getDeclaredField("excludes");
+        // 设置私有变量为可访问（重要）
+        excludesField.setAccessible(true);
+        LinkedHashSet<String> excludes = (LinkedHashSet<String>) excludesField.get(repackageMojoDemo);
+        assertEquals(excludes.size(),3);
+
+        Field excludesFieldGroupIds = clazz.getSuperclass().getDeclaredField("excludeGroupIds");
+        // 设置私有变量为可访问（重要）
+        excludesFieldGroupIds.setAccessible(true);
+        LinkedHashSet<String> excludesGroupIds = (LinkedHashSet<String>) excludesFieldGroupIds.get(repackageMojoDemo);
+        assertEquals(excludesGroupIds.size(),83);
+
+
+        Field excludesFieldArtifactIds = clazz.getSuperclass().getDeclaredField("excludeArtifactIds");
+        // 设置私有变量为可访问（重要）
+        excludesFieldArtifactIds.setAccessible(true);
+        LinkedHashSet<String> excludesArtifactIds = (LinkedHashSet<String>) excludesFieldArtifactIds.get(repackageMojoDemo);
+        assertEquals(excludesArtifactIds.size(),0);
     }
 
     /**
