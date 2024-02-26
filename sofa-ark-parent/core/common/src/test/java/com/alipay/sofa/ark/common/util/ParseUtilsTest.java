@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -65,5 +66,12 @@ public class ParseUtilsTest {
         resources = null;
         suffixStems = null;
         stems = null;
+    }
+    @Test
+    public void testParseExcludeConfInProperties() {
+        String origin = "excludes=aopalliance-1.1,asm-1.0,org.springframework*";
+        LinkedHashSet<String> targetSet = new LinkedHashSet<>();
+        ParseUtils.parseExcludeConfInProperties(targetSet, origin);
+        Assert.assertTrue(targetSet.size() == 3 );
     }
 }
