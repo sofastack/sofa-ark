@@ -67,11 +67,12 @@ public class ParseUtilsTest {
         suffixStems = null;
         stems = null;
     }
+
     @Test
     public void testParseExcludeConfInProperties() {
         String origin = "excludes=aopalliance-1.1,asm-1.0,org.springframework*";
         LinkedHashSet<String> targetSet = new LinkedHashSet<>();
         ParseUtils.parseExcludeConfInProperties(targetSet, origin);
-        Assert.assertTrue(targetSet.size() == 3 );
+        Assert.assertTrue(targetSet.size() == 3);
     }
 }
