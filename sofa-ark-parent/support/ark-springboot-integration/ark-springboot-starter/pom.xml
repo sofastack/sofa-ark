@@ -158,6 +158,7 @@
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
             <version>${reactor-netty.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
