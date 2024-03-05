@@ -25,17 +25,17 @@
         <!--SOFAArk modules-->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-all</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.alipay.sofa</groupId>
-                    <artifactId>sofa-ark-container</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.inject</groupId>
-                    <artifactId>guice</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>sofa-ark-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-spi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-archive</artifactId>
         </dependency>
 
         <!--junit-->
@@ -53,9 +53,12 @@
         </dependency>
 
         <!--test-->
+        <!--   fix https://github.com/sofastack/sofa-ark/issues/851     -->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-ark-container</artifactId>
+            <artifactId>sofa-ark-all</artifactId>
+            <!--     please notice to use the old version to make ide import sofa-ark-all by jar rather than local classpath       -->
+            <version>${sofa.ark.version.old}</version>
             <scope>test</scope>
         </dependency>
 
