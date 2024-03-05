@@ -47,7 +47,7 @@ public class WebPluginActivator implements PluginActivator {
             try {
                 webServer.destroy();
             } catch (Exception ex) {
-                ArkLoggerFactory.getDefaultLogger().error("Unable to stop embedded Tomcat", ex);
+                ArkLoggerFactory.getDefaultLogger().warn("Unable to stop embedded Tomcat", ex);
             }
         }
     }
