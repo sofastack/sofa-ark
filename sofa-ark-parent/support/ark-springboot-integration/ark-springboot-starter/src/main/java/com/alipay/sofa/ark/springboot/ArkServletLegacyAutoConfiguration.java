@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.servlet.Servlet;
 
 /**
- * @description: adapt to springboot 2.1.9.RELEASE
+ * adapt to springboot 2.1.9.RELEASE
  * @author gaosaroma
  * @since 2.2.8
  */
