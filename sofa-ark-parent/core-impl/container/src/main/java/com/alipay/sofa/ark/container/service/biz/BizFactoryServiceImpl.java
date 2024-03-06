@@ -108,8 +108,10 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createBiz(File file) throws IOException {
         BizArchive bizArchive;
-        if (file.getName().endsWith(".jar")) {
-            if (ArkConfigs.isEmbedEnable()) {
+        if (file.isDirectory()) { // biz 解压后的文件，或者开发环境配置的 target/classes目录
+            bizArchive = new ExplodedBizArchive(file);
+        } else {
+            if (ArkConfigs.isEmbedEnable() && file.isFile()) {
                 File unpackFile = FileUtils.file(file.getAbsolutePath() + "-unpack");
                 if (!unpackFile.exists()) {
                     unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
@@ -124,8 +126,6 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                 JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
                 bizArchive = new JarBizArchive(jarFileArchive);
             }
-        } else { // biz 解压后的文件
-            bizArchive = new ExplodedBizArchive(file);
         }
 
         BizModel biz = (BizModel) createBiz(bizArchive);
