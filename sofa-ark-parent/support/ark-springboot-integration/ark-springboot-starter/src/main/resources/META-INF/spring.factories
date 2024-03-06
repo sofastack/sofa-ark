@@ -4,5 +4,6 @@ com.alipay.sofa.ark.springboot.listener.ArkDeployStaticBizListener,\
 com.alipay.sofa.ark.springboot.listener.PropertiesResetListener
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.alipay.sofa.ark.springboot.ArkServletAutoConfiguration,\
+com.alipay.sofa.ark.springboot.ArkServletLegacyAutoConfiguration,\
 com.alipay.sofa.ark.springboot.ArkReactiveAutoConfiguration,\
 com.alipay.sofa.ark.springboot.ArkAutoProcessorConfiguration

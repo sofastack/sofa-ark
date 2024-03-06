@@ -85,11 +85,6 @@ public class CachedLaunchedURLClassLoader extends LaunchedURLClassLoader {
     /**
      * NOTE: Only cache ClassNotFoundException when class not found.
      * If class found, do not cache, and just use parent class loader cache.
-     *
-     * @param name
-     * @param resolve
-     * @return
-     * @throws ClassNotFoundException
      */
     protected Class<?> loadClassWithCache(String name, boolean resolve)
                                                                        throws ClassNotFoundException {
