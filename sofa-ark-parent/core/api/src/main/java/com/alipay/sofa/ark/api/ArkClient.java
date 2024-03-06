@@ -334,13 +334,33 @@ public class ArkClient {
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
             "Operation type must be install");
         File bizFile = null;
-        if (bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL) != null) {
-            URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
-            bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
-                bizOperation.getBizVersion());
-            FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
+        String configBizUrl = bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL);
+        if (configBizUrl != null) {
+            // 开发模式下的文件夹不做拷贝
+            if (configBizUrl.endsWith("/target/classes")) {
+                bizFile = new File(configBizUrl.replace(getLocalFileProtocolPrefix(),""));
+            } else {
+                URL url = new URL(configBizUrl);
+                bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
+                        bizOperation.getBizVersion());
+                FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
+            }
         }
         return installBiz(bizFile, args);
+    }
+
+    /**
+     * 获取本地文件协议前缀。
+     *
+     * @return 本地文件协议前缀。
+     */
+    public static String getLocalFileProtocolPrefix() {
+        String os = System.getProperty("os.name");
+        if (os.toLowerCase().startsWith("win")) {
+            return "file:///";
+        } else {
+            return "file://";
+        }
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {

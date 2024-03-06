@@ -350,7 +350,13 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            deleteQuietly(bizTempWorkDir);
+            if (bizTempWorkDir.getAbsolutePath().endsWith("/target/classes")
+                || bizTempWorkDir.getAbsolutePath().endsWith("\\target\\classes")) {
+                // ingore，开发模式下，配置的编译后的文件夹，不需要删除
+            } else {
+                deleteQuietly(bizTempWorkDir);
+            }
+
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
