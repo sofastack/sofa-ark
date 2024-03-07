@@ -116,14 +116,14 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             }
             getLog().info("create base facade directory success." + facadeRootDir.getAbsolutePath());
 
-            //2. 复制指定的java文件到该module
+            //1. 复制指定的java文件到该module
             List<File> allJavaFiles = new LinkedList<>();
             getJavaFiles(mavenProject.getParent().getBasedir(), allJavaFiles);
             copyFiles(allJavaFiles, facadeJavaDir, javaFiles);
             getLog().info("copy java files success.");
 
-            //1. 解析所有依赖，写入pom
-            // 第一次，把所有依赖找到，平铺写到pom (同时排掉指定的依赖, 以及基座的子module)
+            // 2. 解析所有依赖，写入pom
+            // 把所有依赖找到，平铺写到pom (同时排掉指定的依赖, 以及基座的子module)
             BufferedWriter pomWriter = new BufferedWriter(new FileWriter(facadePom, true));
             pomWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             pomWriter.write("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -146,6 +146,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                     pomWriter.write("<groupId>" + i.getGroupId() + "</groupId>\n");
                     pomWriter.write("<artifactId>" + i.getArtifactId() + "</artifactId>\n");
                     pomWriter.write("<version>" + i.getVersion() + "</version>\n");
+                    // 排掉所有间接依赖
                     pomWriter.write("<exclusions>\n");
                     pomWriter.write("<exclusion>\n");
                     pomWriter.write("<groupId>*</groupId>\n");
