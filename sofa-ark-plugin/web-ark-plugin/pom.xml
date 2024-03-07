@@ -12,10 +12,6 @@
 
     <artifactId>web-ark-plugin</artifactId>
 
-    <properties>
-        <spring.boot.version>2.1.0.RELEASE</spring.boot.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -24,9 +20,22 @@
             <scope>provided</scope>
         </dependency>
 
+
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-common</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -49,11 +58,24 @@
                                 <packages>
                                     <package>javax.*</package>
                                     <package>org.apache.*</package>
+                                    <!-- fix https://github.com/sofastack/sofa-ark/issues/737 -->
+<!--                                    <package>com.alipay.sofa.ark.web.embed.*</package>-->
                                 </packages>
                             </exported>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>${surefire.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

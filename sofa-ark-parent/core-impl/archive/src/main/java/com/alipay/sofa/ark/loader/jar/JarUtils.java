@@ -16,17 +16,20 @@
  */
 package com.alipay.sofa.ark.loader.jar;
 
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -39,9 +42,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class JarUtils {
-    private static final String                        CLASSPATH_ROOT_IDENTITY          = "/target/classes/";
+    private static final String                        CLASSPATH_ROOT_IDENTITY          = "/target/classes";
 
-    private static final String                        TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes/";
+    private static final String                        TEST_CLASSPATH_ROOT_IDENTITY     = "/target/test-classes";
     private static final String                        TARGET_ROOT_IDENTITY             = "/target/";
 
     private static final String                        JAR_POM_PROPERTIES_RELATIVE_PATH = "maven-archiver/pom.properties";
@@ -49,11 +52,17 @@ public class JarUtils {
 
     private static final String                        JAR_POM_PROPERTIES               = "pom.properties";
 
+    private static final String                        POM_FILE                         = "/pom.xml";
+
     private static final String                        VERSION_REGEX                    = "^([0-9]+\\.)+.+";
+
+    private static final MavenXpp3Reader               READER                           = new MavenXpp3Reader();
+
+    public static final String                         JAR_SEPARATOR                    = "!/";
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
-    private static File searchPomProperties(File dirOrFile) {
+    static File searchPomProperties(File dirOrFile) {
         if (dirOrFile == null || !dirOrFile.exists()) {
             return null;
         }
@@ -75,39 +84,60 @@ public class JarUtils {
         return null;
     }
 
-    private static String getArtifactIdFromLocalClassPath(String fileClassPath) {
-        // file:/Users/youji.zzl/Documents/workspace/iexpprodbase/app/bootstrap/target/classes/spring/
+    static String getArtifactIdFromLocalClassPath(String fileClassPath) {
+
         String libraryFile = fileClassPath.replace("file:", "");
         // 1. search pom.properties
-        int classesRootIndex = libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY);
-        int testClassesRootIndex = libraryFile.indexOf(TEST_CLASSPATH_ROOT_IDENTITY);
+        int classesRootIndex = libraryFile.endsWith(CLASSPATH_ROOT_IDENTITY) ? libraryFile
+            .indexOf(CLASSPATH_ROOT_IDENTITY) : libraryFile.indexOf(CLASSPATH_ROOT_IDENTITY + "/");
+        int testClassesRootIndex = libraryFile.endsWith(TEST_CLASSPATH_ROOT_IDENTITY) ? libraryFile
+            .indexOf(TEST_CLASSPATH_ROOT_IDENTITY) : libraryFile
+            .indexOf(TEST_CLASSPATH_ROOT_IDENTITY + "/");
         String pomPropertiesPath;
+        String pomXmlPath = null;
         if (classesRootIndex != -1) {
             pomPropertiesPath = libraryFile.substring(0,
                 classesRootIndex + TARGET_ROOT_IDENTITY.length())
                                 + JAR_POM_PROPERTIES_RELATIVE_PATH;
+            pomXmlPath = libraryFile.substring(0, classesRootIndex) + POM_FILE;
         } else if (testClassesRootIndex != -1) {
             pomPropertiesPath = libraryFile.substring(0, testClassesRootIndex
                                                          + TARGET_ROOT_IDENTITY.length())
                                 + JAR_POM_PROPERTIES_RELATIVE_PATH;
+            pomXmlPath = libraryFile.substring(0, testClassesRootIndex) + POM_FILE;
         } else {
             // is not from test classpath, for example install uncompressed modules, just return null
             // search for pom.properties
-            File pomPropertiesFile = searchPomProperties(new File(libraryFile));
+            File pomPropertiesFile = searchPomProperties(FileUtils.file(libraryFile));
             if (pomPropertiesFile != null && pomPropertiesFile.exists()) {
                 pomPropertiesPath = pomPropertiesFile.getAbsolutePath();
             } else {
-                return null;
+                // not found pom.properties
+                pomPropertiesPath = null;
             }
         }
 
-        try (InputStream inputStream = Files.newInputStream(new File(pomPropertiesPath).toPath())) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(JAR_ARTIFACT_ID);
-        } catch (IOException e) {
-            return null;
+        String artifactId = null;
+        if (!StringUtils.isEmpty(pomPropertiesPath)) {
+            try (InputStream inputStream = Files.newInputStream(FileUtils.file(pomPropertiesPath)
+                .toPath())) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                artifactId = properties.getProperty(JAR_ARTIFACT_ID);
+            } catch (IOException e) {
+                // ignore
+            }
         }
+
+        if (StringUtils.isEmpty(artifactId) && !StringUtils.isEmpty(pomXmlPath)) {
+            try (FileReader fileReader = new FileReader(pomXmlPath)) {
+                Model model = READER.read(fileReader);
+                return model.getArtifactId();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return artifactId;
     }
 
     public static String parseArtifactId(String jarLocation) {
@@ -119,13 +149,14 @@ public class JarUtils {
         // 6. /xxx/xxx/target/classes/xxxx.jar
         // 7. /xxx/xxx/target/test-classes/yyy/yyy/
         // 8. /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar!/
+        // 9. if is ark plugin, then return null to set declared default
 
         jarLocation = ModifyPathUtils.modifyPath(jarLocation);
         String finalJarLocation = jarLocation;
         artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
             try {
                 String artifactId;
-                String[] as = a.split("!/", -1);
+                String[] as = a.split(JAR_SEPARATOR, -1);
                 if (as.length == 1) {
                     // no '!/'
                     String filePath = as[0];
@@ -147,7 +178,7 @@ public class JarUtils {
                 } else if (as.length == 3) {
                     // two '!/'
                     String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
-                    String filePath = String.join("!/", jarPathInfo);
+                    String filePath = String.join(JAR_SEPARATOR, jarPathInfo);
                     artifactId = doGetArtifactIdFromFileName(filePath);
                     if (StringUtils.isEmpty(artifactId)) {
                         artifactId = parseArtifactIdFromJarInJar(filePath);
@@ -155,7 +186,7 @@ public class JarUtils {
                 } else {
                     // three '!/' or more
                     String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
-                    String filePath = String.join("!/", jarPathInfo);
+                    String filePath = String.join(JAR_SEPARATOR, jarPathInfo);
                     artifactId = doGetArtifactIdFromFileName(filePath);
                     if (StringUtils.isEmpty(artifactId)) {
                         artifactId = parseArtifactIdFromJarInJarInJarMore(filePath);
@@ -195,9 +226,9 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
-        String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf("!/"));
-        String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf("!/") + 2);
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(new File(rootPath));
+        String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SEPARATOR));
+        String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf(JAR_SEPARATOR) + 2);
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(FileUtils.file(rootPath));
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
 
@@ -211,20 +242,20 @@ public class JarUtils {
 
     private static String parseArtifactIdFromJarInJarInJarMore(String jarLocation)
                                                                                   throws IOException {
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = getTemporaryRootJarFromJarLocation(jarLocation);
+        com.alipay.sofa.ark.loader.jar.JarFile jarFile = getNestedRootJarFromJarLocation(jarLocation);
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         return jarFileArchive.getPomProperties().getProperty(JAR_ARTIFACT_ID);
     }
 
-    public static com.alipay.sofa.ark.loader.jar.JarFile getTemporaryRootJarFromJarLocation(String jarLocation)
-                                                                                                               throws IOException {
+    public static com.alipay.sofa.ark.loader.jar.JarFile getNestedRootJarFromJarLocation(String jarLocation)
+                                                                                                            throws IOException {
         //  /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar
-        String[] js = jarLocation.split("!/", -1);
+        String[] js = jarLocation.split(JAR_SEPARATOR, -1);
         com.alipay.sofa.ark.loader.jar.JarFile rJarFile = new com.alipay.sofa.ark.loader.jar.JarFile(
-            new File(js[0]));
+            FileUtils.file(js[0]));
         for (int i = 1; i < js.length; i++) {
             String jPath = js[i];
-            if (jPath == null || jPath.isEmpty()) {
+            if (StringUtils.isEmpty(jPath) || !jPath.endsWith(".jar")) {
                 break;
             }
             try {
@@ -239,7 +270,7 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
-        jarLocation = URLDecoder.decode(jarLocation, "UTF-8");
+        jarLocation = FileUtils.decodePath(jarLocation);
         try (JarFile jarFile = new JarFile(jarLocation)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {

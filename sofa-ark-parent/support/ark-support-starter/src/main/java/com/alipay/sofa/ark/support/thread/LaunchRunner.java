@@ -71,6 +71,11 @@ public class LaunchRunner implements Runnable {
         }
     }
 
+    /**
+     * Ark container main thread can exit only other threads exit.
+     *
+     * @param threadGroup
+     */
     public static void join(ThreadGroup threadGroup) {
         boolean hasNonDaemonThreads;
         do {
@@ -89,5 +94,4 @@ public class LaunchRunner implements Runnable {
             }
         } while (hasNonDaemonThreads);
     }
-
 }

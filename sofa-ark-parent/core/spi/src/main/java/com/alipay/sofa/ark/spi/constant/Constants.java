@@ -93,6 +93,8 @@ public class Constants {
     public final static String       WEB_CONTEXT_PATH                              = "web-context-path";
     public final static String       IMPORT_CLASSES_ATTRIBUTE                      = "import-classes";
     public final static String       IMPORT_PACKAGES_ATTRIBUTE                     = "import-packages";
+
+    public final static String       EXPORT_MODE                                   = "export-mode";
     public final static String       EXPORT_CLASSES_ATTRIBUTE                      = "export-classes";
     public final static String       EXPORT_PACKAGES_ATTRIBUTE                     = "export-packages";
 
@@ -123,6 +125,8 @@ public class Constants {
     public static final String       DATE_FORMAT                                   = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     public final static String       PACKAGE_PREFIX_MARK                           = "*";
+
+    public final static String       PACKAGE_PREFIX_MARK_2                         = ".*";
     public final static String       DEFAULT_PACKAGE                               = ".";
     public final static String       MANIFEST_VALUE_SPLIT                          = COMMA_SPLIT;
     public final static String       RESOURCE_STEM_MARK                            = "*";
@@ -140,6 +144,20 @@ public class Constants {
     public final static String       TELNET_SERVER_ENABLE                          = "sofa.ark.telnet.server.enable";
     public final static String       TELNET_SERVER_SECURITY_ENABLE                 = "sofa.ark.telnet.security.enable";
     public final static String       CONFIG_SERVER_ENABLE                          = "sofa.ark.config.server.enable";
+
+    /**
+     * 配置中心支持, 默认使用zookeeper
+     * value值为com.alipay.sofa.ark.config.ConfigTypeEnum枚举的name()
+     */
+    public final static String       CONFIG_SERVER_TYPE                            = "sofa.ark.config.server.type";
+    /**
+     * 使用apollo的namespace
+     */
+    public final static String       CONFIG_APOLLO_NAMESPACE                       = "sofa-ark";
+    /**
+     * apollo的namespace下动态命名对应的key
+     */
+    public final static String       APOLLO_MASTER_BIZ_KEY                         = "masterBiz";
     public final static String       TELNET_PORT_ATTRIBUTE                         = "sofa.ark.telnet.port";
     public final static int          DEFAULT_TELNET_PORT                           = 1234;
     public final static int          DEFAULT_SELECT_PORT_SIZE                      = 100;
@@ -227,5 +245,4 @@ public class Constants {
         CHANNEL_QUIT.add("q");
         CHANNEL_QUIT.add("exit");
     }
-
 }

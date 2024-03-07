@@ -16,10 +16,8 @@
  */
 package com.alipay.sofa.ark.container.service.biz;
 
-import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
-import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -30,9 +28,15 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
+import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
+import static com.alipay.sofa.ark.container.service.ArkServiceContainerHolder.getContainer;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_PLUGIN_MARK_ENTRY;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static java.lang.Thread.currentThread;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author qilong.zql
@@ -54,52 +58,51 @@ public class BizFactoryServiceTest extends BaseTest {
         pluginManagerService = arkServiceContainer.getService(PluginManagerService.class);
         pluginFactoryService = arkServiceContainer.getService(PluginFactoryService.class);
         bizFactoryService = arkServiceContainer.getService(BizFactoryService.class);
-        bizManagerService = ArkServiceContainerHolder.getContainer().getService(
-            BizManagerService.class);
+        bizManagerService = getContainer().getService(BizManagerService.class);
     }
 
     @Test
     public void test() throws Throwable {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
+        ClassLoader cl = currentThread().getContextClassLoader();
         URL samplePlugin = cl.getResource("sample-plugin.jar");
-        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         pluginManagerService.registerPlugin(plugin);
 
         URL sampleBiz = cl.getResource("sample-biz.jar");
-        Biz biz = bizFactoryService.createBiz(new File(sampleBiz.getFile()));
+        Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
         bizManagerService.registerBiz(biz);
-        Assert.assertNotNull(biz);
-        Assert.assertNotNull(biz.getBizClassLoader().getResource(Constants.ARK_PLUGIN_MARK_ENTRY));
+        assertNotNull(biz);
+        assertNotNull(biz.getBizClassLoader().getResource(ARK_PLUGIN_MARK_ENTRY));
 
-        ArkConfigs.putStringValue(Constants.MASTER_BIZ, "master-biz");
+        putStringValue(MASTER_BIZ, "master-biz");
         Biz masterBiz = bizFactoryService.createEmbedMasterBiz(cl);
-        Assert.assertNotNull(masterBiz);
-        Assert.assertNotNull(masterBiz.getBizClassLoader().getResource(
+        assertNotNull(masterBiz);
+        assertNotNull(masterBiz.getBizClassLoader().getResource(
             "com/alipay/sofa/ark/container/service/biz/"));
     }
 
     @Test
     public void testCreateBiz() throws IOException {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = currentThread().getContextClassLoader();
         URL sampleBiz = cl.getResource("sample-biz.jar");
         BizOperation bizOperation = new BizOperation();
         String mockVersion = "mock version";
         bizOperation.setBizVersion(mockVersion);
-        Biz biz = bizFactoryService.createBiz(bizOperation, new File(sampleBiz.getFile()));
+        Biz biz = bizFactoryService.createBiz(bizOperation, FileUtils.file(sampleBiz.getFile()));
         Assert.assertEquals(biz.getBizVersion(), mockVersion);
     }
 
     @Test
     public void testPackageInfo() throws Throwable {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = currentThread().getContextClassLoader();
         URL samplePlugin = cl.getResource("sample-ark-plugin.jar");
-        Plugin plugin = pluginFactoryService.createPlugin(new File(samplePlugin.getFile()));
+        Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         ClassLoader pluginClassLoader = plugin.getPluginClassLoader();
         pluginManagerService.registerPlugin(plugin);
         Class mdc = pluginClassLoader.loadClass("org.slf4j.MDC");
         Assert.assertTrue(mdc.getClassLoader().equals(pluginClassLoader));
-        Assert.assertNotNull(mdc.getPackage().getImplementationVersion());
+        assertNotNull(mdc.getPackage().getImplementationVersion());
     }
 
 }

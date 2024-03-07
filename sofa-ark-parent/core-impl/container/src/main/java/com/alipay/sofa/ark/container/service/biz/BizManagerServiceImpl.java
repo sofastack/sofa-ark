@@ -45,6 +45,8 @@ public class BizManagerServiceImpl implements BizManagerService {
     public boolean registerBiz(Biz biz) {
         AssertUtils.assertNotNull(biz, "Biz must not be null.");
         AssertUtils.isTrue(biz.getBizState() == BizState.RESOLVED, "BizState must be RESOLVED.");
+        // Two level cache here. First level cache key is biz name, and value is versions cache.
+        // Second level cache key is version, value is biz model.
         bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<>(16));
         ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(biz.getBizName());
         return bizCache.put(biz.getBizVersion(), biz) == null;

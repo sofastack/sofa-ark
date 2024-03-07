@@ -16,8 +16,14 @@
  */
 package com.alipay.sofa.ark.common.util;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+
+import static com.alipay.sofa.ark.common.util.AssertUtils.*;
+import static com.alipay.sofa.ark.common.util.FileUtils.file;
+import static java.lang.System.getProperty;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -26,41 +32,50 @@ import org.junit.Test;
  */
 public class AssertUtilsTest {
 
+    public static File getTmpDir() {
+        String tmpPath = getProperty("java.io.tmpdir");
+        return file(tmpPath);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testAssertNotNullNull() {
         String msg = "object is null";
         try {
-            AssertUtils.assertNotNull(null, msg);
+            assertNotNull(null, msg);
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof IllegalArgumentException);
-            Assert.assertTrue(e.getMessage().contains(msg));
+            assertTrue(e instanceof IllegalArgumentException);
+            assertTrue(e.getMessage().contains(msg));
             throw e;
         }
     }
 
     @Test
     public void testAssertNotNullNotNull() {
-        AssertUtils.assertNotNull(new Object(), "object is null");
+        assertNotNull(new Object(), "object is null");
     }
 
     @Test
     public void testAssertIsTrue() {
-        AssertUtils.isTrue(true, "Exception %s", "error");
+        isTrue(true, "Exception %s", "error");
         try {
-            AssertUtils.isTrue(false, "Exception %s", "error");
+            isTrue(false, "Exception %s", "error");
         } catch (IllegalArgumentException ex) {
-            Assert.assertTrue("Exception error".equals(ex.getMessage()));
+            assertTrue("Exception error".equals(ex.getMessage()));
         }
     }
 
     @Test
     public void testAssertIsFalse() {
-        AssertUtils.isFalse(false, "Exception %s", "error");
+        isFalse(false, "Exception %s", "error");
         try {
-            AssertUtils.isFalse(true, "Exception %s", "error");
+            isFalse(true, "Exception %s", "error");
         } catch (IllegalArgumentException ex) {
-            Assert.assertTrue("Exception error".equals(ex.getMessage()));
+            assertTrue("Exception error".equals(ex.getMessage()));
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void assertNull() {
+        AssertUtils.assertNull(new Object(), "should be nul!");
+    }
 }

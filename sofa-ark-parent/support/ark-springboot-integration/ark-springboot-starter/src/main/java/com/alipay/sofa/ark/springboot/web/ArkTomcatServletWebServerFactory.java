@@ -185,7 +185,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             addLocaleMappings(context);
             context.setUseRelativeRedirects(false);
             configureTldSkipPatterns(context);
-            WebappLoader loader = new WebappLoader(context.getParentClassLoader());
+            WebappLoader loader = new WebappLoader();
             loader
                 .setLoaderClass("com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader");
             loader.setDelegate(true);
@@ -267,7 +267,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
         }
     }
 
-    private final class StaticResourceConfigurer implements LifecycleListener {
+    final class StaticResourceConfigurer implements LifecycleListener {
 
         private final Context context;
 

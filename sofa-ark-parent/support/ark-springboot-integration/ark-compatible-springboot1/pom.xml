@@ -52,8 +52,15 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-ark-all</artifactId>
+            <version>${sofa.ark.version.old}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>web-ark-plugin</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

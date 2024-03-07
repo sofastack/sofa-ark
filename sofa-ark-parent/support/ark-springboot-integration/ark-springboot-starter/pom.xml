@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <spring.boot.version>2.5.12</spring.boot.version>
+        <spring.boot.version>2.7.14</spring.boot.version>
     </properties>
 
     <artifactId>sofa-ark-springboot-starter</artifactId>
@@ -96,6 +96,15 @@
             <scope>test</scope>
         </dependency>
 
+        <!--   fix https://github.com/sofastack/sofa-ark/issues/851     -->
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-all</artifactId>
+            <!--     please notice to use the old version to make ide import sofa-ark-all by jar rather than local classpath       -->
+            <version>${sofa.ark.version.old}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>web-ark-plugin</artifactId>
@@ -125,6 +134,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>${reactor-netty.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -97,5 +97,4 @@ public class SofaArkBootstrap {
         Class<?> bizClassLoader = SofaArkBootstrap.class.getClassLoader().getClass();
         return BIZ_CLASSLOADER.equals(bizClassLoader.getCanonicalName());
     }
-
 }

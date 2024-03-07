@@ -19,12 +19,13 @@ package com.alipay.sofa.ark.loader.test.jar;
 import com.alipay.sofa.ark.loader.jar.JarEntry;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.loader.test.base.BaseTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author qilong.zql
@@ -34,27 +35,25 @@ public class JarFileTest extends BaseTest {
 
     @Test
     public void testJarFile() throws IOException {
+
         JarFile jarFile = new JarFile(getTempDemoZip());
         Manifest manifest = jarFile.getManifest();
 
-        Assert.assertTrue(manifest.getMainAttributes().getValue("k1").equals("v1"));
-        Assert.assertTrue(manifest.getMainAttributes().getValue("k2").equals("v2"));
-
-        Assert.assertTrue(jarFile.containsEntry(TEST_ENTRY));
+        assertTrue(manifest.getMainAttributes().getValue("k1").equals("v1"));
+        assertTrue(manifest.getMainAttributes().getValue("k2").equals("v2"));
+        assertTrue(jarFile.containsEntry(TEST_ENTRY));
 
         ZipEntry zipEntry = jarFile.getEntry(TEST_ENTRY);
-        Assert.assertTrue(zipEntry.getName().equals(TEST_ENTRY));
-        Assert.assertTrue(zipEntry.getComment().equals(TEST_ENTRY_COMMENT));
-        Assert.assertTrue(compareByteArray(zipEntry.getExtra(), TEST_ENTRY_EXTRA.getBytes()));
+        assertTrue(zipEntry.getName().equals(TEST_ENTRY));
+        assertTrue(zipEntry.getComment().equals(TEST_ENTRY_COMMENT));
+        assertTrue(compareByteArray(zipEntry.getExtra(), TEST_ENTRY_EXTRA.getBytes()));
 
         JarEntry jarEntry = jarFile.getJarEntry("lib/junit-4.12.jar");
         JarFile nestJarFile = jarFile.getNestedJarFile(jarEntry);
         Manifest nestManifest = nestJarFile.getManifest();
-        Assert.assertTrue(nestManifest.getMainAttributes().getValue("Implementation-Title")
+        assertTrue(nestManifest.getMainAttributes().getValue("Implementation-Title")
             .equals("JUnit"));
-        Assert.assertTrue(nestManifest.getMainAttributes().getValue("Implementation-Version")
+        assertTrue(nestManifest.getMainAttributes().getValue("Implementation-Version")
             .equals("4.12"));
-
     }
-
 }

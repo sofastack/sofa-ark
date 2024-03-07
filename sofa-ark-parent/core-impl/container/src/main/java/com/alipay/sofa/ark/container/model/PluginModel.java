@@ -43,53 +43,62 @@ import java.util.Set;
  */
 public class PluginModel implements Plugin {
 
-    private String          pluginName;
+    private String             pluginName;
 
-    private String          groupId;
+    private String             groupId;
 
-    private String          artifactId;
+    private String             artifactId;
 
-    private String          version;
+    private String             version;
 
-    private int             priority                  = DEFAULT_PRECEDENCE;
+    private int                priority                  = DEFAULT_PRECEDENCE;
 
-    private Set<String>     exportPackages;
+    /**
+     * 0. default as 'classLoader' for load those classes in plugin classLoader
+     * 1. 'override' for load those classes only as files, and those will be reload in other classLoaders.
+     */
+    public static final String EXPORTMODE_CLASSLOADER    = "classLoader";
+    public static final String EXPORTMODE_OVERRIDE       = "override";
+    public static final String EXPORTMODE_UNKNOWN        = "unknown";
+    private String             exportMode                = EXPORTMODE_CLASSLOADER;
 
-    private Set<String>     exportPackageNodes        = new HashSet<>();
+    private Set<String>        exportPackages;
 
-    private Set<String>     exportPackageStems        = new HashSet<>();
+    private Set<String>        exportPackageNodes        = new HashSet<>();
 
-    private Set<String>     exportClasses;
+    private Set<String>        exportPackageStems        = new HashSet<>();
 
-    private Set<String>     importPackages;
+    private Set<String>        exportClasses;
 
-    private Set<String>     importPackageNodes        = new HashSet<>();
+    private Set<String>        importPackages;
 
-    private Set<String>     importPackageStems        = new HashSet<>();
+    private Set<String>        importPackageNodes        = new HashSet<>();
 
-    private Set<String>     importClasses;
+    private Set<String>        importPackageStems        = new HashSet<>();
 
-    private Set<String>     importResources           = new HashSet<>();
+    private Set<String>        importClasses;
 
-    private Set<String>     importPrefixResourceStems = new HashSet<>();
-    private Set<String>     importSuffixResourceStems = new HashSet<>();
+    private Set<String>        importResources           = new HashSet<>();
 
-    private Set<String>     exportResources           = new HashSet<>();
+    private Set<String>        importPrefixResourceStems = new HashSet<>();
+    private Set<String>        importSuffixResourceStems = new HashSet<>();
 
-    private Set<String>     exportPrefixResourceStems = new HashSet<>();
-    private Set<String>     exportSuffixResourceStems = new HashSet<>();
+    private Set<String>        exportResources           = new HashSet<>();
 
-    private String          activator;
+    private Set<String>        exportPrefixResourceStems = new HashSet<>();
+    private Set<String>        exportSuffixResourceStems = new HashSet<>();
 
-    private URL[]           urls;
+    private String             activator;
 
-    private URL             pluginUrl;
+    private URL[]              urls;
 
-    private ClassLoader     pluginClassLoader;
+    private URL                pluginUrl;
 
-    private PluginContext   pluginContext;
+    private ClassLoader        pluginClassLoader;
 
-    private PluginActivator pluginActivator;
+    private PluginContext      pluginContext;
+
+    private PluginActivator    pluginActivator;
 
     public PluginModel setPluginName(String pluginName) {
         this.pluginName = pluginName;
@@ -123,6 +132,11 @@ public class PluginModel implements Plugin {
 
     public PluginModel setClassPath(URL[] urls) {
         this.urls = urls;
+        return this;
+    }
+
+    public PluginModel setExportMode(String exportMode) {
+        this.exportMode = exportMode;
         return this;
     }
 
@@ -230,6 +244,14 @@ public class PluginModel implements Plugin {
     @Override
     public PluginContext getPluginContext() {
         return this.pluginContext;
+    }
+
+    @Override
+    public String getExportMode() {
+        if (StringUtils.isEmpty(this.exportMode)) {
+            return EXPORTMODE_CLASSLOADER;
+        }
+        return this.exportMode;
     }
 
     @Override

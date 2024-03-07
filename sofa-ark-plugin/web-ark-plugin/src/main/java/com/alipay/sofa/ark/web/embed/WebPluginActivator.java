@@ -30,7 +30,7 @@ import org.apache.catalina.startup.Tomcat;
  */
 public class WebPluginActivator implements PluginActivator {
 
-    private EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
+    EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
 
     @Override
     public void start(PluginContext context) {
@@ -47,7 +47,7 @@ public class WebPluginActivator implements PluginActivator {
             try {
                 webServer.destroy();
             } catch (Exception ex) {
-                ArkLoggerFactory.getDefaultLogger().error("Unable to stop embedded Tomcat", ex);
+                ArkLoggerFactory.getDefaultLogger().warn("Unable to stop embedded Tomcat", ex);
             }
         }
     }

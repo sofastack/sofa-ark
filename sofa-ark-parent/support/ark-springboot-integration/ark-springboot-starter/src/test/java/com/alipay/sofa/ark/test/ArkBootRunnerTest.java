@@ -23,19 +23,24 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
-import com.alipay.sofa.ark.test.springboot.TestValueHolder;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
-import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.NoTestsRemainException;
+import org.junit.runner.manipulation.Sorter;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.slf4j.ILoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.util.Comparator;
+
+import static com.alipay.sofa.ark.test.springboot.TestValueHolder.getTestValue;
+import static org.junit.Assert.*;
+import static org.springframework.util.ReflectionUtils.*;
 
 /**
  * @author qilong.zql
@@ -55,40 +60,59 @@ public class ArkBootRunnerTest {
     public EventAdminService    eventAdminService;
 
     @Test
-    public void test() {
-        Assert.assertNotNull(sampleService);
-        Assert.assertNotNull(pluginManagerService);
-        Assert.assertTrue("SampleService".equals(sampleService.say()));
+    public void test() throws NoTestsRemainException {
+
+        assertNotNull(sampleService);
+        assertNotNull(pluginManagerService);
+        assertEquals("SampleService", sampleService.say());
 
         ArkBootRunner runner = new ArkBootRunner(ArkBootRunnerTest.class);
-        Field field = ReflectionUtils.findField(ArkBootRunner.class, "runner");
-        Assert.assertNotNull(field);
+        Field field = findField(ArkBootRunner.class, "runner");
+        assertNotNull(field);
 
-        ReflectionUtils.makeAccessible(field);
-        BlockJUnit4ClassRunner springRunner = (BlockJUnit4ClassRunner) ReflectionUtils.getField(
-            field, runner);
-        Assert.assertTrue(springRunner.getClass().getCanonicalName()
+        makeAccessible(field);
+        BlockJUnit4ClassRunner springRunner = (BlockJUnit4ClassRunner) getField(field, runner);
+        assertTrue(springRunner.getClass().getCanonicalName()
             .equals(SpringRunner.class.getCanonicalName()));
 
         ClassLoader loader = springRunner.getTestClass().getJavaClass().getClassLoader();
-        Assert.assertTrue(loader.getClass().getCanonicalName()
+        assertTrue(loader.getClass().getCanonicalName()
             .equals(TestClassLoader.class.getCanonicalName()));
 
-        Assert.assertEquals(0, TestValueHolder.getTestValue());
+        assertEquals(0, getTestValue());
         eventAdminService.sendEvent(new ArkEvent() {
             @Override
             public String getTopic() {
                 return "test-event-A";
             }
         });
-        Assert.assertEquals(10, TestValueHolder.getTestValue());
+        assertEquals(10, getTestValue());
         eventAdminService.sendEvent(new ArkEvent() {
             @Override
             public String getTopic() {
                 return "test-event-B";
             }
         });
-        Assert.assertEquals(20, TestValueHolder.getTestValue());
+        assertEquals(20, getTestValue());
+
+        runner.filter(new Filter() {
+            @Override
+            public boolean shouldRun(Description description) {
+                return true;
+            }
+
+            @Override
+            public String describe() {
+                return "";
+            }
+        });
+        runner.sort(new Sorter(new Comparator<Description>() {
+            @Override
+            public int compare(Description o1, Description o2) {
+                return 0;
+            }
+        }) {
+        });
     }
 
     /**
@@ -98,12 +122,11 @@ public class ArkBootRunnerTest {
     public void testLogClassCastBug() {
         Throwable throwable = null;
         try {
-            ILoggerFactory iLoggerFactory = (ILoggerFactory) this.getClass().getClassLoader()
+            this.getClass().getClassLoader()
                 .loadClass("org.apache.logging.slf4j.Log4jLoggerFactory").newInstance();
         } catch (Throwable t) {
             throwable = t;
         }
-        Assert.assertNull(throwable);
+        assertNull(throwable);
     }
-
 }

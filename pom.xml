@@ -10,12 +10,12 @@
     <modules>
         <module>sofa-ark-bom</module>
         <module>sofa-ark-parent</module>
-        <module>sofa-ark-plugin/config-ark-plugin</module>
-        <module>sofa-ark-plugin/web-ark-plugin</module>
+        <module>sofa-ark-plugin</module>
     </modules>
 
     <properties>
-        <sofa.ark.version>2.2.3-packageBase-SNAPSHOT</sofa.ark.version>
+        <sofa.ark.version>2.2.8</sofa.ark.version>
+        <sofa.ark.version.old>2.2.7</sofa.ark.version.old>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -23,8 +23,8 @@
         <maven.compiler.plugin>3.1</maven.compiler.plugin>
         <maven.source.plugin>3.0.0</maven.source.plugin>
         <maven.javadoc.plugin>3.2.0</maven.javadoc.plugin>
-        <maven.staging.plugin>1.6.7</maven.staging.plugin>
-        <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <maven.staging.plugin>1.6.13</maven.staging.plugin>
+        <maven.gpg.pluign>1.6</maven.gpg.pluign>
         <jacoco.maven.plugin>0.8.4</jacoco.maven.plugin>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
     </properties>
@@ -185,6 +185,14 @@
                 <version>${jacoco.maven.plugin}</version>
                 <configuration>
                     <skip>false</skip>
+                    <!-- this configuration affects all goals -->
+                    <excludes>
+                        <exclude>com/alipay/sofa/ark/config/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/config/util/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/config/zk/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/support/listener/ArkTestNG*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/common/log/ArkLogger.class</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -235,6 +243,12 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -244,6 +258,15 @@
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
                 </repository>
             </distributionManagement>
+            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                    <id>maven-snapshot</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </pluginRepository>
+            </pluginRepositories>
         </profile>
 
         <profile>
@@ -274,6 +297,12 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -283,6 +312,24 @@
                     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
                 </snapshotRepository>
             </distributionManagement>
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                    <id>maven-snapshot</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                    <id>maven-snapshot</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </pluginRepository>
+            </pluginRepositories>
         </profile>
 
         <profile>

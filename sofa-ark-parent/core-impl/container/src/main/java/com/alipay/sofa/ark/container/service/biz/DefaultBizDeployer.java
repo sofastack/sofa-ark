@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.container.service.biz;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -35,11 +34,9 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 public class DefaultBizDeployer implements BizDeployer {
 
     @ArkInject
-    private BizManagerService      bizManagerService;
+    private BizManagerService bizManagerService;
 
-    private String[]               arguments;
-
-    private static final ArkLogger LOGGER = ArkLoggerFactory.getDefaultLogger();
+    private String[]          arguments;
 
     @Override
     public void init(String[] args) {
@@ -53,11 +50,14 @@ public class DefaultBizDeployer implements BizDeployer {
                 continue;
             }
             try {
-                LOGGER.info(String.format("Begin to start biz: %s", biz.getBizName()));
+                ArkLoggerFactory.getDefaultLogger().info(
+                    String.format("Begin to start biz: %s", biz.getBizName()));
                 biz.start(arguments);
-                LOGGER.info(String.format("Finish to start biz: %s", biz.getBizName()));
+                ArkLoggerFactory.getDefaultLogger().info(
+                    String.format("Finish to start biz: %s", biz.getBizName()));
             } catch (Throwable e) {
-                LOGGER.error(String.format("Start biz: %s meet error", biz.getBizName()), e);
+                ArkLoggerFactory.getDefaultLogger().error(
+                    String.format("Start biz: %s meet error", biz.getBizName()), e);
                 throw new ArkRuntimeException(e);
             }
         }
@@ -67,11 +67,14 @@ public class DefaultBizDeployer implements BizDeployer {
     public void unDeploy() {
         for (Biz biz : bizManagerService.getBizInOrder()) {
             try {
-                LOGGER.info(String.format("Begin to stop biz: %s", biz.getBizName()));
+                ArkLoggerFactory.getDefaultLogger().info(
+                    String.format("Begin to stop biz: %s", biz.getBizName()));
                 biz.stop();
-                LOGGER.info(String.format("Finish to stop biz: %s", biz.getBizName()));
+                ArkLoggerFactory.getDefaultLogger().info(
+                    String.format("Finish to stop biz: %s", biz.getBizName()));
             } catch (Throwable e) {
-                LOGGER.error(String.format("stop biz: %s meet error", biz.getBizName()), e);
+                ArkLoggerFactory.getDefaultLogger().error(
+                    String.format("stop biz: %s meet error", biz.getBizName()), e);
                 throw new ArkRuntimeException(e);
             }
         }

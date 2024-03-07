@@ -18,11 +18,9 @@ package com.alipay.sofa.ark.common.util;
 
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -77,7 +75,7 @@ public class FileUtils {
      * temporary directory (as defined by the {@code java.io.tmpdir} system
      */
     public static File createTempDir(String subPath) {
-        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        File baseDir = FileUtils.file(System.getProperty("java.io.tmpdir"));
         File tempDir = new File(baseDir, subPath);
         if (tempDir.exists()) {
             return tempDir;
@@ -119,14 +117,14 @@ public class FileUtils {
                 ZipEntry entry = entries.nextElement();
                 if (entry.isDirectory()) {
                     String dirPath = targetPath + File.separator + entry.getName();
-                    File dir = new File(dirPath);
+                    File dir = FileUtils.file(dirPath);
                     dir.mkdirs();
                 } else {
                     InputStream inputStream = null;
                     FileOutputStream fileOutputStream = null;
                     try {
                         inputStream = zipFile.getInputStream(entry);
-                        File file = new File(targetPath + File.separator + entry.getName());
+                        File file = FileUtils.file(targetPath + File.separator + entry.getName());
                         if (!file.exists()) {
                             File fileParent = file.getParentFile();
                             if (!fileParent.exists()) {
@@ -152,7 +150,7 @@ public class FileUtils {
                     }
                 }
             }
-            return new File(targetPath);
+            return FileUtils.file(targetPath);
         } finally {
             if (zipFile != null) {
                 zipFile.close();
@@ -170,12 +168,49 @@ public class FileUtils {
         if (StringUtils.isEmpty(dirPath)) {
             return null;
         }
-        File dir = new File(dirPath);
+        File dir = FileUtils.file(dirPath);
         if (!dir.exists()) {
             // Recursive creation
             dir.mkdirs();
         }
         return dir;
+    }
+
+    /**
+     * decode the given path if the path has spaces
+     *
+     * @param path dest path
+     * @return decoded path
+     */
+    public static String decodePath(String path) {
+        try {
+            return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            // return source string when occur an exception
+            return path;
+        }
+    }
+
+    /**
+     * creates a new file for given path.
+     * first, we check if the path is encoded before creating the File object
+     *
+     * @param path file path
+     * @return new File
+     */
+    public static File file(String path) {
+        return new File(decodePath(path));
+    }
+
+    /**
+     * creates a new file for given path.
+     *
+     * @param parent parent path
+     * @param path child path
+     * @return new File
+     */
+    public static File file(String parent, String path) {
+        return new File(decodePath(parent), path);
     }
 
 }

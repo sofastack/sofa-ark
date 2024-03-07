@@ -62,6 +62,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -88,6 +89,8 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
 public class RepackageMojo extends TreeMojo {
 
     private static final String    BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
+
+    private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject           mavenProject;
@@ -210,7 +213,9 @@ public class RepackageMojo extends TreeMojo {
     private ProjectBuildingRequest projectBuildingRequest;
 
     /**
-     * Colon separated groupId, artifactId [and classifier] to exclude (exact match)
+     * Colon separated groupId, artifactId [and classifier] to exclude (exact match). e.g:
+     * group-a:tracer-core:3.0.10
+     * group-b:tracer-core:3.0.10:jdk17
      */
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludes                   = new LinkedHashSet<>();
@@ -288,6 +293,9 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "false")
     private boolean                declaredMode;
 
+    @Parameter(defaultValue = "false")
+    private boolean                disableGitInfo;
+
     /*----------------Git 相关参数---------------------*/
     /**
      * The root directory of the repository we want to check.
@@ -324,6 +332,12 @@ public class RepackageMojo extends TreeMojo {
         repackage();
     }
 
+    /**
+     *
+     *
+     * @throws MojoExecutionException
+     * @throws MojoFailureException
+     */
     private void repackage() throws MojoExecutionException, MojoFailureException {
         File source = this.mavenProject.getArtifact().getFile();
         File appTarget = getAppTargetFile();
@@ -352,10 +366,14 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private File getGitDirectory(MavenProject rootProject) {
+        if (disableGitInfo) {
+            return null;
+        }
         if (gitDirectory != null && gitDirectory.exists()) {
             return gitDirectory;
         }
-        return new File(rootProject.getBasedir().getAbsolutePath() + "/.git");
+        return com.alipay.sofa.ark.common.util.FileUtils.file(rootProject.getBasedir()
+            .getAbsolutePath() + "/.git");
     }
 
     private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
@@ -381,16 +399,32 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private Set<ArtifactItem> getAllArtifactByMavenTree() throws MojoExecutionException {
-        File baseDir = MavenUtils.getRootProject(this.mavenProject).getBasedir();
-        getLog().info("root project path: " + baseDir.getAbsolutePath());
+        MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
+        getLog().info("root project path: " + rootProject.getBasedir().getAbsolutePath());
+
+        //  run  maven dependency:tree
+        try {
+            if (this.mavenProject.getBasedir() != null) {
+                return doGetAllArtifactByMavenTree(this.mavenProject);
+            }
+        } catch (MojoExecutionException e) {
+            getLog().warn(
+                "execute dependency:tree failed, try to execute dependency:tree in root project");
+        }
+        return doGetAllArtifactByMavenTree(MavenUtils.getRootProject(this.mavenProject));
+    }
+
+    private Set<ArtifactItem> doGetAllArtifactByMavenTree(MavenProject project) throws MojoExecutionException {
+        File baseDir = project.getBasedir();
+        getLog().info("project path: " + baseDir.getAbsolutePath());
 
         // dependency:tree
         String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File(baseDir.getAbsolutePath() + "/pom.xml"));
+        request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
         List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-            "-DoutputFile=" + outputPath).collect(Collectors.toList());
+                "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
 
         Properties userProperties = projectBuildingRequest.getUserProperties();
         if (userProperties != null) {
@@ -398,7 +432,7 @@ public class RepackageMojo extends TreeMojo {
         }
 
         getLog().info(
-            "execute 'mvn dependency:tree' with command 'mvn " + String.join(" ", goals) + "'");
+                "execute 'mvn dependency:tree' with command 'mvn " + String.join(" ", goals) + "'");
         request.setGoals(goals);
         request.setBatchMode(mavenSession.getSettings().getInteractiveMode());
         request.setProfiles(mavenSession.getSettings().getActiveProfiles());
@@ -408,16 +442,16 @@ public class RepackageMojo extends TreeMojo {
             InvocationResult result = invoker.execute(request);
             if (result.getExitCode() != 0) {
                 throw new MojoExecutionException("execute dependency:tree failed",
-                    result.getExecutionException());
+                        result.getExecutionException());
             }
 
             String depTreeStr = FileUtils.readFileToString(FileUtils.getFile(outputPath),
-                Charset.defaultCharset());
+                    Charset.defaultCharset());
             return MavenUtils.convert(depTreeStr);
         } catch (MavenInvocationException | IOException e) {
             throw new MojoExecutionException("execute dependency:tree failed", e);
         } finally {
-            File outputFile = new File(outputPath);
+            File outputFile = com.alipay.sofa.ark.common.util.FileUtils.file(outputPath);
             if (outputFile.exists()) {
                 outputFile.delete();
             }
@@ -435,6 +469,10 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
+    /**
+     * @return sofa-ark-all and all maven project's non-excluded artifacts
+     * @throws MojoExecutionException
+     */
     @SuppressWarnings("unchecked")
     private Set<Artifact> getAdditionalArtifact() throws MojoExecutionException {
         Artifact arkArtifact = repositorySystem.createArtifact(ArkConstants.getGroupId(),
@@ -555,6 +593,9 @@ public class RepackageMojo extends TreeMojo {
         if (!StringUtils.isEmpty(packExcludesConfig)) {
             extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
                                       + packExcludesConfig);
+        } else {
+            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                                      + DEFAULT_EXCLUDE_RULES);
         }
 
         // extension from url
@@ -578,6 +619,14 @@ public class RepackageMojo extends TreeMojo {
         return result;
     }
 
+    /**
+     * This method is core method for excluding artifacts in sofa-ark-maven-plugin &lt;excludeGroupIds&gt;
+     * and &lt;excludeArtifactIds&gt; config.
+     *
+     * @param excludeList
+     * @param artifact
+     * @return
+     */
     private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
         for (ArtifactItem exclude : excludeList) {
             if (exclude.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
@@ -588,9 +637,16 @@ public class RepackageMojo extends TreeMojo {
         if (excludeGroupIds != null) {
             // 支持通配符
             for (String excludeGroupId : excludeGroupIds) {
-                if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                    excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                        Constants.PACKAGE_PREFIX_MARK);
+                if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                    || excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                            Constants.PACKAGE_PREFIX_MARK_2);
+                    } else if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        excludeGroupId = StringUtils.removeEnd(excludeGroupId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                    }
+
                     if (artifact.getGroupId().startsWith(excludeGroupId)) {
                         return true;
                     }
@@ -605,9 +661,15 @@ public class RepackageMojo extends TreeMojo {
         if (excludeArtifactIds != null) {
             // 支持通配符
             for (String excludeArtifactId : excludeArtifactIds) {
-                if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                    excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                        Constants.PACKAGE_PREFIX_MARK);
+                if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                    || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK_2);
+                    } else if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                    }
                     if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
                         return true;
                     }
@@ -624,7 +686,7 @@ public class RepackageMojo extends TreeMojo {
 
     protected void extensionExcludeArtifacts(String extraResources) {
         try {
-            File configFile = new File(extraResources);
+            File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
             if (configFile.exists()) {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
                 String dataLine;
@@ -645,6 +707,12 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
+    /**
+     * We support put sofa-ark-maven-plugin exclude config file in remote url location.
+     *
+     * @param packExcludesUrl
+     * @param artifacts
+     */
     protected void extensionExcludeArtifactsFromUrl(String packExcludesUrl, Set<Artifact> artifacts) {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
@@ -699,9 +767,16 @@ public class RepackageMojo extends TreeMojo {
                     continue;
                 }
                 for (String jarBlackGroupId : jarGroupIds) {
-                    if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                    if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                        || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                            jarBlackGroupId = StringUtils.remove(jarBlackGroupId,
+                                Constants.PACKAGE_PREFIX_MARK_2);
+                        } else if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                            jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
+                                Constants.PACKAGE_PREFIX_MARK);
+                        }
+
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
                             if (error) {
                                 getLog()
@@ -744,9 +819,15 @@ public class RepackageMojo extends TreeMojo {
                     continue;
                 }
                 for (String jarBlackArtifactId : jarArtifactIds) {
-                    if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK);
+                    if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                        || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                            jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
+                                Constants.PACKAGE_PREFIX_MARK_2);
+                        } else if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                            jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
+                                Constants.PACKAGE_PREFIX_MARK);
+                        }
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
                                 getLog()
@@ -809,6 +890,50 @@ public class RepackageMojo extends TreeMojo {
                 }
             }
         }
+    }
+
+    public void setExcludes(String str) {
+        this.excludes = parseToSet(str);
+    }
+
+    public void setExcludeGroupIds(String str) {
+        this.excludeGroupIds = parseToSet(str);
+    }
+
+    public void setExcludeArtifactIds(String str) {
+        this.excludeArtifactIds = parseToSet(str);
+    }
+
+    public void setDenyImportPackages(String str) {
+        this.denyImportPackages = parseToSet(str);
+    }
+
+    public void setDenyImportClasses(String str) {
+        this.denyImportClasses = parseToSet(str);
+    }
+
+    public void setDenyImportResources(String str) {
+        this.denyImportResources = parseToSet(str);
+    }
+
+    public void setInjectPluginDependencies(String str) {
+        this.injectPluginDependencies = parseToSet(str);
+    }
+
+    public void setInjectPluginExportPackages(String str) {
+        this.injectPluginExportPackages = parseToSet(str);
+    }
+
+    private LinkedHashSet<String> parseToSet(String str) {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        if (StringUtils.isBlank(str)) {
+            return set;
+        }
+        Arrays.stream(str.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .forEach(set::add);
+        return set;
     }
 
     public static class ExcludeConfigResponse {

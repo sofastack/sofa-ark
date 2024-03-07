@@ -17,8 +17,9 @@
 package com.alipay.sofa.ark.loader.test.jar;
 
 import com.alipay.sofa.ark.loader.jar.AsciiBytes;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author qilong.zql
@@ -28,15 +29,16 @@ public class AsciiBytesTest {
 
     public final String content    = "SofaArk is a class-isolated container";
 
-    AsciiBytes          asciiBytes = new AsciiBytes(content);
+    private AsciiBytes  asciiBytes = new AsciiBytes(content);
 
     @Test
     public void testAsciiBytes() {
-        Assert.assertTrue(asciiBytes.length() == content.length());
-        Assert.assertTrue(asciiBytes.startsWith(new AsciiBytes("SofaArk")));
-        Assert.assertTrue(asciiBytes.endsWith(new AsciiBytes("container")));
-        Assert.assertTrue(asciiBytes.toString().equals(content));
-        Assert.assertTrue(asciiBytes.substring(8, 10).endsWith(new AsciiBytes("is")));
+
+        assertTrue(asciiBytes.length() == content.length());
+        assertTrue(asciiBytes.startsWith(new AsciiBytes("SofaArk")));
+        assertTrue(asciiBytes.endsWith(new AsciiBytes("container")));
+        assertTrue(asciiBytes.toString().equals(content));
+        assertTrue(asciiBytes.substring(8, 10).endsWith(new AsciiBytes("is")));
 
         String suffix = "suffix";
         AsciiBytes suffixAsciiBytes = new AsciiBytes(suffix);
@@ -45,5 +47,14 @@ public class AsciiBytesTest {
         asciiBytes.append(suffix).equals(content + suffix);
         asciiBytes.append(suffixAsciiBytes).equals(content + suffix);
         asciiBytes.append(suffixBytes).equals(content + suffix);
+    }
+
+    @Test
+    public void testHashCode() {
+        AsciiBytes asciiBytes = new AsciiBytes("" + (char) 0xffff + (char) -99 + (char) -255
+                                               + (char) -128 + (char) 127 + (char) 128 + (char) 255
+                                               + (char) 256 + content);
+        assertEquals(-243313336, asciiBytes.hashCode());
+        assertNotEquals(new AsciiBytes(""), asciiBytes);
     }
 }

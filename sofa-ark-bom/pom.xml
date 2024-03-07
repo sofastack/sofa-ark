@@ -17,8 +17,8 @@
         <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
         <logback.version>1.2.9</logback.version>
 
-        <guice.version>5.1.0</guice.version>
-        <asm.version>8.0</asm.version>
+        <guice.version>6.0.0</guice.version>
+        <asm.version>9.4</asm.version>
         <commons.io.version>2.7</commons.io.version>
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
@@ -26,6 +26,7 @@
         <maven.core.version>3.8.1</maven.core.version>
         <maven.artifact.version>3.8.1</maven.artifact.version>
         <maven.archiver.version>3.5.1</maven.archiver.version>
+        <maven.model.version>3.8.1</maven.model.version>
         <maven.plugin.api.version>3.8.1</maven.plugin.api.version>
         <maven.plugin.annotations.version>3.6.1</maven.plugin.annotations.version>
         <maven.dependency.plugin.version>3.2.0</maven.dependency.plugin.version>
@@ -45,8 +46,9 @@
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
         <maven.plugin.plugin>3.6.1</maven.plugin.plugin>
         <surefire.version>2.22.2</surefire.version>
-        <netty.version>4.1.90.Final</netty.version>
-        <spring.boot.version>2.5.12</spring.boot.version>
+        <netty.version>4.1.94.Final</netty.version>
+        <reactor-netty.version>0.9.19.RELEASE</reactor-netty.version>
+        <spring.boot.version>2.7.14</spring.boot.version>
     </properties>
 
     <dependencyManagement>
@@ -189,9 +191,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-multibindings</artifactId>
-                <version>4.2.3</version>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>33.0.0-jre</version>
             </dependency>
 
             <dependency>
@@ -286,7 +288,11 @@
                 <artifactId>maven-plugin-api</artifactId>
                 <version>${maven.plugin.api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${maven.model.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-artifact</artifactId>
@@ -337,13 +343,19 @@
                 <version>${testng.version}</version>
             </dependency>
 
+            <!-- Test Dependencies -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-inline</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
                 <artifactId>system-rules</artifactId>

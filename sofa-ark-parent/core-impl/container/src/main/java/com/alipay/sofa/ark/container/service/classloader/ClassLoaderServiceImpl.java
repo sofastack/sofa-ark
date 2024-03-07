@@ -16,11 +16,14 @@
  */
 package com.alipay.sofa.ark.container.service.classloader;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.bootstrap.AgentClassLoader;
 import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * ClassLoader Service Implementation
@@ -47,36 +51,33 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class ClassLoaderServiceImpl implements ClassLoaderService {
 
-    private static final ArkLogger                       LOGGER                                    = ArkLoggerFactory
-                                                                                                       .getDefaultLogger();
+    private static final String                     ARK_SPI_PACKAGES                          = "com.alipay.sofa.ark.spi";
+    private static final String                     ARK_API_PACKAGES                          = "com.alipay.sofa.ark.api";
+    private static final String                     ARK_LOG_PACKAGES                          = "com.alipay.sofa.ark.common.log";
+    private static final String                     ARK_EXCEPTION_PACKAGES                    = "com.alipay.sofa.ark.exception";
 
-    private static final String                          ARK_SPI_PACKAGES                          = "com.alipay.sofa.ark.spi";
-    private static final String                          ARK_API_PACKAGES                          = "com.alipay.sofa.ark.api";
-    private static final String                          ARK_LOG_PACKAGES                          = "com.alipay.sofa.ark.common.log";
-    private static final String                          ARK_EXCEPTION_PACKAGES                    = "com.alipay.sofa.ark.exception";
-
-    private static final List<String>                    SUN_REFLECT_GENERATED_ACCESSOR            = new ArrayList<>();
+    private static final List<String>               SUN_REFLECT_GENERATED_ACCESSOR            = new ArrayList<>();
 
     /* export class and classloader relationship cache */
-    private ConcurrentHashMap<String, ClassLoader>       exportClassAndClassLoaderMap              = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ClassLoader>       exportNodeAndClassLoaderMap               = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ClassLoader>       exportStemAndClassLoaderMap               = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plugin>       exportClassAndClassLoaderMap              = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plugin>       exportNodeAndClassLoaderMap               = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plugin>       exportStemAndClassLoaderMap               = new ConcurrentHashMap<>();
 
     /* export cache and classloader relationship cache */
-    private ConcurrentHashMap<String, List<ClassLoader>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, List<ClassLoader>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, List<ClassLoader>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<Plugin>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<Plugin>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<Plugin>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
 
-    private ClassLoader                                  jdkClassLoader;
-    private ClassLoader                                  arkClassLoader;
-    private ClassLoader                                  systemClassLoader;
-    private ClassLoader                                  agentClassLoader;
-
-    @Inject
-    private PluginManagerService                         pluginManagerService;
+    private ClassLoader                             jdkClassLoader;
+    private ClassLoader                             arkClassLoader;
+    private ClassLoader                             systemClassLoader;
+    private ClassLoader                             agentClassLoader;
 
     @Inject
-    private BizManagerService                            bizManagerService;
+    private PluginManagerService                    pluginManagerService;
+
+    @Inject
+    private BizManagerService                       bizManagerService;
 
     static {
         SUN_REFLECT_GENERATED_ACCESSOR.add("sun.reflect.GeneratedMethodAccessor");
@@ -118,28 +119,25 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     public void prepareExportClassAndResourceCache() {
         for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
             for (String exportIndex : plugin.getExportPackageNodes()) {
-                exportNodeAndClassLoaderMap.putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+                exportNodeAndClassLoaderMap.putIfAbsent(exportIndex, plugin);
             }
             for (String exportIndex : plugin.getExportPackageStems()) {
-                exportStemAndClassLoaderMap.putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+                exportStemAndClassLoaderMap.putIfAbsent(exportIndex, plugin);
             }
             for (String exportIndex : plugin.getExportClasses()) {
-                exportClassAndClassLoaderMap
-                    .putIfAbsent(exportIndex, plugin.getPluginClassLoader());
+                exportClassAndClassLoaderMap.putIfAbsent(exportIndex, plugin);
             }
             for (String resource : plugin.getExportResources()) {
                 exportResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
-                exportResourceAndClassLoaderMap.get(resource).add(plugin.getPluginClassLoader());
+                exportResourceAndClassLoaderMap.get(resource).add(plugin);
             }
             for (String resource : plugin.getExportPrefixResourceStems()) {
                 exportPrefixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
-                exportPrefixStemResourceAndClassLoaderMap.get(resource).add(
-                    plugin.getPluginClassLoader());
+                exportPrefixStemResourceAndClassLoaderMap.get(resource).add(plugin);
             }
             for (String resource : plugin.getExportSuffixResourceStems()) {
                 exportSuffixStemResourceAndClassLoaderMap.putIfAbsent(resource, new LinkedList<>());
-                exportSuffixStemResourceAndClassLoaderMap.get(resource).add(
-                    plugin.getPluginClassLoader());
+                exportSuffixStemResourceAndClassLoaderMap.get(resource).add(plugin);
             }
         }
     }
@@ -171,18 +169,37 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
         return false;
     }
 
+    public String getExportMode(String className) {
+        Plugin plugin = findExportPlugin(className);
+        if (plugin == null) {
+            return PluginModel.EXPORTMODE_UNKNOWN;
+        }
+
+        return plugin.getExportMode();
+    }
+
     @Override
     public ClassLoader findExportClassLoader(String className) {
-        ClassLoader exportClassLoader = exportClassAndClassLoaderMap.get(className);
-        String packageName = ClassUtils.getPackageName(className);
-        if (exportClassLoader == null) {
-            exportClassLoader = exportNodeAndClassLoaderMap.get(packageName);
+        Plugin plugin = findExportPlugin(className);
+        if (plugin != null) {
+            return plugin.getPluginClassLoader();
+        } else {
+            return null;
         }
-        while (!Constants.DEFAULT_PACKAGE.equals(packageName) && exportClassLoader == null) {
-            exportClassLoader = exportStemAndClassLoaderMap.get(packageName);
+    }
+
+    @Override
+    public Plugin findExportPlugin(String className) {
+        Plugin plugin = exportClassAndClassLoaderMap.get(className);
+        String packageName = ClassUtils.getPackageName(className);
+        if (plugin == null) {
+            plugin = exportNodeAndClassLoaderMap.get(packageName);
+        }
+        while (!Constants.DEFAULT_PACKAGE.equals(packageName) && plugin == null) {
+            plugin = exportStemAndClassLoaderMap.get(packageName);
             packageName = ClassUtils.getPackageName(packageName);
         }
-        return exportClassLoader;
+        return plugin;
     }
 
     @Override
@@ -213,7 +230,16 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
 
     @Override
     public List<ClassLoader> findExportResourceClassLoadersInOrder(String resourceName) {
+        List<Plugin> plugins = findExportResourcePluginsInOrder(resourceName);
 
+        if (plugins != null) {
+            return plugins.stream().map(Plugin::getPluginClassLoader).collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+
+    private List<Plugin> findExportResourcePluginsInOrder(String resourceName) {
         if (exportResourceAndClassLoaderMap.containsKey(resourceName)) {
             return exportResourceAndClassLoaderMap.get(resourceName);
         }
@@ -259,6 +285,12 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     }
 
     @Override
+    public ClassLoader getMasterBizClassLoader() {
+        Biz biz = ArkClient.getMasterBiz();
+        return biz == null ? null : biz.getBizClassLoader();
+    }
+
+    @Override
     public ClassLoader getPluginClassLoader(String pluginName) {
         Plugin plugin = pluginManagerService.getPluginByName(pluginName);
         return plugin == null ? null : plugin.getPluginClassLoader();
@@ -280,14 +312,15 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
             URL[] urls = ClassLoaderUtils.getURLs(systemClassLoader);
             for (URL url : urls) {
                 if (url.getPath().startsWith(javaHome)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(String.format("Find JDK Url: %s", url));
+                    if (ArkLoggerFactory.getDefaultLogger().isDebugEnabled()) {
+                        ArkLoggerFactory.getDefaultLogger().debug(
+                            String.format("Find JDK Url: %s", url));
                     }
                     jdkUrls.add(url);
                 }
             }
         } catch (Throwable e) {
-            LOGGER.warn("Meet exception when parse JDK urls", e);
+            ArkLoggerFactory.getDefaultLogger().warn("Meet exception when parse JDK urls", e);
         }
 
         jdkClassLoader = new JDKDelegateClassLoader(jdkUrls.toArray(new URL[0]), extClassLoader);

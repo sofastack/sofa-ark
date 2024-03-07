@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+groupId: a
+artifactId: b
+version: c
+priority: 10
+pluginName: xxx
+description: yyy
+activator: 
+import-packages: 
+import-classes: 
+import-resources: 
+export-mode: 
+export-packages: 
+export-classes: 
+export-resources: 
+

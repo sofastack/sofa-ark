@@ -1,1 +1,4 @@
-com.alipay.sofa.ark.springboot.ArkAutoConfiguration
+com.alipay.sofa.ark.springboot.ArkServletAutoConfiguration
+com.alipay.sofa.ark.springboot.ArkServletLegacyAutoConfiguration
+com.alipay.sofa.ark.springboot.ArkReactiveAutoConfiguration
+com.alipay.sofa.ark.springboot.ArkAutoProcessorConfiguration

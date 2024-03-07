@@ -39,12 +39,20 @@
             <artifactId>guice</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-multibindings</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.taobao.text</groupId>
+            <artifactId>text-ui</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.14.4</version>
         </dependency>
 
         <!--test-->
@@ -64,7 +72,5 @@
             <artifactId>system-rules</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
 </project>
