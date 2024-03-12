@@ -14,8 +14,8 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>3.1.0</sofa.ark.version>
-        <sofa.ark.version.old>2.2.6</sofa.ark.version.old>
+        <sofa.ark.version>3.1.1-SNAPSHOT</sofa.ark.version>
+        <sofa.ark.version.old>3.1.0</sofa.ark.version.old>
         <project.encoding>UTF-8</project.encoding>
         <java.version>17</java.version>
         <license.maven.plugin>3.0</license.maven.plugin>
