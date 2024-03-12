@@ -135,7 +135,7 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
         if (this.resourceFactory != null) {
             LoopResources resources = this.resourceFactory.getLoopResources();
             Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
-            server = ((HttpServer)server.runOn(resources)).bindAddress(this::getListenAddress);
+            server = server.tcpConfiguration((tcpServer) -> tcpServer.runOn(resources)).bindAddress(this::getListenAddress);
         } else {
             server = server.bindAddress(this::getListenAddress);
         }

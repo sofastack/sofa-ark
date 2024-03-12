@@ -117,6 +117,15 @@
             <scope>test</scope>
         </dependency>
 
+        <!--   fix https://github.com/sofastack/sofa-ark/issues/851     -->
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-ark-all</artifactId>
+            <!--     please notice to use the old version to make ide import sofa-ark-all by jar rather than local classpath       -->
+            <version>${sofa.ark.version.old}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>web-ark-plugin</artifactId>
@@ -151,7 +160,8 @@
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
-            <version>1.0.22</version>
+            <version>${reactor-netty.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
