@@ -421,7 +421,7 @@ public class RepackageMojo extends TreeMojo {
         getLog().info("project path: " + baseDir.getAbsolutePath());
 
         // dependency:tree
-        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
+        String outputPath = mavenSession.getRequest().getUserProperties().getProperty("outputFile", baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis());
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
