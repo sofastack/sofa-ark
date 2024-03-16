@@ -338,11 +338,11 @@ public class ArkClient {
         if (configBizUrl != null) {
             // 开发模式下的文件夹不做拷贝
             if (configBizUrl.endsWith("/target/classes")) {
-                bizFile = new File(configBizUrl.replace(getLocalFileProtocolPrefix(),""));
+                bizFile = new File(configBizUrl.replace(getLocalFileProtocolPrefix(), ""));
             } else {
                 URL url = new URL(configBizUrl);
                 bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
-                        bizOperation.getBizVersion());
+                    bizOperation.getBizVersion());
                 FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
             }
         }
