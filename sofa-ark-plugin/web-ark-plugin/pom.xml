@@ -54,6 +54,10 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.web.embed.WebPluginActivator</activator>
+                            <excludes>
+                                <exclude>*:*:*</exclude>
+                                <exclude>com.alipay.sofa:web-ark-plugin</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
