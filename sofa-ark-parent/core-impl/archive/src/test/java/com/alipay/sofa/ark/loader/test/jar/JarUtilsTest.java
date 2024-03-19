@@ -21,10 +21,16 @@ import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.google.common.io.Files;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import static com.alipay.sofa.ark.loader.jar.JarUtils.parseArtifactId;
 import static java.lang.String.format;
@@ -64,6 +70,32 @@ public class JarUtilsTest {
             .getPath();
         String artifactId1 = parseArtifactId(path + "!/lib");
         assertEquals("example-client", artifactId1);
+
+        URL fatJarURL = this.getClass().getClassLoader().getResource("sample-springboot-fat-biz.jar");
+        List<URL> urls = extractResourceURLs(fatJarURL.getPath(), "BOOT-INF/classes/");
+        assertEquals(1, urls.size());
+        urls.forEach(url -> assertEquals("sofa-ark-sample-springboot-ark", parseArtifactId(url.getPath())));
+    }
+
+    private List<URL> extractResourceURLs(String pathToFatJar, String resourcePattern) {
+        List<URL> resourceUrls = new ArrayList<>();
+        try (JarFile jarFile = new JarFile(new File(pathToFatJar))) {
+
+            Enumeration<JarEntry> entryEnumeration = jarFile.entries();
+            while (entryEnumeration.hasMoreElements()) {
+                JarEntry entry = entryEnumeration.nextElement();
+                String entryName = entry.getName();
+                if (entryName.endsWith(resourcePattern)) { // 检查资源模式匹配
+                    // 构建jar内资源的URL
+                    URL entryUrl = new URL("jar:file:" + pathToFatJar + "!/" + entryName);
+                    resourceUrls.add(entryUrl);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to extract resource URLs from " + pathToFatJar, e);
+        }
+
+        return resourceUrls;
     }
 
     @Test
@@ -123,8 +155,7 @@ public class JarUtilsTest {
     @Test
     public void testParseArtifactIdFromJarInJar() throws Exception {
         URL jar = JarUtilsTest.class.getResource("/sample-biz-withjar.jar");
-        Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJarInJar",
-            String.class);
+        Method method = JarUtils.class.getDeclaredMethod("parseArtifactIdFromJar", String.class);
         method.setAccessible(Boolean.TRUE);
         assertEquals("slf4j-api",
             method.invoke(JarUtils.class, jar.getFile() + "!/lib/slf4j-api-1.7.30.jar"));
