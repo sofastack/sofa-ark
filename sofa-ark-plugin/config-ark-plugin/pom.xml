@@ -86,6 +86,10 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.config.ConfigBaseActivator</activator>
+                            <excludes>
+                                <exclude>*:*:*</exclude>
+                                <exclude>com.alipay.sofa:config-ark-plugin</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
