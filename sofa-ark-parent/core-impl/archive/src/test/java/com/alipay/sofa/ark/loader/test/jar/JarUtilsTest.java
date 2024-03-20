@@ -191,7 +191,7 @@ public class JarUtilsTest {
                                              + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/sofa-ark-spring-guides-230525-SOFA.jar!/");
         assertEquals("sofa-ark-spring-guides", artifactId0);
         String artifactId1 = parseArtifactId(jar.getFile()
-                                             + "!/BOOT-IN/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
+                                             + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
         assertEquals("example-client", artifactId1);
     }
 }

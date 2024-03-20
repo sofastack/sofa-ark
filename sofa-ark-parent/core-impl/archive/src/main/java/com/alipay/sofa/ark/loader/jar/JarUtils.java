@@ -166,18 +166,18 @@ public class JarUtils {
                 if (as.length == 1) {
                     // no '!/'
                     if (a.endsWith(".jar")) {
-                        artifactId = doGetArtifactIdFromFileName(a);
+                        artifactId = parseArtifactIdFromJar(a);
                         if (StringUtils.isEmpty(artifactId)) {
-                            artifactId = parseArtifactIdFromJar(a);
+                            artifactId = doGetArtifactIdFromFileName(a);
                         }
                     } else {
                         artifactId = getArtifactIdFromLocalClassPath(a);
                     }
                 } else {
                     // contains one '!/' or more
-                    artifactId = doGetArtifactIdFromFileName(a);
+                    artifactId = parseArtifactIdFromJar(a);
                     if (StringUtils.isEmpty(artifactId)) {
-                        artifactId = parseArtifactIdFromJar(a);
+                        artifactId = doGetArtifactIdFromFileName(a);
                     }
                 }
                 return Optional.ofNullable(artifactId);
@@ -235,7 +235,7 @@ public class JarUtils {
                 rJarFile = rJarFile.getNestedJarFile(jarEntry);
             } catch (NullPointerException e) {
                 throw new IOException(
-                    String.format("Failed to parse artifact id, jPath: %s", jPath));
+                    String.format("Failed to parse artifact id, jPath: %s", jPath), e);
             }
         }
         return rJarFile;
