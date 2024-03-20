@@ -96,7 +96,7 @@ public class BizFactoryServiceTest extends BaseTest {
     @Test
     public void testPackageInfo() throws Throwable {
         ClassLoader cl = currentThread().getContextClassLoader();
-        URL samplePlugin = cl.getResource("sample-ark-plugin.jar");
+        URL samplePlugin = cl.getResource("sample-ark-plugin-common-0.5.1.jar");
         Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         ClassLoader pluginClassLoader = plugin.getPluginClassLoader();
         pluginManagerService.registerPlugin(plugin);
