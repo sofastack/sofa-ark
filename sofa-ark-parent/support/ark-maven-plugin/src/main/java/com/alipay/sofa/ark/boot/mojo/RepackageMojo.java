@@ -56,10 +56,7 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,10 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -109,6 +103,7 @@ public class RepackageMojo extends TreeMojo {
 
     /**
      * Directory containing the generated archive
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "${project.build.directory}", required = true)
@@ -125,6 +120,7 @@ public class RepackageMojo extends TreeMojo {
 
     /**
      * Name of the generated archive
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "${project.build.finalName}", required = true)
@@ -132,6 +128,7 @@ public class RepackageMojo extends TreeMojo {
 
     /**
      * Skip the repackage goal.
+     *
      * @since 0.1.0
      */
     @Parameter(property = "sofa.ark.repackage.skip", defaultValue = "false")
@@ -141,6 +138,7 @@ public class RepackageMojo extends TreeMojo {
      * Classifier to add to the artifact generated. If attach is set 'true', the
      * artifact will be attached with that classifier. Attaching the artifact
      * allows to deploy it alongside to the main artifact.
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "ark-biz", readonly = true)
@@ -154,6 +152,7 @@ public class RepackageMojo extends TreeMojo {
 
     /**
      * ark biz version
+     *
      * @since 0.4.0
      */
     @Parameter(defaultValue = "${project.version}")
@@ -161,6 +160,7 @@ public class RepackageMojo extends TreeMojo {
 
     /**
      * ark biz version
+     *
      * @since 0.4.0
      */
     @Parameter(defaultValue = "100", property = "sofa.ark.biz.priority")
@@ -177,6 +177,7 @@ public class RepackageMojo extends TreeMojo {
 
     /**
      * Attach the module archive to be installed and deployed.
+     *
      * @since 0.1.0
      */
     @Parameter(defaultValue = "false")
@@ -185,6 +186,7 @@ public class RepackageMojo extends TreeMojo {
     /**
      * The name of the main class. If not specified the first compiled class found that
      * contains a 'main' method will be used.
+     *
      * @since 0.1.0
      */
     @Parameter
@@ -195,6 +197,7 @@ public class RepackageMojo extends TreeMojo {
      * Specify each library as a <code>&lt;dependency&gt;</code> with a
      * <code>&lt;groupId&gt;</code> and a <code>&lt;artifactId&gt;</code> and they will be
      * unpacked at runtime.
+     *
      * @since 0.1.0
      */
     @Parameter
@@ -333,8 +336,6 @@ public class RepackageMojo extends TreeMojo {
     }
 
     /**
-     *
-     *
      * @throws MojoExecutionException
      * @throws MojoFailureException
      */
@@ -600,6 +601,8 @@ public class RepackageMojo extends TreeMojo {
                                       + DEFAULT_EXCLUDE_RULES);
         }
 
+        extensionExcludeArtifactsInProperties(baseDir + File.separator + APPLICATION_CONF_BASE_DIR
+                                              + File.separator + APPLICATION_CONF_FILE_FORMAT);
         // extension from url
         if (StringUtils.isNotBlank(packExcludesUrl)) {
             extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
@@ -1066,6 +1069,38 @@ public class RepackageMojo extends TreeMojo {
             return type;
         }
 
+    }
+
+    /**
+     * We support put sofa-ark-maven-plugin exclude config by setting config in application.properties
+     * The following are examples, with different sub-items separated by commas.
+     * excludeGroupIds=aopalliance*,asm*,org.springframework*
+     *
+     * @param extraResources
+     */
+    protected void extensionExcludeArtifactsInProperties(String extraResources) {
+        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
+        if (configFile.exists()) {
+            try (InputStream inputStream = new FileInputStream(configFile)) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                for (Object key : properties.keySet()) {
+                    String dataLine = key.toString();
+                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
+                        ParseUtils.parseExcludeConfInProperties(excludes,
+                            properties.getProperty(dataLine));
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConfInProperties(excludeGroupIds,
+                            properties.getProperty(dataLine));
+                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
+                        ParseUtils.parseExcludeConfInProperties(excludeArtifactIds,
+                            properties.getProperty(dataLine));
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
