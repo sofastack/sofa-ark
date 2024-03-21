@@ -31,6 +31,7 @@ import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizSwitchEvent;
+import com.alipay.sofa.ark.spi.event.biz.BizFailedEvent;
 import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStartupEvent;
 import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
 import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStartupEvent;
@@ -79,6 +80,7 @@ public class EventTest extends BaseTest {
         eventAdminService.register(new AfterFinishStartupEventHandler());
         eventAdminService.register(new BeforeBizRecycleEventEventHandler());
         eventAdminService.register(new TestArkEventHandler());
+        eventAdminService.register(new BizFailedEventHandler());
     }
 
     @After
@@ -137,6 +139,10 @@ public class EventTest extends BaseTest {
         eventAdminService.sendEvent(new BeforeBizRecycleEvent(biz));
         Assert.assertTrue(result.get(13).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_BEFORE_RECYCLE_BIZ));
+
+        eventAdminService.sendEvent(new BizFailedEvent(biz,new Throwable()));
+        Assert.assertTrue(result.get(14).equalsIgnoreCase(
+                Constants.BIZ_EVENT_TOPIC_BIZ_FAILED));
     }
 
     static class TestArkEvent extends AbstractArkEvent {
@@ -320,6 +326,19 @@ public class EventTest extends BaseTest {
 
         @Override
         public void handleEvent(AfterFinishStartupEvent event) {
+            result.add(event.getTopic());
+        }
+
+        @Override
+        public int getPriority() {
+            return 0;
+        }
+    }
+
+    static class BizFailedEventHandler implements EventHandler<BizFailedEvent> {
+
+        @Override
+        public void handleEvent(BizFailedEvent event) {
             result.add(event.getTopic());
         }
 

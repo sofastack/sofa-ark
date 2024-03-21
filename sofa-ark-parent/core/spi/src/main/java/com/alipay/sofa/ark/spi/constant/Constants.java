@@ -185,6 +185,8 @@ public class Constants {
     public final static String       ARK_EVENT_TOPIC_AFTER_FINISH_STARTUP_STAGE    = "AFTER-FINISH-STARTUP-STAGE";
     public final static String       ARK_EVENT_TOPIC_AFTER_FINISH_DEPLOY_STAGE     = "AFTER-FINISH-DEPLOY-STAGE";
 
+    public final static String       BIZ_EVENT_TOPIC_BIZ_FAILED                    = "BIZ_EVENT_TOPIC_BIZ_FAILED";
+
     /**
      * Environment Properties
      */
