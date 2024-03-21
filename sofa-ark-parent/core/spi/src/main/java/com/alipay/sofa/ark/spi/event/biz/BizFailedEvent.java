@@ -22,7 +22,7 @@ import com.alipay.sofa.ark.spi.model.Biz;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
- * @version $Id: BizFailedEvent.java, v 0.1 2024年03月21日 10:42 立蓬 Exp $
+ * @since 2.2.9
  */
 public class BizFailedEvent extends AbstractArkEvent<Biz> {
     Throwable throwable;
