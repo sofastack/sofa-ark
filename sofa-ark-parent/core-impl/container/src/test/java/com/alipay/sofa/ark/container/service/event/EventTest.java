@@ -140,9 +140,8 @@ public class EventTest extends BaseTest {
         Assert.assertTrue(result.get(13).equalsIgnoreCase(
             Constants.BIZ_EVENT_TOPIC_BEFORE_RECYCLE_BIZ));
 
-        eventAdminService.sendEvent(new BizFailedEvent(biz,new Throwable()));
-        Assert.assertTrue(result.get(14).equalsIgnoreCase(
-                Constants.BIZ_EVENT_TOPIC_BIZ_FAILED));
+        eventAdminService.sendEvent(new BizFailedEvent(biz, new Throwable()));
+        Assert.assertTrue(result.get(14).equalsIgnoreCase(Constants.BIZ_EVENT_TOPIC_BIZ_FAILED));
     }
 
     static class TestArkEvent extends AbstractArkEvent {
