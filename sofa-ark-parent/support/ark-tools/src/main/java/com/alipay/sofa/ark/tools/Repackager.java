@@ -441,6 +441,7 @@ public class Repackager {
         }
 
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, startClass);
+        manifest.getMainAttributes().putValue(START_CLASS_ATTRIBUTE, startClass);
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, this.bizName);
         manifest.getMainAttributes().putValue(ARK_BIZ_VERSION, this.bizVersion);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE, priority);
@@ -482,6 +483,8 @@ public class Repackager {
         }
         manifest = new Manifest(manifest);
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE,
+            Layouts.Jar.jar().getLauncherClassName());
+        manifest.getMainAttributes().putValue(START_CLASS_ATTRIBUTE,
             Layouts.Jar.jar().getLauncherClassName());
 
         if (arkVersion == null || arkVersion.isEmpty()) {

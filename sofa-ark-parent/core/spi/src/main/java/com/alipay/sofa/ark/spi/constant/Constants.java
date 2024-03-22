@@ -102,6 +102,7 @@ public class Constants {
      * Ark Biz Attribute
      */
     public final static String       MAIN_CLASS_ATTRIBUTE                          = "Main-Class";
+    public final static String       START_CLASS_ATTRIBUTE                         = "Start-Class";
     public final static String       ARK_BIZ_NAME                                  = "Ark-Biz-Name";
     public final static String       ARK_BIZ_VERSION                               = "Ark-Biz-Version";
     public final static String       DENY_IMPORT_CLASSES                           = "deny-import-classes";
