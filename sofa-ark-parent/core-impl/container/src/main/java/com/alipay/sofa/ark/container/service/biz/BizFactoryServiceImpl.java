@@ -61,6 +61,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_PLUGIN_DEPENDENC
 import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
+import static com.alipay.sofa.ark.spi.constant.Constants.START_CLASS_ATTRIBUTE;
 import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
 import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
 
@@ -81,11 +82,13 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
         BizModel bizModel = new BizModel();
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();
+        String mainClass = manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE);
+        String startClass = manifestMainAttributes.getValue(START_CLASS_ATTRIBUTE);
         bizModel
             .setBizState(BizState.RESOLVED)
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
-            .setMainClass(manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE))
+            .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
             .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
