@@ -66,8 +66,6 @@ public class BizModel implements Biz {
 
     private String               mainClass;
 
-    private String               startClass;
-
     private String               webContextPath;
 
     private URL[]                urls;
