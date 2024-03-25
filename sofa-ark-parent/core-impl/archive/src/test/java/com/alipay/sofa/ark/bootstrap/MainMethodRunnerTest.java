@@ -36,7 +36,7 @@ public class MainMethodRunnerTest {
     @Test
     public void testRunner() {
         MainMethodRunner mainMethodRunner = new MainMethodRunner(MainClass.class.getName(),
-            new String[] { "10" });
+            new String[] { "10" }, null);
 
         try {
             mainMethodRunner.run();
