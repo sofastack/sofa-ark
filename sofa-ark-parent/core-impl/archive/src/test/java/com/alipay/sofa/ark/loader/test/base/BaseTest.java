@@ -103,7 +103,6 @@ public abstract class BaseTest {
 
         ZipEntry entryForTest = new ZipEntry(TEST_ENTRY);
         entryForTest.setComment(TEST_ENTRY_COMMENT);
-        entryForTest.setExtra(TEST_ENTRY_EXTRA.getBytes());
         jos.putNextEntry(entryForTest);
 
         jos.closeEntry();
