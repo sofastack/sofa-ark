@@ -41,7 +41,7 @@ public class DirectoryContainerArchive implements ContainerArchive {
     private final URL[]           urls;
 
     private final static String[] AKR_CONTAINER_JAR = { "aopalliance-1.0", "commons-io-2.7",
-            "guava-32.1.3-jre", "guice-6.0.0", "failureaccess-1.0.1", "javax.inject-1",
+            "guava-33.0.0-jre", "guice-6.0.0", "failureaccess-1.0.1", "javax.inject-1",
             "jakarta.inject-api-2.0.1", "logback-core-1.4.14", "logback-classic-1.4.14",
             "slf4j-api-2.0.11", "sofa-common-tools", "netty-all-4.1.94.Final",
             "netty-transport-4.1.94.Final", "netty-common-4.1.94.Final",
