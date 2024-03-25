@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,6 +60,11 @@ public class ArkClient {
     private static Biz                  masterBiz;
     private static InjectionService     injectionService;
     private static String[]             arguments;
+
+    /**
+     * in some case like multi-tenant jdk, we need to set envs for biz
+     */
+    private static Map<String, String>  envs;
 
     private static EventAdminService    eventAdminService;
 
@@ -137,17 +143,35 @@ public class ArkClient {
         ArkClient.arguments = arguments;
     }
 
+    public static Map<String, String> getEnvs() {
+        return envs;
+    }
+
+    public static void setEnvs(Map<String, String> envs) {
+        ArkClient.envs = envs;
+    }
+
     /**
-     * Install Biz throw file
+     * Install Biz with default arguments and envs throw file
      *
      * @param bizFile
      * @throws Throwable
      */
     public static ClientResponse installBiz(File bizFile) throws Throwable {
-        return installBiz(bizFile, arguments);
+        return installBiz(bizFile, arguments, envs);
+    }
+
+    public static ClientResponse installBiz(File bizFile, String[] args, Map<String, String> envs)
+                                                                                                  throws Throwable {
+        return doInstallBiz(bizFile, args, envs);
     }
 
     public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
+        return doInstallBiz(bizFile, args, null);
+    }
+
+    private static ClientResponse doInstallBiz(File bizFile, String[] args, Map<String, String> envs)
+                                                                                                     throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
@@ -165,7 +189,7 @@ public class ArkClient {
         }
 
         try {
-            biz.start(args);
+            biz.start(args, envs);
             long end = System.currentTimeMillis();
             response
                 .setCode(ResponseCode.SUCCESS)

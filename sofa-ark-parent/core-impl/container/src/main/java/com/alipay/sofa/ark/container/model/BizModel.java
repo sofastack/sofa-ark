@@ -273,6 +273,15 @@ public class BizModel implements Biz {
 
     @Override
     public void start(String[] args) throws Throwable {
+        doStart(args, null);
+    }
+
+    @Override
+    public void start(String[] args, Map<String, String> envs) throws Throwable {
+        doStart(args, envs);
+    }
+
+    private void doStart(String[] args, Map<String, String> envs) throws Throwable {
         AssertUtils.isTrue(bizState == BizState.RESOLVED, "BizState must be RESOLVED");
         if (mainClass == null) {
             throw new ArkRuntimeException(String.format("biz: %s has no main method", getBizName()));
@@ -286,7 +295,7 @@ public class BizModel implements Biz {
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
                 ArkLoggerFactory.getDefaultLogger().info("Ark biz {} start.", getIdentity());
-                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
+                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args, envs);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
                 eventAdminService.sendEvent(new AfterBizStartupEvent(this));
