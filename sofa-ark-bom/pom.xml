@@ -41,7 +41,7 @@
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
-        <mockito.version>4.1.0</mockito.version>
+        <mockito.version>5.11.0</mockito.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
@@ -337,12 +337,12 @@
             </dependency>
 
             <!-- Test Dependencies -->
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.mockito</groupId>-->
+<!--                <artifactId>mockito-inline</artifactId>-->
+<!--                <version>${mockito.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
