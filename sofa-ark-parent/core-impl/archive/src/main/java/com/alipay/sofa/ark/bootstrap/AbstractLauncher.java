@@ -109,7 +109,7 @@ public abstract class AbstractLauncher {
     }
 
     protected MainMethodRunner createMainMethodRunner(String mainClass, String[] args) {
-        return new MainMethodRunner(mainClass, args);
+        return new MainMethodRunner(mainClass, args, null);
     }
 
     /**
