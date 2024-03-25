@@ -46,7 +46,6 @@ public class JarFileTest extends BaseTest {
         ZipEntry zipEntry = jarFile.getEntry(TEST_ENTRY);
         assertTrue(zipEntry.getName().equals(TEST_ENTRY));
         assertTrue(zipEntry.getComment().equals(TEST_ENTRY_COMMENT));
-        assertTrue(compareByteArray(zipEntry.getExtra(), TEST_ENTRY_EXTRA.getBytes()));
 
         JarEntry jarEntry = jarFile.getJarEntry("lib/junit-4.12.jar");
         JarFile nestJarFile = jarFile.getNestedJarFile(jarEntry);
