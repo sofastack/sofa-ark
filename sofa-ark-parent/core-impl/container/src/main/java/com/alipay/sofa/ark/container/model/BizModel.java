@@ -36,7 +36,7 @@ import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
-import com.alipay.sofa.ark.spi.event.biz.BizFailedEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizFailedEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -295,7 +295,7 @@ public class BizModel implements Biz {
             }
         } catch (Throwable e) {
             bizState = BizState.BROKEN;
-            eventAdminService.sendEvent(new BizFailedEvent(this, e));
+            eventAdminService.sendEvent(new AfterBizFailedEvent(this, e));
             throw e;
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
