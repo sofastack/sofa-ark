@@ -61,8 +61,42 @@ public class MavenUtils {
 
         for (String content : contents) {
             ArtifactItem artifactItem = getArtifactItem(content);
-            if (artifactItem != null && !"test".equals(artifactItem.getScope())) {
+            if (artifactItem != null && "compile".equals(artifactItem.getScope())) {
                 artifactItems.add(artifactItem);
+            }
+        }
+
+        return artifactItems;
+    }
+
+    private static boolean isTopDependency(String content) {
+        return !content.startsWith("|");
+    }
+
+    /**
+     * @param depTreeContent
+     * @return
+     */
+    public static Set<ArtifactItem> convertToTree(String depTreeContent) {
+        Set<ArtifactItem> artifactItems = new HashSet<>();
+        String[] contents = depTreeContent.split("\n");
+
+        for (int i = 0; i < contents.length; i++) {
+            String content = contents[i];
+            if (!isTopDependency(content)) {
+                continue;
+            }
+            ArtifactItem parent = getArtifactItem(content);
+            if (parent == null || !"compile".equals(parent.getScope())) {
+                continue;
+            }
+            artifactItems.add(parent);
+            for (int j = i + 1; j < contents.length && !isTopDependency(contents[j]); j++) {
+                ArtifactItem child = getArtifactItem(contents[j]);
+                if (child != null) {
+                    parent.addDependency(child);
+                }
+                i = j;
             }
         }
 

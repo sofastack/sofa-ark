@@ -20,6 +20,8 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import org.apache.maven.artifact.Artifact;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -28,19 +30,21 @@ import java.util.Objects;
  */
 public class ArtifactItem {
 
-    private static final String GAV_SPLIT = ":";
+    private static final String GAV_SPLIT    = ":";
 
     private String              groupId;
 
     private String              artifactId;
 
-    private String              version   = "?";
+    private String              version      = "?";
 
     private String              classifier;
 
-    private String              type      = "jar";
+    private String              type         = "jar";
 
-    private String              scope     = "compile";
+    private String              scope        = "compile";
+
+    private List<ArtifactItem>  dependencies = new LinkedList();
 
     public String getGroupId() {
         return groupId;
@@ -212,5 +216,13 @@ public class ArtifactItem {
     public int hashCode() {
         return Objects
             .hash(this.groupId, this.artifactId, this.type, this.version, this.classifier);
+    }
+
+    public void addDependency(ArtifactItem item) {
+        this.dependencies.add(item);
+    }
+
+    public List<ArtifactItem> getDependencies() {
+        return dependencies;
     }
 }
