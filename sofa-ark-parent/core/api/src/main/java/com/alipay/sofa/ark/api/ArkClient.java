@@ -38,6 +38,7 @@ import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -349,11 +350,21 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
-        return installOperation(bizOperation, arguments);
+        return doInstallOperation(bizOperation, arguments, envs);
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
                                                                                            throws Throwable {
+        return doInstallOperation(bizOperation, args, null);
+    }
+
+    public static ClientResponse installOperation(BizOperation bizOperation, String[] args,
+                                                  Map<String, String> envs) throws Throwable {
+        return doInstallOperation(bizOperation, args, envs);
+    }
+
+    private static ClientResponse doInstallOperation(BizOperation bizOperation, String[] args,
+                                                     Map<String, String> envs) throws Throwable {
         AssertUtils.isTrue(
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
             "Operation type must be install");
@@ -362,9 +373,12 @@ public class ArkClient {
             URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
             bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
                 bizOperation.getBizVersion());
-            FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
+
+            try (InputStream inputStream = url.openStream()) {
+                FileUtils.copyInputStreamToFile(inputStream, bizFile);
+            }
         }
-        return installBiz(bizFile, args);
+        return installBiz(bizFile, args, envs);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
