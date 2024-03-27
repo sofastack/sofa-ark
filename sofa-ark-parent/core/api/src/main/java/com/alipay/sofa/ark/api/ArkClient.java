@@ -349,10 +349,19 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
-        return installOperation(bizOperation, arguments);
+        return doInstallOperation(bizOperation, arguments, envs);
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
+            throws Throwable {
+        return doInstallOperation(bizOperation, args, null);
+    }
+
+    public static ClientResponse installOperation(BizOperation bizOperation, String[] args, Map<String, String> envs) throws Throwable {
+        return doInstallOperation(bizOperation, args, envs);
+    }
+
+    private static ClientResponse doInstallOperation(BizOperation bizOperation, String[] args, Map<String, String> envs)
                                                                                            throws Throwable {
         AssertUtils.isTrue(
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
@@ -364,7 +373,7 @@ public class ArkClient {
                 bizOperation.getBizVersion());
             FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
         }
-        return installBiz(bizFile, args);
+        return installBiz(bizFile, args, envs);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
