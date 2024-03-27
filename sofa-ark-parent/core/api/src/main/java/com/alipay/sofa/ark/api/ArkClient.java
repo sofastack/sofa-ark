@@ -353,16 +353,17 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
-            throws Throwable {
+                                                                                           throws Throwable {
         return doInstallOperation(bizOperation, args, null);
     }
 
-    public static ClientResponse installOperation(BizOperation bizOperation, String[] args, Map<String, String> envs) throws Throwable {
+    public static ClientResponse installOperation(BizOperation bizOperation, String[] args,
+                                                  Map<String, String> envs) throws Throwable {
         return doInstallOperation(bizOperation, args, envs);
     }
 
-    private static ClientResponse doInstallOperation(BizOperation bizOperation, String[] args, Map<String, String> envs)
-                                                                                           throws Throwable {
+    private static ClientResponse doInstallOperation(BizOperation bizOperation, String[] args,
+                                                     Map<String, String> envs) throws Throwable {
         AssertUtils.isTrue(
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
             "Operation type must be install");
@@ -371,6 +372,7 @@ public class ArkClient {
             URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
             bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
                 bizOperation.getBizVersion());
+
             FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
         }
         return installBiz(bizFile, args, envs);
