@@ -38,6 +38,7 @@ import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -373,7 +374,9 @@ public class ArkClient {
             bizFile = ArkClient.createBizSaveFile(bizOperation.getBizName(),
                 bizOperation.getBizVersion());
 
-            FileUtils.copyInputStreamToFile(url.openStream(), bizFile);
+            try (InputStream inputStream = url.openStream()) {
+                FileUtils.copyInputStreamToFile(inputStream, bizFile);
+            }
         }
         return installBiz(bizFile, args, envs);
     }
