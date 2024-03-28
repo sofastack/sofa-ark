@@ -21,7 +21,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.DATE_FORMAT;
 
 /**
  * @author qilong.zql
@@ -134,6 +137,10 @@ public interface BizInfo {
 
         private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+        static{
+            sdf.setTimeZone(TimeZone.getDefault());
+        }
+
         public BizStateChangeInfo(Date changeTime, BizState state) {
             this.changeTime = changeTime;
             this.state = state;
@@ -141,6 +148,7 @@ public interface BizInfo {
 
         @Override
         public String toString() {
+
             String date = sdf.format(changeTime);
             return String.format("date: %s, to %s", date, state);
         }

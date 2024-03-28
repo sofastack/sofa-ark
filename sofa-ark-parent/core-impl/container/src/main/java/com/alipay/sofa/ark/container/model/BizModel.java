@@ -30,7 +30,6 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
-import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
@@ -409,9 +408,8 @@ public class BizModel implements Biz {
 
     @Override
     public String toString() {
-        String classloaderTag = classLoader == null ? "null" : classLoader.toString();
-        return "Ark Biz: " + getIdentity() + ", State: " + bizState + ", classloader: "
-               + classloaderTag + ", changeLogs: " + bizStateChangeLogs;
+        return "Ark Biz: " + getIdentity() +", classloader: "
+                + classLoader + ", current state: " + bizState +  ", history states: " + bizStateChangeLogs;
     }
 
     private void resetProperties() {
