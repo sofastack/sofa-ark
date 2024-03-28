@@ -137,7 +137,7 @@ public interface BizInfo {
 
         private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-        static{
+        static {
             sdf.setTimeZone(TimeZone.getDefault());
         }
 

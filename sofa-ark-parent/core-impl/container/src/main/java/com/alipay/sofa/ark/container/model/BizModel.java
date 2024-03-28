@@ -408,8 +408,8 @@ public class BizModel implements Biz {
 
     @Override
     public String toString() {
-        return "Ark Biz: " + getIdentity() +", classloader: "
-                + classLoader + ", current state: " + bizState +  ", history states: " + bizStateChangeLogs;
+        return "Ark Biz: " + getIdentity() + ", classloader: " + classLoader + ", current state: "
+               + bizState + ", history states: " + bizStateChangeLogs;
     }
 
     private void resetProperties() {
