@@ -54,7 +54,7 @@ public class BizModelTest {
     }
 
     @Test
-    public void testBizStateChanged(){
+    public void testBizStateChanged() {
         BizModel bizModel = new BizModel();
         CopyOnWriteArrayList<BizStateChangeInfo> changeLogs = bizModel.getBizStateChangeLogs();
 
@@ -80,7 +80,6 @@ public class BizModelTest {
         assertTrue(bizModel.toString().contains("to resolved"));
         assertTrue(bizModel.toString().contains("to activated"));
         assertTrue(bizModel.toString().contains("to deactivated"));
-
 
         bizModel.setBizState(BizState.UNRESOLVED);
         assertEquals(4, changeLogs.size());
