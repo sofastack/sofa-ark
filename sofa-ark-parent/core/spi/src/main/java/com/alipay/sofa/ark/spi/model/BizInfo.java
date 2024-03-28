@@ -17,8 +17,11 @@
 package com.alipay.sofa.ark.spi.model;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author qilong.zql
@@ -117,4 +120,27 @@ public interface BizInfo {
      * @return
      */
     Map<String, String> getAttributes();
+
+    /**
+     * get getBizStateChangeLog
+     * @since 2.2.9
+     * @return java.util.concurrent.CopyOnWriteArrayList<com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo>
+     */
+    CopyOnWriteArrayList<BizStateChangeInfo> getBizStateChangeLogs();
+
+    class BizStateChangeInfo {
+        private final Date     changeTime;
+        private final BizState state;
+
+        public BizStateChangeInfo(Date changeTime, BizState state) {
+            this.changeTime = changeTime;
+            this.state = state;
+        }
+
+        @Override
+        public String toString() {
+            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(changeTime);
+            return String.format("date: %s, to %s", date, state);
+        }
+    }
 }

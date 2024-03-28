@@ -19,17 +19,16 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
@@ -43,11 +42,13 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -100,6 +101,8 @@ public class BizModel implements Biz {
 
     private File                 bizTempWorkDir;
 
+    private CopyOnWriteArrayList<BizStateChangeInfo> bizStateChangeLogs = new CopyOnWriteArrayList<>();
+
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
         this.bizName = bizName;
@@ -114,6 +117,7 @@ public class BizModel implements Biz {
 
     public BizModel setBizState(BizState bizState) {
         this.bizState = bizState;
+        addStateChangeLog();
         return this;
     }
 
@@ -194,6 +198,10 @@ public class BizModel implements Biz {
 
     public Set<String> getInjectExportPackages() {
         return injectExportPackages;
+    }
+
+    private void addStateChangeLog(){
+        bizStateChangeLogs.add(new BizStateChangeInfo(new Date(),bizState));
     }
 
     @Override
@@ -293,7 +301,8 @@ public class BizModel implements Biz {
                     getIdentity(), (System.currentTimeMillis() - start));
             }
         } catch (Throwable e) {
-            bizState = BizState.BROKEN;
+            //bizState = BizState.BROKEN;
+            setBizState(BizState.BROKEN);
             throw e;
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
@@ -304,16 +313,20 @@ public class BizModel implements Biz {
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
-                bizState = BizState.ACTIVATED;
+                //bizState = BizState.ACTIVATED;
+                setBizState(BizState.ACTIVATED);
             } else {
                 ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED);
-                bizState = BizState.ACTIVATED;
+                //bizState = BizState.ACTIVATED;
+                setBizState(BizState.ACTIVATED);
             }
         } else {
             if (bizManagerService.getActiveBiz(bizName) == null) {
-                bizState = BizState.ACTIVATED;
+                //bizState = BizState.ACTIVATED;
+                setBizState(BizState.ACTIVATED);
             } else {
-                bizState = BizState.DEACTIVATED;
+                //bizState = BizState.DEACTIVATED;
+                setBizState(BizState.DEACTIVATED);
             }
         }
     }
@@ -329,7 +342,8 @@ public class BizModel implements Biz {
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         if (bizState == BizState.ACTIVATED) {
-            bizState = BizState.DEACTIVATED;
+            //bizState = BizState.DEACTIVATED;
+            setBizState(BizState.DEACTIVATED);
         }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
@@ -344,7 +358,8 @@ public class BizModel implements Biz {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
             bizManagerService.unRegisterBiz(bizName, bizVersion);
-            bizState = BizState.UNRESOLVED;
+            //bizState = BizState.UNRESOLVED;
+            setBizState(BizState.UNRESOLVED);
             eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
             urls = null;
             denyImportPackages = null;
@@ -382,8 +397,14 @@ public class BizModel implements Biz {
     }
 
     @Override
+    public CopyOnWriteArrayList<BizStateChangeInfo> getBizStateChangeLogs() {
+        return bizStateChangeLogs;
+    }
+
+    @Override
     public String toString() {
-        return "Ark Biz: " + getIdentity();
+        String classloaderTag = classLoader == null? "null" :classLoader.toString();
+        return "Ark Biz: " + getIdentity() + ", State: " + bizState +", classloader: " + classloaderTag +", changeLogs: " + bizStateChangeLogs;
     }
 
     private void resetProperties() {

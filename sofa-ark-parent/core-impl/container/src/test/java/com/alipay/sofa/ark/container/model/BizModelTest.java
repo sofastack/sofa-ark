@@ -16,14 +16,22 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
+import com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo;
+import com.alipay.sofa.ark.spi.model.BizState;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class BizModelTest {
 
@@ -43,5 +51,42 @@ public class BizModelTest {
         assertTrue(bizModel.doCheckDeclared("file://b/a.jar!/b.jar"));
         assertTrue(bizModel.doCheckDeclared(this.getClass().getClassLoader()
             .getResource("test.jar").getPath()));
+    }
+
+    @Test
+    public void testBizStateChanged(){
+        BizModel bizModel = new BizModel();
+        CopyOnWriteArrayList<BizStateChangeInfo> changeLogs = bizModel.getBizStateChangeLogs();
+
+        assertEquals(0, changeLogs.size());
+        assertTrue(bizModel.toString().contains("changeLogs:"));
+
+        // create Biz
+        bizModel.setBizState(BizState.RESOLVED);
+        bizModel.setClassLoader(Mockito.mock(BizClassLoader.class));
+        assertEquals(1, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("BizClassLoader"));
+
+        // activate Biz
+        bizModel.setBizState(BizState.ACTIVATED);
+        assertEquals(2, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("to activated"));
+
+        // deactivate Biz
+        bizModel.setBizState(BizState.DEACTIVATED);
+        assertEquals(3, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("to activated"));
+        assertTrue(bizModel.toString().contains("to deactivated"));
+
+
+        bizModel.setBizState(BizState.UNRESOLVED);
+        assertEquals(4, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("to activated"));
+        assertTrue(bizModel.toString().contains("to deactivated"));
+        assertTrue(bizModel.toString().contains("to unresolved"));
     }
 }
