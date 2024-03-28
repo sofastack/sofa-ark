@@ -221,6 +221,7 @@ public class Constants {
      * Config Server
      */
     public final static String       CONFIG_SERVER_ADDRESS                         = "com.alipay.sofa.ark.config.address";
+    public final static String       CONFIG_SERVER_ENVIRONMENT                     = "com.alipay.sofa.ark.config.env";
     public final static String       CONFIG_PROTOCOL_ZOOKEEPER                     = "zookeeper";
     public final static String       CONFIG_PROTOCOL_ZOOKEEPER_HEADER              = "zookeeper://";
     public final static String       ZOOKEEPER_CONTEXT_SPLIT                       = "/";
