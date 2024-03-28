@@ -102,6 +102,7 @@ public class Constants {
      * Ark Biz Attribute
      */
     public final static String       MAIN_CLASS_ATTRIBUTE                          = "Main-Class";
+    public final static String       START_CLASS_ATTRIBUTE                         = "Start-Class";
     public final static String       ARK_BIZ_NAME                                  = "Ark-Biz-Name";
     public final static String       ARK_BIZ_VERSION                               = "Ark-Biz-Version";
     public final static String       DENY_IMPORT_CLASSES                           = "deny-import-classes";
@@ -170,6 +171,7 @@ public class Constants {
      */
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START        = "AFTER-INVOKE-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP         = "AFTER-INVOKE-BIZ-STOP";
+    public final static String       BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED              = "BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED";
     public final static String       BIZ_EVENT_TOPIC_BEFORE_RECYCLE_BIZ            = "BEFORE-RECYCLE-BIZ";
     public final static String       BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_START       = "BEFORE-INVOKE-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_STOP        = "BEFORE-INVOKE-BIZ-STOP";

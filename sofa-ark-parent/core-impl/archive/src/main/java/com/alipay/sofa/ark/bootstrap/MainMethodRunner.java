@@ -17,6 +17,8 @@
 package com.alipay.sofa.ark.bootstrap;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility class that is used  to call a main method. The class
@@ -27,24 +29,29 @@ import java.lang.reflect.Method;
  */
 public class MainMethodRunner {
 
-    private final String   mainClassName;
+    private final String              mainClassName;
 
-    private final String[] args;
+    private final String[]            args;
+
+    private final Map<String, String> envs;
 
     /**
      * Create a new {@link MainMethodRunner} instance.
      * @param mainClass the main class
      * @param args incoming arguments
      */
-    public MainMethodRunner(String mainClass, String[] args) {
+    public MainMethodRunner(String mainClass, String[] args, Map<String, String> envs) {
         this.mainClassName = mainClass;
-        this.args = (args == null ? null : args.clone());
+        this.args = (args == null ? new String[]{} : args.clone());
+        this.envs = envs == null ? new HashMap<>() : envs;
     }
 
     public Object run() throws Exception {
         Class<?> mainClass = Thread.currentThread().getContextClassLoader()
             .loadClass(this.mainClassName);
         Method mainMethod = mainClass.getDeclaredMethod("main", String[].class);
+
+        // TODO: add envs into the tenant of jdk
         return mainMethod.invoke(null, new Object[] { this.args });
     }
 

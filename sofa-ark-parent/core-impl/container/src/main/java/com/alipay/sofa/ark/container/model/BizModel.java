@@ -19,10 +19,12 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
+import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
@@ -35,6 +37,7 @@ import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizFailedEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -59,47 +62,47 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
-    private String                                   bizName;
+    private String               bizName;
 
-    private String                                   bizVersion;
+    private String               bizVersion;
 
-    private BizState                                 bizState;
+    private BizState             bizState;
 
-    private String                                   mainClass;
+    private String               mainClass;
 
-    private String                                   webContextPath;
+    private String               webContextPath;
 
-    private URL[]                                    urls;
+    private URL[]                urls;
 
-    private URL[]                                    pluginUrls;
+    private URL[]                pluginUrls;
 
-    private ClassLoader                              classLoader;
+    private ClassLoader          classLoader;
 
-    private Map<String, String>                      attributes                    = new ConcurrentHashMap<>();
+    private Map<String, String>  attributes                    = new ConcurrentHashMap<>();
 
-    private int                                      priority                      = DEFAULT_PRECEDENCE;
+    private int                  priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>                              denyImportPackages;
+    private Set<String>          denyImportPackages;
 
-    private Set<String>                              denyImportPackageNodes        = new HashSet<>();
+    private Set<String>          denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>                              denyImportPackageStems        = new HashSet<>();
+    private Set<String>          denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>                              denyImportClasses;
+    private Set<String>          denyImportClasses;
 
-    private Set<String>                              denyImportResources           = new HashSet<>();
+    private Set<String>          denyImportResources           = new HashSet<>();
 
-    private Set<String>                              injectPluginDependencies      = new HashSet<>();
-    private Set<String>                              injectExportPackages          = new HashSet<>();
+    private Set<String>          injectPluginDependencies      = new HashSet<>();
+    private Set<String>          injectExportPackages          = new HashSet<>();
 
-    private Set<String>                              declaredLibraries             = new LinkedHashSet<>();
-    private Map<String, Boolean>                     declaredCacheMap              = new ConcurrentHashMap<>();
+    private Set<String>          declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean> declaredCacheMap              = new ConcurrentHashMap<>();
 
-    private Set<String>                              denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>          denyPrefixImportResourceStems = new HashSet<>();
 
-    private Set<String>                              denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>          denySuffixImportResourceStems = new HashSet<>();
 
-    private File                                     bizTempWorkDir;
+    private File                 bizTempWorkDir;
 
     private CopyOnWriteArrayList<BizStateChangeInfo> bizStateChangeLogs            = new CopyOnWriteArrayList<>();
 
@@ -280,6 +283,15 @@ public class BizModel implements Biz {
 
     @Override
     public void start(String[] args) throws Throwable {
+        doStart(args, null);
+    }
+
+    @Override
+    public void start(String[] args, Map<String, String> envs) throws Throwable {
+        doStart(args, envs);
+    }
+
+    private void doStart(String[] args, Map<String, String> envs) throws Throwable {
         AssertUtils.isTrue(bizState == BizState.RESOLVED, "BizState must be RESOLVED");
         if (mainClass == null) {
             throw new ArkRuntimeException(String.format("biz: %s has no main method", getBizName()));
@@ -293,7 +305,7 @@ public class BizModel implements Biz {
             if (!isMasterBizAndEmbedEnable()) {
                 long start = System.currentTimeMillis();
                 ArkLoggerFactory.getDefaultLogger().info("Ark biz {} start.", getIdentity());
-                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args);
+                MainMethodRunner mainMethodRunner = new MainMethodRunner(mainClass, args, envs);
                 mainMethodRunner.run();
                 // this can trigger health checker handler
                 eventAdminService.sendEvent(new AfterBizStartupEvent(this));
@@ -301,8 +313,8 @@ public class BizModel implements Biz {
                     getIdentity(), (System.currentTimeMillis() - start));
             }
         } catch (Throwable e) {
-            //bizState = BizState.BROKEN;
             setBizState(BizState.BROKEN);
+            eventAdminService.sendEvent(new AfterBizFailedEvent(this, e));
             throw e;
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
@@ -313,19 +325,15 @@ public class BizModel implements Biz {
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
-                //bizState = BizState.ACTIVATED;
                 setBizState(BizState.ACTIVATED);
             } else {
                 ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED);
-                //bizState = BizState.ACTIVATED;
                 setBizState(BizState.ACTIVATED);
             }
         } else {
             if (bizManagerService.getActiveBiz(bizName) == null) {
-                //bizState = BizState.ACTIVATED;
                 setBizState(BizState.ACTIVATED);
             } else {
-                //bizState = BizState.DEACTIVATED;
                 setBizState(BizState.DEACTIVATED);
             }
         }
@@ -342,7 +350,6 @@ public class BizModel implements Biz {
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         if (bizState == BizState.ACTIVATED) {
-            //bizState = BizState.DEACTIVATED;
             setBizState(BizState.DEACTIVATED);
         }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
@@ -358,7 +365,6 @@ public class BizModel implements Biz {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
             bizManagerService.unRegisterBiz(bizName, bizVersion);
-            //bizState = BizState.UNRESOLVED;
             setBizState(BizState.UNRESOLVED);
             eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
             urls = null;

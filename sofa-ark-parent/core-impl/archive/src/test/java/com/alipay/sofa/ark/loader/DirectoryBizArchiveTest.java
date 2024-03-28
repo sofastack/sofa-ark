@@ -51,7 +51,7 @@ public class DirectoryBizArchiveTest {
         assertArrayEquals(new URL[]{new URL("file://a")}, directoryBizArchive.getUrls());
 
         assertTrue(directoryBizArchive.isEntryExist(entry -> !entry.isDirectory() && entry.getName().equals(ARK_BIZ_MARK_ENTRY)));
-        assertEquals(5, directoryBizArchive.getManifest().getMainAttributes().size());
+        assertEquals(6, directoryBizArchive.getManifest().getMainAttributes().size());
 
         try {
             directoryBizArchive.getUrl();
