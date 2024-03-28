@@ -62,47 +62,47 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
-    private String               bizName;
+    private String                                   bizName;
 
-    private String               bizVersion;
+    private String                                   bizVersion;
 
-    private BizState             bizState;
+    private BizState                                 bizState;
 
-    private String               mainClass;
+    private String                                   mainClass;
 
-    private String               webContextPath;
+    private String                                   webContextPath;
 
-    private URL[]                urls;
+    private URL[]                                    urls;
 
-    private URL[]                pluginUrls;
+    private URL[]                                    pluginUrls;
 
-    private ClassLoader          classLoader;
+    private ClassLoader                              classLoader;
 
-    private Map<String, String>  attributes                    = new ConcurrentHashMap<>();
+    private Map<String, String>                      attributes                    = new ConcurrentHashMap<>();
 
-    private int                  priority                      = DEFAULT_PRECEDENCE;
+    private int                                      priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>          denyImportPackages;
+    private Set<String>                              denyImportPackages;
 
-    private Set<String>          denyImportPackageNodes        = new HashSet<>();
+    private Set<String>                              denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>          denyImportPackageStems        = new HashSet<>();
+    private Set<String>                              denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>          denyImportClasses;
+    private Set<String>                              denyImportClasses;
 
-    private Set<String>          denyImportResources           = new HashSet<>();
+    private Set<String>                              denyImportResources           = new HashSet<>();
 
-    private Set<String>          injectPluginDependencies      = new HashSet<>();
-    private Set<String>          injectExportPackages          = new HashSet<>();
+    private Set<String>                              injectPluginDependencies      = new HashSet<>();
+    private Set<String>                              injectExportPackages          = new HashSet<>();
 
-    private Set<String>          declaredLibraries             = new LinkedHashSet<>();
-    private Map<String, Boolean> declaredCacheMap              = new ConcurrentHashMap<>();
+    private Set<String>                              declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean>                     declaredCacheMap              = new ConcurrentHashMap<>();
 
-    private Set<String>          denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>                              denyPrefixImportResourceStems = new HashSet<>();
 
-    private Set<String>          denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>                              denySuffixImportResourceStems = new HashSet<>();
 
-    private File                 bizTempWorkDir;
+    private File                                     bizTempWorkDir;
 
     private CopyOnWriteArrayList<BizStateChangeInfo> bizStateChangeLogs            = new CopyOnWriteArrayList<>();
 

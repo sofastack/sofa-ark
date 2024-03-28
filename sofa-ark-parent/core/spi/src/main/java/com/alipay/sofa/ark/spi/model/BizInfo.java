@@ -129,8 +129,10 @@ public interface BizInfo {
     CopyOnWriteArrayList<BizStateChangeInfo> getBizStateChangeLogs();
 
     class BizStateChangeInfo {
-        private final Date     changeTime;
-        private final BizState state;
+        private final Date                    changeTime;
+        private final BizState                state;
+
+        private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
         public BizStateChangeInfo(Date changeTime, BizState state) {
             this.changeTime = changeTime;
@@ -139,7 +141,7 @@ public interface BizInfo {
 
         @Override
         public String toString() {
-            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(changeTime);
+            String date = sdf.format(changeTime);
             return String.format("date: %s, to %s", date, state);
         }
     }
