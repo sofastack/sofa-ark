@@ -40,8 +40,7 @@ import org.apache.curator.framework.AuthInfo;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.cache.NodeCacheListener;
+import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
@@ -50,10 +49,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_SERVER_ENABLE;
 
@@ -89,9 +85,8 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     private Deque<String>          bizConfigDeque  = new ArrayDeque<>(5);
 
-    private NodeCache              ipNodeCache;
-
-    private NodeCache              bizNodeCache;
+    private CuratorCache           ipCuratorCache;
+    private CuratorCache           bizCuratorCache;
 
     @Override
     public void start(final PluginContext context) {
@@ -153,16 +148,16 @@ public class ZookeeperConfigActivator implements PluginActivator {
             return;
         }
 
-        if (ipNodeCache != null) {
+        if (Objects.nonNull(ipCuratorCache)) {
             try {
-                ipNodeCache.close();
+                ipCuratorCache.close();
             } catch (Exception e) {
                 // ignore
             }
         }
-        if (bizNodeCache != null) {
+        if (Objects.nonNull(bizCuratorCache)) {
             try {
-                bizNodeCache.close();
+                bizCuratorCache.close();
             } catch (Exception e) {
                 // ignore
             }
@@ -171,93 +166,104 @@ public class ZookeeperConfigActivator implements PluginActivator {
     }
 
     protected void registerEventHandler(final PluginContext context) {
-        final String bizInitConfig = new String(bizNodeCache.getCurrentData().getData());
-        EventAdminService eventAdminService = context.referenceService(EventAdminService.class)
-            .getService();
-        eventAdminService.register(new EventHandler<AfterFinishDeployEvent>() {
-            @Override
-            public void handleEvent(AfterFinishDeployEvent event) {
-                LOGGER.info("Start to process init app config: {}", bizInitConfig);
-                OperationProcessor.process(OperationTransformer.transformToBizOperation(
-                    bizInitConfig, context));
-            }
+        Optional<ChildData> currentData = this.bizCuratorCache.get(bizResourcePath);
+        if (currentData.isPresent() && Objects.nonNull(currentData.get().getData())) {
+            final String bizInitConfig = new String(currentData.get().getData());
+            EventAdminService eventAdminService = context.referenceService(EventAdminService.class)
+                .getService();
+            eventAdminService.register(new EventHandler<AfterFinishDeployEvent>() {
+                @Override
+                public void handleEvent(AfterFinishDeployEvent event) {
+                    LOGGER.info("Start to process init app config: {}", bizInitConfig);
+                    OperationProcessor.process(OperationTransformer.transformToBizOperation(
+                        bizInitConfig, context));
+                }
 
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-        eventAdminService.register(new EventHandler<AfterFinishStartupEvent>() {
-            @Override
-            public void handleEvent(AfterFinishStartupEvent event) {
-                ConfigProcessor
-                    .createConfigProcessor(context, ipConfigDeque, "ip-zookeeper-config").start();
-                ConfigProcessor.createConfigProcessor(context, bizConfigDeque,
-                    "app-zookeeper-config").start();
-            }
+                @Override
+                public int getPriority() {
+                    return 0;
+                }
+            });
+            eventAdminService.register(new EventHandler<AfterFinishStartupEvent>() {
+                @Override
+                public void handleEvent(AfterFinishStartupEvent event) {
+                    ConfigProcessor.createConfigProcessor(context, ipConfigDeque,
+                        "ip-zookeeper-config").start();
+                    ConfigProcessor.createConfigProcessor(context, bizConfigDeque,
+                        "app-zookeeper-config").start();
+                }
 
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
+                @Override
+                public int getPriority() {
+                    return 0;
+                }
+            });
+        }
+
     }
 
     protected void subscribeIpConfig() {
-        ipNodeCache = new NodeCache(zkClient, ipResourcePath);
-        ipNodeCache.getListenable().addListener(new NodeCacheListener() {
+        this.ipCuratorCache = CuratorCache.builder(zkClient, ipResourcePath).build();
+        this.ipCuratorCache.listenable().addListener(new CuratorCacheListener() {
             private int version = -1;
 
             @Override
-            public void nodeChanged() throws Exception {
-                if (ipNodeCache.getCurrentData() != null
-                    && ipNodeCache.getCurrentData().getStat().getVersion() > version) {
-                    version = ipNodeCache.getCurrentData().getStat().getVersion();
-                    String configData = new String(ipNodeCache.getCurrentData().getData());
-                    ipConfigDeque.add(configData);
-                    LOGGER.info("Receive ip config data: {}, version is {}.", configData, version);
+            public void event(Type type, ChildData oldChildData, ChildData currentChildData) {
+                if (type == Type.NODE_CHANGED) {
+                    if (Objects.nonNull(currentChildData)
+                        && currentChildData.getStat().getVersion() > version) {
+                        version = currentChildData.getStat().getVersion();
+                        String configData = new String(currentChildData.getData());
+                        ipConfigDeque.add(configData);
+                        LOGGER.info("Receive ip config data: {}, version is {}.", configData,
+                            version);
+                    }
                 }
             }
         });
         try {
             LOGGER.info("Subscribe ip config: {}.", ipResourcePath);
-            ipNodeCache.start(true);
+            ipCuratorCache.start();
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to subscribe ip resource path.", e);
         }
     }
 
     protected void unSubscribeIpConfig() {
-        if (ipNodeCache != null) {
+        if (Objects.nonNull(ipCuratorCache)) {
             try {
                 LOGGER.info("Un-subscribe ip config: {}.", ipResourcePath);
-                ipNodeCache.close();
+                ipCuratorCache.close();
             } catch (Throwable throwable) {
                 LOGGER.error("Failed to un-subscribe ip resource path.");
             }
-            ipNodeCache = null;
+            ipCuratorCache = null;
         }
     }
 
     protected void subscribeBizConfig() {
-        bizNodeCache = new NodeCache(zkClient, bizResourcePath);
-        bizNodeCache.getListenable().addListener(new NodeCacheListener() {
+        this.bizCuratorCache = CuratorCache.build(zkClient, bizResourcePath);
+
+        this.bizCuratorCache.listenable().addListener(new CuratorCacheListener() {
             private int version = -1;
 
             @Override
-            public void nodeChanged() throws Exception {
-                if (bizNodeCache.getCurrentData() != null
-                    && bizNodeCache.getCurrentData().getStat().getVersion() > version) {
-                    version = bizNodeCache.getCurrentData().getStat().getVersion();
-                    String configData = new String(bizNodeCache.getCurrentData().getData());
-                    bizConfigDeque.add(configData);
-                    LOGGER.info("Receive app config data: {}, version is {}.", configData, version);
+            public void event(Type type, ChildData oldChildData, ChildData currentChildData) {
+                if (type == Type.NODE_CHANGED) {
+                    if (Objects.nonNull(currentChildData)
+                        && currentChildData.getStat().getVersion() > version) {
+                        version = currentChildData.getStat().getVersion();
+                        String configData = new String(currentChildData.getData());
+                        bizConfigDeque.add(configData);
+                        LOGGER.info("Receive app config data: {}, version is {}.", configData,
+                            version);
+                    }
                 }
             }
         });
 
         try {
-            bizNodeCache.start(true);
+            bizCuratorCache.start();
         } catch (Exception e) {
             throw new ArkRuntimeException("Failed to subscribe resource path.", e);
         }
@@ -277,16 +283,23 @@ public class ZookeeperConfigActivator implements PluginActivator {
     }
 
     public String buildIpConfigPath() {
-        String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
-        AssertUtils.isFalse(StringUtils.isEmpty(masterBizName), "Master biz should be specified.");
-        return rootPath + "sofa-ark" + Constants.ZOOKEEPER_CONTEXT_SPLIT + masterBizName
-               + Constants.ZOOKEEPER_CONTEXT_SPLIT + NetUtils.getLocalHostAddress();
+        return buildMasterBizRootPath().append(Constants.ZOOKEEPER_CONTEXT_SPLIT)
+            .append(NetUtils.getLocalHostAddress()).toString();
     }
 
     public String buildMasterBizConfigPath() {
+        return buildMasterBizRootPath().toString();
+    }
+
+    private StringBuilder buildMasterBizRootPath() {
+        StringBuilder masterBizRootPath = new StringBuilder(rootPath);
         String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
         AssertUtils.isFalse(StringUtils.isEmpty(masterBizName), "Master biz should be specified.");
-        return rootPath + "sofa-ark" + Constants.ZOOKEEPER_CONTEXT_SPLIT + masterBizName;
+        String configEnvironment = ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ENVIRONMENT,
+            "sofa-ark");
+        masterBizRootPath.append(configEnvironment).append(Constants.ZOOKEEPER_CONTEXT_SPLIT)
+            .append(masterBizName);
+        return masterBizRootPath;
     }
 
     /**
