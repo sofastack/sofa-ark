@@ -170,13 +170,13 @@ public class ZookeeperConfigActivator implements PluginActivator {
         if (currentData.isPresent() && Objects.nonNull(currentData.get().getData())) {
             final String bizInitConfig = new String(currentData.get().getData());
             EventAdminService eventAdminService = context.referenceService(EventAdminService.class)
-                    .getService();
+                .getService();
             eventAdminService.register(new EventHandler<AfterFinishDeployEvent>() {
                 @Override
                 public void handleEvent(AfterFinishDeployEvent event) {
                     LOGGER.info("Start to process init app config: {}", bizInitConfig);
                     OperationProcessor.process(OperationTransformer.transformToBizOperation(
-                            bizInitConfig, context));
+                        bizInitConfig, context));
                 }
 
                 @Override
@@ -187,10 +187,10 @@ public class ZookeeperConfigActivator implements PluginActivator {
             eventAdminService.register(new EventHandler<AfterFinishStartupEvent>() {
                 @Override
                 public void handleEvent(AfterFinishStartupEvent event) {
-                    ConfigProcessor
-                            .createConfigProcessor(context, ipConfigDeque, "ip-zookeeper-config").start();
+                    ConfigProcessor.createConfigProcessor(context, ipConfigDeque,
+                        "ip-zookeeper-config").start();
                     ConfigProcessor.createConfigProcessor(context, bizConfigDeque,
-                            "app-zookeeper-config").start();
+                        "app-zookeeper-config").start();
                 }
 
                 @Override
@@ -206,16 +206,17 @@ public class ZookeeperConfigActivator implements PluginActivator {
         this.ipCuratorCache = CuratorCache.builder(zkClient, ipResourcePath).build();
         this.ipCuratorCache.listenable().addListener(new CuratorCacheListener() {
             private int version = -1;
+
             @Override
             public void event(Type type, ChildData oldChildData, ChildData currentChildData) {
                 if (type == Type.NODE_CHANGED) {
                     if (Objects.nonNull(currentChildData)
-                            && currentChildData.getStat().getVersion() > version) {
+                        && currentChildData.getStat().getVersion() > version) {
                         version = currentChildData.getStat().getVersion();
                         String configData = new String(currentChildData.getData());
                         ipConfigDeque.add(configData);
                         LOGGER.info("Receive ip config data: {}, version is {}.", configData,
-                                version);
+                            version);
                     }
                 }
             }
@@ -245,16 +246,17 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
         this.bizCuratorCache.listenable().addListener(new CuratorCacheListener() {
             private int version = -1;
+
             @Override
             public void event(Type type, ChildData oldChildData, ChildData currentChildData) {
                 if (type == Type.NODE_CHANGED) {
                     if (Objects.nonNull(currentChildData)
-                            && currentChildData.getStat().getVersion() > version) {
+                        && currentChildData.getStat().getVersion() > version) {
                         version = currentChildData.getStat().getVersion();
                         String configData = new String(currentChildData.getData());
                         bizConfigDeque.add(configData);
                         LOGGER.info("Receive app config data: {}, version is {}.", configData,
-                                version);
+                            version);
                     }
                 }
             }
@@ -266,7 +268,6 @@ public class ZookeeperConfigActivator implements PluginActivator {
             throw new ArkRuntimeException("Failed to subscribe resource path.", e);
         }
     }
-
 
     protected void registryResource(String path, CreateMode createMode) {
         try {
@@ -283,7 +284,7 @@ public class ZookeeperConfigActivator implements PluginActivator {
 
     public String buildIpConfigPath() {
         return buildMasterBizRootPath().append(Constants.ZOOKEEPER_CONTEXT_SPLIT)
-                .append(NetUtils.getLocalHostAddress()).toString();
+            .append(NetUtils.getLocalHostAddress()).toString();
     }
 
     public String buildMasterBizConfigPath() {
@@ -295,9 +296,9 @@ public class ZookeeperConfigActivator implements PluginActivator {
         String masterBizName = ArkConfigs.getStringValue(Constants.MASTER_BIZ);
         AssertUtils.isFalse(StringUtils.isEmpty(masterBizName), "Master biz should be specified.");
         String configEnvironment = ArkConfigs.getStringValue(Constants.CONFIG_SERVER_ENVIRONMENT,
-                "sofa-ark");
+            "sofa-ark");
         masterBizRootPath.append(configEnvironment).append(Constants.ZOOKEEPER_CONTEXT_SPLIT)
-                .append(masterBizName);
+            .append(masterBizName);
         return masterBizRootPath;
     }
 
