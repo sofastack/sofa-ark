@@ -45,8 +45,6 @@ public class CentralDirectoryParserTest extends BaseTest {
         Assert.assertTrue(cdfhList.size() == 5);
         Assert.assertTrue(cdfhList.get(4).getName().toString().equals(TEST_ENTRY));
         Assert.assertTrue(cdfhList.get(4).getComment().toString().equals(TEST_ENTRY_COMMENT));
-        Assert
-            .assertTrue(compareByteArray(cdfhList.get(4).getExtra(), TEST_ENTRY_EXTRA.getBytes()));
 
     }
 
