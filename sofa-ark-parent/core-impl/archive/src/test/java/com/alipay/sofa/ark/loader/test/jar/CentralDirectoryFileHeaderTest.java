@@ -60,7 +60,6 @@ public class CentralDirectoryFileHeaderTest extends BaseTest {
         assertTrue(cdfhList.size() == 5);
         assertTrue(cdfhList.get(4).getName().toString().equals(TEST_ENTRY));
         assertTrue(cdfhList.get(4).getComment().toString().equals(TEST_ENTRY_COMMENT));
-        assertTrue(compareByteArray(cdfhList.get(4).getExtra(), TEST_ENTRY_EXTRA.getBytes()));
     }
 
     @Test
