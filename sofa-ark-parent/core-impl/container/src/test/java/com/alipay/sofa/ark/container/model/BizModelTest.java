@@ -16,9 +16,7 @@
  */
 package com.alipay.sofa.ark.container.model;
 
-import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.container.service.classloader.BizClassLoader;
-import com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo;
+import com.alipay.sofa.ark.spi.model.BizInfo.BizStateRecord;
 import com.alipay.sofa.ark.spi.model.BizState;
 import org.junit.Test;
 
@@ -58,7 +56,7 @@ public class BizModelTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz1");
         bizModel.setBizVersion("0.0.1-SNAPSHOT");
-        CopyOnWriteArrayList<BizStateChangeInfo> changeLogs = bizModel.getBizStateChangeLogs();
+        CopyOnWriteArrayList<BizStateRecord> changeLogs = bizModel.getBizStateChangeLogs();
 
         assertEquals(0, changeLogs.size());
 

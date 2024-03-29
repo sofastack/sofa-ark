@@ -24,8 +24,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.DATE_FORMAT;
-
 /**
  * @author qilong.zql
  * @since 0.6.0
@@ -129,9 +127,9 @@ public interface BizInfo {
      * @since 2.2.9
      * @return java.util.concurrent.CopyOnWriteArrayList<com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo>
      */
-    CopyOnWriteArrayList<BizStateChangeInfo> getBizStateChangeLogs();
+    CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs();
 
-    class BizStateChangeInfo {
+    class BizStateRecord {
         private final Date                    changeTime;
         private final BizState                state;
 
@@ -141,16 +139,15 @@ public interface BizInfo {
             sdf.setTimeZone(TimeZone.getDefault());
         }
 
-        public BizStateChangeInfo(Date changeTime, BizState state) {
+        public BizStateRecord(Date changeTime, BizState state) {
             this.changeTime = changeTime;
             this.state = state;
         }
 
         @Override
         public String toString() {
-
             String date = sdf.format(changeTime);
-            return String.format("date: %s, to %s", date, state);
+            return String.format("state change to %s at %s", state, date);
         }
     }
 }

@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
@@ -103,7 +102,7 @@ public class BizModel implements Biz {
 
     private File                                     bizTempWorkDir;
 
-    private CopyOnWriteArrayList<BizStateChangeInfo> bizStateChangeLogs            = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<BizStateRecord> bizStateChangeLogs = new CopyOnWriteArrayList<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -203,7 +202,7 @@ public class BizModel implements Biz {
     }
 
     private void addStateChangeLog() {
-        bizStateChangeLogs.add(new BizStateChangeInfo(new Date(), bizState));
+        bizStateChangeLogs.add(new BizStateRecord(new Date(), bizState));
     }
 
     @Override
@@ -402,7 +401,7 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public CopyOnWriteArrayList<BizStateChangeInfo> getBizStateChangeLogs() {
+    public CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs() {
         return bizStateChangeLogs;
     }
 
