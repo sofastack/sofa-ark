@@ -20,33 +20,30 @@ import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
-import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
-import org.springframework.boot.web.embedded.tomcat.TomcatContextCustomizer;
-import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.Servlet;
-import java.util.stream.Collectors;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
+ * adapt to springboot 2.1.9.RELEASE
+ * @author gaosaroma
+ * @since 2.2.8
  */
 @Configuration
 @ConditionalOnArkEnabled
-@ConditionalOnClass({ ServletWebServerFactoryAutoConfiguration.class,
-                     TomcatProtocolHandlerCustomizer.class })
+@ConditionalOnClass(ServletWebServerFactoryAutoConfiguration.class)
+@ConditionalOnMissingClass("org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer")
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
-public class ArkServletAutoConfiguration {
+public class ArkServletLegacyAutoConfiguration {
 
     @Configuration
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class,
@@ -56,17 +53,8 @@ public class ArkServletAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean(ArkTomcatServletWebServerFactory.class)
-        public TomcatServletWebServerFactory tomcatServletWebServerFactory(ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
-                                                                           ObjectProvider<TomcatContextCustomizer> contextCustomizers,
-                                                                           ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
-            ArkTomcatServletWebServerFactory factory = new ArkTomcatServletWebServerFactory();
-            factory.getTomcatConnectorCustomizers().addAll(
-                connectorCustomizers.orderedStream().collect(Collectors.toList()));
-            factory.getTomcatContextCustomizers().addAll(
-                contextCustomizers.orderedStream().collect(Collectors.toList()));
-            factory.getTomcatProtocolHandlerCustomizers().addAll(
-                protocolHandlerCustomizers.orderedStream().collect(Collectors.toList()));
-            return factory;
+        public TomcatServletWebServerFactory tomcatServletWebServerFactory() {
+            return new ArkTomcatServletWebServerFactory();
         }
     }
 }

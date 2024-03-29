@@ -18,13 +18,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
             <version>${spring.boot.version}</version>
+            <scope>provided</scope>
         </dependency>
-
 
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
-            <version>1.0.22</version>
+            <version>${reactor-netty.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -50,12 +51,10 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.NettyPluginActivator</activator>
-                            <exported>
-                                <packages>
-                                    <package>javax.*</package>
-                                    <package>org.apache.*</package>
-                                </packages>
-                            </exported>
+                            <excludes>
+                                <exclude>*:*:*</exclude>
+                                <exclude>com.alipay.sofa:netty-ark-plugin</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>

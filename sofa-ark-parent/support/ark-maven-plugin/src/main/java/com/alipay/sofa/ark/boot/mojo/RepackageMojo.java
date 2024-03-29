@@ -399,14 +399,16 @@ public class RepackageMojo extends TreeMojo {
         return results;
     }
 
-    private Set<ArtifactItem> getAllArtifactByMavenTree() throws MojoExecutionException {
+    private Set<ArtifactItem> getAllArtifactByMavenTree() throws MojoExecutionException,
+                                                         MojoFailureException {
         MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
         getLog().info("root project path: " + rootProject.getBasedir().getAbsolutePath());
 
         //  run  maven dependency:tree
         try {
             if (this.mavenProject.getBasedir() != null) {
-                return doGetAllArtifactByMavenTree(this.mavenProject);
+                doGetAllArtifactByMavenTree(this.mavenProject);
+                return getAllArtifact();
             }
         } catch (MojoExecutionException e) {
             getLog().warn(
