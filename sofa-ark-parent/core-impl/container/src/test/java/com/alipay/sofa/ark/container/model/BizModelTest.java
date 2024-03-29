@@ -16,14 +16,20 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.spi.model.BizInfo.BizStateRecord;
+import com.alipay.sofa.ark.spi.model.BizState;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class BizModelTest {
 
@@ -43,5 +49,41 @@ public class BizModelTest {
         assertTrue(bizModel.doCheckDeclared("file://b/a.jar!/b.jar"));
         assertTrue(bizModel.doCheckDeclared(this.getClass().getClassLoader()
             .getResource("test.jar").getPath()));
+    }
+
+    @Test
+    public void testBizStateChanged() {
+        BizModel bizModel = new BizModel();
+        bizModel.setBizName("biz1");
+        bizModel.setBizVersion("0.0.1-SNAPSHOT");
+        CopyOnWriteArrayList<BizStateRecord> changeLogs = bizModel.getBizStateChangeLogs();
+
+        assertEquals(0, changeLogs.size());
+
+        // create Biz
+        bizModel.setBizState(BizState.RESOLVED);
+        bizModel.setClassLoader(this.getClass().getClassLoader());
+        assertEquals(1, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+
+        // activate Biz
+        bizModel.setBizState(BizState.ACTIVATED);
+        assertEquals(2, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("to activated"));
+
+        // deactivate Biz
+        bizModel.setBizState(BizState.DEACTIVATED);
+        assertEquals(3, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("to activated"));
+        assertTrue(bizModel.toString().contains("to deactivated"));
+
+        bizModel.setBizState(BizState.UNRESOLVED);
+        assertEquals(4, changeLogs.size());
+        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("to activated"));
+        assertTrue(bizModel.toString().contains("to deactivated"));
+        assertTrue(bizModel.toString().contains("to unresolved"));
     }
 }
