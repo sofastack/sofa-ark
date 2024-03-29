@@ -42,7 +42,7 @@ public class MainMethodRunner {
      */
     public MainMethodRunner(String mainClass, String[] args, Map<String, String> envs) {
         this.mainClassName = mainClass;
-        this.args = (args == null ? new String[]{} : args.clone());
+        this.args = (args == null ? new String[] {} : args.clone());
         this.envs = envs == null ? new HashMap<>() : envs;
     }
 

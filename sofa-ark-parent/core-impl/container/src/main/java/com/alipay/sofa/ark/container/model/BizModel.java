@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.container.model;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.MainMethodRunner;
-import com.alipay.sofa.ark.common.log.ArkLogger;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
@@ -44,11 +43,13 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -59,47 +60,49 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
-    private String               bizName;
+    private String                               bizName;
 
-    private String               bizVersion;
+    private String                               bizVersion;
 
-    private BizState             bizState;
+    private BizState                             bizState;
 
-    private String               mainClass;
+    private String                               mainClass;
 
-    private String               webContextPath;
+    private String                               webContextPath;
 
-    private URL[]                urls;
+    private URL[]                                urls;
 
-    private URL[]                pluginUrls;
+    private URL[]                                pluginUrls;
 
-    private ClassLoader          classLoader;
+    private ClassLoader                          classLoader;
 
-    private Map<String, String>  attributes                    = new ConcurrentHashMap<>();
+    private Map<String, String>                  attributes                    = new ConcurrentHashMap<>();
 
-    private int                  priority                      = DEFAULT_PRECEDENCE;
+    private int                                  priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>          denyImportPackages;
+    private Set<String>                          denyImportPackages;
 
-    private Set<String>          denyImportPackageNodes        = new HashSet<>();
+    private Set<String>                          denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>          denyImportPackageStems        = new HashSet<>();
+    private Set<String>                          denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>          denyImportClasses;
+    private Set<String>                          denyImportClasses;
 
-    private Set<String>          denyImportResources           = new HashSet<>();
+    private Set<String>                          denyImportResources           = new HashSet<>();
 
-    private Set<String>          injectPluginDependencies      = new HashSet<>();
-    private Set<String>          injectExportPackages          = new HashSet<>();
+    private Set<String>                          injectPluginDependencies      = new HashSet<>();
+    private Set<String>                          injectExportPackages          = new HashSet<>();
 
-    private Set<String>          declaredLibraries             = new LinkedHashSet<>();
-    private Map<String, Boolean> declaredCacheMap              = new ConcurrentHashMap<>();
+    private Set<String>                          declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean>                 declaredCacheMap              = new ConcurrentHashMap<>();
 
-    private Set<String>          denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>                          denyPrefixImportResourceStems = new HashSet<>();
 
-    private Set<String>          denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>                          denySuffixImportResourceStems = new HashSet<>();
 
-    private File                 bizTempWorkDir;
+    private File                                 bizTempWorkDir;
+
+    private CopyOnWriteArrayList<BizStateRecord> bizStateChangeLogs            = new CopyOnWriteArrayList<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -115,6 +118,7 @@ public class BizModel implements Biz {
 
     public BizModel setBizState(BizState bizState) {
         this.bizState = bizState;
+        addStateChangeLog();
         return this;
     }
 
@@ -195,6 +199,10 @@ public class BizModel implements Biz {
 
     public Set<String> getInjectExportPackages() {
         return injectExportPackages;
+    }
+
+    private void addStateChangeLog() {
+        bizStateChangeLogs.add(new BizStateRecord(new Date(), bizState));
     }
 
     @Override
@@ -303,7 +311,7 @@ public class BizModel implements Biz {
                     getIdentity(), (System.currentTimeMillis() - start));
             }
         } catch (Throwable e) {
-            bizState = BizState.BROKEN;
+            setBizState(BizState.BROKEN);
             eventAdminService.sendEvent(new AfterBizFailedEvent(this, e));
             throw e;
         } finally {
@@ -315,16 +323,16 @@ public class BizModel implements Biz {
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
-                bizState = BizState.ACTIVATED;
+                setBizState(BizState.ACTIVATED);
             } else {
                 ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED);
-                bizState = BizState.ACTIVATED;
+                setBizState(BizState.ACTIVATED);
             }
         } else {
             if (bizManagerService.getActiveBiz(bizName) == null) {
-                bizState = BizState.ACTIVATED;
+                setBizState(BizState.ACTIVATED);
             } else {
-                bizState = BizState.DEACTIVATED;
+                setBizState(BizState.DEACTIVATED);
             }
         }
     }
@@ -340,7 +348,7 @@ public class BizModel implements Biz {
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         if (bizState == BizState.ACTIVATED) {
-            bizState = BizState.DEACTIVATED;
+            setBizState(BizState.DEACTIVATED);
         }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
@@ -355,7 +363,7 @@ public class BizModel implements Biz {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
             bizManagerService.unRegisterBiz(bizName, bizVersion);
-            bizState = BizState.UNRESOLVED;
+            setBizState(BizState.UNRESOLVED);
             eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
             urls = null;
             denyImportPackages = null;
@@ -393,8 +401,14 @@ public class BizModel implements Biz {
     }
 
     @Override
+    public CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs() {
+        return bizStateChangeLogs;
+    }
+
+    @Override
     public String toString() {
-        return "Ark Biz: " + getIdentity();
+        return "Ark Biz: " + getIdentity() + ", classloader: " + classLoader + ", current state: "
+               + bizState + ", history states: " + bizStateChangeLogs;
     }
 
     private void resetProperties() {
