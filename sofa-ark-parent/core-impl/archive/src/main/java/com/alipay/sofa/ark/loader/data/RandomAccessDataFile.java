@@ -64,7 +64,7 @@ public class RandomAccessDataFile implements RandomAccessData {
             throw new IllegalArgumentException("File must not be null");
         }
         if (!file.exists()) {
-            throw new IllegalArgumentException("File must exist");
+            throw new IllegalArgumentException(String.format("File must exist: %s", file.getPath()));
         }
         this.file = file;
         this.filePool = new FilePool(file, concurrentReads);
