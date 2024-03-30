@@ -127,7 +127,7 @@ public interface BizInfo {
      * @since 2.2.9
      * @return java.util.concurrent.CopyOnWriteArrayList<com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo>
      */
-    CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs();
+    CopyOnWriteArrayList<BizStateRecord> getBizStateRecords();
 
     class BizStateRecord {
         private final Date                    changeTime;

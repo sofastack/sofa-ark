@@ -102,7 +102,7 @@ public class BizModel implements Biz {
 
     private File                                 bizTempWorkDir;
 
-    private CopyOnWriteArrayList<BizStateRecord> bizStateChangeLogs            = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<BizStateRecord> bizStateRecords               = new CopyOnWriteArrayList<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -202,7 +202,7 @@ public class BizModel implements Biz {
     }
 
     private void addStateChangeLog() {
-        bizStateChangeLogs.add(new BizStateRecord(new Date(), bizState));
+        bizStateRecords.add(new BizStateRecord(new Date(), bizState));
     }
 
     @Override
@@ -401,14 +401,14 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs() {
-        return bizStateChangeLogs;
+    public CopyOnWriteArrayList<BizStateRecord> getBizStateRecords() {
+        return bizStateRecords;
     }
 
     @Override
     public String toString() {
         return "Ark Biz: " + getIdentity() + ", classloader: " + classLoader + ", current state: "
-               + bizState + ", history states: " + bizStateChangeLogs;
+               + bizState + ", history states: " + bizStateRecords;
     }
 
     private void resetProperties() {
