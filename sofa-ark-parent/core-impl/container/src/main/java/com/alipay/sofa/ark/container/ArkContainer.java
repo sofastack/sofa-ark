@@ -250,7 +250,7 @@ public class ArkContainer {
         return key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
                || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)
                || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
-               || key.equals(LOG_ENCODING_PROP_KEY);
+               || key.equals("logging.file.path") || key.equals(LOG_ENCODING_PROP_KEY);
     }
 
     /**
