@@ -56,8 +56,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
 import static com.alipay.sofa.common.log.Constants.LOGGING_PATH_DEFAULT;
+import static com.alipay.sofa.common.log.Constants.LOG_CONFIG_PREFIX;
 import static com.alipay.sofa.common.log.Constants.LOG_ENCODING_PROP_KEY;
+import static com.alipay.sofa.common.log.Constants.LOG_LEVEL_PREFIX;
 import static com.alipay.sofa.common.log.Constants.LOG_PATH;
+import static com.alipay.sofa.common.log.Constants.LOG_PATH_PREFIX;
+import static com.alipay.sofa.common.log.Constants.OLD_LOG_PATH;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX;
 import static com.alipay.sofa.common.log.Constants.UTF8_STR;
 
 /**
@@ -218,29 +223,34 @@ public class ArkContainer {
      * @throws ArkRuntimeException
      */
     public void reInitializeArkLogger() throws ArkRuntimeException {
-        for (Map.Entry<SpaceId, SpaceInfo> entry : MultiAppLoggerSpaceManager.getSpacesMap()
-            .entrySet()) {
-            SpaceId spaceId = entry.getKey();
-            SpaceInfo spaceInfo = entry.getValue();
-            if (!ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE.equals(spaceId.getSpaceName())) {
-                continue;
+        // log config from ark container or user app config files, the order of which to be used is:
+        // 1. using user app config files
+        // 2. using ark container config
+        // 3. using the default value
+        Map<String, String> arkLogConfig = new HashMap<>();
+
+        // 1. set config from app config and ark container config first
+        for (String key : ArkConfigs.keySet()) {
+            if (filterAllLogConfig(key)) {
+                arkLogConfig.put(key, ArkConfigs.getStringValue(key));
             }
-            LogbackLoggerSpaceFactory arkLoggerSpaceFactory = (LogbackLoggerSpaceFactory) spaceInfo
-                .getAbstractLoggerSpaceFactory();
-            Map<String, String> arkLogConfig = new HashMap<>();
-            // set base logging.path
-            arkLogConfig.put(LOG_PATH, ArkConfigs.getStringValue(LOG_PATH, LOGGING_PATH_DEFAULT));
-            // set log file encoding
-            arkLogConfig.put(LOG_ENCODING_PROP_KEY,
-                ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
-            // set other log config
-            for (String key : ArkConfigs.keySet()) {
-                if (LogEnvUtils.filterAllLogConfig(key)) {
-                    arkLogConfig.put(key, ArkConfigs.getStringValue(key));
-                }
-            }
-            arkLoggerSpaceFactory.reInitialize(arkLogConfig);
         }
+
+        // 2. using the default value if not set
+        arkLogConfig.put(LOG_PATH, ArkConfigs.getStringValue(LOG_PATH, LOGGING_PATH_DEFAULT));
+        arkLogConfig.put("logging.file.path",
+            ArkConfigs.getStringValue("logging.file.path", LOGGING_PATH_DEFAULT));
+        arkLogConfig.put(LOG_ENCODING_PROP_KEY,
+            ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
+
+        MultiAppLoggerSpaceManager.init(ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE, arkLogConfig);
+    }
+
+    private boolean filterAllLogConfig(String key) {
+        return key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
+               || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)
+               || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
+               || key.equals(LOG_ENCODING_PROP_KEY);
     }
 
     /**
