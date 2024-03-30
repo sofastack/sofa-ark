@@ -56,7 +56,7 @@ public class BizModelTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz1");
         bizModel.setBizVersion("0.0.1-SNAPSHOT");
-        CopyOnWriteArrayList<BizStateRecord> changeLogs = bizModel.getBizStateChangeLogs();
+        CopyOnWriteArrayList<BizStateRecord> changeLogs = bizModel.getBizStateRecords();
 
         assertEquals(0, changeLogs.size());
 
