@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author qilong.zql
