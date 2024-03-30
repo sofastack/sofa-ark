@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.spi.model;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -127,7 +128,7 @@ public interface BizInfo {
      * @since 2.2.9
      * @return java.util.concurrent.CopyOnWriteArrayList<com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo>
      */
-    CopyOnWriteArrayList<BizStateRecord> getBizStateRecords();
+    List<BizStateRecord> getBizStateRecords();
 
     class BizStateRecord {
         private final Date                    changeTime;
