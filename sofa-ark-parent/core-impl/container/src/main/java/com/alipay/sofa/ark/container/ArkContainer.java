@@ -218,18 +218,25 @@ public class ArkContainer {
      * @throws ArkRuntimeException
      */
     public void reInitializeArkLogger() throws ArkRuntimeException {
+        // log config from ark container or user app config files, the order of which to be used is:
+        // 1. using user app config files
+        // 2. using ark container config
+        // 3. using the default value
         Map<String, String> arkLogConfig = new HashMap<>();
-        // set base logging.path
-        arkLogConfig.put(LOG_PATH, ArkConfigs.getStringValue(LOG_PATH, LOGGING_PATH_DEFAULT));
-        // set log file encoding
-        arkLogConfig.put(LOG_ENCODING_PROP_KEY,
-            ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
-        // set other log config
+
+        // 1. set config from app config and ark container config first
         for (String key : ArkConfigs.keySet()) {
             if (filterAllLogConfig(key)) {
                 arkLogConfig.put(key, ArkConfigs.getStringValue(key));
             }
         }
+
+        // 2. using the default value if not set
+        arkLogConfig.put(LOG_PATH, ArkConfigs.getStringValue(LOG_PATH, LOGGING_PATH_DEFAULT));
+        arkLogConfig.put("logging.file.path",
+           ArkConfigs.getStringValue("logging.file.path", LOGGING_PATH_DEFAULT));
+        arkLogConfig.put(LOG_ENCODING_PROP_KEY,
+           ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
 
         MultiAppLoggerSpaceManager.init(ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE, arkLogConfig);
     }
