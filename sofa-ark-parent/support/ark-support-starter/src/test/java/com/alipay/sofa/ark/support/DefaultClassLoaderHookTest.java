@@ -83,11 +83,11 @@ public class DefaultClassLoaderHookTest {
     @Test
     public void testLoadClassFromClassLoaderHook() throws Exception {
         URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
-        URL pluginUrl1 = this.getClass().getClassLoader()
-            .getResource("sample-ark-plugin-0.5.0.jar");
-        URL pluginUrl2 = this.getClass().getClassLoader().getResource("sample-biz-0.3.0.jar");
-        URL pluginUrl3 = this.getClass().getClassLoader().getResource("aopalliance-1.0.jar");
-        URL pluginUrl4 = this.getClass().getClassLoader()
+        URL masterUrl1 = this.getClass().getClassLoader()
+            .getResource("sample-ark-plugin-common-0.5.1.jar");
+        URL masterUrl2 = this.getClass().getClassLoader().getResource("sofa-ark-sample-springboot-ark-0.3.0.jar");
+        URL masterUrl3 = this.getClass().getClassLoader().getResource("aopalliance-1.0.jar");
+        URL masterUrl4 = this.getClass().getClassLoader()
             .getResource("com.springsource.org.aopalliance-1.0.0.jar");
 
         BizModel bizModel = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED,
@@ -96,7 +96,7 @@ public class DefaultClassLoaderHookTest {
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel
-            .setDeclaredLibraries("sample-ark,sample-ark-plugin,com.springsource.org.aopalliance");
+            .setDeclaredLibraries("sample-ark-plugin-common,com.springsource.org.aopalliance");
 
         List<URL> masterUrls = new ArrayList<>();
         Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources("");
@@ -104,10 +104,10 @@ public class DefaultClassLoaderHookTest {
             URL url = urlEnumeration.nextElement();
             masterUrls.add(url);
         }
-        masterUrls.add(pluginUrl1);
-        masterUrls.add(pluginUrl2);
-        masterUrls.add(pluginUrl3);
-        masterUrls.add(pluginUrl4);
+        masterUrls.add(masterUrl1);
+        masterUrls.add(masterUrl2);
+        masterUrls.add(masterUrl3);
+        masterUrls.add(masterUrl4);
 
         BizModel masterBizModel = createTestBizModel("master biz", "1.0.0", BizState.RESOLVED,
             masterUrls.toArray(new URL[0]));
@@ -120,38 +120,38 @@ public class DefaultClassLoaderHookTest {
 
         ArkClient.setMasterBiz(masterBizModel);
 
-        // case 1: find class from multiple libs in plugin classloader
+        // case 1: find class from multiple libs in master classloader
         Class<?> adviceClazz = bizModel.getBizClassLoader().loadClass("org.aopalliance.aop.Advice");
         Assert.assertEquals(adviceClazz.getClassLoader(), masterBizModel.getBizClassLoader());
 
-        // case 2: find class from plugin but not set provided in biz model
-        Assert.assertThrows(ArkLoaderException.class, () -> bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication"));
+        // case 2: find class from master but not set provided in biz model
+        Assert.assertThrows(ArkLoaderException.class, () -> bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.facade.SamplemasterService"));
 
-        // case 3: find class from plugin in classpath
+        // case 3: find class from master in classpath
         Assert.assertEquals(masterBizModel.getBizClassLoader(), bizModel.getBizClassLoader().loadClass(DelegateArkContainer.class.getName()).getClassLoader());
 
-        // case 4: find class from plugin in jar
+        // case 4: find class from master in jar
         Assert.assertEquals(masterBizModel.getBizClassLoader(), bizModel.getBizClassLoader().loadClass("com.alipay.sofa.ark.sample.common.SampleClassExported").getClassLoader());
 
-        // case 5: find resource from plugin but not set provided in biz model
-        Assert.assertNull(bizModel.getBizClassLoader().getResource("META-INF/spring/service.xml"));
+        // case 5: find resource from master but not set provided in biz model
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("org/slf4j/ILoggerFactory.class"));
 
-        // case 6: find resource from plugin in classpath
+        // case 6: find resource from master in classpath
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
             "sample-ark-1.0.0-ark-biz.jar"));
 
-        // case 7: find resource from plugin in jar
+        // case 7: find resource from master in jar
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Exported"));
 
-        // case 8: find resources from plugin but not set provided in biz model
-        Assert.assertFalse(bizModel.getBizClassLoader().getResources("META-INF/spring/service.xml")
+        // case 8: find resources from master but not set provided in biz model
+        Assert.assertFalse(bizModel.getBizClassLoader().getResources("org/slf4j/ILoggerFactory.class")
             .hasMoreElements());
 
-        // case 9: find resources from plugin in classpath
+        // case 9: find resources from master in classpath
         Assert.assertTrue(bizModel.getBizClassLoader().getResources("sample-ark-1.0.0-ark-biz.jar")
             .hasMoreElements());
 
-        // case 10: find resources from plugin in jar
+        // case 10: find resources from master in jar
         Assert.assertTrue(bizModel.getBizClassLoader().getResources("Sample_Resource_Exported")
             .hasMoreElements());
     }
@@ -160,11 +160,11 @@ public class DefaultClassLoaderHookTest {
     public void getAllResources() throws IOException {
         URL bizUrl = this.getClass().getClassLoader().getResource("sample-ark-1.0.0-ark-biz.jar");
         URL resourceUrl = this.getClass().getClassLoader()
-            .getResource("sample-ark-plugin-0.5.0.jar");
+            .getResource("sample-ark-plugin-common-0.5.1.jar");
 
         URL[] bizUrls = new URL[] { bizUrl, resourceUrl };
         BizModel declaredBiz = createTestBizModel("biz A", "1.0.0", BizState.RESOLVED, bizUrls);
-        declaredBiz.setDeclaredLibraries("sample-ark-plugin");
+        declaredBiz.setDeclaredLibraries("sample-ark-plugin-common");
 
         BizModel notDeclaredBiz = createTestBizModel("biz B", "1.0.0", BizState.RESOLVED, bizUrls);
         notDeclaredBiz.setDeclaredLibraries("");
