@@ -234,9 +234,9 @@ public class ArkContainer {
         // 2. using the default value if not set
         arkLogConfig.put(LOG_PATH, ArkConfigs.getStringValue(LOG_PATH, LOGGING_PATH_DEFAULT));
         arkLogConfig.put("logging.file.path",
-           ArkConfigs.getStringValue("logging.file.path", LOGGING_PATH_DEFAULT));
+            ArkConfigs.getStringValue("logging.file.path", LOGGING_PATH_DEFAULT));
         arkLogConfig.put(LOG_ENCODING_PROP_KEY,
-           ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
+            ArkConfigs.getStringValue(LOG_ENCODING_PROP_KEY, UTF8_STR));
 
         MultiAppLoggerSpaceManager.init(ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE, arkLogConfig);
     }
