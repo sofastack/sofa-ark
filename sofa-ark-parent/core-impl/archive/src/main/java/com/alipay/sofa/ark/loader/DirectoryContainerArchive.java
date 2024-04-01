@@ -42,7 +42,7 @@ public class DirectoryContainerArchive implements ContainerArchive {
 
     private final static String[] AKR_CONTAINER_JAR = { "aopalliance-1.0", "commons-io-2.7",
             "guava-33.0.0-jre", "guice-6.0.0", "failureaccess-1.0.1", "javax.inject-1",
-            "logback-core-1.2.9", "logback-classic-1.2.9", "slf4j-api-1.7.32",
+            "logback-core-1.2.13", "logback-classic-1.2.13", "slf4j-api-1.7.32",
             "log-sofa-boot-starter", "log-sofa-boot", "sofa-common-tools",
             "netty-all-4.1.94.Final", "netty-transport-4.1.94.Final", "netty-common-4.1.94.Final",
             "netty-handler-4.1.94.Final", "netty-codec-4.1.94.Final", "netty-buffer-4.1.94.Final",

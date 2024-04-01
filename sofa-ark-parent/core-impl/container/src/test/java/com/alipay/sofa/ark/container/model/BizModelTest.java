@@ -24,7 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -56,7 +56,7 @@ public class BizModelTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz1");
         bizModel.setBizVersion("0.0.1-SNAPSHOT");
-        CopyOnWriteArrayList<BizStateRecord> changeLogs = bizModel.getBizStateChangeLogs();
+        List<BizStateRecord> changeLogs = bizModel.getBizStateRecords();
 
         assertEquals(0, changeLogs.size());
 
