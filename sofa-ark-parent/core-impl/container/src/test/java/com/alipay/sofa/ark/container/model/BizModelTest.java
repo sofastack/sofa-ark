@@ -64,26 +64,26 @@ public class BizModelTest {
         bizModel.setBizState(BizState.RESOLVED);
         bizModel.setClassLoader(this.getClass().getClassLoader());
         assertEquals(1, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
 
         // activate Biz
         bizModel.setBizState(BizState.ACTIVATED);
         assertEquals(2, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
-        assertTrue(bizModel.toString().contains("to activated"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
+        assertTrue(bizModel.toString().contains("-> activated"));
 
         // deactivate Biz
         bizModel.setBizState(BizState.DEACTIVATED);
         assertEquals(3, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
-        assertTrue(bizModel.toString().contains("to activated"));
-        assertTrue(bizModel.toString().contains("to deactivated"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
+        assertTrue(bizModel.toString().contains("-> activated"));
+        assertTrue(bizModel.toString().contains("-> deactivated"));
 
         bizModel.setBizState(BizState.UNRESOLVED);
         assertEquals(4, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
-        assertTrue(bizModel.toString().contains("to activated"));
-        assertTrue(bizModel.toString().contains("to deactivated"));
-        assertTrue(bizModel.toString().contains("to unresolved"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
+        assertTrue(bizModel.toString().contains("-> activated"));
+        assertTrue(bizModel.toString().contains("-> deactivated"));
+        assertTrue(bizModel.toString().contains("-> unresolved"));
     }
 }
