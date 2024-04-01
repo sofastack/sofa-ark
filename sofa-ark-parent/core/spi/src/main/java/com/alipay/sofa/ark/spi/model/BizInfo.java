@@ -147,7 +147,7 @@ public interface BizInfo {
         @Override
         public String toString() {
             String date = sdf.format(changeTime);
-            return String.format("state at %s to %s", date, state);
+            return String.format("%s -> %s", date, state);
         }
     }
 }
