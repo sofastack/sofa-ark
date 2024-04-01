@@ -407,8 +407,8 @@ public class BizModel implements Biz {
 
     @Override
     public String toString() {
-        return "Ark Biz: " + getIdentity() + ", classloader: " + classLoader + ", current state: "
-               + bizState + ", history states: " + bizStateChangeLogs;
+        return "Ark Biz: " + getIdentity() + ",\n classloader: " + classLoader
+               + ",\n current state: " + bizState + ",\n history states: " + bizStateChangeLogs;
     }
 
     private void resetProperties() {
