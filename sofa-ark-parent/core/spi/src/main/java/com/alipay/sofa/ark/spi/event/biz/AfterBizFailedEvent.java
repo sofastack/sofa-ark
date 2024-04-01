@@ -14,28 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.springboot1.endpoint;
+package com.alipay.sofa.ark.spi.event.biz;
 
-import org.springframework.boot.actuate.endpoint.mvc.AbstractEndpointMvcAdapter;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
+import com.alipay.sofa.ark.spi.model.Biz;
 
 /**
- * @author qilong.zql
- * @since 0.6.0
+ * @author lianglipeng.llp@alibaba-inc.com
+ * @since 2.2.9
  */
-public class IntrospectBizEndpointMvcAdapter extends
-                                            AbstractEndpointMvcAdapter<IntrospectBizEndpoint> {
-    public IntrospectBizEndpointMvcAdapter(IntrospectBizEndpoint delegate) {
-        super(delegate);
-        setPath("bizState");
-    }
+public class AfterBizFailedEvent extends AbstractArkEvent<Biz> {
+    Throwable throwable;
 
-    @Override
-    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    protected Object invoke() {
-        return super.invoke();
+    public AfterBizFailedEvent(Biz source, Throwable e) {
+        super(source);
+        this.throwable = e;
+        this.topic = Constants.BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED;
     }
 }

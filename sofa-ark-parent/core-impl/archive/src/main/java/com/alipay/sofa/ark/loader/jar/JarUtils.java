@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.loader.jar;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -28,18 +27,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class JarUtils {
     private static final String                        CLASSPATH_ROOT_IDENTITY          = "/target/classes";
@@ -59,6 +54,8 @@ public class JarUtils {
     private static final MavenXpp3Reader               READER                           = new MavenXpp3Reader();
 
     public static final String                         JAR_SEPARATOR                    = "!/";
+
+    public static final String                         JAR_SUFFIX                       = ".jar";
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
@@ -151,6 +148,15 @@ public class JarUtils {
         // 8. /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar!/
         // 9. if is ark plugin, then return null to set declared default
 
+        // clean the jar location prefix and suffix
+        if (jarLocation.contains(JAR_SUFFIX)) {
+            jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
+        }
+        if (jarLocation.startsWith("file:")) {
+            jarLocation = jarLocation.substring("file:".length());
+        }
+
+        // modify the path to suit WindowsOS
         jarLocation = ModifyPathUtils.modifyPath(jarLocation);
         String finalJarLocation = jarLocation;
         artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
@@ -159,37 +165,19 @@ public class JarUtils {
                 String[] as = a.split(JAR_SEPARATOR, -1);
                 if (as.length == 1) {
                     // no '!/'
-                    String filePath = as[0];
                     if (a.endsWith(".jar")) {
-                        artifactId = doGetArtifactIdFromFileName(filePath);
+                        artifactId = parseArtifactIdFromJar(a);
                         if (StringUtils.isEmpty(artifactId)) {
-                            artifactId = parseArtifactIdFromJar(filePath);
+                            artifactId = doGetArtifactIdFromFileName(a);
                         }
                     } else {
-                        artifactId = getArtifactIdFromLocalClassPath(filePath);
-                    }
-                } else if (as.length == 2) {
-                    // one '!/'
-                    String filePath = as[0];
-                    artifactId = doGetArtifactIdFromFileName(filePath);
-                    if (StringUtils.isEmpty(artifactId)) {
-                        artifactId = parseArtifactIdFromJar(filePath);
-                    }
-                } else if (as.length == 3) {
-                    // two '!/'
-                    String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
-                    String filePath = String.join(JAR_SEPARATOR, jarPathInfo);
-                    artifactId = doGetArtifactIdFromFileName(filePath);
-                    if (StringUtils.isEmpty(artifactId)) {
-                        artifactId = parseArtifactIdFromJarInJar(filePath);
+                        artifactId = getArtifactIdFromLocalClassPath(a);
                     }
                 } else {
-                    // three '!/' or more
-                    String[] jarPathInfo= Arrays.copyOf(as, as.length-1);
-                    String filePath = String.join(JAR_SEPARATOR, jarPathInfo);
-                    artifactId = doGetArtifactIdFromFileName(filePath);
+                    // contains one '!/' or more
+                    artifactId = parseArtifactIdFromJar(a);
                     if (StringUtils.isEmpty(artifactId)) {
-                        artifactId = parseArtifactIdFromJarInJarInJarMore(filePath);
+                        artifactId = doGetArtifactIdFromFileName(a);
                     }
                 }
                 return Optional.ofNullable(artifactId);
@@ -225,23 +213,7 @@ public class JarUtils {
         return null;
     }
 
-    private static String parseArtifactIdFromJarInJar(String jarLocation) throws IOException {
-        String rootPath = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SEPARATOR));
-        String subNestedPath =  jarLocation.substring(jarLocation.lastIndexOf(JAR_SEPARATOR) + 2);
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = new com.alipay.sofa.ark.loader.jar.JarFile(FileUtils.file(rootPath));
-        JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
-        List<Archive> archives = jarFileArchive.getNestedArchives(entry -> !StringUtils.isEmpty(entry.getName()) && entry.getName().equals(subNestedPath));
-
-        if (archives.size() != 1) {
-            return null;
-        }
-        Archive archive = archives.get(0);
-        Properties properties = ((JarFileArchive) archive).getPomProperties();
-        return properties.getProperty(JAR_ARTIFACT_ID);
-    }
-
-    private static String parseArtifactIdFromJarInJarInJarMore(String jarLocation)
-                                                                                  throws IOException {
+    private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
         com.alipay.sofa.ark.loader.jar.JarFile jarFile = getNestedRootJarFromJarLocation(jarLocation);
         JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
         return jarFileArchive.getPomProperties().getProperty(JAR_ARTIFACT_ID);
@@ -263,27 +235,9 @@ public class JarUtils {
                 rJarFile = rJarFile.getNestedJarFile(jarEntry);
             } catch (NullPointerException e) {
                 throw new IOException(
-                    String.format("Failed to parse artifact id, jPath: %s", jPath));
+                    String.format("Failed to parse artifact id, jPath: %s", jPath), e);
             }
         }
         return rJarFile;
-    }
-
-    private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
-        jarLocation = FileUtils.decodePath(jarLocation);
-        try (JarFile jarFile = new JarFile(jarLocation)) {
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while (entries.hasMoreElements()) {
-                java.util.jar.JarEntry entry = entries.nextElement();
-                if (entry.getName().endsWith(JAR_POM_PROPERTIES)) {
-                    try (InputStream is = jarFile.getInputStream(entry)) {
-                        Properties p = new Properties();
-                        p.load(is);
-                        return p.getProperty(JAR_ARTIFACT_ID);
-                    }
-                }
-            }
-            return null;
-        }
     }
 }

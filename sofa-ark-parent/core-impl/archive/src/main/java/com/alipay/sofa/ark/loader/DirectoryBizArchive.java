@@ -54,6 +54,7 @@ public class DirectoryBizArchive implements BizArchive {
         this.className = (className == null ? MOCK_IDE_ARK_BIZ_MAIN_CLASS : className);
         this.methodName = methodName;
         manifest.getMainAttributes().putValue(MAIN_CLASS_ATTRIBUTE, this.className);
+        manifest.getMainAttributes().putValue(START_CLASS_ATTRIBUTE, this.className);
         manifest.getMainAttributes().putValue(PRIORITY_ATTRIBUTE,
             String.valueOf(MOCK_IDE_BIZ_STARTUP_PRIORITY));
         manifest.getMainAttributes().putValue(ARK_BIZ_NAME, MOCK_IDE_ARK_BIZ_NAME);

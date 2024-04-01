@@ -51,12 +51,6 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.NettyPluginActivator</activator>
-                            <exported>
-                                <packages>
-                                    <package>javax.*</package>
-                                    <package>org.apache.*</package>
-                                </packages>
-                            </exported>
                             <excludes>
                                 <exclude>*:*:*</exclude>
                                 <exclude>com.alipay.sofa:netty-ark-plugin</exclude>
