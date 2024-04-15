@@ -116,7 +116,7 @@ public class FileUtilsTest {
         touch(file);
         Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(file));
 
-        file = new File("/tmp"+ System.currentTimeMillis() + ".jar");
+        file = new File("/tmp" + System.currentTimeMillis() + ".jar");
         Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(file));
 
         file = new File("/tmp/" + System.currentTimeMillis() + "-test");
@@ -124,7 +124,8 @@ public class FileUtilsTest {
         Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(file));
 
         file = new File("/tmp/" + System.currentTimeMillis() + "-test");
-        File fileTag = new File(file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH +  BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE);
+        File fileTag = new File(file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
+                                + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE);
         touch(fileTag);
         Assert.assertTrue(checkBizTempWorkDirIsRecycledButUnfinished(file));
     }
@@ -140,7 +141,8 @@ public class FileUtilsTest {
 
         File fileDir = new File("/tmp/" + System.currentTimeMillis() + "-test");
         fileDir.mkdir();
-        File fileJar2 = new File(fileDir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH + System.currentTimeMillis() + ".jar");
+        File fileJar2 = new File(fileDir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
+                                 + System.currentTimeMillis() + ".jar");
         touch(fileJar2);
 
         Assert.assertTrue(recycleBizTempWorkDir(fileDir));

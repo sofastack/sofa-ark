@@ -236,7 +236,8 @@ public class FileUtils {
             return false;
         }
 
-        String recycledTagFilePath = file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH +  BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+        String recycledTagFilePath = file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
+                                     + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
         File recycledTagFile = new File(recycledTagFilePath);
 
         return recycledTagFile.exists();
@@ -255,7 +256,8 @@ public class FileUtils {
         try {
             if (dir.isDirectory()) {
 
-                String recycleTagFilePath = dir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+                String recycleTagFilePath = dir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
+                                            + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
                 File recycleTagFile = new File(recycleTagFilePath);
                 // mark dir is deleted
                 if (!recycleTagFile.exists()) {
@@ -266,7 +268,6 @@ public class FileUtils {
                 if (files == null) {
                     return false;
                 }
-
 
                 IOException exception = null;
                 for (final File file : files) {
@@ -298,6 +299,5 @@ public class FileUtils {
             return false;
         }
     }
-
 
 }
