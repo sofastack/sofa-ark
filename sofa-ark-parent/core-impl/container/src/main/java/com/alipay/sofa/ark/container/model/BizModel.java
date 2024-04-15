@@ -52,7 +52,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.apache.commons.io.FileUtils.deleteQuietly;
+import static com.alipay.sofa.ark.common.util.FileUtils.recycleBizTempWorkDir;
 
 /**
  * Ark Biz Standard Model
@@ -370,7 +370,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            deleteQuietly(bizTempWorkDir);
+            recycleBizTempWorkDir(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();

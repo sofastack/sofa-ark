@@ -25,8 +25,14 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
+import static org.apache.commons.io.FileUtils.forceDelete;
+import static org.apache.commons.io.FileUtils.touch;
 
 /**
  * Utilities for manipulating files and directories in ark tooling.
@@ -212,5 +218,86 @@ public class FileUtils {
     public static File file(String parent, String path) {
         return new File(decodePath(parent), path);
     }
+
+    /**
+     * check biz temp work dir is deleted but not finished
+     *
+     * @param file
+     * @return
+     */
+    public static boolean checkBizTempWorkDirIsRecycledButUnfinished(File file) {
+        if (file == null) {
+            return false;
+        }
+        if (!file.isDirectory()) {
+            return false;
+        }
+        if (!file.exists()) {
+            return false;
+        }
+
+        String recycledTagFilePath = file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH +  BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+        File recycledTagFile = new File(recycledTagFilePath);
+
+        return recycledTagFile.exists();
+    }
+
+    /**
+     * delete Biz temp work dir
+     *
+     * @param dir
+     * @return
+     */
+    public static boolean recycleBizTempWorkDir(File dir) {
+        if (dir == null) {
+            return false;
+        }
+        try {
+            if (dir.isDirectory()) {
+
+                String recycleTagFilePath = dir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+                File recycleTagFile = new File(recycleTagFilePath);
+                // mark dir is deleted
+                if (!recycleTagFile.exists()) {
+                    touch(dir);
+                }
+
+                File[] files = dir.listFiles();
+                if (files == null) {
+                    return false;
+                }
+
+
+                IOException exception = null;
+                for (final File file : files) {
+                    try {
+                        // skip deleted tag file
+                        if (!Objects.equals(file.getAbsolutePath(), recycleTagFilePath)) {
+                            forceDelete(file);
+                        }
+                    } catch (final IOException ioe) {
+                        exception = ioe;
+                    }
+                }
+
+                if (null != exception) {
+                    throw exception;
+                }
+
+                // finally deleted tag file
+                forceDelete(recycleTagFile);
+            }
+        } catch (final Exception ignored) {
+            // ignore
+        }
+
+        try {
+            // delete dir
+            return dir.delete();
+        } catch (final Exception ignored) {
+            return false;
+        }
+    }
+
 
 }

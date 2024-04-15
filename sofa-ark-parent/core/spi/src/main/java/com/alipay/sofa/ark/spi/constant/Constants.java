@@ -211,6 +211,7 @@ public class Constants {
     public final static String       PLUGIN_CLASS_LOADER_HOOK                      = "plugin-classloader-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK                         = "biz-classloader-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK_DIR                     = "com.alipay.sofa.ark.biz.classloader.hook.dir";
+    public final static String       BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE       = ".deleted";
 
     /**
      * Multiply biz name
