@@ -289,7 +289,8 @@ public class FileUtils {
                 forceDelete(recycleTagFile);
             }
         } catch (final Exception e) {
-            throw new ArkRuntimeException("Failed to recycle directory: " + dir.getAbsolutePath(), e);
+            throw new ArkRuntimeException("Failed to recycle directory: " + dir.getAbsolutePath(),
+                e);
         }
 
         try {
