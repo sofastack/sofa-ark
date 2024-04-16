@@ -132,6 +132,8 @@ public class FileUtilsTest {
 
     @Test
     public void testRecycleBizTempWorkDir() throws Throwable {
+        setProperty("os.name", "OS X");
+
         Assert.assertFalse(recycleBizTempWorkDir(null));
 
         File fileJar = new File("/tmp/" + System.currentTimeMillis() + ".jar");
