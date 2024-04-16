@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.common.util;
 
+import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.*;
@@ -261,7 +262,7 @@ public class FileUtils {
                 File recycleTagFile = new File(recycleTagFilePath);
                 // mark dir is deleted
                 if (!recycleTagFile.exists()) {
-                    touch(dir);
+                    touch(recycleTagFile);
                 }
 
                 File[] files = dir.listFiles();
@@ -289,14 +290,17 @@ public class FileUtils {
                 forceDelete(recycleTagFile);
             }
         } catch (final Exception e) {
-            throw new ArkRuntimeException("Failed to recycle directory: " + dir.getAbsolutePath(),
-                e);
+            ArkLoggerFactory.getDefaultLogger().error(
+                "Failed to delete file: " + dir.getAbsolutePath(), e);
+
         }
 
         try {
             // delete dir
             return dir.delete();
         } catch (final Exception ignored) {
+            ArkLoggerFactory.getDefaultLogger().error(
+                "Failed to delete dir: " + dir.getAbsolutePath(), ignored);
             return false;
         }
     }
