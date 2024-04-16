@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 import static org.apache.commons.io.FileUtils.forceDelete;
 import static org.apache.commons.io.FileUtils.touch;
@@ -238,7 +238,7 @@ public class FileUtils {
         }
 
         String recycledTagFilePath = file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
-                                     + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+                                     + BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
         File recycledTagFile = new File(recycledTagFilePath);
 
         return recycledTagFile.exists();
@@ -258,7 +258,7 @@ public class FileUtils {
             if (dir.isDirectory()) {
 
                 String recycleTagFilePath = dir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
-                                            + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+                                            + BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
                 File recycleTagFile = new File(recycleTagFilePath);
                 // mark dir is deleted
                 if (!recycleTagFile.exists()) {

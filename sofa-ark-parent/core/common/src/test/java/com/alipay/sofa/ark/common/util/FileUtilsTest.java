@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import static com.alipay.sofa.ark.common.util.FileUtils.*;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
@@ -125,7 +125,7 @@ public class FileUtilsTest {
 
         file = new File("/tmp/" + System.currentTimeMillis() + "-test");
         File fileTag = new File(file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
-                                + BIZ_TEMP_TEMP_WORK_DIR_RECYCLE_TAG_FILE);
+                                + BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE);
         touch(fileTag);
         Assert.assertTrue(checkBizTempWorkDirIsRecycledButUnfinished(file));
     }
