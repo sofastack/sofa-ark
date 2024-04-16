@@ -132,7 +132,7 @@ public class FileUtilsTest {
 
     @Test
     public void testRecycleBizTempWorkDir() throws Throwable {
-        setProperty("os.name", "OS X");
+        setProperty("os.name", ORIGIN);
 
         Assert.assertFalse(recycleBizTempWorkDir(null));
 
