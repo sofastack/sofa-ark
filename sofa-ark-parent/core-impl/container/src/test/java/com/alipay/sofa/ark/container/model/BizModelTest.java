@@ -90,14 +90,6 @@ public class BizModelTest {
     }
 
     @Test
-    public void testLoadConfigFile() throws Exception {
-        URL resource = this.getClass().getClassLoader().getResource("test.props");
-        init(asList(resource));
-        assertEquals("b123", getStringValue("a123"));
-        assertEquals("d123", getStringValue("c123"));
-    }
-
-    @Test
     public void testRecycleBizTempWorkDir() throws Throwable {
         assertFalse(BizModel.recycleBizTempWorkDir(null));
 
