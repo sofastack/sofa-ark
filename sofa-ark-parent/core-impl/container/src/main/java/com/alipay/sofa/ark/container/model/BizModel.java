@@ -52,7 +52,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.alipay.sofa.ark.common.util.FileUtils.recycleBizTempWorkDir;
+import static com.alipay.sofa.ark.api.ArkClient.recycleBizTempWorkDir;
 
 /**
  * Ark Biz Standard Model

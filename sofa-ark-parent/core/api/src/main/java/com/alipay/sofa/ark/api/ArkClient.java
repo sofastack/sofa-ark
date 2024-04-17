@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizSwitchEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizSwitchEvent;
@@ -38,14 +39,18 @@ import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  * API used to operate biz
@@ -421,4 +426,55 @@ public class ArkClient {
         return ArkLoggerFactory.getDefaultLogger();
     }
 
+    /**
+     * recycle biz temp work dir
+     *
+     * @param bizTempWorkDir
+     * @return
+     */
+    public static boolean recycleBizTempWorkDir(File bizTempWorkDir) {
+        if (bizTempWorkDir == null) {
+            return false;
+        }
+
+        if (bizTempWorkDir.isDirectory()) {
+            try {
+                String newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
+                File markedFile = new File(newPath);
+                if (!markedFile.exists()) {
+                    getLogger().warn(
+                        String.format("when delete marked biz temp work dir %s, file not exists ",
+                            markedFile.getPath()));
+                    return false;
+                }
+
+                return deleteQuietly(markedFile);
+            } catch (IOException e) {
+                throw new ArkRuntimeException("mark and delete biz temp work dir error: "
+                                              + e.getMessage());
+            }
+
+        }
+
+        return deleteQuietly(bizTempWorkDir);
+    }
+
+    /**
+     * mark biz temp work dir is recycled
+     *
+     * @param bizTempWorkDir
+     * @return
+     * @throws IOException
+     */
+    private static String markBizTempWorkDirRecycled(File bizTempWorkDir) throws IOException {
+        String sourcePath = bizTempWorkDir.getAbsolutePath();
+        String targetPath = String.format("%s-%s-%s", sourcePath, System.currentTimeMillis(),
+            BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX);
+
+        Files.move(Paths.get(sourcePath), Paths.get(targetPath));
+        getLogger().info(
+            String.format("move biz temp work dir from %s to %s", sourcePath, targetPath));
+
+        return targetPath;
+    }
 }

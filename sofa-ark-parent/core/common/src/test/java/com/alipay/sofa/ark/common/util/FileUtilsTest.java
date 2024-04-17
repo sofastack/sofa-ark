@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.common.util;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,8 +25,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import static com.alipay.sofa.ark.common.util.FileUtils.*;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
@@ -108,46 +105,4 @@ public class FileUtilsTest {
         assertFalse(file.exists());
     }
 
-    @Test
-    public void testCheckBizTempWorkDirIsDeletedButUnfinished() throws Throwable {
-        Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(null));
-
-        File file = new File("/tmp/" + System.currentTimeMillis() + ".jar");
-        touch(file);
-        Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(file));
-
-        file = new File("/tmp" + System.currentTimeMillis() + ".jar");
-        Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(file));
-
-        file = new File("/tmp/" + System.currentTimeMillis() + "-test");
-        file.mkdir();
-        Assert.assertFalse(checkBizTempWorkDirIsRecycledButUnfinished(file));
-
-        file = new File("/tmp/" + System.currentTimeMillis() + "-test");
-        File fileTag = new File(file.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
-                                + BIZ_TEMP_WORK_DIR_RECYCLE_TAG_FILE);
-        touch(fileTag);
-        Assert.assertTrue(checkBizTempWorkDirIsRecycledButUnfinished(file));
-    }
-
-    @Test
-    public void testRecycleBizTempWorkDir() throws Throwable {
-        setProperty("os.name", ORIGIN);
-
-        Assert.assertFalse(recycleBizTempWorkDir(null));
-
-        File fileJar = new File("/tmp/" + System.currentTimeMillis() + ".jar");
-        touch(fileJar);
-        Assert.assertTrue(recycleBizTempWorkDir(fileJar));
-        Assert.assertFalse(fileJar.exists());
-
-        File fileDir = new File("/tmp/" + System.currentTimeMillis() + "-test");
-        fileDir.mkdir();
-        File fileJar2 = new File(fileDir.getAbsolutePath() + ROOT_WEB_CONTEXT_PATH
-                                 + System.currentTimeMillis() + ".jar");
-        touch(fileJar2);
-
-        Assert.assertTrue(recycleBizTempWorkDir(fileDir));
-        Assert.assertFalse(fileJar2.exists());
-    }
 }
