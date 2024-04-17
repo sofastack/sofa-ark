@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.common.util;
 
-import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 
 import java.io.*;

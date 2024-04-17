@@ -104,5 +104,4 @@ public class FileUtilsTest {
         file = new File(encodedPath, "test.txt");
         assertFalse(file.exists());
     }
-
 }
