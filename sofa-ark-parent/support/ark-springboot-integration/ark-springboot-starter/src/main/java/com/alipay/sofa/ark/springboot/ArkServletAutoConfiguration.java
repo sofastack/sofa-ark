@@ -34,6 +34,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import javax.servlet.Servlet;
 import java.util.stream.Collectors;
@@ -71,6 +72,7 @@ public class ArkServletAutoConfiguration {
         }
 
         @Bean
+        @Order(value = Integer.MIN_VALUE + 1)
         public SwitchClassLoaderFilter classLoaderFilter() {
             return new SwitchClassLoaderFilter();
         }
