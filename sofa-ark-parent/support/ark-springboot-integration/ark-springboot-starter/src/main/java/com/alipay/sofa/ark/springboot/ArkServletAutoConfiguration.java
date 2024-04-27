@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.springboot;
 
 import com.alipay.sofa.ark.springboot.condition.ConditionalOnArkEnabled;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory;
-import com.alipay.sofa.ark.springboot.web.SwitchClassLoaderFilter;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
 import org.springframework.beans.factory.ObjectProvider;
@@ -34,7 +33,6 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 
 import javax.servlet.Servlet;
 import java.util.stream.Collectors;
@@ -69,12 +67,6 @@ public class ArkServletAutoConfiguration {
             factory.getTomcatProtocolHandlerCustomizers().addAll(
                 protocolHandlerCustomizers.orderedStream().collect(Collectors.toList()));
             return factory;
-        }
-
-        @Bean
-        @Order(value = Integer.MIN_VALUE + 1)
-        public SwitchClassLoaderFilter classLoaderFilter() {
-            return new SwitchClassLoaderFilter();
         }
     }
 }
