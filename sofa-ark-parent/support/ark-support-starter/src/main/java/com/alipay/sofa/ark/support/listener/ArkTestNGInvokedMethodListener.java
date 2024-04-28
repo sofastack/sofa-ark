@@ -47,7 +47,8 @@ public class ArkTestNGInvokedMethodListener implements IInvokedMethodListener {
     protected boolean isTestOnArk(Class testClass) {
         for (Annotation annotation : testClass.getAnnotations()) {
             String annotationType = annotation.annotationType().getCanonicalName();
-            if (annotationType.equals(TestNGOnArk.class.getCanonicalName())) {
+            if (annotationType.equals(TestNGOnArk.class.getCanonicalName())
+                || annotationType.equals(TestNGOnArkEmbeded.class.getCanonicalName())) {
                 return true;
             }
         }
