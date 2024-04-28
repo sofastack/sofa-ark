@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.test.springboot1;
 
-import com.alipay.sofa.ark.support.runner.ArkJUnit4Runner;
+import com.alipay.sofa.ark.support.runner.ArkJUnit4EmbedRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import java.util.Map;
  * @author qilong.zql
  * @since 0.6.0
  */
-@RunWith(ArkJUnit4Runner.class)
+@RunWith(ArkJUnit4EmbedRunner.class)
 public class IntrospectBizEndpointOnArkEnabledTest {
 
     @After

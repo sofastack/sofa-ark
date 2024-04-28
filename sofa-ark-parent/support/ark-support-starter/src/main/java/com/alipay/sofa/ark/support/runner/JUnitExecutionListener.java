@@ -29,9 +29,11 @@ import org.junit.runner.notification.RunListener;
  */
 public class JUnitExecutionListener extends RunListener {
 
-    private final static String         ARK_JUNIT4_RUNNER = "com.alipay.sofa.ark.support.runner.ArkJUnit4Runner";
-    private final static String         ARK_BOOT_RUNNER   = "com.alipay.sofa.ark.springboot.runner.ArkBootRunner";
-    private final static Object         LOCK              = new Object();
+    private final static String         ARK_JUNIT4_RUNNER       = "com.alipay.sofa.ark.support.runner.ArkJUnit4Runner";
+    private final static String         ARK_JUNIT4_EMBED_RUNNER = "com.alipay.sofa.ark.support.runner.ArkJUnit4EmbedRunner";
+    private final static String         ARK_BOOT_RUNNER         = "com.alipay.sofa.ark.springboot.runner.ArkBootRunner";
+    private final static String         ARK_BOOT_EMBED_RUNNER   = "com.alipay.sofa.ark.springboot.runner.ArkBootEmbedRunner";
+    private final static Object         LOCK                    = new Object();
     private static volatile RunListener singleton;
 
     private JUnitExecutionListener() {
@@ -63,7 +65,8 @@ public class JUnitExecutionListener extends RunListener {
         Class<?> runnerClass = runWith.value();
         String className = runnerClass.getName();
 
-        return ARK_JUNIT4_RUNNER.equals(className) || ARK_BOOT_RUNNER.equals(className);
+        return ARK_JUNIT4_RUNNER.equals(className) || ARK_JUNIT4_EMBED_RUNNER.equals(className)
+               || ARK_BOOT_RUNNER.equals(className) || ARK_BOOT_EMBED_RUNNER.equals(className);
 
     }
 
