@@ -21,18 +21,25 @@ import com.alipay.sofa.ark.support.common.DelegateArkContainer;
 import com.alipay.sofa.ark.support.runner.JUnitExecutionListener;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
-import org.junit.runner.manipulation.*;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
+import org.junit.runner.manipulation.Sortable;
+import org.junit.runner.manipulation.Sorter;
 import org.junit.runner.notification.RunNotifier;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 
 /**
  * Corresponding to {@literal org.springframework.test.context.junit4.SpringRunner}
+ * used for test ark biz like koupleless, which run ark plugin in embed mode
+ * please refer {@link com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService#createEmbedPlugin(com.alipay.sofa.ark.spi.archive.PluginArchive, java.lang.ClassLoader)}
  *
- * used for test ark plugin
- *
- * @author qilong.zql
- * @since 0.1.0
+ * @author lvjing2
+ * @since 2.2.10
  */
-public class ArkBootRunner extends Runner implements Filterable, Sortable {
+public class ArkBootEmbedRunner extends Runner implements Filterable, Sortable {
 
     private static final String SPRING_RUNNER = "org.springframework.test.context.junit4.SpringRunner";
 
@@ -42,9 +49,13 @@ public class ArkBootRunner extends Runner implements Filterable, Sortable {
     private Runner              runner;
 
     @SuppressWarnings("unchecked")
-    public ArkBootRunner(Class<?> klazz) {
+    public ArkBootEmbedRunner(Class<?> klazz) {
         if (!DelegateArkContainer.isStarted()) {
+            System.setProperty(EMBED_ENABLE, "true");
+            System.setProperty(MASTER_BIZ, "test master biz");
             DelegateArkContainer.launch(klazz);
+            System.clearProperty(EMBED_ENABLE);
+            System.clearProperty(MASTER_BIZ);
         }
 
         Class springRunnerClass = DelegateArkContainer.loadClass(SPRING_RUNNER);

@@ -25,6 +25,9 @@ import org.testng.xml.XmlTest;
 
 import java.util.List;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+
 /**
  * @author qilong.zql
  * @since 0.3.0
@@ -66,6 +69,22 @@ public class ArkTestNGAlterSuiteListener implements IAlterSuiteListener {
                 if (testClass.getAnnotation(TestNGOnArk.class) != null) {
                     if (!DelegateArkContainer.isStarted()) {
                         DelegateArkContainer.launch(testClass);
+                    }
+
+                    try {
+                        xmlClass.setClass(DelegateArkContainer.getTestClassLoader().loadClass(
+                            testClass.getCanonicalName()));
+                    } catch (ClassNotFoundException ex) {
+                        throw new ArkRuntimeException(String.format(
+                            "Load testNG test class %s failed.", testClass.getCanonicalName()), ex);
+                    }
+                } else if (testClass.getAnnotation(TestNGOnArkEmbeded.class) != null) {
+                    if (!DelegateArkContainer.isStarted()) {
+                        System.setProperty(EMBED_ENABLE, "true");
+                        System.setProperty(MASTER_BIZ, "test master biz");
+                        DelegateArkContainer.launch(testClass);
+                        System.clearProperty(EMBED_ENABLE);
+                        System.clearProperty(MASTER_BIZ);
                     }
 
                     try {
