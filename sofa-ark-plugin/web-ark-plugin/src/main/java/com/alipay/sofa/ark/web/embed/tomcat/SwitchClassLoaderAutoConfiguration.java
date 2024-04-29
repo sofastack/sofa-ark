@@ -16,25 +16,23 @@
  */
 package com.alipay.sofa.ark.web.embed.tomcat;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.coyote.UpgradeProtocol;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
+import javax.servlet.Servlet;
 
 /**
  * switch classloader to bizClassLoader in pre of web request handler
  * fix https://github.com/koupleless/koupleless/issues/212
+ *
+ * please notice: this AutoConfiguration should been loaded by both base and biz,
+ * so the class name should be different in this plugin
  *
  * @author lvjing2
  * @since 2.2.10
@@ -42,47 +40,39 @@ import java.io.IOException;
 @Configuration
 public class SwitchClassLoaderAutoConfiguration {
 
-    @Bean
+    @Bean(name = "switchClassLoaderFilter")
     @Order(10)
-    public SwitchClassLoaderFilter switchClassLoaderFilter() {
-        return new SwitchClassLoaderFilter();
+    @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = {
+            "com.alipay.sofa.ark.springboot1.web.SwitchClassLoaderFilter",
+            "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
+            "org.springframework.boot.web.servlet.server.ServletWebServerFactory",
+            "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration" })
+    @ConditionalOnMissingClass("org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer")
+    public Filter switchClassLoaderFilter1() {
+        try {
+            Class<?> clazz = Class
+                .forName("com.alipay.sofa.ark.springboot1.web.SwitchClassLoaderFilter");
+            return (Filter) clazz.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static class SwitchClassLoaderFilter implements Filter {
-
-        /**
-         * using user logger not ArkLogger, to print this log into user log dir
-         */
-        private Logger logger = LoggerFactory.getLogger(SwitchClassLoaderFilter.class);
-
-        @Override
-        public void init(FilterConfig filterConfig) throws ServletException {
-            Filter.super.init(filterConfig);
-        }
-
-        @Override
-        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-                             FilterChain filterChain) throws IOException, ServletException {
-            ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
-            try {
-                if (oldClassloader instanceof ArkTomcatEmbeddedWebappClassLoader) {
-                    ClassLoader bizClassLoader = oldClassloader.getParent();
-                    if (bizClassLoader != null) {
-                        logger.info("switch web classLoader from {} to {}", oldClassloader,
-                            bizClassLoader);
-                        Thread.currentThread().setContextClassLoader(bizClassLoader);
-                    }
-                }
-
-                filterChain.doFilter(servletRequest, servletResponse);
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassloader);
-            }
-        }
-
-        @Override
-        public void destroy() {
-            Filter.super.destroy();
+    @Bean(name = "switchClassLoaderFilter")
+    @Order(10)
+    @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = {
+            "com.alipay.sofa.ark.springboot2.web.SwitchClassLoaderFilter",
+            "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
+            "org.springframework.boot.web.servlet.server.ServletWebServerFactory",
+            "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration",
+            "org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer" })
+    public Filter switchClassLoaderFilter2() {
+        try {
+            Class<?> clazz = Class
+                .forName("com.alipay.sofa.ark.springboot2.web.SwitchClassLoaderFilter");
+            return (Filter) clazz.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
