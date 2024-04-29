@@ -9,8 +9,6 @@
 name: Test for windows
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -33,3 +31,5 @@ jobs:
         && mvn test
     - name: Codecov
       uses: codecov/codecov-action@v3.1.4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
