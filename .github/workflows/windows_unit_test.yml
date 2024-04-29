@@ -31,6 +31,6 @@ jobs:
         && sh ./check_format.sh
         && mvn test  -DargLine="-Djdk.util.zip.disableZip64ExtraFieldValidation=true"
     - name: Codecov
-      uses: codecov/codecov-action@v3.1.4
+      uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
