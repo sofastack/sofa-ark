@@ -23,11 +23,17 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+
 /**
- * @author qilong.zql
- * @since 0.1.0
+ * used for test ark biz like koupleless, which run ark plugin in embed mode
+ * please refer {@link com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService#createEmbedPlugin(com.alipay.sofa.ark.spi.archive.PluginArchive, java.lang.ClassLoader)}
+ *
+ * @author lvjing2
+ * @since 2.2.10
  */
-public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
+public class ArkJUnit4EmbedRunner extends BlockJUnit4ClassRunner {
 
     /**
      * Creates a BlockJUnit4ClassRunner to run {@code klass}
@@ -35,7 +41,7 @@ public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
      * @param klass
      * @throws InitializationError if the test class is malformed.
      */
-    public ArkJUnit4Runner(Class<?> klass) throws InitializationError {
+    public ArkJUnit4EmbedRunner(Class<?> klass) throws InitializationError {
         super(klass);
     }
 
@@ -43,7 +49,11 @@ public class ArkJUnit4Runner extends BlockJUnit4ClassRunner {
     protected TestClass createTestClass(Class<?> testClass) {
         try {
             if (!DelegateArkContainer.isStarted()) {
+                System.setProperty(EMBED_ENABLE, "true");
+                System.setProperty(MASTER_BIZ, "test master biz");
                 DelegateArkContainer.launch(testClass);
+                System.clearProperty(EMBED_ENABLE);
+                System.clearProperty(MASTER_BIZ);
             }
             ClassLoader testClassLoader = DelegateArkContainer.getTestClassLoader();
             TestClass testKlazz = super.createTestClass(testClassLoader.loadClass(testClass

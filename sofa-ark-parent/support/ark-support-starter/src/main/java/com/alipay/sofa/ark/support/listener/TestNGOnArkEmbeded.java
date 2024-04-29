@@ -14,25 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.test;
+package com.alipay.sofa.ark.support.listener;
 
-import com.alipay.sofa.ark.support.listener.TestNGOnArkEmbeded;
-import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.annotations.Test;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author qilong.zql
- * @since 1.0.0
+ * any test class annotated by {@link TestNGOnArkEmbeded} represents
+ * that it would run on ark container
+ *
+ * used for test ark biz like koupleless, which run ark plugin in embed mode
+ * please refer {@link com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService#createEmbedPlugin(com.alipay.sofa.ark.spi.archive.PluginArchive, java.lang.ClassLoader)}
+ *
+ * @author lvjing2
+ * @since 2.2.10
  */
-@TestNGOnArkEmbeded
-@SpringBootTest(classes = BaseSpringApplication.class)
-public class ArkBootTestNGTest extends AbstractTestNGSpringContextTests {
-
-    @Test
-    public void testSpringTestNG() {
-        // Ignore
-    }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface TestNGOnArkEmbeded {
 }
