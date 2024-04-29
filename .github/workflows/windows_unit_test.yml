@@ -9,9 +9,6 @@
 name: Test for windows
 
 on:
-  push:
-    branches:
-      - '3.0.*'
   pull_request:
     branches:
       - '3.0.*'
@@ -35,3 +32,5 @@ jobs:
         && mvn test  -DargLine="-Djdk.util.zip.disableZip64ExtraFieldValidation=true"
     - name: Codecov
       uses: codecov/codecov-action@v3.1.4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
