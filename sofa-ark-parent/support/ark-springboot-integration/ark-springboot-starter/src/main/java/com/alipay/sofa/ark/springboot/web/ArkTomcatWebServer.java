@@ -198,6 +198,8 @@ public class ArkTomcatWebServer implements WebServer {
             if (this.started) {
                 return;
             }
+
+            Context context = findContext();
             try {
                 addPreviouslyRemovedConnectors();
                 this.tomcat.getConnector();
@@ -211,7 +213,6 @@ public class ArkTomcatWebServer implements WebServer {
             } catch (Exception ex) {
                 throw new WebServerException("Unable to start embedded Tomcat server", ex);
             } finally {
-                Context context = findContext();
                 ContextBindings.unbindClassLoader(context, context.getNamingToken(), getClass()
                     .getClassLoader());
             }
