@@ -55,9 +55,11 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -67,6 +69,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,6 +77,7 @@ import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
@@ -91,6 +95,13 @@ public class RepackageMojo extends TreeMojo {
     private static final String    BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
 
     private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
+
+    public final static String     ARK_PROPERTIES_FILE        = "ark.properties";
+
+    public final static String     ARK_YML_FILE               = "ark.yml";
+
+    public final static String     RESOURCES_DIR              = "src" + File.separator + "main"
+                                                                + File.separator + "resources";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject           mavenProject;
@@ -600,6 +611,8 @@ public class RepackageMojo extends TreeMojo {
                                       + DEFAULT_EXCLUDE_RULES);
         }
 
+        extensionExcludeArtifactsByDefault();
+
         // extension from url
         if (StringUtils.isNotBlank(packExcludesUrl)) {
             extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
@@ -619,6 +632,84 @@ public class RepackageMojo extends TreeMojo {
         }
 
         return result;
+    }
+
+    protected void extensionExcludeArtifactsByDefault() {
+        // extension from default ark.properties and ark.yml
+        extensionExcludeArtifactsFromProp();
+        extensionExcludeArtifactsFromYaml();
+    }
+
+    protected void extensionExcludeArtifactsFromProp() {
+        String configPath = baseDir + File.separator + RESOURCES_DIR + File.separator
+                            + ARK_PROPERTIES_FILE;
+        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
+        if (!configFile.exists()) {
+            getLog().info(
+                String.format(
+                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
+                    configPath));
+            return;
+        }
+
+        getLog().info(
+            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
+                configPath));
+
+        Properties prop = new Properties();
+        try (FileInputStream fis = new FileInputStream(configPath)) {
+            prop.load(fis);
+
+            parseExcludeProp(excludes, prop, EXTENSION_EXCLUDES);
+            parseExcludeProp(excludeGroupIds, prop, EXTENSION_EXCLUDES_GROUPIDS);
+            parseExcludeProp(excludeArtifactIds, prop, EXTENSION_EXCLUDES_ARTIFACTIDS);
+        } catch (IOException ex) {
+            getLog().error(
+                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
+        }
+    }
+
+    protected void extensionExcludeArtifactsFromYaml() {
+        String configPath = baseDir + File.separator + RESOURCES_DIR + File.separator
+                            + ARK_YML_FILE;
+        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
+        if (!configFile.exists()) {
+            getLog().info(
+                String.format(
+                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
+                    configPath));
+            return;
+        }
+
+        getLog().info(
+            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
+                configPath));
+
+        try (FileInputStream fis = new FileInputStream(configPath)) {
+            Yaml yaml = new Yaml();
+            Map<String, List<String>> parsedYaml = yaml.load(fis);
+            parseExcludeYaml(excludes, parsedYaml, EXTENSION_EXCLUDES);
+            parseExcludeYaml(excludeGroupIds, parsedYaml, EXTENSION_EXCLUDES_GROUPIDS);
+            parseExcludeYaml(excludeArtifactIds, parsedYaml, EXTENSION_EXCLUDES_ARTIFACTIDS);
+
+        } catch (IOException ex) {
+            getLog().error(
+                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
+        }
+    }
+
+    private void parseExcludeProp(LinkedHashSet<String> targetSet, Properties prop, String confKey) {
+        String[] parsed = StringUtils.split(prop.getProperty(confKey), COMMA_SPLIT);
+        if (null != parsed) {
+            targetSet.addAll(Arrays.asList(parsed));
+        }
+    }
+
+    private void parseExcludeYaml(LinkedHashSet<String> targetSet, Map<String, List<String>> yaml,
+                                  String confKey) {
+        if (yaml.containsKey(confKey) && null != yaml.get(confKey)) {
+            targetSet.addAll(yaml.get(confKey));
+        }
     }
 
     /**

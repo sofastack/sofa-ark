@@ -1,0 +1,10 @@
+# excludes 中配置 ${groupId}:{artifactId}, 不同依赖以 - 隔开
+# excludeGroupIds 中配置 ${groupId}, 不同依赖以 - 隔开
+# excludeArtifactIds 中配置 ${artifactId}, 不同依赖以 - 隔开
+excludes:
+  - org.apache.commons:commons-lang3-yml
+  - commons-beanutils:commons-beanutils-yml
+excludeGroupIds:
+  - org.springframework-yml
+excludeArtifactIds:
+  - sofa-ark-spi-yml
