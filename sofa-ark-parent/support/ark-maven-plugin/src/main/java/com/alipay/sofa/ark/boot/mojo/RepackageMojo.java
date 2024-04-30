@@ -67,6 +67,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -421,16 +422,19 @@ public class RepackageMojo extends TreeMojo {
         getLog().info("project path: " + baseDir.getAbsolutePath());
 
         // dependency:tree
-        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
-        List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-                "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
-
         Properties userProperties = projectBuildingRequest.getUserProperties();
+        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
+        List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true", "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
         if (userProperties != null) {
             userProperties.forEach((key, value) -> goals.add(String.format("-D%s=%s", key, value)));
+            if (userProperties.containsKey("outputFile")) {
+                goals.removeIf(s -> s.startsWith("-DoutputFile"));
+                outputPath = userProperties.getProperty("outputFile") + "." + System.currentTimeMillis();
+                goals.add(String.format("-DoutputFile=\"%s\"", outputPath));
+            }
         }
 
         getLog().info(
