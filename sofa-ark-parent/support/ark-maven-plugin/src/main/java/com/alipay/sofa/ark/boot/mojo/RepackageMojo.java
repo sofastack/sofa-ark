@@ -429,12 +429,12 @@ public class RepackageMojo extends TreeMojo {
         String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
         List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true", "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
         if (userProperties != null) {
-            userProperties.forEach((key, value) -> goals.add(String.format("-D%s=%s", key, value)));
-            if (userProperties.containsKey("outputFile")) {
-                goals.removeIf(s -> s.startsWith("-DoutputFile"));
-                outputPath = userProperties.getProperty("outputFile") + "." + System.currentTimeMillis();
-                goals.add(String.format("-DoutputFile=\"%s\"", outputPath));
-            }
+            userProperties.forEach((key, value) -> {
+                if (key instanceof String && StringUtils.equals("outputFile", (String) key)) {
+                    return;
+                }
+                goals.add(String.format("-D%s=%s", key, value));
+            });
         }
 
         getLog().info(
