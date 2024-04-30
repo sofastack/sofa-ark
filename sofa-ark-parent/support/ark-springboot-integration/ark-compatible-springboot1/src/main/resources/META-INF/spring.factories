@@ -1,1 +1,3 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.alipay.sofa.ark.springboot1.CompatibleSpringBoot1AutoConfiguration,com.alipay.sofa.ark.springboot1.web.ArkAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.alipay.sofa.ark.springboot1.CompatibleSpringBoot1AutoConfiguration,\
+  com.alipay.sofa.ark.springboot1.web.ArkAutoConfiguration

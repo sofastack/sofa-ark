@@ -432,16 +432,19 @@ public class RepackageMojo extends TreeMojo {
         getLog().info("project path: " + baseDir.getAbsolutePath());
 
         // dependency:tree
-        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(com.alipay.sofa.ark.common.util.FileUtils.file(baseDir.getAbsolutePath() + "/pom.xml"));
 
-        List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true",
-                "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
-
         Properties userProperties = projectBuildingRequest.getUserProperties();
+        String outputPath = baseDir.getAbsolutePath() + "/deps.log." + System.currentTimeMillis();
+        List<String> goals = Stream.of("dependency:tree", "-DappendOutput=true", "-DoutputFile=\"" + outputPath + "\"").collect(Collectors.toList());
         if (userProperties != null) {
-            userProperties.forEach((key, value) -> goals.add(String.format("-D%s=%s", key, value)));
+            userProperties.forEach((key, value) -> {
+                if (key instanceof String && StringUtils.equals("outputFile", (String) key)) {
+                    return;
+                }
+                goals.add(String.format("-D%s=%s", key, value));
+            });
         }
 
         getLog().info(
