@@ -16,16 +16,14 @@
  */
 package com.alipay.sofa.ark.web.embed.tomcat;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
 
 /**
  * switch classloader to bizClassLoader in pre of web request handler
@@ -43,30 +41,12 @@ public class SwitchClassLoaderAutoConfiguration {
     @Bean(name = "switchClassLoaderFilter")
     @Order(10)
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = {
-            "com.alipay.sofa.ark.springboot1.web.SwitchClassLoaderFilter",
-            "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
-            "org.springframework.boot.web.servlet.server.ServletWebServerFactory",
-            "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration" })
-    @ConditionalOnMissingClass("org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer")
-    public Filter switchClassLoaderFilter1() {
-        try {
-            Class<?> clazz = Class
-                .forName("com.alipay.sofa.ark.springboot1.web.SwitchClassLoaderFilter");
-            return (Filter) clazz.newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Bean(name = "switchClassLoaderFilter")
-    @Order(10)
-    @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = {
             "com.alipay.sofa.ark.springboot2.web.SwitchClassLoaderFilter",
             "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
             "org.springframework.boot.web.servlet.server.ServletWebServerFactory",
             "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration",
             "org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer" })
-    public Filter switchClassLoaderFilter2() {
+    public Filter switchClassLoaderFilter() {
         try {
             Class<?> clazz = Class
                 .forName("com.alipay.sofa.ark.springboot2.web.SwitchClassLoaderFilter");
