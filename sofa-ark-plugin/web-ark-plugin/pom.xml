@@ -12,10 +12,6 @@
 
     <artifactId>web-ark-plugin</artifactId>
 
-    <properties>
-        <spring.boot.version>3.0.9</spring.boot.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
