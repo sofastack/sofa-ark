@@ -48,7 +48,7 @@ public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
         }
     }
 
-//    @Test
+    //    @Test
     public void testIntrospectBizEndpoint() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("management.endpoints.web.exposure.include", "*");
@@ -59,7 +59,7 @@ public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
         applicationContext.close();
     }
 
-//    @Test
+    //    @Test
     public void testDisableBizStateEndpoint() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("management.endpoint.bizState.enabled", "false");
