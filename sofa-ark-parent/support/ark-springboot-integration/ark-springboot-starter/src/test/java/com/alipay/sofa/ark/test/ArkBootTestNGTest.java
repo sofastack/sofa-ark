@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.ark.test;
 
-import com.alipay.sofa.ark.support.listener.TestNGOnArk;
+import com.alipay.sofa.ark.support.listener.TestNGOnArkEmbeded;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
  * @author qilong.zql
  * @since 1.0.0
  */
-@TestNGOnArk
+@TestNGOnArkEmbeded
 @SpringBootTest(classes = BaseSpringApplication.class)
 public class ArkBootTestNGTest extends AbstractTestNGSpringContextTests {
 
