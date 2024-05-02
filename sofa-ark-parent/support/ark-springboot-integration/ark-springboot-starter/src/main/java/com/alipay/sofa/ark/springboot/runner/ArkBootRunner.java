@@ -27,6 +27,8 @@ import org.junit.runner.notification.RunNotifier;
 /**
  * Corresponding to {@literal org.springframework.test.context.junit4.SpringRunner}
  *
+ * used for test ark plugin
+ *
  * @author qilong.zql
  * @since 0.1.0
  */

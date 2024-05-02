@@ -12,11 +12,19 @@
 
     <artifactId>web-ark-plugin</artifactId>
 
-    <properties>
-        <spring.boot.version>3.0.9</spring.boot.version>
-    </properties>
-
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -41,6 +49,18 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -58,6 +78,11 @@
 
                         <configuration>
                             <activator>com.alipay.sofa.ark.web.embed.WebPluginActivator</activator>
+                            <exported>
+                                <classes>
+                                    <class>com.alipay.sofa.ark.web.embed.tomcat.SwitchClassLoaderAutoConfiguration</class>
+                                </classes>
+                            </exported>
                             <excludes>
                                 <exclude>*:*:*</exclude>
                                 <exclude>com.alipay.sofa:web-ark-plugin</exclude>

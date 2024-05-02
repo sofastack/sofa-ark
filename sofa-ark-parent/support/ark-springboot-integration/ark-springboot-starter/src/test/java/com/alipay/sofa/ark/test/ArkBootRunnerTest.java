@@ -21,7 +21,7 @@ import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
+import com.alipay.sofa.ark.springboot.runner.ArkBootEmbedRunner;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 import org.junit.Test;
@@ -46,7 +46,7 @@ import static org.springframework.util.ReflectionUtils.*;
  * @author qilong.zql
  * @since 0.1.0
  */
-@RunWith(ArkBootRunner.class)
+@RunWith(ArkBootEmbedRunner.class)
 @SpringBootTest(classes = BaseSpringApplication.class)
 public class ArkBootRunnerTest {
 
@@ -66,8 +66,8 @@ public class ArkBootRunnerTest {
         assertNotNull(pluginManagerService);
         assertEquals("SampleService", sampleService.say());
 
-        ArkBootRunner runner = new ArkBootRunner(ArkBootRunnerTest.class);
-        Field field = findField(ArkBootRunner.class, "runner");
+        ArkBootEmbedRunner runner = new ArkBootEmbedRunner(ArkBootRunnerTest.class);
+        Field field = findField(ArkBootEmbedRunner.class, "runner");
         assertNotNull(field);
 
         makeAccessible(field);
