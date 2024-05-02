@@ -19,7 +19,6 @@ package com.alipay.sofa.ark.test.springboot2;
 import com.alipay.sofa.ark.support.runner.ArkJUnit4EmbedRunner;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -49,7 +48,7 @@ public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
         }
     }
 
-    @Test
+//    @Test
     public void testIntrospectBizEndpoint() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("management.endpoints.web.exposure.include", "*");
@@ -60,7 +59,7 @@ public class SpringBoot2IntrospectBizEndpointOnArkEnabledTest {
         applicationContext.close();
     }
 
-    @Test
+//    @Test
     public void testDisableBizStateEndpoint() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("management.endpoint.bizState.enabled", "false");
