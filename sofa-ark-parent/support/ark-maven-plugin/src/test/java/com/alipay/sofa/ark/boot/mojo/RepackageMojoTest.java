@@ -48,15 +48,24 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.alipay.sofa.ark.boot.mojo.RepackageMojo.ArkConstants.getClassifier;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static org.apache.commons.beanutils.BeanUtils.copyProperties;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -229,6 +238,52 @@ public class RepackageMojoTest {
         // NOTE: Access httpbin to run unit test, need vpn maybe.
         String packExcludesUrl = "http://httpbin.org/get";
         extensionExcludeArtifactsFromUrl.invoke(repackageMojo, packExcludesUrl, artifacts);
+    }
+
+    @Test
+    public void testExtensionExcludeArtifactsByDefault() throws NoSuchMethodException,
+                                                        NoSuchFieldException, URISyntaxException,
+                                                        IllegalAccessException,
+                                                        InvocationTargetException {
+        RepackageMojo repackageMojo = new RepackageMojo();
+        Method extensionExcludeArtifactsByDefault = repackageMojo.getClass().getDeclaredMethod(
+            "extensionExcludeArtifactsByDefault");
+        extensionExcludeArtifactsByDefault.setAccessible(true);
+
+        Field baseDirField = RepackageMojo.class.getDeclaredField("baseDir");
+        baseDirField.setAccessible(true);
+        baseDirField.set(repackageMojo, getResourceFile("baseDir"));
+
+        Field excludesField = RepackageMojo.class.getDeclaredField("excludes");
+        excludesField.setAccessible(true);
+        LinkedHashSet<String> excludes = (LinkedHashSet<String>) excludesField.get(repackageMojo);
+
+        Field excludeGroupIdsField = RepackageMojo.class.getDeclaredField("excludeGroupIds");
+        excludeGroupIdsField.setAccessible(true);
+        LinkedHashSet<String> excludeGroupIds = (LinkedHashSet<String>) excludeGroupIdsField
+            .get(repackageMojo);
+
+        Field excludeArtifactIdsField = RepackageMojo.class.getDeclaredField("excludeArtifactIds");
+        excludeArtifactIdsField.setAccessible(true);
+        LinkedHashSet<String> excludeArtifactIds = (LinkedHashSet<String>) excludeArtifactIdsField
+            .get(repackageMojo);
+
+        extensionExcludeArtifactsByDefault.invoke(repackageMojo);
+
+        // 验证 ark.properties
+        assertTrue(excludes.contains("commons-beanutils:commons-beanutils"));
+        assertTrue(excludeGroupIds.contains("org.springframework"));
+        assertTrue(excludeArtifactIds.contains("sofa-ark-spi"));
+
+        // 验证 ark.yml
+        assertTrue(excludes.contains("commons-beanutils:commons-beanutils-yml"));
+        assertTrue(excludeGroupIds.contains("org.springframework-yml"));
+        assertTrue(excludeArtifactIds.contains("sofa-ark-spi-yml"));
+    }
+
+    private File getResourceFile(String resourceName) throws URISyntaxException {
+        URL url = this.getClass().getClassLoader().getResource(resourceName);
+        return new File(url.toURI());
     }
 
     @Test
