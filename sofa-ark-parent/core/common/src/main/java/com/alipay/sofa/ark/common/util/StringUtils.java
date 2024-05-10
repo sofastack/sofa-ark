@@ -63,6 +63,14 @@ public class StringUtils {
         return setToStr(stringSet, delimiter, EMPTY_STRING);
     }
 
+    public static boolean contains(String sourceStr, String searchStr) {
+        if (sourceStr != null && searchStr != null) {
+            return sourceStr.contains(searchStr);
+        } else {
+            return false;
+        }
+    }
+
     /**
      * <p>Transform a string set to a long string separated by delimiter</p>
      * @param stringSet

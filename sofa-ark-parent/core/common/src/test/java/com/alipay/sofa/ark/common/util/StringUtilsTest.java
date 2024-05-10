@@ -66,6 +66,16 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testContains() {
+        String a = "This is my test source string";
+        Assert.assertTrue(StringUtils.contains(a, "my"));
+        Assert.assertTrue(StringUtils.contains(a, ""));
+        Assert.assertFalse(StringUtils.contains(a, null));
+        Assert.assertFalse(StringUtils.contains(null, null));
+        Assert.assertFalse(StringUtils.contains(null, "my"));
+    }
+
+    @Test
     public void testStrToList() {
         List<String> list = StringUtils.strToList("ab,ba,cb", ",");
         Assert.assertTrue(list.size() == 3);
