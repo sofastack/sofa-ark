@@ -22,7 +22,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration;
 import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.embedded.netty.NettyRouteProvider;
 import org.springframework.boot.web.embedded.netty.NettyServerCustomizer;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @ConditionalOnArkEnabled
-@AutoConfigureBefore(ReactiveWebServerFactoryAutoConfiguration.class)
+@AutoConfigureBefore(name = { "org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration" })
 public class ArkReactiveAutoConfiguration {
 
     @Configuration
