@@ -74,7 +74,7 @@ public class FileUtils {
      * Atomically creates a new directory somewhere beneath the system's
      * temporary directory (as defined by the {@code java.io.tmpdir} system
      */
-    public static File createTempDir(String subPath) {
+    public static synchronized File createTempDir(String subPath) {
         File baseDir = FileUtils.file(System.getProperty("java.io.tmpdir"));
         File tempDir = new File(baseDir, subPath);
         if (tempDir.exists()) {
