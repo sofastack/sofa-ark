@@ -77,6 +77,8 @@ public class BizModel implements Biz {
 
     private URL[]                urls;
 
+    private URL                  bizUrl;
+
     private URL[]                pluginUrls;
 
     private ClassLoader          classLoader;
@@ -135,6 +137,11 @@ public class BizModel implements Biz {
 
     public BizModel setClassPath(URL[] urls) {
         this.urls = urls;
+        return this;
+    }
+
+    public BizModel setBizUrl(URL url) {
+        this.bizUrl = url;
         return this;
     }
 
@@ -233,6 +240,11 @@ public class BizModel implements Biz {
     @Override
     public URL[] getClassPath() {
         return urls;
+    }
+
+    @Override
+    public URL getBizUrl() {
+        return bizUrl;
     }
 
     @Override
@@ -412,8 +424,9 @@ public class BizModel implements Biz {
 
     @Override
     public String toString() {
-        return "Ark Biz: " + getIdentity() + ",\n classloader: " + classLoader
-               + ",\n current state: " + bizState + ",\n history states: " + bizStateRecords;
+        return "Ark Biz: " + getIdentity() + ",\n biz url: " + bizUrl + ",\n classloader: "
+               + classLoader + ",\n current state: " + bizState + ",\n history states: "
+               + bizStateRecords;
     }
 
     private void resetProperties() {
