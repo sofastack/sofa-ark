@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.test;
 
+import com.alipay.sofa.ark.springboot.runner.ArkBootEmbedRunner;
 import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import org.springframework.context.ApplicationContext;
  * @author qilong.zql
  * @since 1.0.0
  */
-@RunWith(ArkBootRunner.class)
+@RunWith(ArkBootEmbedRunner.class)
 @SpringBootTest(classes = BaseSpringApplication.class)
 public class MultiArkBootRunnerTest {
 
