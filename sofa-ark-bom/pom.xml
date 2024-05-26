@@ -47,7 +47,7 @@
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
         <maven.plugin.plugin>3.6.1</maven.plugin.plugin>
         <surefire.version>2.22.2</surefire.version>
-        <netty.version>4.1.94.Final</netty.version>
+        <netty.version>4.1.109.Final</netty.version>
         <reactor-netty.version>0.9.19.RELEASE</reactor-netty.version>
         <spring.boot.version>3.2.1</spring.boot.version>
     </properties>
