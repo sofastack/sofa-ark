@@ -17,12 +17,11 @@
 package com.alipay.sofa.ark.test;
 
 import com.alipay.sofa.ark.springboot.runner.ArkBootEmbedRunner;
-import com.alipay.sofa.ark.springboot.runner.ArkBootRunner;
 import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -33,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 @SpringBootTest(classes = BaseSpringApplication.class)
 public class MultiArkBootRunnerTest {
 
-    @MockBean
+    @Autowired
     private ApplicationContext applicationContext;
 
     @Test
