@@ -59,6 +59,11 @@ public interface BizInfo {
     URL[] getClassPath();
 
     /**
+    * get biz url
+    */
+    URL getBizUrl();
+
+    /**
      * get denied imported packages config
      * @return
      */
