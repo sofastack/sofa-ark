@@ -166,4 +166,5 @@ public class ArkPluginMojoTest {
         assertEquals("c,d", properties.getProperty("import-resources"));
         assertEquals("", properties.getProperty("import-packages"));
     }
+
 }
