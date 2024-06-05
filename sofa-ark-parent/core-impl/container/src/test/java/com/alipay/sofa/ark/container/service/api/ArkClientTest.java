@@ -18,12 +18,14 @@ package com.alipay.sofa.ark.container.service.api;
 
 import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.event.EventHandler;
 import org.junit.Before;
@@ -34,18 +36,45 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alipay.sofa.ark.api.ArkClient.*;
+import static com.alipay.sofa.ark.api.ArkClient.checkBiz;
+import static com.alipay.sofa.ark.api.ArkClient.checkOperation;
+import static com.alipay.sofa.ark.api.ArkClient.createBizSaveFile;
+import static com.alipay.sofa.ark.api.ArkClient.getArguments;
+import static com.alipay.sofa.ark.api.ArkClient.getBizFactoryService;
+import static com.alipay.sofa.ark.api.ArkClient.getBizManagerService;
+import static com.alipay.sofa.ark.api.ArkClient.getPluginManagerService;
+import static com.alipay.sofa.ark.api.ArkClient.installBiz;
+import static com.alipay.sofa.ark.api.ArkClient.installOperation;
+import static com.alipay.sofa.ark.api.ArkClient.invocationReplay;
+import static com.alipay.sofa.ark.api.ArkClient.setBizFactoryService;
+import static com.alipay.sofa.ark.api.ArkClient.setBizManagerService;
+import static com.alipay.sofa.ark.api.ArkClient.switchOperation;
+import static com.alipay.sofa.ark.api.ArkClient.uninstallBiz;
+import static com.alipay.sofa.ark.api.ArkClient.uninstallOperation;
 import static com.alipay.sofa.ark.api.ResponseCode.REPEAT_BIZ;
 import static com.alipay.sofa.ark.api.ResponseCode.SUCCESS;
 import static com.alipay.sofa.ark.common.util.FileUtils.copyInputStreamToFile;
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
-import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_NEW_MODULE;
+import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_BIZ_URL;
+import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
+import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.CHECK;
+import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.INSTALL;
+import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.SWITCH;
+import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.UNINSTALL;
 import static com.alipay.sofa.ark.spi.model.BizState.ACTIVATED;
 import static com.alipay.sofa.ark.spi.model.BizState.DEACTIVATED;
+import static com.alipay.sofa.ark.spi.model.BizState.RESOLVED;
+import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author qilong.zql
@@ -238,6 +267,55 @@ public class ArkClientTest extends BaseTest {
 
         ClientResponse response = installOperation(bizOperation, new String[] {});
         assertEquals(SUCCESS, response.getCode());
+    }
+
+
+    @Test
+    public void testInstallBizFailed() throws Throwable {
+        File bizFile = createBizSaveFile("biz-install-failed-demo", "1.0.0");
+        copyInputStreamToFile(bizUrl1.openStream(), bizFile);
+        BizFactoryService bizFactoryService = getBizFactoryService();
+        BizFactoryService bizFactoryServiceMock = mock(BizFactoryService.class);
+        BizManagerService bizManagerService = getBizManagerService();
+        BizManagerServiceImpl bizManagerServiceMock = new BizManagerServiceImpl();
+
+        Biz biz = mock(Biz.class);
+        when(biz.getIdentity()).thenReturn("biz-install-failed-demo:1.0.0");
+        when(biz.getBizState()).thenReturn(RESOLVED);
+        when(biz.getBizName()).thenReturn("biz-install-failed-demo");
+        when(biz.getBizVersion()).thenReturn("1.0.0");
+        doThrow(new IllegalArgumentException()).when(biz).start(any(),any());
+        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+
+        // case1: not set AUTO_UNINSTALL_ENABLE
+        try {
+            setBizFactoryService(bizFactoryServiceMock);
+            setBizManagerService(bizManagerServiceMock);
+
+            installBiz(bizFile, null);
+            assertTrue(false);
+        } catch (Throwable e) {
+            assertTrue(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
+        } finally {
+            setBizFactoryService(bizFactoryService);
+            setBizManagerService(bizManagerService);
+        }
+
+        // case2: set AUTO_UNINSTALL_ENABLE=false
+        try {
+            setProperty(AUTO_UNINSTALL_ENABLE, "false");
+            setBizFactoryService(bizFactoryServiceMock);
+            setBizManagerService(bizManagerServiceMock);
+
+            installBiz(bizFile, null);
+            assertTrue(false);
+        } catch (Throwable e) {
+            assertFalse(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
+            setBizFactoryService(bizFactoryService);
+            setBizManagerService(bizManagerService);
+        } finally {
+            clearProperty(AUTO_UNINSTALL_ENABLE);
+        }
     }
 
     @Test
