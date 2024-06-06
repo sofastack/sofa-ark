@@ -269,7 +269,6 @@ public class ArkClientTest extends BaseTest {
         assertEquals(SUCCESS, response.getCode());
     }
 
-
     @Test
     public void testInstallBizFailed() throws Throwable {
         File bizFile = createBizSaveFile("biz-install-failed-demo", "1.0.0");
@@ -284,7 +283,7 @@ public class ArkClientTest extends BaseTest {
         when(biz.getBizState()).thenReturn(RESOLVED);
         when(biz.getBizName()).thenReturn("biz-install-failed-demo");
         when(biz.getBizVersion()).thenReturn("1.0.0");
-        doThrow(new IllegalArgumentException()).when(biz).start(any(),any());
+        doThrow(new IllegalArgumentException()).when(biz).start(any(), any());
         when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
 
         // case1: not set AUTO_UNINSTALL_ENABLE
