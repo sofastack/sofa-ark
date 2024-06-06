@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container.service.api;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
@@ -65,7 +66,6 @@ import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.UNINSTALL
 import static com.alipay.sofa.ark.spi.model.BizState.ACTIVATED;
 import static com.alipay.sofa.ark.spi.model.BizState.DEACTIVATED;
 import static com.alipay.sofa.ark.spi.model.BizState.RESOLVED;
-import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -302,7 +302,7 @@ public class ArkClientTest extends BaseTest {
 
         // case2: set AUTO_UNINSTALL_ENABLE=false
         try {
-            setProperty(AUTO_UNINSTALL_ENABLE, "false");
+            ArkConfigs.putStringValue(AUTO_UNINSTALL_ENABLE, "false");
             setBizFactoryService(bizFactoryServiceMock);
             setBizManagerService(bizManagerServiceMock);
 
@@ -313,7 +313,7 @@ public class ArkClientTest extends BaseTest {
             setBizFactoryService(bizFactoryService);
             setBizManagerService(bizManagerService);
         } finally {
-            clearProperty(AUTO_UNINSTALL_ENABLE);
+            ArkConfigs.putStringValue(AUTO_UNINSTALL_ENABLE, "true");
         }
     }
 
