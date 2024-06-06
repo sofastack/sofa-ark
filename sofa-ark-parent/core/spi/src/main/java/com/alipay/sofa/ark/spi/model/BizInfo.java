@@ -19,10 +19,10 @@ package com.alipay.sofa.ark.spi.model;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author qilong.zql
@@ -57,6 +57,11 @@ public interface BizInfo {
      * @return biz classpath
      */
     URL[] getClassPath();
+
+    /**
+    * get biz url
+    */
+    URL getBizUrl();
 
     /**
      * get denied imported packages config
@@ -127,7 +132,7 @@ public interface BizInfo {
      * @since 2.2.9
      * @return java.util.concurrent.CopyOnWriteArrayList<com.alipay.sofa.ark.spi.model.BizInfo.BizStateChangeInfo>
      */
-    CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs();
+    List<BizStateRecord> getBizStateRecords();
 
     class BizStateRecord {
         private final Date                    changeTime;
@@ -147,7 +152,7 @@ public interface BizInfo {
         @Override
         public String toString() {
             String date = sdf.format(changeTime);
-            return String.format("state change to %s at %s", state, date);
+            return String.format("%s -> %s", date, state);
         }
     }
 }

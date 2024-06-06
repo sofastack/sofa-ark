@@ -42,15 +42,20 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
@@ -60,49 +65,51 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
  * @since 0.1.0
  */
 public class BizModel implements Biz {
-    private String                               bizName;
+    private String               bizName;
 
-    private String                               bizVersion;
+    private String               bizVersion;
 
-    private BizState                             bizState;
+    private BizState             bizState;
 
-    private String                               mainClass;
+    private String               mainClass;
 
-    private String                               webContextPath;
+    private String               webContextPath;
 
-    private URL[]                                urls;
+    private URL[]                urls;
 
-    private URL[]                                pluginUrls;
+    private URL                  bizUrl;
 
-    private ClassLoader                          classLoader;
+    private URL[]                pluginUrls;
 
-    private Map<String, String>                  attributes                    = new ConcurrentHashMap<>();
+    private ClassLoader          classLoader;
 
-    private int                                  priority                      = DEFAULT_PRECEDENCE;
+    private Map<String, String>  attributes                    = new ConcurrentHashMap<>();
 
-    private Set<String>                          denyImportPackages;
+    private int                  priority                      = DEFAULT_PRECEDENCE;
 
-    private Set<String>                          denyImportPackageNodes        = new HashSet<>();
+    private Set<String>          denyImportPackages;
 
-    private Set<String>                          denyImportPackageStems        = new HashSet<>();
+    private Set<String>          denyImportPackageNodes        = new HashSet<>();
 
-    private Set<String>                          denyImportClasses;
+    private Set<String>          denyImportPackageStems        = new HashSet<>();
 
-    private Set<String>                          denyImportResources           = new HashSet<>();
+    private Set<String>          denyImportClasses;
 
-    private Set<String>                          injectPluginDependencies      = new HashSet<>();
-    private Set<String>                          injectExportPackages          = new HashSet<>();
+    private Set<String>          denyImportResources           = new HashSet<>();
 
-    private Set<String>                          declaredLibraries             = new LinkedHashSet<>();
-    private Map<String, Boolean>                 declaredCacheMap              = new ConcurrentHashMap<>();
+    private Set<String>          injectPluginDependencies      = new HashSet<>();
+    private Set<String>          injectExportPackages          = new HashSet<>();
 
-    private Set<String>                          denyPrefixImportResourceStems = new HashSet<>();
+    private Set<String>          declaredLibraries             = new LinkedHashSet<>();
+    private Map<String, Boolean> declaredCacheMap              = new ConcurrentHashMap<>();
 
-    private Set<String>                          denySuffixImportResourceStems = new HashSet<>();
+    private Set<String>          denyPrefixImportResourceStems = new HashSet<>();
 
-    private File                                 bizTempWorkDir;
+    private Set<String>          denySuffixImportResourceStems = new HashSet<>();
 
-    private CopyOnWriteArrayList<BizStateRecord> bizStateChangeLogs            = new CopyOnWriteArrayList<>();
+    private File                 bizTempWorkDir;
+
+    private List<BizStateRecord> bizStateRecords               = new CopyOnWriteArrayList<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -130,6 +137,11 @@ public class BizModel implements Biz {
 
     public BizModel setClassPath(URL[] urls) {
         this.urls = urls;
+        return this;
+    }
+
+    public BizModel setBizUrl(URL url) {
+        this.bizUrl = url;
         return this;
     }
 
@@ -202,7 +214,7 @@ public class BizModel implements Biz {
     }
 
     private void addStateChangeLog() {
-        bizStateChangeLogs.add(new BizStateRecord(new Date(), bizState));
+        bizStateRecords.add(new BizStateRecord(new Date(), bizState));
     }
 
     @Override
@@ -228,6 +240,11 @@ public class BizModel implements Biz {
     @Override
     public URL[] getClassPath() {
         return urls;
+    }
+
+    @Override
+    public URL getBizUrl() {
+        return bizUrl;
     }
 
     @Override
@@ -369,7 +386,7 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
-            deleteQuietly(bizTempWorkDir);
+            recycleBizTempWorkDir(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 ((AbstractClasspathClassLoader) classLoader).clearCache();
@@ -401,14 +418,15 @@ public class BizModel implements Biz {
     }
 
     @Override
-    public CopyOnWriteArrayList<BizStateRecord> getBizStateChangeLogs() {
-        return bizStateChangeLogs;
+    public List<BizStateRecord> getBizStateRecords() {
+        return bizStateRecords;
     }
 
     @Override
     public String toString() {
-        return "Ark Biz: " + getIdentity() + ", classloader: " + classLoader + ", current state: "
-               + bizState + ", history states: " + bizStateChangeLogs;
+        return "Ark Biz: " + getIdentity() + ",\n biz url: " + bizUrl + ",\n classloader: "
+               + classLoader + ",\n current state: " + bizState + ",\n history states: "
+               + bizStateRecords;
     }
 
     private void resetProperties() {
@@ -521,5 +539,57 @@ public class BizModel implements Biz {
             }
         }
         return false;
+    }
+
+    /**
+     * recycle biz temp work dir
+     *
+     * @param bizTempWorkDir
+     * @return
+     */
+    public static boolean recycleBizTempWorkDir(File bizTempWorkDir) {
+        if (bizTempWorkDir == null) {
+            return false;
+        }
+
+        if (bizTempWorkDir.isDirectory()) {
+            try {
+                String newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
+                File markedFile = new File(newPath);
+                if (!markedFile.exists()) {
+                    ArkLoggerFactory.getDefaultLogger().warn(
+                        String.format("when delete marked biz temp work dir %s, file not exists ",
+                            markedFile.getPath()));
+                    return false;
+                }
+
+                return deleteQuietly(markedFile);
+            } catch (IOException e) {
+                throw new ArkRuntimeException("mark and delete biz temp work dir error: "
+                                              + e.getMessage());
+            }
+
+        }
+
+        return deleteQuietly(bizTempWorkDir);
+    }
+
+    /**
+     * mark biz temp work dir is recycled
+     *
+     * @param bizTempWorkDir
+     * @return
+     * @throws IOException
+     */
+    private static String markBizTempWorkDirRecycled(File bizTempWorkDir) throws IOException {
+        String sourcePath = bizTempWorkDir.getAbsolutePath();
+        String targetPath = String.format("%s-%s-%s", sourcePath, System.currentTimeMillis(),
+            BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX);
+
+        Files.move(Paths.get(sourcePath), Paths.get(targetPath));
+        ArkLoggerFactory.getDefaultLogger().info(
+            String.format("move biz temp work dir from %s to %s", sourcePath, targetPath));
+
+        return targetPath;
     }
 }

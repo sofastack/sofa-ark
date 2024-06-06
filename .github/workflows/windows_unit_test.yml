@@ -9,8 +9,6 @@
 name: Test for windows
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -32,4 +30,6 @@ jobs:
         && sh ./check_format.sh
         && mvn test
     - name: Codecov
-      uses: codecov/codecov-action@v3.1.4
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}

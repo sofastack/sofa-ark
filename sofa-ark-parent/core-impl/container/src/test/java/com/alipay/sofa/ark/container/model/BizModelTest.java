@@ -20,16 +20,18 @@ import com.alipay.sofa.ark.spi.model.BizInfo.BizStateRecord;
 import com.alipay.sofa.ark.spi.model.BizState;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.alipay.sofa.ark.api.ArkConfigs.getStringValue;
+import static com.alipay.sofa.ark.api.ArkConfigs.init;
+import static java.util.Arrays.asList;
+import static org.apache.commons.io.FileUtils.touch;
+import static org.junit.Assert.*;
 
 public class BizModelTest {
 
@@ -56,7 +58,7 @@ public class BizModelTest {
         BizModel bizModel = new BizModel();
         bizModel.setBizName("biz1");
         bizModel.setBizVersion("0.0.1-SNAPSHOT");
-        CopyOnWriteArrayList<BizStateRecord> changeLogs = bizModel.getBizStateChangeLogs();
+        List<BizStateRecord> changeLogs = bizModel.getBizStateRecords();
 
         assertEquals(0, changeLogs.size());
 
@@ -64,26 +66,46 @@ public class BizModelTest {
         bizModel.setBizState(BizState.RESOLVED);
         bizModel.setClassLoader(this.getClass().getClassLoader());
         assertEquals(1, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
 
         // activate Biz
         bizModel.setBizState(BizState.ACTIVATED);
         assertEquals(2, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
-        assertTrue(bizModel.toString().contains("to activated"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
+        assertTrue(bizModel.toString().contains("-> activated"));
 
         // deactivate Biz
         bizModel.setBizState(BizState.DEACTIVATED);
         assertEquals(3, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
-        assertTrue(bizModel.toString().contains("to activated"));
-        assertTrue(bizModel.toString().contains("to deactivated"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
+        assertTrue(bizModel.toString().contains("-> activated"));
+        assertTrue(bizModel.toString().contains("-> deactivated"));
 
         bizModel.setBizState(BizState.UNRESOLVED);
         assertEquals(4, changeLogs.size());
-        assertTrue(bizModel.toString().contains("to resolved"));
-        assertTrue(bizModel.toString().contains("to activated"));
-        assertTrue(bizModel.toString().contains("to deactivated"));
-        assertTrue(bizModel.toString().contains("to unresolved"));
+        assertTrue(bizModel.toString().contains("-> resolved"));
+        assertTrue(bizModel.toString().contains("-> activated"));
+        assertTrue(bizModel.toString().contains("-> deactivated"));
+        assertTrue(bizModel.toString().contains("-> unresolved"));
+    }
+
+    @Test
+    public void testRecycleBizTempWorkDir() throws Throwable {
+        assertFalse(BizModel.recycleBizTempWorkDir(null));
+
+        File fileJar = new File("/tmp/" + System.currentTimeMillis() + ".jar");
+        touch(fileJar);
+
+        assertTrue(BizModel.recycleBizTempWorkDir(fileJar));
+        assertFalse(fileJar.exists());
+
+        File fileDir = new File("/tmp/" + System.currentTimeMillis() + "-test");
+        fileDir.mkdir();
+        File fileSubFile = new File(fileDir.getAbsolutePath() + "/subfile.jar");
+        touch(fileSubFile);
+
+        assertTrue(BizModel.recycleBizTempWorkDir(fileDir));
+        assertFalse(fileDir.exists());
+        assertFalse(fileSubFile.exists());
     }
 }

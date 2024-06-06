@@ -14,7 +14,7 @@
 
     <properties>
         <log4j.version>1.7.32</log4j.version>
-        <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
+        <log.sofa.starter.version>3.16.3</log.sofa.starter.version>
         <logback.version>1.2.13</logback.version>
 
         <guice.version>6.0.0</guice.version>
@@ -36,7 +36,7 @@
         <plexus.build.api.version>0.0.7</plexus.build.api.version>
         <plexus.component.annotations.version>2.1.1</plexus.component.annotations.version>
 
-        <eclipse.jgit.version>5.9.0.202009080501-r</eclipse.jgit.version>
+        <eclipse.jgit.version>5.13.3.202401111512-r</eclipse.jgit.version>
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
@@ -46,7 +46,7 @@
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
         <maven.plugin.plugin>3.6.1</maven.plugin.plugin>
         <surefire.version>2.22.2</surefire.version>
-        <netty.version>4.1.94.Final</netty.version>
+        <netty.version>4.1.109.Final</netty.version>
         <reactor-netty.version>0.9.19.RELEASE</reactor-netty.version>
         <spring.boot.version>2.7.14</spring.boot.version>
     </properties>
@@ -367,6 +367,12 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>2.14.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.1</version>
             </dependency>
 
         </dependencies>
