@@ -57,8 +57,12 @@ public class PackageBaseFacadeMojoTest {
         String baseRootAbsPath = CommonUtils.getResourceFile("baseRoot").getAbsolutePath();
         String commandForMavenInstall = "cd " + baseRootAbsPath
                                         + ";mvn clean install -Dmaven.test.skip=true";
-        RuntimeUtil.exec("/bin/sh", "-c", "-l", commandForMavenInstall);
-        System.out.println("execute success: " + commandForMavenInstall);
+        Process process = RuntimeUtil.exec("/bin/sh", "-c", "-l", commandForMavenInstall);
+        if (process.waitFor() == 0) {
+            System.out.println("execute success: " + commandForMavenInstall);
+        } else {
+            throw new Exception("execute failed: " + commandForMavenInstall);
+        }
 
         PackageBaseFacadeMojo mojo = new PackageBaseFacadeMojo();
         setPrivateField(PackageBaseFacadeMojo.class, mojo, "mavenProject", bootstrapProject);
