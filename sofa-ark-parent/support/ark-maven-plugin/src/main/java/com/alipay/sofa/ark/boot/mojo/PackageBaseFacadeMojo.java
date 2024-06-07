@@ -130,7 +130,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             String facadeArtifactId = artifactId;
             facadeRootDir = new File(baseDir, facadeArtifactId);
             if (facadeRootDir.exists()) {
-                deleteDirectory(facadeRootDir);
+                FileUtils.deleteQuietly(facadeRootDir);
             }
             if (!facadeRootDir.exists()) {
                 facadeRootDir.mkdirs();
@@ -288,7 +288,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         } finally {
             // 4. 清理
             if ("true".equals(cleanAfterPackage) && facadeRootDir != null) {
-                deleteDirectory(facadeRootDir);
+                FileUtils.deleteQuietly(facadeRootDir);
             }
         }
     }
@@ -305,20 +305,6 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             baseModuleArtifactIds.add(artifactId);
         }
         return baseModuleArtifactIds;
-    }
-
-    private boolean deleteDirectory(File path) {
-        if (path.exists()) {
-            File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
-                }
-            }
-        }
-        return (path.delete());
     }
 
     protected static List<File> getSupportedJVMFiles(File baseDir) {
