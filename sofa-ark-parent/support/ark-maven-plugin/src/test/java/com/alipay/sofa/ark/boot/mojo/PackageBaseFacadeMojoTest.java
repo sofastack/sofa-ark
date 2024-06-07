@@ -58,6 +58,7 @@ public class PackageBaseFacadeMojoTest {
         String commandForMavenInstall = "cd " + baseRootAbsPath
                                         + ";mvn clean install -Dmaven.test.skip=true";
         RuntimeUtil.exec("/bin/sh", "-c", "-l", commandForMavenInstall);
+        System.out.println("execute success: "+commandForMavenInstall);
 
         PackageBaseFacadeMojo mojo = new PackageBaseFacadeMojo();
 

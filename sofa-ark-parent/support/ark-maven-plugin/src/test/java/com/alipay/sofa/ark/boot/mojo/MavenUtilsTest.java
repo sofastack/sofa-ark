@@ -68,22 +68,22 @@ public class MavenUtilsTest {
         artifactItem.setArtifactId("spring-boot");
         artifactItem.setType("jar");
         artifactItem.setVersion("2.7.14");
-        artifactItem.setScope("provided");
+        artifactItem.setScope("compile");
         artifactItems.add(artifactItem);
         artifactItem = new ArtifactItem();
         artifactItem.setGroupId("org.springframework");
         artifactItem.setArtifactId("spring-jcl");
         artifactItem.setType("jar");
         artifactItem.setVersion("5.3.29");
-        artifactItem.setScope("provided");
+        artifactItem.setScope("compile");
         artifactItem.setClassifier("ark-biz");
         artifactItems.add(artifactItem);
 
         assertEquals(
             artifactItems,
             convert("[INFO] com.alipay.sofa:sofa-ark-springboot-starter:jar:2.2.4-SNAPSHOT\n"
-                    + "[INFO] +- org.springframework.boot:spring-boot:jar:2.7.14:provided\n"
-                    + "[INFO] |  |  \\- org.springframework:spring-jcl:jar:ark-biz:5.3.29:provided\n"
+                    + "[INFO] +- org.springframework.boot:spring-boot:jar:2.7.14:compile\n"
+                    + "[INFO] |  |  \\- org.springframework:spring-jcl:jar:ark-biz:5.3.29:compile\n"
                     + "[INFO] |  \\- org.springframework:spring-context:jar:5.3.29"));
     }
 }

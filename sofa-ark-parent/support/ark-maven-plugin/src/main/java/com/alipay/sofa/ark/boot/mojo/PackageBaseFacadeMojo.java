@@ -122,7 +122,7 @@ public class PackageBaseFacadeMojo extends TreeMojo {
                                                                                      .toList());
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         projectBuildingRequest = this.mavenProject.getProjectBuildingRequest();
         File facadeRootDir = null;
         try {
