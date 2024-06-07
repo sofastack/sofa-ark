@@ -293,9 +293,9 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         }
     }
 
-    private Set<String> getBaseModuleArtifactIds(){
+    private Set<String> getBaseModuleArtifactIds() {
         List<String> baseModules = getRootProject(this.mavenProject).getModel().getModules();
-        File basedir =getRootProject(this.mavenProject).getBasedir();
+        File basedir = getRootProject(this.mavenProject).getBasedir();
         Set<String> baseModuleArtifactIds = new HashSet<>();
         for (String module : baseModules) {
             String modulePath = new File(basedir, module).getAbsolutePath();

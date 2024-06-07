@@ -48,19 +48,22 @@ import static org.mockito.Mockito.mock;
 public class PackageBaseFacadeMojoTest {
     private MavenProject bootstrapProject = getMockBootstrapProject();
 
-    public PackageBaseFacadeMojoTest() throws URISyntaxException {}
+    public PackageBaseFacadeMojoTest() throws URISyntaxException {
+    }
 
     @Test
     public void testExecute() throws Exception {
 
         String baseRootAbsPath = CommonUtils.getResourceFile("baseRoot").getAbsolutePath();
-        String commandForMavenInstall = "cd " + baseRootAbsPath + ";mvn clean install -Dmaven.test.skip=true";
-        RuntimeUtil.exec("/bin/sh","-c","-l",commandForMavenInstall);
+        String commandForMavenInstall = "cd " + baseRootAbsPath
+                                        + ";mvn clean install -Dmaven.test.skip=true";
+        RuntimeUtil.exec("/bin/sh", "-c", "-l", commandForMavenInstall);
 
         PackageBaseFacadeMojo mojo = new PackageBaseFacadeMojo();
 
         setPrivateField(PackageBaseFacadeMojo.class, mojo, "mavenProject", bootstrapProject);
-        setPrivateField(PackageBaseFacadeMojo.class, mojo, "artifactId", "base-all-dependencies-facade");
+        setPrivateField(PackageBaseFacadeMojo.class, mojo, "artifactId",
+            "base-all-dependencies-facade");
         setPrivateField(PackageBaseFacadeMojo.class, mojo, "version", "1.0.0");
         setPrivateField(PackageBaseFacadeMojo.class, mojo, "baseDir", bootstrapProject.getBasedir());
         setPrivateField(PackageBaseFacadeMojo.class, mojo, "cleanAfterPackage", "true");
@@ -73,20 +76,23 @@ public class PackageBaseFacadeMojoTest {
         String oldMavenHome = System.getProperty("maven.home");
         try {
             String commandForMavenHome = "mvn --version | grep 'Maven home' |sed 's/^Maven home: //g'";
-            String mavenHome = RuntimeUtil.execForStr("/bin/sh","-c","-l",commandForMavenHome).trim();
-            System.setProperty( "maven.home" ,mavenHome);
+            String mavenHome = RuntimeUtil.execForStr("/bin/sh", "-c", "-l", commandForMavenHome)
+                .trim();
+            System.setProperty("maven.home", mavenHome);
             mojo.execute();
-            assertTrue(CommonUtils.resourceExists("baseRoot/base-bootstrap/outputs/base-all-dependencies-facade-1.0.0.jar"));
-        }finally {
-            if(null == oldMavenHome){
+            assertTrue(CommonUtils
+                .resourceExists("baseRoot/base-bootstrap/outputs/base-all-dependencies-facade-1.0.0.jar"));
+        } finally {
+            if (null == oldMavenHome) {
                 System.clearProperty("maven.home");
-            }else {
-                System.setProperty("maven.home",oldMavenHome);
+            } else {
+                System.setProperty("maven.home", oldMavenHome);
             }
         }
     }
 
-    private void setPrivateField(Class clazz,Object instance,String fieldName,Object value) throws Exception {
+    private void setPrivateField(Class clazz, Object instance, String fieldName, Object value)
+                                                                                              throws Exception {
         Field field = clazz.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(instance, value);
@@ -94,42 +100,60 @@ public class PackageBaseFacadeMojoTest {
 
     @Test
     public void testGetSupportedJVMFiles() throws URISyntaxException {
-        List<File> files = PackageBaseFacadeMojo.getSupportedJVMFiles(CommonUtils.getResourceFile("baseRoot"));
+        List<File> files = PackageBaseFacadeMojo.getSupportedJVMFiles(CommonUtils
+            .getResourceFile("baseRoot"));
         assertEquals(3, files.size());
     }
 
     @Test
     public void testParseFullClassName() throws URISyntaxException {
-        assertEquals("com.mock.base.bootstrap.BootstrapModel",JAVA.parseFullClassName(CommonUtils.getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
-        assertEquals("com.mock.base.facade.ModuleDescriptionInfo",KOTLIN.parseFullClassName(CommonUtils.getResourceFile("baseRoot/base-facade/src/main/kotlin/com/mock/base/facade/ModuleDescriptionInfo.kt")));
+        assertEquals(
+            "com.mock.base.bootstrap.BootstrapModel",
+            JAVA.parseFullClassName(CommonUtils
+                .getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
+        assertEquals(
+            "com.mock.base.facade.ModuleDescriptionInfo",
+            KOTLIN.parseFullClassName(CommonUtils
+                .getResourceFile("baseRoot/base-facade/src/main/kotlin/com/mock/base/facade/ModuleDescriptionInfo.kt")));
     }
 
     @Test
     public void testMatches() throws URISyntaxException {
-        assertTrue(JAVA.matches(CommonUtils.getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
-        assertTrue(KOTLIN.matches(CommonUtils.getResourceFile("baseRoot/base-facade/src/main/kotlin/com/mock/base/facade/ModuleDescriptionInfo.kt")));
+        assertTrue(JAVA
+            .matches(CommonUtils
+                .getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
+        assertTrue(KOTLIN
+            .matches(CommonUtils
+                .getResourceFile("baseRoot/base-facade/src/main/kotlin/com/mock/base/facade/ModuleDescriptionInfo.kt")));
 
-        assertFalse(KOTLIN.matches(CommonUtils.getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
-        assertFalse(JAVA.matches(CommonUtils.getResourceFile("baseRoot/base-bootstrap/src/main/resources/BootstrapModel.java")));
+        assertFalse(KOTLIN
+            .matches(CommonUtils
+                .getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
+        assertFalse(JAVA.matches(CommonUtils
+            .getResourceFile("baseRoot/base-bootstrap/src/main/resources/BootstrapModel.java")));
     }
 
     @Test
     public void testParseRelativePath() throws URISyntaxException {
-        assertEquals("src/main/java/com/mock/base/bootstrap/BootstrapModel.java",JAVA.parseRelativePath(CommonUtils.getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
-        assertNull(KOTLIN.parseRelativePath(CommonUtils.getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
+        assertEquals(
+            "src/main/java/com/mock/base/bootstrap/BootstrapModel.java",
+            JAVA.parseRelativePath(CommonUtils
+                .getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
+        assertNull(KOTLIN
+            .parseRelativePath(CommonUtils
+                .getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
     }
 
     @Test
-    public void testGetBaseModuleArtifactIds()
-            throws Exception {
+    public void testGetBaseModuleArtifactIds() throws Exception {
         PackageBaseFacadeMojo mojo = new PackageBaseFacadeMojo();
         Field field = PackageBaseFacadeMojo.class.getDeclaredField("mavenProject");
         field.setAccessible(true);
-        field.set(mojo,bootstrapProject);
+        field.set(mojo, bootstrapProject);
 
         Method method = PackageBaseFacadeMojo.class.getDeclaredMethod("getBaseModuleArtifactIds");
         method.setAccessible(true);
-        Set<String> moduleArtifactIds =  (Set<String>) method.invoke(mojo);
+        Set<String> moduleArtifactIds = (Set<String>) method.invoke(mojo);
 
         assertTrue(moduleArtifactIds.contains("base-bootstrap"));
         assertTrue(moduleArtifactIds.contains("base-facade"));
