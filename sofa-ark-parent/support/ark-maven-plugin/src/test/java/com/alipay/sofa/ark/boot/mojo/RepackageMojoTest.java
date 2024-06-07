@@ -252,7 +252,7 @@ public class RepackageMojoTest {
 
         Field baseDirField = RepackageMojo.class.getDeclaredField("baseDir");
         baseDirField.setAccessible(true);
-        baseDirField.set(repackageMojo, getResourceFile("baseDir"));
+        baseDirField.set(repackageMojo, CommonUtils.getResourceFile("baseRoot/base-bootstrap"));
 
         Field excludesField = RepackageMojo.class.getDeclaredField("excludes");
         excludesField.setAccessible(true);
@@ -279,11 +279,6 @@ public class RepackageMojoTest {
         assertTrue(excludes.contains("commons-beanutils:commons-beanutils-yml"));
         assertTrue(excludeGroupIds.contains("org.springframework-yml"));
         assertTrue(excludeArtifactIds.contains("sofa-ark-spi-yml"));
-    }
-
-    private File getResourceFile(String resourceName) throws URISyntaxException {
-        URL url = this.getClass().getClassLoader().getResource(resourceName);
-        return new File(url.toURI());
     }
 
     @Test

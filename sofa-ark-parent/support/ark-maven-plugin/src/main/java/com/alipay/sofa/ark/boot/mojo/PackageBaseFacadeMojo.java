@@ -21,21 +21,45 @@ import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.plugins.dependency.tree.TreeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.shared.invoker.*;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.buildPomModel;
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getRootProject;
+import static com.alipay.sofa.ark.boot.mojo.PackageBaseFacadeMojo.JVMFileTypeEnum.JAVA;
+import static com.alipay.sofa.ark.boot.mojo.PackageBaseFacadeMojo.JVMFileTypeEnum.KOTLIN;
 
 /**
  * compile and package base to a facade jar, as a dependency for non-master biz
@@ -47,13 +71,13 @@ import java.util.stream.Stream;
 public class PackageBaseFacadeMojo extends TreeMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject           mavenProject;
+    private MavenProject                       mavenProject;
 
     @Component
-    private MavenSession           mavenSession;
+    private MavenSession                       mavenSession;
 
     @Parameter(defaultValue = "${project.basedir}", required = true)
-    private File                   baseDir;
+    private File                               baseDir;
 
     /**
      * ark biz version
@@ -61,36 +85,41 @@ public class PackageBaseFacadeMojo extends TreeMojo {
      * @since 0.4.0
      */
     @Parameter(defaultValue = "${project.version}")
-    private String                 version;
+    private String                             version;
 
     @Parameter(defaultValue = "artifact")
-    private String                 artifactId;
+    private String                             artifactId;
 
     @Parameter(defaultValue = "${project.groupId}", required = true)
-    private String                 groupId;
+    private String                             groupId;
 
     /**
      * mvn command user properties
      */
-    private ProjectBuildingRequest projectBuildingRequest;
+    private ProjectBuildingRequest             projectBuildingRequest;
 
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  javaFiles          = new LinkedHashSet<>();
+    private LinkedHashSet<String>              javaFiles                 = new LinkedHashSet<>();
 
     @Parameter(defaultValue = "true")
-    private String                 cleanAfterPackage;
+    private String                             cleanAfterPackage;
 
     /**
      * list of groupId names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  excludeGroupIds    = new LinkedHashSet<>();
+    private LinkedHashSet<String>              excludeGroupIds           = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
-    private LinkedHashSet<String>  excludeArtifactIds = new LinkedHashSet<>();
+    private LinkedHashSet<String>              excludeArtifactIds        = new LinkedHashSet<>();
+
+    private static final List<JVMFileTypeEnum> SUPPORT_FILE_TYPE_TO_COPY = Stream.of(JAVA, KOTLIN)
+                                                                             .collect(
+                                                                                 Collectors
+                                                                                     .toList());
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -106,21 +135,16 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             if (!facadeRootDir.exists()) {
                 facadeRootDir.mkdirs();
             }
-            File facadeJavaDir = new File(facadeRootDir, "src/main/java");
-            if (!facadeJavaDir.exists()) {
-                facadeJavaDir.mkdirs();
-            }
+
             File facadePom = new File(facadeRootDir, "pom.xml");
             if (!facadePom.exists()) {
                 facadePom.createNewFile();
             }
             getLog().info("create base facade directory success." + facadeRootDir.getAbsolutePath());
 
-            //1. 复制指定的java文件到该module
-            List<File> allJavaFiles = new LinkedList<>();
-            getJavaFiles(mavenProject.getParent().getBasedir(), allJavaFiles);
-            copyFiles(allJavaFiles, facadeJavaDir, javaFiles);
-            getLog().info("copy java files success.");
+            //1. 复制指定的jvm文件到该module
+            copyMatchedJVMFiles(facadeRootDir);
+            getLog().info("copy supported jvm files success.");
 
             // 2. 解析所有依赖，写入pom
             // 把所有依赖找到，平铺写到pom (同时排掉指定的依赖, 以及基座的子module)
@@ -191,6 +215,31 @@ public class PackageBaseFacadeMojo extends TreeMojo {
             pomWriter.write("</configuration>\n");
             pomWriter.write("</plugin>\n");
 
+            // kotlin-maven-plugin
+            pomWriter.write("<plugin>\n");
+            pomWriter.write("<groupId>org.jetbrains.kotlin</groupId>\n");
+            pomWriter.write("<artifactId>kotlin-maven-plugin</artifactId>\n");
+            pomWriter.write("<version>1.8.10</version>\n");
+            pomWriter.write("<configuration>\n");
+            pomWriter.write("<jvmTarget>1.8</jvmTarget>\n");
+            pomWriter.write("</configuration>\n");
+            pomWriter.write("<executions>\n");
+            pomWriter.write("<execution>\n");
+            pomWriter.write("<id>compile</id>\n");
+            pomWriter.write("<phase>process-sources</phase>\n");
+            pomWriter.write("<goals>\n");
+            pomWriter.write("<goal>compile</goal>\n");
+            pomWriter.write("</goals>\n");
+            pomWriter.write("<configuration>\n");
+            pomWriter.write("<sourceDirs>\n");
+            pomWriter.write("<sourceDir>src/main/kotlin</sourceDir>\n");
+            pomWriter.write("<sourceDir>src/main/java</sourceDir>\n");
+            pomWriter.write("</sourceDirs>\n");
+            pomWriter.write("</configuration>\n");
+            pomWriter.write("</execution>\n");
+            pomWriter.write("</executions>\n");
+            pomWriter.write("</plugin>\n");
+
             pomWriter.write("</plugins>\n");
             pomWriter.write("</build>\n");
 
@@ -244,40 +293,18 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         }
     }
 
-    private Set<String> getBaseModuleArtifactIds() throws IOException, InterruptedException {
-        List<String> baseModules = this.mavenProject.getParent().getModel().getModules();
-        File basedir = mavenProject.getParent().getBasedir();
+    private Set<String> getBaseModuleArtifactIds(){
+        List<String> baseModules = getRootProject(this.mavenProject).getModel().getModules();
+        File basedir =getRootProject(this.mavenProject).getBasedir();
         Set<String> baseModuleArtifactIds = new HashSet<>();
         for (String module : baseModules) {
-            String pomPath = new File(basedir, module).getAbsolutePath();
-            String artifactId = getArtifactIdFromPom(pomPath);
+            String modulePath = new File(basedir, module).getAbsolutePath();
+            Model modulePom = buildPomModel(modulePath + File.separator + "pom.xml");
+            String artifactId = modulePom.getArtifactId();
             getLog().info("find maven module of base: " + artifactId);
             baseModuleArtifactIds.add(artifactId);
         }
         return baseModuleArtifactIds;
-    }
-
-    private static String getArtifactIdFromPom(String pomFilePath) throws IOException,
-                                                                  InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("mvn", "help:evaluate", "-Dexpression=project.artifactId", "-q",
-            "-DforceStdout", "-f", pomFilePath);
-
-        Process process = processBuilder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-        String line;
-        StringBuilder output = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-        }
-
-        int exitCode = process.waitFor();
-        if (exitCode == 0) {
-            return output.toString().trim();
-        } else {
-            throw new IOException("Failed to get artifactId from pom.xml");
-        }
     }
 
     private boolean deleteDirectory(File path) {
@@ -294,63 +321,65 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         return (path.delete());
     }
 
-    private static void getJavaFiles(File baseDir, List<File> allJavaFiles) {
-        File[] files = baseDir.listFiles();
+    protected static List<File> getSupportedJVMFiles(File baseDir) {
+        List<File> supportedJVMFiles = new ArrayList<>();
+        getSupportedJVMFiles(baseDir, supportedJVMFiles);
+        return supportedJVMFiles;
+    }
 
+    private static void getSupportedJVMFiles(File baseDir, List<File> supportedJVMFiles) {
+        File[] files = baseDir.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
-                getJavaFiles(file, allJavaFiles);
-            } else if (file.getName().endsWith(".java")) {
-                allJavaFiles.add(file);
+                getSupportedJVMFiles(file, supportedJVMFiles);
+            } else if (null != getMatchedType(file)) {
+                supportedJVMFiles.add(file);
             }
         }
     }
 
-    public void copyFiles(List<File> allJavaFiles, File targetDir, Set<String> patterns)
-                                                                                        throws IOException {
-        for (File file : allJavaFiles) {
-            File newFile;
-            if ((newFile = shouldCopy(targetDir, file, patterns)) != null) {
+    private void copyMatchedJVMFiles(File targetRoot) throws IOException {
+        List<File> allSupportedJVMFiles = getSupportedJVMFiles(getRootProject(this.mavenProject)
+            .getBasedir());
+
+        for (File file : allSupportedJVMFiles) {
+            JVMFileTypeEnum type = getMatchedType(file);
+            String fullClassName = type.parseFullClassName(file);
+            if (shouldCopy(fullClassName)) {
+                File newFile = new File(targetRoot.getAbsolutePath() + File.separator
+                                        + type.parseRelativePath(file));
                 if (!newFile.getParentFile().exists()) {
                     newFile.getParentFile().mkdirs();
                 }
+
                 Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 getLog().info(
-                    "copy java from " + file.getAbsolutePath() + " to " + newFile.getAbsolutePath()
+                    "copy file from " + file.getAbsolutePath() + " to " + newFile.getAbsolutePath()
                             + " success.");
             }
         }
     }
 
-    private static File shouldCopy(File newDir, File file, Set<String> javaFiles) {
-        String fileAbsPath = file.getAbsolutePath();
-        if (!fileAbsPath.endsWith(".java")) {
-            return null;
-        }
-        String s = "src/main/java/";
-        if (!fileAbsPath.contains(s)) {
-            return null;
-        }
-        if (fileAbsPath.indexOf(s) != fileAbsPath.lastIndexOf(s)) {
-            return null;
-        }
-        fileAbsPath = fileAbsPath.substring(0, fileAbsPath.indexOf(".java"));
-        fileAbsPath = fileAbsPath.substring(fileAbsPath.lastIndexOf(s) + s.length());
-        String javaName = fileAbsPath.replace('/', '.');
-        for (String pattern : javaFiles) {
-            if (pattern.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                pattern = StringUtils.removeEnd(pattern, Constants.PACKAGE_PREFIX_MARK);
-                if (javaName.startsWith(pattern)) {
-                    System.out.println(javaName);
-                    return new File(newDir, file.getAbsolutePath().substring(
-                        file.getAbsolutePath().indexOf(s) + s.length()));
+    private boolean shouldCopy(String fullClassName) {
+        for (String classPattern : javaFiles) {
+            if (classPattern.equals(fullClassName)) {
+                return true;
+            }
+
+            if (classPattern.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                classPattern = StringUtils.removeEnd(classPattern, Constants.PACKAGE_PREFIX_MARK);
+                if (fullClassName.startsWith(classPattern)) {
+                    return true;
                 }
-            } else {
-                if (pattern.equals(javaName)) {
-                    System.out.println(javaName);
-                    return new File(newDir, file.getAbsolutePath().substring(
-                        file.getAbsolutePath().indexOf(s) + s.length()));
-                }
+            }
+        }
+        return false;
+    }
+
+    private static JVMFileTypeEnum getMatchedType(File file) {
+        for (JVMFileTypeEnum type : SUPPORT_FILE_TYPE_TO_COPY) {
+            if (type.matches(file)) {
+                return type;
             }
         }
         return null;
@@ -451,5 +480,48 @@ public class PackageBaseFacadeMojo extends TreeMojo {
         }
 
         return false;
+    }
+
+    enum JVMFileTypeEnum {
+        JAVA("java", ".java", StringUtils.join(new String[] { "src", "main", "java" },
+            File.separator) + File.separator), KOTLIN("kotlin", ".kt", StringUtils.join(
+            new String[] { "src", "main", "kotlin" }, File.separator) + File.separator);
+
+        private String name;
+        private String suffix;
+        private String parentRootDir;
+
+        JVMFileTypeEnum(String name, String suffix, String parentRootDir) {
+            this.name = name;
+            this.suffix = suffix;
+            this.parentRootDir = parentRootDir;
+        }
+
+        public boolean matches(File file) {
+            String absPath = file.getAbsolutePath();
+            boolean inParentRootDir = absPath.contains(parentRootDir);
+            boolean onlyOneParentRootDir = absPath.indexOf(parentRootDir) == absPath
+                .lastIndexOf(parentRootDir);
+            boolean matchedType = absPath.endsWith(suffix);
+            return inParentRootDir && onlyOneParentRootDir && matchedType;
+        }
+
+        public String parseFullClassName(File file) {
+            if (!matches(file)) {
+                return null;
+            }
+            String absPath = file.getAbsolutePath();
+            return StringUtils
+                .removeEnd(StringUtils.substringAfter(absPath, parentRootDir), suffix).replace(
+                    File.separator, ".");
+        }
+
+        public String parseRelativePath(File file) {
+            if (!matches(file)) {
+                return null;
+            }
+            String absPath = file.getAbsolutePath();
+            return parentRootDir + StringUtils.substringAfter(absPath, parentRootDir);
+        }
     }
 }
