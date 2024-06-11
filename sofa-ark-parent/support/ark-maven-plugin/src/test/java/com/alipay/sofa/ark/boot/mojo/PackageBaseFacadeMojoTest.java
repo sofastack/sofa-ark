@@ -16,13 +16,9 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import cn.hutool.core.util.RuntimeUtil;
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenSession;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Settings;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,8 +34,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -140,7 +134,7 @@ public class PackageBaseFacadeMojoTest {
     @Test
     public void testParseRelativePath() throws URISyntaxException {
         assertEquals(
-            "src/main/java/com/mock/base/bootstrap/BootstrapModel.java",
+                StringUtils.join(new String[] { "src", "main", "java","com", "mock", "base", "bootstrap", "BootstrapModel.java"}, File.separator),
             JAVA.parseRelativePath(CommonUtils
                 .getResourceFile("baseRoot/base-bootstrap/src/main/java/com/mock/base/bootstrap/BootstrapModel.java")));
         assertNull(KOTLIN
