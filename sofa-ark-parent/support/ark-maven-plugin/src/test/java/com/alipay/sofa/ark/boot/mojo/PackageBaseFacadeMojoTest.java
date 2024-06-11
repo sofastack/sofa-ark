@@ -50,7 +50,8 @@ public class PackageBaseFacadeMojoTest {
     public void testExecute() throws Exception {
 
         String baseRootAbsPath = CommonUtils.getResourceFile("baseRoot").getAbsolutePath();
-        String commandForMavenInstall = "cd " + baseRootAbsPath;
+        String commandForMavenInstall = "cd " + baseRootAbsPath
+                                        + ";mvn clean install -Dmaven.test.skip=true";
         Process process = RuntimeUtil.exec("/bin/sh", "-c", "-l", commandForMavenInstall);
         if (process.waitFor() == 0) {
             System.out.println("execute success: " + commandForMavenInstall);
