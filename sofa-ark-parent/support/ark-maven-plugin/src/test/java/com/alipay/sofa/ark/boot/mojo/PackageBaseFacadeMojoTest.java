@@ -53,16 +53,17 @@ public class PackageBaseFacadeMojoTest {
         String commandForMavenInstall = "cd " + baseRootAbsPath
                                         + ";mvn clean install -Dmaven.test.skip=true";
         Process process = RuntimeUtil.exec("/bin/sh", "-c", "-l", commandForMavenInstall);
-        if (process.waitFor() == 0) {
-            System.out.println("execute success: " + commandForMavenInstall);
-        } else {
-            throw new Exception("execute failed: " + commandForMavenInstall);
-        }
 
         String commandForMavenHome = "mvn --version | grep 'Maven home' |sed 's/^Maven home: //g'";
         String mavenHome = RuntimeUtil.execForStr("/bin/sh", "-c", "-l", commandForMavenHome)
             .trim();
         System.out.println("mavenHome: " + mavenHome);
+
+        if (process.waitFor() == 0) {
+            System.out.println("execute success: " + commandForMavenInstall);
+        } else {
+            throw new Exception("execute failed: " + commandForMavenInstall);
+        }
 
         //String baseRootAbsPath = CommonUtils.getResourceFile("baseRoot").getAbsolutePath();
         //String commandForMavenInstall = "cd " + baseRootAbsPath
