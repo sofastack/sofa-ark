@@ -58,6 +58,11 @@ public class PackageBaseFacadeMojoTest {
             throw new Exception("execute failed: " + commandForMavenInstall);
         }
 
+        String commandForMavenHome = "mvn --version | grep 'Maven home' |sed 's/^Maven home: //g'";
+        String mavenHome = RuntimeUtil.execForStr("/bin/sh", "-c", "-l", commandForMavenHome)
+            .trim();
+        System.out.println("mavenHome: " + mavenHome);
+
         //String baseRootAbsPath = CommonUtils.getResourceFile("baseRoot").getAbsolutePath();
         //String commandForMavenInstall = "cd " + baseRootAbsPath
         //                                + ";mvn clean install -Dmaven.test.skip=true";
