@@ -56,7 +56,7 @@ import static com.alipay.sofa.ark.api.ResponseCode.REPEAT_BIZ;
 import static com.alipay.sofa.ark.api.ResponseCode.SUCCESS;
 import static com.alipay.sofa.ark.common.util.FileUtils.copyInputStreamToFile;
 import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_NEW_MODULE;
-import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_BIZ_URL;
 import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.CHECK;
@@ -290,6 +290,7 @@ public class ArkClientTest extends BaseTest {
         try {
             setBizFactoryService(bizFactoryServiceMock);
             setBizManagerService(bizManagerServiceMock);
+            doThrow(new Exception()).when(biz).stop();
 
             installBiz(bizFile, null);
             assertTrue(false);
@@ -302,7 +303,7 @@ public class ArkClientTest extends BaseTest {
 
         // case2: set AUTO_UNINSTALL_ENABLE=false
         try {
-            ArkConfigs.putStringValue(AUTO_UNINSTALL_ENABLE, "false");
+            ArkConfigs.putStringValue(AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "false");
             setBizFactoryService(bizFactoryServiceMock);
             setBizManagerService(bizManagerServiceMock);
 
@@ -313,7 +314,7 @@ public class ArkClientTest extends BaseTest {
             setBizFactoryService(bizFactoryService);
             setBizManagerService(bizManagerService);
         } finally {
-            ArkConfigs.putStringValue(AUTO_UNINSTALL_ENABLE, "true");
+            ArkConfigs.putStringValue(AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true");
         }
     }
 
