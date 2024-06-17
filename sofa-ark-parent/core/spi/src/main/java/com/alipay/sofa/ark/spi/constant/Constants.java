@@ -198,6 +198,8 @@ public class Constants {
     public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
+    public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
+
     /**
      * Command Provider
      */
