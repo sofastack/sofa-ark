@@ -282,7 +282,7 @@ public class ArkPluginMojo extends AbstractMojo {
     protected void addArkPluginArtifact(Archiver archiver, Set<Artifact> dependencies,
                                         Set<Artifact> conflicts) {
         for (Artifact artifact : dependencies) {
-            if (Repackager.isZip(artifact.getFile()) && !isShadeJar(artifact)) {
+            if (Repackager.isZip(artifact.getFile())) {
                 addArtifact(archiver, artifact, conflicts.contains(artifact));
             }
         }
