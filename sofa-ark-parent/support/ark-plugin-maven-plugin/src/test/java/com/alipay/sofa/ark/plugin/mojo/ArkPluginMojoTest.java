@@ -103,20 +103,24 @@ public class ArkPluginMojoTest {
         artifacts.add(new DefaultArtifact("groupyxx", "art1", "version", "provided", "jar", "17",
             new DefaultArtifactHandler()));
 
-        defaultArtifact = new DefaultArtifact("a", "b", "c", "compile", "jar", null,
-            new DefaultArtifactHandler());
-        defaultArtifact.setFile(new File("src/test/resources/test-demo.jar"));
-        artifacts.add(defaultArtifact);
+        DefaultArtifact shadeArtifact = new DefaultArtifact("shadeGroup", "shadeArtifact",
+            "shadeVersion", "provided", "jar", "shadeClassifier", new DefaultArtifactHandler());
+        shadeArtifact.setFile(new File("src/test/resources/test-demo.jar"));
+        artifacts.add(shadeArtifact);
+
+        DefaultArtifact projectArtifact = new DefaultArtifact("a", "b", "c", "compile", "jar",
+            null, new DefaultArtifactHandler());
+        projectArtifact.setFile(new File("src/test/resources/test-demo.jar"));
 
         Build build = new Build();
         build.setOutputDirectory("./notexist");
         MavenProject mavenProject = mock(MavenProject.class);
         when(mavenProject.getArtifacts()).thenReturn(artifacts);
-        when(mavenProject.getArtifact()).thenReturn(defaultArtifact);
+        when(mavenProject.getArtifact()).thenReturn(projectArtifact);
         when(mavenProject.getBuild()).thenReturn(build);
         arkPluginMojo.setProject(mavenProject);
         arkPluginMojo.setShades(new LinkedHashSet<>(Collections
-            .singleton("com.alipay.sofa:test-demo:1.0.0")));
+            .singleton("shadeGroup:shadeArtifact:shadeVersion:shadeClassifier")));
 
         field = ArkPluginMojo.class.getDeclaredField("attach");
         field.setAccessible(true);
@@ -131,7 +135,7 @@ public class ArkPluginMojoTest {
         arkPluginMojo.workDirectory = new File("./");
         arkPluginMojo.exportPluginClass = true;
         arkPluginMojo.execute();
-        assertEquals(6, finalResourcesCountInJar.get());
+        assertEquals(4, finalResourcesCountInJar.get());
     }
 
     @Test
@@ -162,4 +166,5 @@ public class ArkPluginMojoTest {
         assertEquals("c,d", properties.getProperty("import-resources"));
         assertEquals("", properties.getProperty("import-packages"));
     }
+
 }
