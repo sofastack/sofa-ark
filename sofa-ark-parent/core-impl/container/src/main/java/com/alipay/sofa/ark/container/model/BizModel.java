@@ -553,8 +553,9 @@ public class BizModel implements Biz {
         }
 
         if (bizTempWorkDir.isDirectory()) {
+            String newPath = "";
             try {
-                String newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
+                newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
                 File markedFile = new File(newPath);
                 if (!markedFile.exists()) {
                     ArkLoggerFactory.getDefaultLogger().warn(
@@ -565,8 +566,9 @@ public class BizModel implements Biz {
 
                 return deleteQuietly(markedFile);
             } catch (IOException e) {
-                throw new ArkRuntimeException("mark and delete biz temp work dir error: "
-                                              + e.getMessage());
+                ArkLoggerFactory.getDefaultLogger().warn(
+                    "mark and delete biz temp work dir error:" + e.getMessage());
+                return false;
             }
 
         }
