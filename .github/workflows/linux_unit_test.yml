@@ -4,6 +4,8 @@
 name: Test for linux
 
 on:
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
