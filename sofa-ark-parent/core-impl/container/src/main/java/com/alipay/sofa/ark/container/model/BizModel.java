@@ -386,6 +386,15 @@ public class BizModel implements Biz {
             denyImportPackages = null;
             denyImportClasses = null;
             denyImportResources = null;
+            // close classloader
+            if (classLoader instanceof AbstractClasspathClassLoader) {
+                try {
+                    ((AbstractClasspathClassLoader) classLoader).close();
+                } catch (IOException e) {
+                    ArkLoggerFactory.getDefaultLogger().warn(
+                        "Ark biz {} close biz classloader fail", getIdentity());
+                }
+            }
             recycleBizTempWorkDir(bizTempWorkDir);
             bizTempWorkDir = null;
             if (classLoader instanceof AbstractClasspathClassLoader) {
