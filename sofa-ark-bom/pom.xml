@@ -19,7 +19,7 @@
         <logback.version>1.4.14</logback.version>
 
         <guice.version>6.0.0</guice.version>
-        <asm.version>9.4</asm.version>
+        <asm.version>9.7</asm.version>
         <commons.io.version>2.7</commons.io.version>
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
