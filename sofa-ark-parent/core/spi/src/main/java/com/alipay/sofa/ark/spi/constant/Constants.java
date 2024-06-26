@@ -196,6 +196,8 @@ public class Constants {
     public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
     public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
     public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
+
+    public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
     public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
@@ -212,6 +214,8 @@ public class Constants {
     public final static String       EXTENSION_FILE_DIR                            = "META-INF/services/sofa-ark/";
     public final static String       PLUGIN_CLASS_LOADER_HOOK                      = "plugin-classloader-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK                         = "biz-classloader-hook";
+
+    public final static String       BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK           = "before-embed-static-deploy-biz-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK_DIR                     = "com.alipay.sofa.ark.biz.classloader.hook.dir";
     public final static String       BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX         = "deleted";
 
@@ -219,6 +223,8 @@ public class Constants {
      * Multiply biz name
      */
     public final static String       MASTER_BIZ                                    = "com.alipay.sofa.ark.master.biz";
+
+    public final static String       SOFA_ARK_MODULE                               = "SOFA-ARK/biz/";
 
     /**
      * Config Server

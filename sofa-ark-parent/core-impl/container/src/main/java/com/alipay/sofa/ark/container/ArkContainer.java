@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher.ClassPathArchive;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
@@ -36,17 +37,14 @@ import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
+import com.alipay.sofa.ark.spi.service.biz.BeforeEmbedStaticDeployBizHook;
+import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
-import com.alipay.sofa.common.log.env.LogEnvUtils;
-import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
 import com.alipay.sofa.common.utils.ReportUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
+import static com.alipay.sofa.ark.spi.constant.Constants.BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK;
 import static com.alipay.sofa.common.log.Constants.LOGGING_PATH_DEFAULT;
 import static com.alipay.sofa.common.log.Constants.LOG_CONFIG_PREFIX;
 import static com.alipay.sofa.common.log.Constants.LOG_ENCODING_PROP_KEY;
@@ -73,21 +72,23 @@ import static com.alipay.sofa.common.log.Constants.UTF8_STR;
  */
 public class ArkContainer {
 
-    private ArkServiceContainer arkServiceContainer;
+    private ArkServiceContainer            arkServiceContainer;
 
-    private PipelineContext     pipelineContext;
+    private PipelineContext                pipelineContext;
 
-    private AtomicBoolean       started           = new AtomicBoolean(false);
+    private AtomicBoolean                  started           = new AtomicBoolean(false);
 
-    private AtomicBoolean       stopped           = new AtomicBoolean(false);
+    private AtomicBoolean                  stopped           = new AtomicBoolean(false);
 
-    private long                start             = System.currentTimeMillis();
+    private long                           start             = System.currentTimeMillis();
+
+    private BeforeEmbedStaticDeployBizHook beforeEmbedStaticDeployBizHook;
 
     /**
      * -Aclasspath or -Ajar is needed at lease. it specify the abstract executable ark archive,
      * default added by container itself
      */
-    private static final int    MINIMUM_ARGS_SIZE = 1;
+    private static final int               MINIMUM_ARGS_SIZE = 1;
 
     public static Object main(String[] args) throws ArkRuntimeException {
         if (args.length < MINIMUM_ARGS_SIZE) {
@@ -167,6 +168,13 @@ public class ArkContainer {
         HandleArchiveStage handleArchiveStage = ArkServiceContainerHolder.getContainer()
             .getService(HandleArchiveStage.class);
         handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
+
+        // execute beforeEmbedStaticDeployBizHook
+        beforeEmbedStaticDeployBizHook = ArkServiceLoader.loadExtensionFromArkBiz(
+            BeforeEmbedStaticDeployBizHook.class, BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK, ArkClient
+                .getMasterBiz().getIdentity());
+        beforeEmbedStaticDeployBizHook.beforeStaticDeploy(handleArchiveStage, pipelineContext);
+
         // start up
         DeployBizStage deployBizStage = ArkServiceContainerHolder.getContainer().getService(
             DeployBizStage.class);

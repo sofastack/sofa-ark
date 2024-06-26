@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.loader;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -25,6 +27,7 @@ import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.SOFA_ARK_MODULE;
 
 /**
  * A embed classpath archive base on an application fat jar
@@ -62,6 +67,65 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
 
     @Override
     public List<BizArchive> getBizArchives() throws Exception {
+        // Scan all biz in lib
+        List<BizArchive> archives = getBizArchivesFromLib();
+
+        // Scan all biz in resources
+        if (ArkConfigs.isEmbedStaticBizInResourceEnable()) {
+            archives.addAll(getBizArchiveFromResources());
+        }
+        return archives;
+
+    }
+
+    private List<BizArchive> getBizArchiveFromResources() throws Exception {
+        List<BizArchive> archives = new ArrayList<>();
+        URL bizDirURL = ArkClient.getMasterBiz().getBizClassLoader().getResource(SOFA_ARK_MODULE);
+        if (null == bizDirURL) {
+            return archives;
+        }
+
+        if (bizDirURL.getProtocol().equals("file")) {
+            return getBizArchiveFromFileStrategy(bizDirURL);
+        }
+
+        if (bizDirURL.getProtocol().equals("jar")) {
+            return getBizArchiveFromJarStrategy(bizDirURL);
+        }
+
+        return archives;
+    }
+
+    private List<BizArchive> getBizArchiveFromFileStrategy(URL bizDirURL) throws Exception {
+        List<BizArchive> archives = new ArrayList<>();
+
+        File bizDir = org.apache.commons.io.FileUtils.toFile(bizDirURL);
+        if (!bizDir.exists() || !bizDir.isDirectory() || null == bizDir.listFiles()) {
+            return archives;
+        }
+
+        for (File bizFile : bizDir.listFiles()) {
+            archives.add(new JarBizArchive(new JarFileArchive(bizFile)));
+        }
+        return archives;
+    }
+
+    private List<BizArchive> getBizArchiveFromJarStrategy(URL bizDirURL) throws Exception{
+        List<BizArchive> archives = new ArrayList<>();
+
+        String jarPath = StringUtil.substringBetween(bizDirURL.getPath(), "file:", "!");
+        JarFileArchive jarFileArchive = new JarFileArchive(com.alipay.sofa.ark.common.util.FileUtils.file(jarPath));
+        String prefix_ = bizDirURL.getPath().substring(bizDirURL.getPath().indexOf("!")+2);
+        String prefix = prefix_.replace("!","");
+        List<Archive>  archivesFromJar = jarFileArchive.getNestedArchives(entry -> !entry.isDirectory() && entry.getName().startsWith(prefix) && !entry.getName().equals(prefix));
+
+        for (Archive archiveFromJarEntry : archivesFromJar) {
+            archives.add(new JarBizArchive(archiveFromJarEntry));
+        }
+        return archives;
+    }
+
+    private List<BizArchive> getBizArchivesFromLib() throws Exception {
         //将classpath中的biz包载入
         List<URL> urlList = filterBizUrl(Constants.ARK_BIZ_MARK_ENTRY);
         List<BizArchive> bizArchives = new LinkedList<>();
