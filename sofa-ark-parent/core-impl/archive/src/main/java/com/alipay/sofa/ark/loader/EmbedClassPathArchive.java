@@ -86,17 +86,17 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
         }
 
         if (bizDirURL.getProtocol().equals("file")) {
-            return getBizArchiveFromFileStrategy(bizDirURL);
+            return getBizArchiveForFile(bizDirURL);
         }
 
         if (bizDirURL.getProtocol().equals("jar")) {
-            return getBizArchiveFromJarStrategy(bizDirURL);
+            return getBizArchiveForJar(bizDirURL);
         }
 
         return archives;
     }
 
-    private List<BizArchive> getBizArchiveFromFileStrategy(URL bizDirURL) throws Exception {
+    private List<BizArchive> getBizArchiveForFile(URL bizDirURL) throws Exception {
         List<BizArchive> archives = new ArrayList<>();
 
         File bizDir = org.apache.commons.io.FileUtils.toFile(bizDirURL);
@@ -110,7 +110,7 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
         return archives;
     }
 
-    private List<BizArchive> getBizArchiveFromJarStrategy(URL bizDirURL) throws Exception{
+    private List<BizArchive> getBizArchiveForJar(URL bizDirURL) throws Exception{
         List<BizArchive> archives = new ArrayList<>();
 
         String jarPath = StringUtil.substringBetween(bizDirURL.getPath(), "file:", "!");
