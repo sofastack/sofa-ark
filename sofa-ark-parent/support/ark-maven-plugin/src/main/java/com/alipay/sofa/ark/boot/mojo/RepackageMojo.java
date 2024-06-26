@@ -100,9 +100,6 @@ public class RepackageMojo extends TreeMojo {
 
     public final static String     ARK_YML_FILE               = "ark.yml";
 
-    public final static String     RESOURCES_DIR              = "src" + File.separator + "main"
-                                                                + File.separator + "resources";
-
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject           mavenProject;
 
