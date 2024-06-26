@@ -644,7 +644,7 @@ public class RepackageMojo extends TreeMojo {
     }
 
     protected void extensionExcludeArtifactsFromProp() {
-        String configPath = baseDir + File.separator + RESOURCES_DIR + File.separator
+        String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
                             + ARK_PROPERTIES_FILE;
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
         if (!configFile.exists()) {
@@ -673,7 +673,7 @@ public class RepackageMojo extends TreeMojo {
     }
 
     protected void extensionExcludeArtifactsFromYaml() {
-        String configPath = baseDir + File.separator + RESOURCES_DIR + File.separator
+        String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
                             + ARK_YML_FILE;
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
         if (!configFile.exists()) {
