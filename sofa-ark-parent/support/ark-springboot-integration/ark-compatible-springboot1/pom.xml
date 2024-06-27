@@ -13,7 +13,7 @@
     <artifactId>sofa-ark-compatible-springboot1</artifactId>
 
     <properties>
-        <spring.boot.version>1.5.22.RELEASE</spring.boot.version>
+        <spring.boot.version>2.7.18</spring.boot.version>
     </properties>
 
     <dependencies>
