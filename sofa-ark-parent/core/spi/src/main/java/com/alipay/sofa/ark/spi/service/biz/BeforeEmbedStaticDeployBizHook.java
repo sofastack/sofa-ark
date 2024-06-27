@@ -25,5 +25,5 @@ import com.alipay.sofa.ark.spi.service.extension.Extensible;
 @Extensible
 public interface BeforeEmbedStaticDeployBizHook {
 
-    void beforeStaticDeploy(BizFactoryService bizFactoryService,BizManagerService bizManagerService);
+    void beforeStaticDeploy(BizFactoryService bizFactoryService, BizManagerService bizManagerService);
 }

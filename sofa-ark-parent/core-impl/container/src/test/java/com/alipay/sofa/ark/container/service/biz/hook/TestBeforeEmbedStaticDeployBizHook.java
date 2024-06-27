@@ -36,8 +36,10 @@ import static org.mockito.Mockito.doNothing;
 public class TestBeforeEmbedStaticDeployBizHook implements BeforeEmbedStaticDeployBizHook {
 
     @Override
-    public void beforeStaticDeploy(BizFactoryService bizFactoryService, BizManagerService bizManagerService) {
-        BizModel biz = new BizModel().setBizState(BizState.RESOLVED).setBizVersion("mockVersion").setBizName("mockName");
+    public void beforeStaticDeploy(BizFactoryService bizFactoryService,
+                                   BizManagerService bizManagerService) {
+        BizModel biz = new BizModel().setBizState(BizState.RESOLVED).setBizVersion("mockVersion")
+            .setBizName("mockName");
         Biz spyBiz = Mockito.spy(biz);
         try {
             doNothing().when(spyBiz).start(any(), any());

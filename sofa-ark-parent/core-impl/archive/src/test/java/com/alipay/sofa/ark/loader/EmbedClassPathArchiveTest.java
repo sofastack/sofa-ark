@@ -117,7 +117,6 @@ public class EmbedClassPathArchiveTest {
                     "main",
                     urls.toArray(new URL[] {}));
 
-            //List<BizArchive> bizArchives = embedClassPathArchive.getBizArchiveFromResources();
             ArkConfigs.setSystemProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,"true");
             List<BizArchive> bizArchives = embedClassPathArchive.getBizArchives();
             ArkConfigs.setSystemProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,"false");
