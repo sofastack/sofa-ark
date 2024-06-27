@@ -16,14 +16,19 @@
  */
 package com.alipay.sofa.ark.loader;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.Biz;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.JarFileArchive;
 
-import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -31,7 +36,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author bingjie.lbj
@@ -87,5 +94,35 @@ public class EmbedClassPathArchiveTest {
                 urls.toArray(new URL[] {}));
         List<BizArchive> bizArchives = archive.getBizArchives();
         Assert.assertFalse(bizArchives==null||bizArchives.isEmpty());
+    }
+
+    @Test
+    public void testStaticCombineGetBizArchivesFromResources() throws Exception {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL springbootFatJar = cl.getResource("static-combine-demo.jar");
+        JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
+        Iterator<org.springframework.boot.loader.archive.Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
+        List<URL> urls = new ArrayList<>();
+        while (archives.hasNext()){
+            urls.add(archives.next().getUrl());
+        }
+
+        Biz masterBiz = Mockito.mock(Biz.class);
+        when(masterBiz.getBizClassLoader()).thenReturn(this.getClass().getClassLoader());
+
+        try (MockedStatic<ArkClient> mockedStatic = Mockito.mockStatic(ArkClient.class)) {
+            mockedStatic.when(ArkClient::getMasterBiz).thenReturn(masterBiz);
+
+            EmbedClassPathArchive embedClassPathArchive = new EmbedClassPathArchive("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication",
+                    "main",
+                    urls.toArray(new URL[] {}));
+
+            //List<BizArchive> bizArchives = embedClassPathArchive.getBizArchiveFromResources();
+            ArkConfigs.setSystemProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,"true");
+            List<BizArchive> bizArchives = embedClassPathArchive.getBizArchives();
+            ArkConfigs.setSystemProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,"false");
+
+            assertEquals(2,bizArchives.size());
+        }
     }
 }

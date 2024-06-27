@@ -78,7 +78,7 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
 
     }
 
-    private List<BizArchive> getBizArchiveFromResources() throws Exception {
+    protected List<BizArchive> getBizArchiveFromResources() throws Exception {
         List<BizArchive> archives = new ArrayList<>();
         URL bizDirURL = ArkClient.getMasterBiz().getBizClassLoader().getResource(SOFA_ARK_MODULE);
         if (null == bizDirURL) {
@@ -113,16 +113,25 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
     private List<BizArchive> getBizArchiveForJar(URL bizDirURL) throws Exception{
         List<BizArchive> archives = new ArrayList<>();
 
-        String jarPath = StringUtil.substringBetween(bizDirURL.getPath(), "file:", "!");
-        JarFileArchive jarFileArchive = new JarFileArchive(com.alipay.sofa.ark.common.util.FileUtils.file(jarPath));
-        String prefix_ = bizDirURL.getPath().substring(bizDirURL.getPath().indexOf("!")+2);
-        String prefix = prefix_.replace("!","");
+        JarFileArchive jarFileArchive = getJarFileArchiveFromUrl(bizDirURL);
+        String prefix = getEntryName(bizDirURL);
         List<Archive>  archivesFromJar = jarFileArchive.getNestedArchives(entry -> !entry.isDirectory() && entry.getName().startsWith(prefix) && !entry.getName().equals(prefix));
 
         for (Archive archiveFromJarEntry : archivesFromJar) {
             archives.add(new JarBizArchive(archiveFromJarEntry));
         }
         return archives;
+    }
+
+    private JarFileArchive getJarFileArchiveFromUrl(URL url) throws Exception {
+        String jarPath = StringUtil.substringBetween(url.getPath(), "file:", "!");
+        return new JarFileArchive(com.alipay.sofa.ark.common.util.FileUtils.file(jarPath));
+    }
+
+    private String getEntryName(URL url) {
+        String prefix = url.getPath().substring(url.getPath().indexOf("!") + 2);
+        prefix = prefix.replace("!", "");
+        return prefix;
     }
 
     private List<BizArchive> getBizArchivesFromLib() throws Exception {

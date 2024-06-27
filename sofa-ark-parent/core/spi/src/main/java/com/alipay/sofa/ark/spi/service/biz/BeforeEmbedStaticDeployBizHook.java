@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.service.biz;
 
-import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.spi.pipeline.PipelineStage;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 
 /**
@@ -27,5 +25,5 @@ import com.alipay.sofa.ark.spi.service.extension.Extensible;
 @Extensible
 public interface BeforeEmbedStaticDeployBizHook {
 
-    void beforeStaticDeploy(PipelineStage handleArchiveStage, PipelineContext pipelineContext);
+    void beforeStaticDeploy(BizFactoryService bizFactoryService,BizManagerService bizManagerService);
 }

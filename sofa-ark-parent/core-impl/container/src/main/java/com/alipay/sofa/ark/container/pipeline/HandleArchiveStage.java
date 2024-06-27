@@ -41,6 +41,7 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.alipay.sofa.common.utils.StringUtil;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

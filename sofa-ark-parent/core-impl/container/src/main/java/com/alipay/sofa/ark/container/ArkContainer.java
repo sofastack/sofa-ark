@@ -173,8 +173,8 @@ public class ArkContainer {
         beforeEmbedStaticDeployBizHook = ArkServiceLoader.loadExtensionFromArkBiz(
             BeforeEmbedStaticDeployBizHook.class, BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK, ArkClient
                 .getMasterBiz().getIdentity());
-        if(beforeEmbedStaticDeployBizHook != null) {
-            beforeEmbedStaticDeployBizHook.beforeStaticDeploy(handleArchiveStage, pipelineContext);
+        if (beforeEmbedStaticDeployBizHook != null) {
+            beforeEmbedStaticDeployBizHook.beforeStaticDeploy(ArkClient.getBizFactoryService(), ArkClient.getBizManagerService());
         }
 
         // start up
