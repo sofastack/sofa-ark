@@ -561,6 +561,7 @@ public class BizModel implements Biz {
 
         if (bizTempWorkDir.isDirectory()) {
             try {
+                System.gc();
                 String newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
                 File markedFile = new File(newPath);
                 if (!markedFile.exists()) {
