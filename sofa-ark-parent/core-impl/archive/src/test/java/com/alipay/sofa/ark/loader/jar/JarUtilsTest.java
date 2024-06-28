@@ -48,4 +48,11 @@ public class JarUtilsTest {
         URL url = this.getClass().getClassLoader().getResource("");
         assertEquals("sofa-ark-archive", getArtifactIdFromLocalClassPath(url.getPath()));
     }
+
+    @Test
+    public void testParseArtifactId() {
+        URL url = this.getClass().getClassLoader().getResource("sample-biz.jar");
+        String artifactId = JarUtils.parseArtifactId(url.getPath());
+        assertEquals("sofa-ark-sample-springboot-ark", artifactId);
+    }
 }
