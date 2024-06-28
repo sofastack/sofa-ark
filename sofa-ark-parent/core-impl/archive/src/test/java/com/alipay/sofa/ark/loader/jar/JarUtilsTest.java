@@ -19,10 +19,8 @@ package com.alipay.sofa.ark.loader.jar;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
-import static com.alipay.sofa.ark.loader.jar.JarFile.JarFileType.DIRECT;
 import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
 import static com.alipay.sofa.ark.loader.jar.JarUtils.searchPomProperties;
 import static org.junit.Assert.*;
@@ -52,7 +50,7 @@ public class JarUtilsTest {
     }
 
     @Test
-    public void testParseArtifactId() throws IOException {
+    public void testParseArtifactId()  {
         URL url = this.getClass().getClassLoader().getResource("sample-biz.jar");
         String artifactId = JarUtils.parseArtifactId(url.getPath());
         assertEquals("sofa-ark-sample-springboot-ark", artifactId);
