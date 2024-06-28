@@ -214,9 +214,10 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromJar(String jarLocation) throws IOException {
-        com.alipay.sofa.ark.loader.jar.JarFile jarFile = getNestedRootJarFromJarLocation(jarLocation);
-        JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
-        return jarFileArchive.getPomProperties().getProperty(JAR_ARTIFACT_ID);
+        try (com.alipay.sofa.ark.loader.jar.JarFile jarFile = getNestedRootJarFromJarLocation(jarLocation)) {
+            JarFileArchive jarFileArchive = new JarFileArchive(jarFile);
+            return jarFileArchive.getPomProperties().getProperty(JAR_ARTIFACT_ID);
+        }
     }
 
     public static com.alipay.sofa.ark.loader.jar.JarFile getNestedRootJarFromJarLocation(String jarLocation)
