@@ -390,17 +390,15 @@ public class BizModel implements Biz {
             if (classLoader instanceof AbstractClasspathClassLoader) {
                 try {
                     ((AbstractClasspathClassLoader) classLoader).close();
+                    ((AbstractClasspathClassLoader) classLoader).clearCache();
                 } catch (IOException e) {
                     ArkLoggerFactory.getDefaultLogger().warn(
                         "Ark biz {} close biz classloader fail", getIdentity());
                 }
             }
+            classLoader = null;
             recycleBizTempWorkDir(bizTempWorkDir);
             bizTempWorkDir = null;
-            if (classLoader instanceof AbstractClasspathClassLoader) {
-                ((AbstractClasspathClassLoader) classLoader).clearCache();
-            }
-            classLoader = null;
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
         }
@@ -562,9 +560,8 @@ public class BizModel implements Biz {
         }
 
         if (bizTempWorkDir.isDirectory()) {
-            String newPath = "";
             try {
-                newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
+                String newPath = markBizTempWorkDirRecycled(bizTempWorkDir);
                 File markedFile = new File(newPath);
                 if (!markedFile.exists()) {
                     ArkLoggerFactory.getDefaultLogger().warn(
@@ -575,9 +572,8 @@ public class BizModel implements Biz {
 
                 return deleteQuietly(markedFile);
             } catch (IOException e) {
-                ArkLoggerFactory.getDefaultLogger().warn(
-                    "mark and delete biz temp work dir error:" + e.getMessage());
-                return false;
+                throw new ArkRuntimeException("mark and delete biz temp work dir error: "
+                                              + e.getMessage());
             }
 
         }
