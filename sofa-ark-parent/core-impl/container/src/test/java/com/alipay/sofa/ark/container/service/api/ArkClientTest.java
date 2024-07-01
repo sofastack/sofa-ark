@@ -279,8 +279,9 @@ public class ArkClientTest extends BaseTest {
         bizOperation.setBizName("biz-demo");
         bizOperation.setBizVersion("1.0.0");
 
-        ClientResponse response = installOperation(bizOperation, new String[] {});
+        ClientResponse response = installOperation(bizOperation, new String[] {},null,"alias");
         assertEquals(SUCCESS, response.getCode());
+        assertTrue(response.getBizInfos().stream().anyMatch(it -> "alias".equals(it.getBizAlias())));
     }
 
     @Test

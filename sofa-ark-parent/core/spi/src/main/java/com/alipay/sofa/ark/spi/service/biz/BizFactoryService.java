@@ -62,7 +62,7 @@ public interface BizFactoryService {
      * @return Biz
      * @throws IOException throw io exception when {@link File} is invalid.
      */
-    Biz createBiz(File file,String bizAlias) throws IOException;
+    Biz createBiz(File file, String bizAlias) throws IOException;
 
     /**
      * Create Biz Model according to master biz

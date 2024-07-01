@@ -145,7 +145,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     }
 
     @Override
-    public Biz createBiz(File file,String bizAlias) throws IOException {
+    public Biz createBiz(File file, String bizAlias) throws IOException {
         BizModel biz = (BizModel) createBiz(file);
         biz.setBizAlias(bizAlias);
         return biz;

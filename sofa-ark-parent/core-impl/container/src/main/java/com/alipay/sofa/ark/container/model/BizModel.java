@@ -69,7 +69,7 @@ public class BizModel implements Biz {
 
     private String               bizVersion;
 
-    private String bizAlias;
+    private String               bizAlias;
 
     private BizState             bizState;
 
