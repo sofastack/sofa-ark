@@ -32,6 +32,7 @@ import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizInfo.StateChangeReason;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -85,7 +86,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         String mainClass = manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE);
         String startClass = manifestMainAttributes.getValue(START_CLASS_ATTRIBUTE);
         bizModel
-            .setBizState(BizState.RESOLVED)
+            .setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
             .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
@@ -148,7 +149,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
         BizModel bizModel = new BizModel();
-        bizModel.setBizState(BizState.RESOLVED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
+        bizModel.setBizState(BizState.RESOLVED,StateChangeReason.CREATED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
             .setBizVersion("1.0.0").setMainClass("embed main").setPriority("100")
             .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
             .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())

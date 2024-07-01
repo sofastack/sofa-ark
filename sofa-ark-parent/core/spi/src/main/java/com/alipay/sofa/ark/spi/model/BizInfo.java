@@ -138,21 +138,62 @@ public interface BizInfo {
         private final Date                    changeTime;
         private final BizState                state;
 
+        private final StateChangeReason reason;
+
+        private final String message;
+
         private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
         static {
             sdf.setTimeZone(TimeZone.getDefault());
         }
 
-        public BizStateRecord(Date changeTime, BizState state) {
+        public BizStateRecord(Date changeTime, BizState state,StateChangeReason reason,String message) {
             this.changeTime = changeTime;
             this.state = state;
+            this.reason = reason;
+            this.message = message;
         }
 
         @Override
         public String toString() {
             String date = sdf.format(changeTime);
-            return String.format("%s -> %s", date, state);
+            return String.format("%s -> %s with reason: %s and message: %s", date, state, reason, message);
         }
+    }
+
+    enum StateChangeReason{
+        CREATED("created"),
+        STARTED("started"),
+
+        FAILED("failed"),
+
+        REPLACED("replaced"),
+
+        STARTED_IGNORE("started_ignore"),
+
+        BEFORE_STOP("before_stop"),
+
+        STOPPED("stopped"),
+
+        ACTIVATED("activated"),
+        UNKNOWN("unknown");
+
+
+        private String reason;
+
+        StateChangeReason(String reason) {
+            this.reason = reason;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        @Override
+        public String toString() {
+            return getReason();
+        }
+
     }
 }
