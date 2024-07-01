@@ -123,6 +123,7 @@ public class ArkContainerTest extends BaseTest {
             assertEquals(2,bizManagerService.getBizInOrder().size());
         }finally {
             bizManagerService.getBizInOrder().stream().forEach(biz -> ((BizModel)biz).setBizState(BizState.BROKEN));
+            bizManagerService.unRegisterBiz("biz-demo","1.0.0");
             arkContainer.stop();
             ArkConfigs.setEmbedStaticBizEnable(false);
         }

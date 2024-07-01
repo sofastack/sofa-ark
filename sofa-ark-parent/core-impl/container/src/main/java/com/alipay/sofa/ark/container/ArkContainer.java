@@ -35,6 +35,7 @@ import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.service.biz.BeforeEmbedStaticDeployBizHook;
@@ -174,8 +175,8 @@ public class ArkContainer {
             BeforeEmbedStaticDeployBizHook.class, BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK, ArkClient
                 .getMasterBiz().getIdentity());
         if (beforeEmbedStaticDeployBizHook != null) {
-            beforeEmbedStaticDeployBizHook.beforeStaticDeploy(ArkClient.getBizFactoryService(),
-                ArkClient.getBizManagerService());
+            List<File> bizsFromHook = beforeEmbedStaticDeployBizHook.getStaticBizFilesToAdd();
+            addStaticBizFromCustomHook(bizsFromHook);
         }
 
         // start up
@@ -183,6 +184,17 @@ public class ArkContainer {
             DeployBizStage.class);
         deployBizStage.processStaticBiz(pipelineContext);
         return this;
+    }
+
+    private void addStaticBizFromCustomHook(List<File> bizsFromHook) throws IOException {
+        if (null == bizsFromHook) {
+            return;
+        }
+
+        for (File bizFile : bizsFromHook) {
+            Biz biz = ArkClient.getBizFactoryService().createBiz(bizFile);
+            ArkClient.getBizManagerService().registerBiz(biz);
+        }
     }
 
     /**

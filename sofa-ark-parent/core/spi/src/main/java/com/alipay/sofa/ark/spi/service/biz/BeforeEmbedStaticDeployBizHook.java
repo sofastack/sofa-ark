@@ -16,7 +16,11 @@
  */
 package com.alipay.sofa.ark.spi.service.biz;
 
+import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -25,5 +29,5 @@ import com.alipay.sofa.ark.spi.service.extension.Extensible;
 @Extensible
 public interface BeforeEmbedStaticDeployBizHook {
 
-    void beforeStaticDeploy(BizFactoryService bizFactoryService, BizManagerService bizManagerService);
+    List<File> getStaticBizFilesToAdd() throws Exception;
 }

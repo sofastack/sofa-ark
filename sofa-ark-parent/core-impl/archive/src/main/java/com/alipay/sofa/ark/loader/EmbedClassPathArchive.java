@@ -31,6 +31,7 @@ import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -124,14 +125,17 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
     }
 
     private JarFileArchive getJarFileArchiveFromUrl(URL url) throws Exception {
-        String jarPath = StringUtil.substringBetween(url.getPath(), "file:", "!");
+        String jarPath = StringUtil.substringBefore(((JarURLConnection) url.openConnection())
+            .getJarFile().getName(), "!");
         return new JarFileArchive(com.alipay.sofa.ark.common.util.FileUtils.file(jarPath));
     }
 
-    private String getEntryName(URL url) {
-        String prefix = url.getPath().substring(url.getPath().indexOf("!") + 2);
-        prefix = prefix.replace("!", "");
-        return prefix;
+    private String getEntryName(URL url) throws IOException {
+        String classPathEntryName = StringUtil.substringAfter(
+            ((JarURLConnection) url.openConnection()).getJarFile().getName(), "!/");
+        String urlEntryNameFromClassPath = ((JarURLConnection) url.openConnection()).getJarEntry()
+            .getName();
+        return StringUtil.join(new String[] { classPathEntryName, urlEntryNameFromClassPath }, "/");
     }
 
     private List<BizArchive> getBizArchivesFromLib() throws Exception {
