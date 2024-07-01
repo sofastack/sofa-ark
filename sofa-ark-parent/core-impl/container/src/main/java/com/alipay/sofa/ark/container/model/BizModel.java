@@ -364,7 +364,7 @@ public class BizModel implements Biz {
             if (bizManagerService.getActiveBiz(bizName) == null) {
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {
-                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED_IGNORE,
+                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED_BUT_IGNORED,
                     "start but be ignored");
             }
         }

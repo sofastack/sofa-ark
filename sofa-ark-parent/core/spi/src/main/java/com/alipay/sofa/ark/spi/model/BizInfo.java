@@ -148,6 +148,13 @@ public interface BizInfo {
             sdf.setTimeZone(TimeZone.getDefault());
         }
 
+        public BizStateRecord(Date changeTime, BizState state) {
+            this.changeTime = changeTime;
+            this.state = state;
+            this.reason = StateChangeReason.UNKNOWN;
+            this.message = "";
+        }
+
         public BizStateRecord(Date changeTime, BizState state, StateChangeReason reason,
                               String message) {
             this.changeTime = changeTime;
@@ -165,21 +172,25 @@ public interface BizInfo {
     }
 
     enum StateChangeReason {
-        CREATED("created"), STARTED("started"),
+        CREATED("created"),
+
+        STARTED("started"),
 
         FAILED("failed"),
 
         REPLACED("replaced"),
 
-        STARTED_IGNORE("started_ignore"),
+        STARTED_BUT_IGNORED("started_but_ignored"),
 
         BEFORE_STOP("before_stop"),
 
         STOPPED("stopped"),
 
-        ACTIVATED("activated"), UNKNOWN("unknown");
+        ACTIVATED("activated"),
 
-        private String reason;
+        UNKNOWN("unknown");
+
+        private final String reason;
 
         StateChangeReason(String reason) {
             this.reason = reason;
