@@ -77,6 +77,8 @@ import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_YAML_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
@@ -95,13 +97,6 @@ public class RepackageMojo extends TreeMojo {
     private static final String    BIZ_NAME                   = "com.alipay.sofa.ark.bizName";
 
     private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
-
-    public final static String     ARK_PROPERTIES_FILE        = "ark.properties";
-
-    public final static String     ARK_YML_FILE               = "ark.yml";
-
-    public final static String     RESOURCES_DIR              = "src" + File.separator + "main"
-                                                                + File.separator + "resources";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject           mavenProject;
@@ -644,8 +639,8 @@ public class RepackageMojo extends TreeMojo {
     }
 
     protected void extensionExcludeArtifactsFromProp() {
-        String configPath = baseDir + File.separator + RESOURCES_DIR + File.separator
-                            + ARK_PROPERTIES_FILE;
+        String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                            + ARK_CONF_FILE;
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
         if (!configFile.exists()) {
             getLog().info(
@@ -673,8 +668,8 @@ public class RepackageMojo extends TreeMojo {
     }
 
     protected void extensionExcludeArtifactsFromYaml() {
-        String configPath = baseDir + File.separator + RESOURCES_DIR + File.separator
-                            + ARK_YML_FILE;
+        String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                            + ARK_CONF_YAML_FILE;
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
         if (!configFile.exists()) {
             getLog().info(
