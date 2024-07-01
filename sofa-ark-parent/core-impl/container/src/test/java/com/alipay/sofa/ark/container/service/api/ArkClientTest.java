@@ -231,6 +231,20 @@ public class ArkClientTest extends BaseTest {
     }
 
     @Test
+    public void testUninstallBizWhenIncludeLib() throws Throwable {
+
+        testCheckBiz();
+        // test uninstall biz
+        ClientResponse response = uninstallBiz("biz-demo", "3.0.0");
+        assertEquals(SUCCESS, response.getCode());
+
+        // test check all biz
+        response = checkBiz();
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(2, response.getBizInfos().size());
+    }
+
+    @Test
     public void testInstallBizWithThrowable() throws Throwable {
 
         File bizFile = createBizSaveFile("biz-demo", "1.0.0");
