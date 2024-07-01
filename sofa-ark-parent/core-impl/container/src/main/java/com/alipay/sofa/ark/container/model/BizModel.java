@@ -23,19 +23,19 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.BizIdentityUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
-import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassLoader;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
+import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizFailedEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
-import com.alipay.sofa.ark.spi.event.biz.AfterBizFailedEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -68,6 +68,8 @@ public class BizModel implements Biz {
     private String               bizName;
 
     private String               bizVersion;
+
+    private String bizAlias;
 
     private BizState             bizState;
 
@@ -120,6 +122,11 @@ public class BizModel implements Biz {
     public BizModel setBizVersion(String bizVersion) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz Version must not be empty!");
         this.bizVersion = bizVersion;
+        return this;
+    }
+
+    public BizModel setBizAlias(String bizAlias) {
+        this.bizAlias = bizAlias;
         return this;
     }
 
@@ -230,6 +237,11 @@ public class BizModel implements Biz {
     @Override
     public String getIdentity() {
         return BizIdentityUtils.generateBizIdentity(this);
+    }
+
+    @Override
+    public String getBizAlias() {
+        return bizAlias;
     }
 
     @Override

@@ -165,14 +165,19 @@ public class ArkClient {
 
     public static ClientResponse installBiz(File bizFile, String[] args, Map<String, String> envs)
                                                                                                   throws Throwable {
-        return doInstallBiz(bizFile, args, envs);
+        return doInstallBiz(bizFile, args, envs,"");
     }
 
     public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
-        return doInstallBiz(bizFile, args, null);
+        return doInstallBiz(bizFile, args, null, "");
     }
 
-    private static ClientResponse doInstallBiz(File bizFile, String[] args, Map<String, String> envs)
+    public static ClientResponse installBiz(File bizFile, String[] args, Map<String, String> envs,String bizAlias)
+            throws Throwable {
+        return doInstallBiz(bizFile, args, envs,bizAlias);
+    }
+
+    private static ClientResponse doInstallBiz(File bizFile, String[] args, Map<String, String> envs,String bizAlias)
                                                                                                      throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
@@ -182,7 +187,7 @@ public class ArkClient {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
-        Biz biz = bizFactoryService.createBiz(bizFile);
+        Biz biz = bizFactoryService.createBiz(bizFile,bizAlias);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
             || !bizManagerService.registerBiz(biz)) {
@@ -357,21 +362,26 @@ public class ArkClient {
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation) throws Throwable {
-        return doInstallOperation(bizOperation, arguments, envs);
+        return doInstallOperation(bizOperation, arguments, envs,"");
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation, String[] args)
                                                                                            throws Throwable {
-        return doInstallOperation(bizOperation, args, null);
+        return doInstallOperation(bizOperation, args, null,"");
     }
 
     public static ClientResponse installOperation(BizOperation bizOperation, String[] args,
                                                   Map<String, String> envs) throws Throwable {
-        return doInstallOperation(bizOperation, args, envs);
+        return doInstallOperation(bizOperation, args, envs,"");
+    }
+
+    public static ClientResponse installOperation(BizOperation bizOperation, String[] args,
+                                                  Map<String, String> envs, String bizAlias) throws Throwable {
+        return doInstallOperation(bizOperation, args, envs, bizAlias);
     }
 
     private static ClientResponse doInstallOperation(BizOperation bizOperation, String[] args,
-                                                     Map<String, String> envs) throws Throwable {
+                                                     Map<String, String> envs, String bizAlias) throws Throwable {
         AssertUtils.isTrue(
             BizOperation.OperationType.INSTALL.equals(bizOperation.getOperationType()),
             "Operation type must be install");

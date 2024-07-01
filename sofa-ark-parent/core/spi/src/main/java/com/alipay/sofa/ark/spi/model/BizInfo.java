@@ -47,6 +47,12 @@ public interface BizInfo {
     String getIdentity();
 
     /**
+     * get alias id in runtime
+     * @return
+     */
+    String getBizAlias();
+
+    /**
      * get Biz Main Entry Class Name
      * @return main class name
      */
