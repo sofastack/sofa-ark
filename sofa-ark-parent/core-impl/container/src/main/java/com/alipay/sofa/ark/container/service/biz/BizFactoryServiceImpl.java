@@ -149,11 +149,11 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
         BizModel bizModel = new BizModel();
-        bizModel.setBizState(BizState.RESOLVED,StateChangeReason.CREATED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
-            .setBizVersion("1.0.0").setMainClass("embed main").setPriority("100")
-            .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
-            .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
-            .setInjectExportPackages(null)
+        bizModel.setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
+            .setBizName(ArkConfigs.getStringValue(MASTER_BIZ)).setBizVersion("1.0.0")
+            .setMainClass("embed main").setPriority("100").setWebContextPath("/")
+            .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
+            .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
             .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
             .setClassLoader(masterClassLoader);
         return bizModel;

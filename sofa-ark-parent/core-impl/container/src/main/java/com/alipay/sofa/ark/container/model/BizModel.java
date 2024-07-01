@@ -125,19 +125,19 @@ public class BizModel implements Biz {
 
     public BizModel setBizState(BizState bizState) {
         this.bizState = bizState;
-        addStateChangeLog(StateChangeReason.UNKNOWN,"");
+        addStateChangeLog(StateChangeReason.UNKNOWN, "");
         return this;
     }
 
     public BizModel setBizState(BizState bizState, StateChangeReason reason) {
         this.bizState = bizState;
-        addStateChangeLog(reason,"");
+        addStateChangeLog(reason, "");
         return this;
     }
 
-    public BizModel setBizState(BizState bizState, StateChangeReason reason,String message) {
+    public BizModel setBizState(BizState bizState, StateChangeReason reason, String message) {
         this.bizState = bizState;
-        addStateChangeLog(reason,message);
+        addStateChangeLog(reason, message);
         return this;
     }
 
@@ -225,8 +225,8 @@ public class BizModel implements Biz {
         return injectExportPackages;
     }
 
-    private void addStateChangeLog(StateChangeReason reason,String message) {
-        bizStateRecords.add(new BizStateRecord(new Date(), bizState,reason,message));
+    private void addStateChangeLog(StateChangeReason reason, String message) {
+        bizStateRecords.add(new BizStateRecord(new Date(), bizState, reason, message));
     }
 
     @Override
@@ -352,16 +352,20 @@ public class BizModel implements Biz {
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
-                setBizState(BizState.ACTIVATED,StateChangeReason.STARTED);
+                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {
-                ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,StateChangeReason.REPLACED, String.format("replaced by new version %s", getIdentity()));
-                setBizState(BizState.ACTIVATED,StateChangeReason.STARTED, String.format("replace old biz: %s",currentActiveBiz.getIdentity()));
+                ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
+                    StateChangeReason.REPLACED,
+                    String.format("replaced by new version %s", getIdentity()));
+                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
+                    String.format("replace old biz: %s", currentActiveBiz.getIdentity()));
             }
         } else {
             if (bizManagerService.getActiveBiz(bizName) == null) {
-                setBizState(BizState.ACTIVATED,StateChangeReason.STARTED);
+                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {
-                setBizState(BizState.DEACTIVATED,StateChangeReason.STARTED_IGNORE, "start but be ignored");
+                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED_IGNORE,
+                    "start but be ignored");
             }
         }
     }
@@ -377,7 +381,7 @@ public class BizModel implements Biz {
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         if (bizState == BizState.ACTIVATED) {
-            setBizState(BizState.DEACTIVATED,StateChangeReason.BEFORE_STOP);
+            setBizState(BizState.DEACTIVATED, StateChangeReason.BEFORE_STOP);
         }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
@@ -392,7 +396,7 @@ public class BizModel implements Biz {
             BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                 .getService(BizManagerService.class);
             bizManagerService.unRegisterBiz(bizName, bizVersion);
-            setBizState(BizState.UNRESOLVED,StateChangeReason.STOPPED);
+            setBizState(BizState.UNRESOLVED, StateChangeReason.STOPPED);
             eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
             urls = null;
             denyImportPackages = null;
