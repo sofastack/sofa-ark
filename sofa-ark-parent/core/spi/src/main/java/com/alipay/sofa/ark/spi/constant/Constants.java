@@ -48,9 +48,7 @@ public class Constants {
     public final static String       ARK_CONF_FILE                                 = "bootstrap.properties";
     public final static String       ARK_CONF_FILE_FORMAT                          = "bootstrap-%s.properties";
 
-    public final static String       ARK_PROPERTIES_FILE                           = "ark.properties";
-
-    public final static String       ARK_YML_FILE                                  = "ark.yml";
+    public final static String ARK_CONF_YAML_FILE = "bootstrap.yml";
 
     public final static String       PLUGIN_EXTENSION_FORMAT                       = "PLUGIN-EXPORT[%s]";
 
