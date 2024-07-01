@@ -46,7 +46,9 @@ public class ExplodedBizArchive implements BizArchive {
     public ExplodedBizArchive(File root) throws IOException {
         this.file = root;
         this.urls = scanUrl();
-        this.manifest = new Manifest(new FileInputStream(new File(root, MANIFEST_NAME)));
+        try (FileInputStream fileInputStream = new FileInputStream(new File(root, MANIFEST_NAME));) {
+            this.manifest = new Manifest(fileInputStream);
+        }
     }
 
     private URL[] scanUrl() throws MalformedURLException {
