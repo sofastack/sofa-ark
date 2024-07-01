@@ -72,6 +72,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -254,7 +255,7 @@ public class ArkClientTest extends BaseTest {
         setBizFactoryService(bizFactoryServiceMock);
         Biz biz = mock(Biz.class);
         doThrow(new IllegalArgumentException()).when(biz).start(any());
-        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+        when(bizFactoryServiceMock.createBiz(any(), anyString())).thenReturn(biz);
 
         try {
             installBiz(bizFile, null);
@@ -299,7 +300,7 @@ public class ArkClientTest extends BaseTest {
         when(biz.getBizName()).thenReturn("biz-install-failed-demo");
         when(biz.getBizVersion()).thenReturn("1.0.0");
         doThrow(new IllegalArgumentException()).when(biz).start(any(), any());
-        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+        when(bizFactoryServiceMock.createBiz((File) any(), anyString())).thenReturn(biz);
 
         // case1: not set AUTO_UNINSTALL_ENABLE
         try {
