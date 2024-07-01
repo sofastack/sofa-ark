@@ -16,21 +16,31 @@
  */
 package com.alipay.sofa.ark.container;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.common.util.FileUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.session.handler.ArkCommandHandler;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.net.URL;
 
 import static com.alipay.sofa.ark.container.ArkContainer.main;
 import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_SESSION_PROMPT;
 import static com.alipay.sofa.ark.spi.constant.Constants.TELNET_STRING_END;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author ruoshan
@@ -94,8 +104,29 @@ public class ArkContainerTest extends BaseTest {
     public void testDeployBizAfterMasterBizReady() throws Exception {
         String[] args = new String[] { "-Ajar=" + jarURL.toExternalForm() };
         ArkContainer arkContainer = (ArkContainer) main(args);
-        assertEquals(arkContainer, arkContainer.deployBizAfterMasterBizReady());
-        arkContainer.stop();
+        BizManagerService bizManagerService = arkContainer.getArkServiceContainer().getService(BizManagerService.class);
+        BizFactoryService bizFactoryService = arkContainer.getArkServiceContainer().getService(BizFactoryService.class);
+        BizModel masterBiz = createTestBizModel("master", "1.0.0", BizState.RESOLVED,
+                ArkContainerTest.class.getClassLoader());
+        ArkConfigs.setEmbedStaticBizEnable(true);
+
+        try (MockedStatic<ArkClient> mockedStatic = Mockito.mockStatic(ArkClient.class)) {
+
+            mockedStatic.when(ArkClient::getMasterBiz).thenReturn(masterBiz);
+            mockedStatic.when(ArkClient::getBizFactoryService).thenReturn(bizFactoryService);
+            mockedStatic.when(ArkClient::getBizManagerService).thenReturn(bizManagerService);
+
+            bizManagerService.registerBiz(masterBiz);
+            masterBiz.setBizState(BizState.ACTIVATED);
+
+            assertEquals(arkContainer, arkContainer.deployBizAfterMasterBizReady());
+            assertEquals(2,bizManagerService.getBizInOrder().size());
+        }finally {
+            bizManagerService.getBizInOrder().stream().forEach(biz -> ((BizModel)biz).setBizState(BizState.BROKEN));
+            bizManagerService.unRegisterBiz("biz-demo","1.0.0");
+            arkContainer.stop();
+            ArkConfigs.setEmbedStaticBizEnable(false);
+        }
     }
 
     @Test(expected = ArkRuntimeException.class)

@@ -159,6 +159,10 @@ public class ArkConfigs {
         return Boolean.getBoolean(Constants.EMBED_STATIC_BIZ_ENABLE);
     }
 
+    public static boolean isEmbedStaticBizInResourceEnable() {
+        return Boolean.getBoolean(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE);
+    }
+
     public static void setEmbedStaticBizEnable(boolean enable) {
         System.setProperty(Constants.EMBED_STATIC_BIZ_ENABLE, enable ? "true" : "false");
     }
