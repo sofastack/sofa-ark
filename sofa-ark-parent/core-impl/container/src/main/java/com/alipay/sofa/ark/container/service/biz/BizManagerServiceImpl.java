@@ -174,12 +174,12 @@ public class BizManagerServiceImpl implements BizManagerService {
         if (biz != null && biz.getBizState() == BizState.DEACTIVATED) {
             if (activeBiz != null) {
                 ((BizModel) activeBiz).setBizState(BizState.DEACTIVATED,
-                    StateChangeReason.REPLACED,
+                    StateChangeReason.SWITCHED,
                     String.format("replaced by new version %s", biz.getIdentity()));
             }
             String message = activeBiz == null ? "" : String.format("replace old version: %s",
                 activeBiz.getIdentity());
-            ((BizModel) biz).setBizState(BizState.ACTIVATED, StateChangeReason.ACTIVATED, message);
+            ((BizModel) biz).setBizState(BizState.ACTIVATED, StateChangeReason.SWITCHED, message);
         }
     }
 

@@ -355,7 +355,7 @@ public class BizModel implements Biz {
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {
                 ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
-                    StateChangeReason.REPLACED,
+                    StateChangeReason.SWITCHED,
                     String.format("replaced by new version %s", getIdentity()));
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
                     String.format("replace old biz: %s", currentActiveBiz.getIdentity()));
@@ -364,8 +364,7 @@ public class BizModel implements Biz {
             if (bizManagerService.getActiveBiz(bizName) == null) {
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {
-                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED_BUT_IGNORED,
-                    "start but be ignored");
+                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED, "start but be ignored");
             }
         }
     }
@@ -381,7 +380,7 @@ public class BizModel implements Biz {
         }
         ClassLoader oldClassLoader = ClassLoaderUtils.pushContextClassLoader(this.classLoader);
         if (bizState == BizState.ACTIVATED) {
-            setBizState(BizState.DEACTIVATED, StateChangeReason.BEFORE_STOP);
+            setBizState(BizState.DEACTIVATED, StateChangeReason.KILLING);
         }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);

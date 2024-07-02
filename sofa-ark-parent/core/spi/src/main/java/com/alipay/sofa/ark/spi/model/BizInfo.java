@@ -172,23 +172,19 @@ public interface BizInfo {
     }
 
     enum StateChangeReason {
-        CREATED("created"),
+        CREATED("Created"),
 
-        STARTED("started"),
+        STARTED("Started"),
 
-        FAILED("failed"),
+        FAILED("Failed"),
 
-        REPLACED("replaced"),
+        SWITCHED("Switched"),
 
-        STARTED_BUT_IGNORED("started_but_ignored"),
+        KILLING("Killing"),
 
-        BEFORE_STOP("before_stop"),
+        STOPPED("Stopped"),
 
-        STOPPED("stopped"),
-
-        ACTIVATED("activated"),
-
-        UNKNOWN("unknown");
+        UNKNOWN("Unknown");
 
         private final String reason;
 
