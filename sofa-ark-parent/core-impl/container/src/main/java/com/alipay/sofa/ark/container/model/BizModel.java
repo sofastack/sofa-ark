@@ -125,7 +125,7 @@ public class BizModel implements Biz {
 
     public BizModel setBizState(BizState bizState) {
         this.bizState = bizState;
-        addStateChangeLog(StateChangeReason.UNKNOWN, "");
+        addStateChangeLog(StateChangeReason.UNDEFINE, "");
         return this;
     }
 
@@ -356,15 +356,16 @@ public class BizModel implements Biz {
             } else {
                 ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
                     StateChangeReason.SWITCHED,
-                    String.format("replaced by new version %s", getIdentity()));
+                    String.format("switch to new biz %s", getIdentity()));
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
-                    String.format("replace old biz: %s", currentActiveBiz.getIdentity()));
+                    String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
             }
         } else {
             if (bizManagerService.getActiveBiz(bizName) == null) {
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {
-                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED, "start but be ignored");
+                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED,
+                    "start but is deactivated");
             }
         }
     }
