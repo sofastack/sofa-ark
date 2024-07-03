@@ -175,7 +175,7 @@ public class BizManagerServiceImpl implements BizManagerService {
             if (activeBiz != null) {
                 ((BizModel) activeBiz).setBizState(BizState.DEACTIVATED,
                     StateChangeReason.SWITCHED,
-                    String.format("replaced by new version %s", biz.getIdentity()));
+                    String.format("switch to new version %s", biz.getIdentity()));
             }
             String message = activeBiz == null ? "" : String.format("replace old version: %s",
                 activeBiz.getIdentity());
