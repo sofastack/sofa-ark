@@ -177,7 +177,7 @@ public class BizManagerServiceImpl implements BizManagerService {
                     StateChangeReason.SWITCHED,
                     String.format("switch to new version %s", biz.getIdentity()));
             }
-            String message = activeBiz == null ? "" : String.format("replace old version: %s",
+            String message = activeBiz == null ? "" : String.format("switch from old version: %s",
                 activeBiz.getIdentity());
             ((BizModel) biz).setBizState(BizState.ACTIVATED, StateChangeReason.SWITCHED, message);
         }
