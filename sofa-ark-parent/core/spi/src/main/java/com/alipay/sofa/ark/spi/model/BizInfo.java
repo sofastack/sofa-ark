@@ -138,6 +138,10 @@ public interface BizInfo {
         private final Date                    changeTime;
         private final BizState                state;
 
+        private final StateChangeReason       reason;
+
+        private final String                  message;
+
         private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
         static {
@@ -147,12 +151,76 @@ public interface BizInfo {
         public BizStateRecord(Date changeTime, BizState state) {
             this.changeTime = changeTime;
             this.state = state;
+            this.reason = StateChangeReason.UNDEFINE;
+            this.message = "";
+        }
+
+        public BizStateRecord(Date changeTime, BizState state, StateChangeReason reason,
+                              String message) {
+            this.changeTime = changeTime;
+            this.state = state;
+            this.reason = reason;
+            this.message = message;
         }
 
         @Override
         public String toString() {
             String date = sdf.format(changeTime);
-            return String.format("%s -> %s", date, state);
+            return String.format("%s -> %s with reason: %s and message: %s", date, state, reason,
+                message);
         }
+    }
+
+    enum StateChangeReason {
+        /**
+         * 模块被创建
+         */
+        CREATED("Created"),
+
+        /**
+         * 模块启动成功
+         */
+        STARTED("Started"),
+
+        /**
+         * 模块启动失败
+         */
+        FAILED("Failed"),
+
+        /**
+         * 模块被切换为 ACTIVATED 或 DEACTIVATED 状态
+         */
+        SWITCHED("Switched"),
+
+        /**
+         * 模块正在停止
+         */
+        KILLING("Killing"),
+
+        /**
+         * 模块已停止
+         */
+        STOPPED("Stopped"),
+
+        /**
+         * 默认值：未定义
+         */
+        UNDEFINE("Undefine");
+
+        private final String reason;
+
+        StateChangeReason(String reason) {
+            this.reason = reason;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        @Override
+        public String toString() {
+            return getReason();
+        }
+
     }
 }
