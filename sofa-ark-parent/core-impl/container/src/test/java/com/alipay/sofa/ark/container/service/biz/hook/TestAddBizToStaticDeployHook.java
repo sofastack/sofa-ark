@@ -16,11 +16,17 @@
  */
 package com.alipay.sofa.ark.container.service.biz.hook;
 
+import com.alipay.sofa.ark.api.ArkClient;
+import com.alipay.sofa.ark.loader.JarBizArchive;
+import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.biz.AddBizToStaticDeployHook;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,9 +52,12 @@ public class TestAddBizToStaticDeployHook implements AddBizToStaticDeployHook {
     //}
 
     @Override
-    public List<File> getStaticBizFilesToAdd() throws Exception {
-        return Lists.newArrayList(new File(this.getClass().getClassLoader()
-            .getResource("sample-ark-1.0.0-ark-biz.jar").toURI()));
+    public List<BizArchive> getStaticBizToAdd() throws Exception {
+        List<BizArchive> archives = new ArrayList<>();
+        File bizFile = new File(this.getClass().getClassLoader()
+            .getResource("sample-ark-1.0.0-ark-biz.jar").toURI());
+        archives.add(new JarBizArchive(new JarFileArchive(bizFile)));
+        return archives;
     }
 
 }

@@ -32,6 +32,7 @@ import com.alipay.sofa.ark.loader.EmbedClassPathArchive;
 import com.alipay.sofa.ark.loader.ExecutableArkBizJar;
 import com.alipay.sofa.ark.loader.archive.ExplodedArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.argument.LaunchCommand;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -54,7 +55,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
-import static com.alipay.sofa.ark.spi.constant.Constants.BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK;
 import static com.alipay.sofa.common.log.Constants.LOGGING_PATH_DEFAULT;
 import static com.alipay.sofa.common.log.Constants.LOG_CONFIG_PREFIX;
 import static com.alipay.sofa.common.log.Constants.LOG_ENCODING_PROP_KEY;
@@ -83,7 +83,7 @@ public class ArkContainer {
 
     private long                           start             = System.currentTimeMillis();
 
-    private AddBizToStaticDeployHook addBizToStaticDeployHook;
+    private List<AddBizToStaticDeployHook> addBizToStaticDeployHooks;
 
     /**
      * -Aclasspath or -Ajar is needed at lease. it specify the abstract executable ark archive,
@@ -171,13 +171,7 @@ public class ArkContainer {
         handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
 
         // execute beforeEmbedStaticDeployBizHook
-        addBizToStaticDeployHook = ArkServiceLoader.loadExtensionFromArkBiz(
-            AddBizToStaticDeployHook.class, BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK, ArkClient
-                .getMasterBiz().getIdentity());
-        if (addBizToStaticDeployHook != null) {
-            List<File> bizsFromHook = addBizToStaticDeployHook.getStaticBizFilesToAdd();
-            addStaticBizFromCustomHook(bizsFromHook);
-        }
+        addStaticBizFromCustomHooks();
 
         // start up
         DeployBizStage deployBizStage = ArkServiceContainerHolder.getContainer().getService(
@@ -186,13 +180,22 @@ public class ArkContainer {
         return this;
     }
 
-    private void addStaticBizFromCustomHook(List<File> bizsFromHook) throws IOException {
-        if (null == bizsFromHook) {
+    private void addStaticBizFromCustomHooks() throws Exception {
+        addBizToStaticDeployHooks = ArkServiceLoader.loadExtensionsFromArkBiz(
+            AddBizToStaticDeployHook.class, ArkClient.getMasterBiz().getIdentity());
+        for (AddBizToStaticDeployHook hook : addBizToStaticDeployHooks) {
+            List<BizArchive> bizsFromHook = hook.getStaticBizToAdd();
+            addStaticBiz(bizsFromHook);
+        }
+    }
+
+    private void addStaticBiz(List<BizArchive> bizArchives) throws IOException {
+        if (null == bizArchives) {
             return;
         }
 
-        for (File bizFile : bizsFromHook) {
-            Biz biz = ArkClient.getBizFactoryService().createBiz(bizFile);
+        for (BizArchive bizArchive : bizArchives) {
+            Biz biz = ArkClient.getBizFactoryService().createBiz(bizArchive);
             ArkClient.getBizManagerService().registerBiz(biz);
         }
     }

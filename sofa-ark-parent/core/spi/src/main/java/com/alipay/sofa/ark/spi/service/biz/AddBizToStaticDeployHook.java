@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.ark.spi.service.biz;
 
+import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -28,5 +28,5 @@ import java.util.List;
 @Extensible
 public interface AddBizToStaticDeployHook {
 
-    List<File> getStaticBizFilesToAdd() throws Exception;
+    List<BizArchive> getStaticBizToAdd() throws Exception;
 }

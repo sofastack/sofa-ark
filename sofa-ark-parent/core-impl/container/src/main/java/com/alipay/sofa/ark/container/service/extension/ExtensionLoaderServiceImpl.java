@@ -31,15 +31,18 @@ import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionClass;
 import com.alipay.sofa.ark.spi.service.extension.ExtensionLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import org.slf4j.Logger;
 
 import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_FILE_DIR;
 
@@ -78,6 +81,15 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return getExtensionContributor(interfaceType, extensionName, biz, biz.getBizClassLoader());
     }
 
+    @Override
+    public <T> List<T> getExtensionContributorsFromArkBiz(Class<T> interfaceType, String bizIdentity) {
+        AssertUtils.assertNotNull(interfaceType, "interfaceType can't be null.");
+        AssertUtils.assertNotNull(bizIdentity, "bizIdentity can't be null.");
+        Biz biz = bizManagerService.getBizByIdentity(bizIdentity);
+        AssertUtils.assertNotNull(biz, "biz: " + bizIdentity + " is null");
+        return getExtensionContributors(interfaceType, biz, biz.getBizClassLoader());
+    }
+
     public <T, L> T getExtensionContributor(Class<T> interfaceType, String extensionName,
                                             L location, ClassLoader resourceLoader) {
         ExtensionClass<T, L> extensionClass = null;
@@ -99,10 +111,41 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
         return extensionClass == null ? null : extensionClass.getObject();
     }
 
+    public <T, L> List<T> getExtensionContributors(Class<T> interfaceType,
+                                                   L location, ClassLoader resourceLoader) {
+        try {
+            Set<ExtensionClass<T, L>> extensionClassSet = loadExtensions(interfaceType, location, resourceLoader);
+            Map<String,ExtensionClass> nameToExtensionClass =  new HashMap<>();
+            for (ExtensionClass extensionClazz : extensionClassSet) {
+                if(extensionClazz!=null){
+                    String extensionName = extensionClazz.getExtension().value();
+                    nameToExtensionClass.putIfAbsent(extensionName,extensionClazz);
+                    if(extensionClazz.getPriority() > nameToExtensionClass.get(extensionName).getPriority()){
+                        nameToExtensionClass.put(extensionName,extensionClazz);
+                    }
+                }
+            }
+            return  (List<T>)nameToExtensionClass.values().stream().map(it -> it.getObject()).collect(Collectors.toList());
+        } catch (Throwable throwable) {
+            ArkLoggerFactory.getDefaultLogger()
+                    .error("Loading extension of interfaceType: {} occurs error {}.", interfaceType,
+                            throwable);
+            throw new ArkRuntimeException(throwable);
+        }
+
+    }
+
     private <I, L> Set<ExtensionClass<I, L>> loadExtension(Class<I> interfaceType,
                                                            String extensionName, L location,
                                                            ClassLoader resourceLoader)
                                                                                       throws Throwable {
+        Set<ExtensionClass<I, L>> extensionClassSet = loadExtensions(interfaceType,location,resourceLoader);
+        return extensionClassSet.stream().filter(it -> extensionName.equals(it.getExtension().value())).collect(Collectors.toSet());
+    }
+
+    private <I, L> Set<ExtensionClass<I, L>> loadExtensions(Class<I> interfaceType, L location,
+                                                            ClassLoader resourceLoader)
+                                                                                       throws Throwable {
         BufferedReader reader = null;
         try {
             Set<ExtensionClass<I, L>> extensionClassSet = new HashSet<>();
@@ -155,9 +198,7 @@ public class ExtensionLoaderServiceImpl implements ExtensionLoaderService {
                             "Extension implementation class %s is not annotated by %s.",
                             implementClass, Extension.class));
                     }
-                    if (!extensionName.equals(extension.value())) {
-                        continue;
-                    }
+
                     extensionClass.setExtension(extension);
                     extensionClass.setImplementClass((Class<I>) implementClass);
                     extensionClassSet.add(extensionClass);

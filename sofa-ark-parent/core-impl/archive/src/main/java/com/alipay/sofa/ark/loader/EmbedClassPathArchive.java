@@ -69,73 +69,8 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
     @Override
     public List<BizArchive> getBizArchives() throws Exception {
         // Scan all biz in lib
-        List<BizArchive> archives = getBizArchivesFromLib();
+        return getBizArchivesFromLib();
 
-        // Scan all biz in resources
-        if (ArkConfigs.isEmbedStaticBizInResourceEnable()) {
-            archives.addAll(getBizArchiveFromResources());
-        }
-        return archives;
-
-    }
-
-    protected List<BizArchive> getBizArchiveFromResources() throws Exception {
-        List<BizArchive> archives = new ArrayList<>();
-        URL bizDirURL = ArkClient.getMasterBiz().getBizClassLoader().getResource(SOFA_ARK_MODULE);
-        if (null == bizDirURL) {
-            return archives;
-        }
-
-        if (bizDirURL.getProtocol().equals("file")) {
-            return getBizArchiveForFile(bizDirURL);
-        }
-
-        if (bizDirURL.getProtocol().equals("jar")) {
-            return getBizArchiveForJar(bizDirURL);
-        }
-
-        return archives;
-    }
-
-    private List<BizArchive> getBizArchiveForFile(URL bizDirURL) throws Exception {
-        List<BizArchive> archives = new ArrayList<>();
-
-        File bizDir = org.apache.commons.io.FileUtils.toFile(bizDirURL);
-        if (!bizDir.exists() || !bizDir.isDirectory() || null == bizDir.listFiles()) {
-            return archives;
-        }
-
-        for (File bizFile : bizDir.listFiles()) {
-            archives.add(new JarBizArchive(new JarFileArchive(bizFile)));
-        }
-        return archives;
-    }
-
-    private List<BizArchive> getBizArchiveForJar(URL bizDirURL) throws Exception{
-        List<BizArchive> archives = new ArrayList<>();
-
-        JarFileArchive jarFileArchive = getJarFileArchiveFromUrl(bizDirURL);
-        String prefix = getEntryName(bizDirURL);
-        List<Archive>  archivesFromJar = jarFileArchive.getNestedArchives(entry -> !entry.isDirectory() && entry.getName().startsWith(prefix) && !entry.getName().equals(prefix));
-
-        for (Archive archiveFromJarEntry : archivesFromJar) {
-            archives.add(new JarBizArchive(archiveFromJarEntry));
-        }
-        return archives;
-    }
-
-    private JarFileArchive getJarFileArchiveFromUrl(URL url) throws Exception {
-        String jarPath = StringUtil.substringBefore(((JarURLConnection) url.openConnection())
-            .getJarFile().getName(), "!");
-        return new JarFileArchive(com.alipay.sofa.ark.common.util.FileUtils.file(jarPath));
-    }
-
-    private String getEntryName(URL url) throws IOException {
-        String classPathEntryName = StringUtil.substringAfter(
-            ((JarURLConnection) url.openConnection()).getJarFile().getName(), "!/");
-        String urlEntryNameFromClassPath = ((JarURLConnection) url.openConnection()).getJarEntry()
-            .getName();
-        return StringUtil.join(new String[] { classPathEntryName, urlEntryNameFromClassPath }, "/");
     }
 
     private List<BizArchive> getBizArchivesFromLib() throws Exception {

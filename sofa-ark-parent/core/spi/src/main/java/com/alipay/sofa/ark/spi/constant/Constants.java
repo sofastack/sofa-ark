@@ -215,7 +215,6 @@ public class Constants {
     public final static String       PLUGIN_CLASS_LOADER_HOOK                      = "plugin-classloader-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK                         = "biz-classloader-hook";
 
-    public final static String       BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK           = "before-embed-static-deploy-biz-hook";
     public final static String       BIZ_CLASS_LOADER_HOOK_DIR                     = "com.alipay.sofa.ark.biz.classloader.hook.dir";
     public final static String       BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX         = "deleted";
 
