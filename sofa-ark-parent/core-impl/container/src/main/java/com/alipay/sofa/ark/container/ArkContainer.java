@@ -38,7 +38,7 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
-import com.alipay.sofa.ark.spi.service.biz.BeforeEmbedStaticDeployBizHook;
+import com.alipay.sofa.ark.spi.service.biz.AddBizToStaticDeployHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
 import com.alipay.sofa.common.utils.ReportUtil;
@@ -83,7 +83,7 @@ public class ArkContainer {
 
     private long                           start             = System.currentTimeMillis();
 
-    private BeforeEmbedStaticDeployBizHook beforeEmbedStaticDeployBizHook;
+    private AddBizToStaticDeployHook addBizToStaticDeployHook;
 
     /**
      * -Aclasspath or -Ajar is needed at lease. it specify the abstract executable ark archive,
@@ -171,11 +171,11 @@ public class ArkContainer {
         handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
 
         // execute beforeEmbedStaticDeployBizHook
-        beforeEmbedStaticDeployBizHook = ArkServiceLoader.loadExtensionFromArkBiz(
-            BeforeEmbedStaticDeployBizHook.class, BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK, ArkClient
+        addBizToStaticDeployHook = ArkServiceLoader.loadExtensionFromArkBiz(
+            AddBizToStaticDeployHook.class, BEFORE_EMBED_STATIC_DEPLOY_BIZ_HOOK, ArkClient
                 .getMasterBiz().getIdentity());
-        if (beforeEmbedStaticDeployBizHook != null) {
-            List<File> bizsFromHook = beforeEmbedStaticDeployBizHook.getStaticBizFilesToAdd();
+        if (addBizToStaticDeployHook != null) {
+            List<File> bizsFromHook = addBizToStaticDeployHook.getStaticBizFilesToAdd();
             addStaticBizFromCustomHook(bizsFromHook);
         }
 

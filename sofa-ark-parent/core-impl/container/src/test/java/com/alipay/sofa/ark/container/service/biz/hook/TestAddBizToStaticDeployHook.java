@@ -16,15 +16,11 @@
  */
 package com.alipay.sofa.ark.container.service.biz.hook;
 
-import com.alipay.sofa.ark.loader.JarBizArchive;
-import com.alipay.sofa.ark.loader.archive.JarFileArchive;
-import com.alipay.sofa.ark.spi.archive.Archive;
-import com.alipay.sofa.ark.spi.service.biz.BeforeEmbedStaticDeployBizHook;
+import com.alipay.sofa.ark.spi.service.biz.AddBizToStaticDeployHook;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.google.common.collect.Lists;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,7 +28,7 @@ import java.util.List;
  * @version $Id: TestBeforeEmbedStaticDeployBizHook.java, v 0.1 2024年06月27日 16:36 立蓬 Exp $
  */
 @Extension("before-embed-static-deploy-biz-hook")
-public class TestBeforeEmbedStaticDeployBizHook implements BeforeEmbedStaticDeployBizHook {
+public class TestAddBizToStaticDeployHook implements AddBizToStaticDeployHook {
 
     //@Override
     //public void beforeStaticDeploy(BizFactoryService bizFactoryService,

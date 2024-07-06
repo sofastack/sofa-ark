@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.spi.service.biz;
 
-import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.service.extension.Extensible;
 
 import java.io.File;
@@ -27,7 +26,7 @@ import java.util.List;
  * @version $Id: BeforeStaticDeployBizHook.java, v 0.1 2024年06月27日 01:57 立蓬 Exp $
  */
 @Extensible
-public interface BeforeEmbedStaticDeployBizHook {
+public interface AddBizToStaticDeployHook {
 
     List<File> getStaticBizFilesToAdd() throws Exception;
 }
