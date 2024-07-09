@@ -37,16 +37,11 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.pipeline.Pipeline;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
-import com.alipay.sofa.common.log.env.LogEnvUtils;
-import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
 import com.alipay.sofa.common.utils.ReportUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

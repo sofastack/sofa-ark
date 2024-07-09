@@ -90,7 +90,6 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
             .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
-            .setBizUrl(bizArchive.getUrl())
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
             .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
@@ -101,6 +100,10 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
             .setClassPath(bizArchive.getUrls()).setPluginClassPath(getPluginURLs());
+
+        if (!(bizArchive instanceof DirectoryBizArchive)) {
+            bizModel.setBizUrl(bizArchive.getUrl());
+        }
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
             getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
