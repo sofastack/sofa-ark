@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.loader;
 
-import com.alipay.sofa.ark.api.ArkClient;
-import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.bootstrap.ClasspathLauncher;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
@@ -27,18 +25,14 @@ import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ContainerArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.alipay.sofa.ark.spi.constant.Constants.SOFA_ARK_MODULE;
 
 /**
  * A embed classpath archive base on an application fat jar
@@ -68,12 +62,6 @@ public class EmbedClassPathArchive extends ClasspathLauncher.ClassPathArchive {
 
     @Override
     public List<BizArchive> getBizArchives() throws Exception {
-        // Scan all biz in lib
-        return getBizArchivesFromLib();
-
-    }
-
-    private List<BizArchive> getBizArchivesFromLib() throws Exception {
         //将classpath中的biz包载入
         List<URL> urlList = filterBizUrl(Constants.ARK_BIZ_MARK_ENTRY);
         List<BizArchive> bizArchives = new LinkedList<>();

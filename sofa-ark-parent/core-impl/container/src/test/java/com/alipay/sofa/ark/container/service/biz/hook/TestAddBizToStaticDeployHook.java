@@ -36,21 +36,6 @@ import java.util.List;
 @Extension("before-embed-static-deploy-biz-hook")
 public class TestAddBizToStaticDeployHook implements AddBizToStaticDeployHook {
 
-    //@Override
-    //public void beforeStaticDeploy(BizFactoryService bizFactoryService,
-    //                               BizManagerService bizManagerService) {
-    //    BizModel biz = new BizModel().setBizState(BizState.RESOLVED).setBizVersion("mockVersion")
-    //        .setBizName("mockName");
-    //    Biz spyBiz = Mockito.spy(biz);
-    //    try {
-    //        doNothing().when(spyBiz).start(any(), any());
-    //        doNothing().when(spyBiz).start(any());
-    //    } catch (Throwable e) {
-    //    }
-    //
-    //    bizManagerService.registerBiz(spyBiz);
-    //}
-
     @Override
     public List<BizArchive> getStaticBizToAdd() throws Exception {
         List<BizArchive> archives = new ArrayList<>();

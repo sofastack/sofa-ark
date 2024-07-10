@@ -22,9 +22,11 @@ import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.biz.AddBizToStaticDeployHook;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
 import com.alipay.sofa.common.utils.StringUtil;
+import org.springframework.core.env.Environment;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,10 +47,16 @@ public class AddBizInResourcesHook implements AddBizToStaticDeployHook {
     @Override
     public List<BizArchive> getStaticBizToAdd() throws Exception {
         List<BizArchive> archives = new ArrayList<>();
-        if (ArkConfigs.isEmbedEnable() && ArkConfigs.isEmbedStaticBizInResourceEnable()) {
+        if (ArkConfigs.isEmbedEnable() && isEmbedStaticBizInResourceEnable()) {
             archives.addAll(getBizArchiveFromResources());
         }
         return archives;
+    }
+
+    private boolean isEmbedStaticBizInResourceEnable() {
+        Environment environment = MasterBizEnvironmentHolder.getEnvironment();
+        return environment.getProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,
+            Boolean.class, Boolean.TRUE);
     }
 
     protected List<BizArchive> getBizArchiveFromResources() throws Exception {

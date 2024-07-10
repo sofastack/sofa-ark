@@ -95,33 +95,4 @@ public class EmbedClassPathArchiveTest {
         List<BizArchive> bizArchives = archive.getBizArchives();
         Assert.assertFalse(bizArchives==null||bizArchives.isEmpty());
     }
-
-    @Test
-    public void testStaticCombineGetBizArchivesFromResources() throws Exception {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        URL springbootFatJar = cl.getResource("static-combine-demo.jar");
-        JarFileArchive jarFileArchive = new JarFileArchive(FileUtils.file(springbootFatJar.getFile()));
-        Iterator<org.springframework.boot.loader.archive.Archive> archives = jarFileArchive.getNestedArchives(this::isNestedArchive,null);
-        List<URL> urls = new ArrayList<>();
-        while (archives.hasNext()){
-            urls.add(archives.next().getUrl());
-        }
-
-        Biz masterBiz = Mockito.mock(Biz.class);
-        when(masterBiz.getBizClassLoader()).thenReturn(this.getClass().getClassLoader());
-
-        try (MockedStatic<ArkClient> mockedStatic = Mockito.mockStatic(ArkClient.class)) {
-            mockedStatic.when(ArkClient::getMasterBiz).thenReturn(masterBiz);
-
-            EmbedClassPathArchive embedClassPathArchive = new EmbedClassPathArchive("com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication",
-                    "main",
-                    urls.toArray(new URL[] {}));
-
-            ArkConfigs.setSystemProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,"true");
-            List<BizArchive> bizArchives = embedClassPathArchive.getBizArchives();
-            ArkConfigs.setSystemProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,"false");
-
-            assertEquals(2,bizArchives.size());
-        }
-    }
 }
