@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizInfo.StateChangeReason;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.google.inject.Singleton;
@@ -172,9 +173,13 @@ public class BizManagerServiceImpl implements BizManagerService {
         Biz activeBiz = getActiveBiz(bizName);
         if (biz != null && biz.getBizState() == BizState.DEACTIVATED) {
             if (activeBiz != null) {
-                ((BizModel) activeBiz).setBizState(BizState.DEACTIVATED);
+                ((BizModel) activeBiz).setBizState(BizState.DEACTIVATED,
+                    StateChangeReason.SWITCHED,
+                    String.format("switch to new version %s", biz.getIdentity()));
             }
-            ((BizModel) biz).setBizState(BizState.ACTIVATED);
+            String message = activeBiz == null ? "" : String.format("switch from old version: %s",
+                activeBiz.getIdentity());
+            ((BizModel) biz).setBizState(BizState.ACTIVATED, StateChangeReason.SWITCHED, message);
         }
     }
 
