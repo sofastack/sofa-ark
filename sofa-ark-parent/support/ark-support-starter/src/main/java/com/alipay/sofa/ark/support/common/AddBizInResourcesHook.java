@@ -25,8 +25,6 @@ import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.service.biz.AddBizToStaticDeployHook;
 import com.alipay.sofa.ark.spi.service.extension.Extension;
-import com.alipay.sofa.common.utils.StringUtil;
-import org.springframework.core.env.Environment;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,16 +102,42 @@ public class AddBizInResourcesHook implements AddBizToStaticDeployHook {
     }
 
     private JarFileArchive getJarFileArchiveFromUrl(URL url) throws Exception {
-        String jarPath = StringUtil.substringBefore(((JarURLConnection) url.openConnection())
-            .getJarFile().getName(), "!");
+        String jarPath = substringBefore(((JarURLConnection) url.openConnection()).getJarFile()
+            .getName(), "!");
         return new JarFileArchive(com.alipay.sofa.ark.common.util.FileUtils.file(jarPath));
     }
 
     private String getEntryName(URL url) throws IOException {
-        String classPathEntryName = StringUtil.substringAfter(
-            ((JarURLConnection) url.openConnection()).getJarFile().getName(), "!/");
+        String classPathEntryName = substringAfter(((JarURLConnection) url.openConnection())
+            .getJarFile().getName(), "!/");
         String urlEntryNameFromClassPath = ((JarURLConnection) url.openConnection()).getJarEntry()
             .getName();
-        return StringUtil.join(new String[] { classPathEntryName, urlEntryNameFromClassPath }, "/");
+        return String.join("/", classPathEntryName, urlEntryNameFromClassPath);
+    }
+
+    public static String substringBefore(String str, String separator) {
+        if (str != null && separator != null && str.length() != 0) {
+            if (separator.length() == 0) {
+                return "";
+            } else {
+                int pos = str.indexOf(separator);
+                return pos == -1 ? str : str.substring(0, pos);
+            }
+        } else {
+            return str;
+        }
+    }
+
+    public static String substringAfter(String str, String separator) {
+        if (str != null && str.length() != 0) {
+            if (separator == null) {
+                return "";
+            } else {
+                int pos = str.indexOf(separator);
+                return pos == -1 ? "" : str.substring(pos + separator.length());
+            }
+        } else {
+            return str;
+        }
     }
 }
