@@ -54,9 +54,8 @@ public class AddBizInResourcesHook implements AddBizToStaticDeployHook {
     }
 
     private boolean isEmbedStaticBizInResourceEnable() {
-        Environment environment = MasterBizEnvironmentHolder.getEnvironment();
-        return environment.getProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,
-            Boolean.class, Boolean.TRUE);
+        return ArkConfigs.getBooleanValue(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE,
+            Boolean.TRUE);
     }
 
     protected List<BizArchive> getBizArchiveFromResources() throws Exception {

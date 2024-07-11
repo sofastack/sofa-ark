@@ -24,7 +24,6 @@ import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.support.common.AddBizInResourcesHook;
-import com.alipay.sofa.ark.support.common.MasterBizEnvironmentHolder;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -48,12 +47,9 @@ public class AddBizInResourcesHookTest {
         ArkConfigs.setEmbedEnable(false);
         assertEquals(0,addBizInResourcesHook.getStaticBizToAdd().size());
 
-        // case2: ark is embed but env set false
+        // case2: ark is embed but set 'EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE' as false
         ArkConfigs.setEmbedEnable(true);
-        Environment mockedEnv = Mockito.mock(Environment.class);
-        when(mockedEnv.getProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE, Boolean.class, Boolean.TRUE))
-                .thenReturn(false);
-        MasterBizEnvironmentHolder.setEnvironment(mockedEnv);
+        ArkConfigs.putStringValue(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE, "false");
 
         // config master biz
         Biz masterBiz = createTestBizModel("test", "1.0.0", BizState.ACTIVATED, this.getClass().getClassLoader());
@@ -67,10 +63,9 @@ public class AddBizInResourcesHookTest {
         }
 
 
-        // case3: ark is embed and env set true
+        // case3: ark is embed and set 'EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE' as true
         ArkConfigs.setEmbedEnable(true);
-        when(mockedEnv.getProperty(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE, Boolean.class, Boolean.TRUE))
-                .thenReturn(true);
+        ArkConfigs.putStringValue(Constants.EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE, "true");
 
         try (MockedStatic<ArkClient> mockedStatic = Mockito.mockStatic(ArkClient.class)){
             mockedStatic.when(ArkClient::getMasterBiz).thenReturn(masterBiz);
@@ -78,7 +73,6 @@ public class AddBizInResourcesHookTest {
             assertEquals(1, bizArchives.size());
         }finally {
             ArkConfigs.setEmbedEnable(false);
-            MasterBizEnvironmentHolder.setEnvironment(null);
         }
     }
 
