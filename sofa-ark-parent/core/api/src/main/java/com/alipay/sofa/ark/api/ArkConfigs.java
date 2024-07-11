@@ -127,6 +127,11 @@ public class ArkConfigs {
         return val == null ? defaultValue : Integer.valueOf(val);
     }
 
+    public static boolean getBooleanValue(String primaryKey, boolean defaultValue) {
+        String val = getStringValue(primaryKey);
+        return val == null ? defaultValue : Boolean.valueOf(val);
+    }
+
     /**
      * Get ArkConfigs key set
      *

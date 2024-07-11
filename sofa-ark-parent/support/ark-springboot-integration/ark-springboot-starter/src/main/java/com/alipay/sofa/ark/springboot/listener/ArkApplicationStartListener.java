@@ -21,7 +21,6 @@ import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
-import com.alipay.sofa.ark.support.common.MasterBizEnvironmentHolder;
 import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
 import com.alipay.sofa.ark.support.startup.SofaArkBootstrap;
 import org.springframework.boot.SpringBootVersion;
@@ -124,7 +123,6 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         }
         if (event instanceof ApplicationEnvironmentPreparedEvent) {
             ApplicationEnvironmentPreparedEvent preparedEvent = (ApplicationEnvironmentPreparedEvent) event;
-            MasterBizEnvironmentHolder.setEnvironment(preparedEvent.getEnvironment());
             EmbedSofaArkBootstrap.launch(preparedEvent.getEnvironment());
         }
         if (event instanceof ApplicationReadyEvent) {
