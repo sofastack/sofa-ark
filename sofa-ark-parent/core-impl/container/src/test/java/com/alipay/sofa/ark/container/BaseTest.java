@@ -71,6 +71,14 @@ public class BaseTest {
         return bizModel;
     }
 
+    public static BizModel createTestBizModel(String bizName, String bizVersion, BizState bizState,
+                                              ClassLoader classLoader) {
+        BizModel bizModel = new BizModel().setBizState(bizState);
+        bizModel.setBizName(bizName).setBizVersion(bizVersion);
+        bizModel.setClassLoader(classLoader);
+        return bizModel;
+    }
+
     @Before
     public void before() {
 

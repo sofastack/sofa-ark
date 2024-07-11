@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.spi.service.extension;
 
+import java.util.List;
+
 /**
  * @author qilong.zql
  * @since 0.6.0
@@ -44,4 +46,14 @@ public interface ExtensionLoaderService {
      */
     <T> T getExtensionContributorFromArkBiz(Class<T> interfaceType, String extensionName,
                                             String bizIdentity);
+
+    /**
+     * get specified extension implementation which match interfaceType and extensionName from ark biz
+     *
+     * @param interfaceType extensible interface type
+     * @param <T> extension implementation type
+     * @param bizIdentity bizIdentity
+     * @return
+     */
+    <T> List<T> getExtensionContributorsFromArkBiz(Class<T> interfaceType, String bizIdentity);
 }
