@@ -198,6 +198,8 @@ public class Constants {
     public final static String       EMBED_ENABLE                                  = "sofa.ark.embed.enable";
     public final static String       PLUGIN_EXPORT_CLASS_ENABLE                    = "sofa.ark.plugin.export.class.enable";
     public final static String       EMBED_STATIC_BIZ_ENABLE                       = "sofa.ark.embed.static.biz.enable";
+
+    public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
     public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
@@ -221,6 +223,8 @@ public class Constants {
      * Multiply biz name
      */
     public final static String       MASTER_BIZ                                    = "com.alipay.sofa.ark.master.biz";
+
+    public final static String       SOFA_ARK_MODULE                               = "SOFA-ARK/biz/";
 
     /**
      * Config Server
