@@ -23,9 +23,29 @@ package com.alipay.sofa.ark.spi.model;
  * @since 0.4.0
  */
 public enum BizState {
-    UNRESOLVED("unresolved"), RESOLVED("resolved"), ACTIVATED("activated"), DEACTIVATED(
-                                                                                        "deactivated"), BROKEN(
-                                                                                                               "broken");
+    /**
+     * install not started yet
+     */
+    UNRESOLVED("unresolved"),
+    /**
+     * installing
+     */
+    RESOLVED("resolved"),
+
+    /**
+     * install succeed, and start serving
+     */
+    ACTIVATED("activated"),
+
+    /**
+     * uninstall
+     */
+    DEACTIVATED("deactivated"),
+
+    /**
+     * install failed.
+     */
+    BROKEN("broken");
 
     private String state;
 

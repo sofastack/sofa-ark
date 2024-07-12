@@ -32,6 +32,7 @@ import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizInfo.StateChangeReason;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.model.Plugin;
@@ -85,11 +86,10 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         String mainClass = manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE);
         String startClass = manifestMainAttributes.getValue(START_CLASS_ATTRIBUTE);
         bizModel
-            .setBizState(BizState.RESOLVED)
+            .setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
             .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
             .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
             .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
-            .setBizUrl(bizArchive.getUrl())
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
             .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
@@ -100,6 +100,10 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
             .setClassPath(bizArchive.getUrls()).setPluginClassPath(getPluginURLs());
+
+        if (!(bizArchive instanceof DirectoryBizArchive)) {
+            bizModel.setBizUrl(bizArchive.getUrl());
+        }
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
             getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
@@ -148,11 +152,11 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
         BizModel bizModel = new BizModel();
-        bizModel.setBizState(BizState.RESOLVED).setBizName(ArkConfigs.getStringValue(MASTER_BIZ))
-            .setBizVersion("1.0.0").setMainClass("embed main").setPriority("100")
-            .setWebContextPath("/").setDenyImportPackages(null).setDenyImportClasses(null)
-            .setDenyImportResources(null).setInjectPluginDependencies(new HashSet<>())
-            .setInjectExportPackages(null)
+        bizModel.setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
+            .setBizName(ArkConfigs.getStringValue(MASTER_BIZ)).setBizVersion("1.0.0")
+            .setMainClass("embed main").setPriority("100").setWebContextPath("/")
+            .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
+            .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
             .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
             .setClassLoader(masterClassLoader);
         return bizModel;
