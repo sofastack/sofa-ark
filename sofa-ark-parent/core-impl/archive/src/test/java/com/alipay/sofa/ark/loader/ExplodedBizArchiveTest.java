@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
  *
@@ -87,5 +88,18 @@ public class ExplodedBizArchiveTest {
         }
         Assert.assertNotNull(logger);
         Assert.assertNotNull(mainClass);
+    }
+
+    @Test
+    public void testCloseManifestFileStream() throws IOException {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        URL arkBizJar = cl.getResource("sample-biz-withjar.jar");
+        File unpack = FileUtils.unzip(FileUtils.file(arkBizJar.getFile()), arkBizJar.getFile()
+                                                                           + "-testdelete-unpack");
+        ExplodedBizArchive archive = new ExplodedBizArchive(unpack);
+        Assert.assertNotNull(archive.getManifest());
+        File file = new File(unpack, "META-INF/MANIFEST.MF");
+        Assert.assertTrue(file.delete());
+        deleteQuietly(unpack);
     }
 }
