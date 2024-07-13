@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -35,7 +36,6 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -238,6 +238,27 @@ public class RepackageMojo extends TreeMojo {
      */
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludeArtifactIds         = new LinkedHashSet<>();
+
+
+    /**
+     * Colon separated groupId, artifactId [and classifier] to include (exact match). e.g:
+     * group-a:tracer-core:3.0.10
+     * group-b:tracer-core:3.0.10:jdk17
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includes                   = new LinkedHashSet<>();
+
+    /**
+     * list of groupId names to include (exact match).
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includeGroupIds            = new LinkedHashSet<>();
+
+    /**
+     * list of artifact names to include (exact match).
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includeArtifactIds         = new LinkedHashSet<>();
 
     /**
      * list of packages denied to be imported
@@ -509,21 +530,26 @@ public class RepackageMojo extends TreeMojo {
             Set<Artifact> artifacts = new HashSet<>(Collections.singleton(arkArtifact));
 
             // 读取需要打包的依赖
-            artifacts.addAll(getSlimmedArtifacts(this.mavenProject.getArtifacts()));
+            artifacts.addAll(getSlimmedArtifacts());
             return artifacts;
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
     }
 
-    private Set<Artifact> getSlimmedArtifacts(Set<Artifact> artifacts) {
-        Set<Artifact> filteredByBase = filterBaseDependencyParentArtifacts(artifacts);
-        filterIncludeAndExcludeArtifacts(filteredByBase);
-        return filterIncludeAndExcludeArtifacts(filteredByBase);
-    }
-
-    private Set<Artifact> filterBaseDependencyParentArtifacts(Set<Artifact> artifacts) {
-        return artifacts;
+    private Set<Artifact> getSlimmedArtifacts() {
+        ModuleSlimConfig moduleSlimConfig = ModuleSlimConfig.builder()
+                .packExcludesConfig(packExcludesConfig)
+                .packExcludesUrl(packExcludesUrl)
+                .excludes(excludes)
+                .excludeGroupIds(excludeGroupIds)
+                .excludeArtifactIds(excludeArtifactIds)
+                .includes(includes)
+                .includeGroupIds(includeGroupIds)
+                .includeArtifactIds(includeArtifactIds)
+                .baseDependencyParentIdentity(baseDependencyParentIdentity).build();
+        ModuleSlimStrategy slimStrategy = new ModuleSlimStrategy(this.mavenProject,moduleSlimConfig, this.getLog());
+        return slimStrategy.getSlimmedArtifacts();
     }
 
     private File getAppTargetFile() {
@@ -728,25 +754,6 @@ public class RepackageMojo extends TreeMojo {
         if (yaml.containsKey(confKey) && null != yaml.get(confKey)) {
             targetSet.addAll(yaml.get(confKey));
         }
-    }
-
-    private Model getBaseDependencyParentOriginalModel(){
-        if(StringUtils.isEmpty(baseDependencyParentIdentity)){
-            return null;
-        }
-
-        MavenProject proj = getProject();
-        while(null != proj){
-            if(baseDependencyParentIdentity.equals(getArtifactIdentity(proj.getArtifact()))){
-                return proj.getOriginalModel();
-            }
-            proj = proj.getParent();
-        }
-        return null;
-    }
-
-    private String getArtifactIdentity(Artifact artifact){
-        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
     }
 
     /**
