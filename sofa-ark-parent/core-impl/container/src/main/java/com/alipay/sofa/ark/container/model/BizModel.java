@@ -38,6 +38,7 @@ import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -110,6 +112,8 @@ public class BizModel implements Biz {
     private File                 bizTempWorkDir;
 
     private List<BizStateRecord> bizStateRecords               = new CopyOnWriteArrayList<>();
+
+    private Set<Plugin>          dependentPlugins              = new HashSet<>();
 
     public BizModel setBizName(String bizName) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz Name must not be empty!");
@@ -227,6 +231,15 @@ public class BizModel implements Biz {
 
     private void addStateChangeLog(StateChangeReason reason, String message) {
         bizStateRecords.add(new BizStateRecord(new Date(), bizState, reason, message));
+    }
+
+    public Set<Plugin> getDependentPlugins() {
+        return dependentPlugins;
+    }
+
+    public BizModel setDependentPlugins(Set<Plugin> dependentPlugins) {
+        this.dependentPlugins = dependentPlugins;
+        return this;
     }
 
     @Override
@@ -615,4 +628,58 @@ public class BizModel implements Biz {
 
         return targetPath;
     }
+
+    /* export class and classloader relationship cache */
+    private ConcurrentHashMap<String, Plugin>       exportClassAndClassLoaderMap              = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plugin>       exportNodeAndClassLoaderMap               = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plugin>       exportStemAndClassLoaderMap               = new ConcurrentHashMap<>();
+
+    /* export cache and classloader relationship cache */
+    private ConcurrentHashMap<String, List<Plugin>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<Plugin>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<Plugin>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+
+    public ConcurrentHashMap<String, Plugin> getExportClassAndClassLoaderMap() {
+        return exportClassAndClassLoaderMap;
+    }
+
+    public ConcurrentHashMap<String, Plugin> getExportNodeAndClassLoaderMap() {
+        return exportNodeAndClassLoaderMap;
+    }
+
+    public ConcurrentHashMap<String, Plugin> getExportStemAndClassLoaderMap() {
+        return exportStemAndClassLoaderMap;
+    }
+
+    public ConcurrentHashMap<String, List<Plugin>> getExportResourceAndClassLoaderMap() {
+        return exportResourceAndClassLoaderMap;
+    }
+
+    public ConcurrentHashMap<String, List<Plugin>> getExportPrefixStemResourceAndClassLoaderMap() {
+        return exportPrefixStemResourceAndClassLoaderMap;
+    }
+
+    public ConcurrentHashMap<String, List<Plugin>> getExportSuffixStemResourceAndClassLoaderMap() {
+        return exportSuffixStemResourceAndClassLoaderMap;
+    }
+
+    //    public static class PluginExportCache {
+    //
+    //        private Biz biz;
+    //
+    //        private List<Plugin> dependentPlugins;
+    //
+    //        /* export class and classloader relationship cache */
+    //        private ConcurrentHashMap<String, Plugin>       exportClassAndClassLoaderMap              = new ConcurrentHashMap<>();
+    //        private ConcurrentHashMap<String, Plugin>       exportNodeAndClassLoaderMap               = new ConcurrentHashMap<>();
+    //        private ConcurrentHashMap<String, Plugin>       exportStemAndClassLoaderMap               = new ConcurrentHashMap<>();
+    //
+    //        /* export cache and classloader relationship cache */
+    //        private ConcurrentHashMap<String, List<Plugin>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
+    //        private ConcurrentHashMap<String, List<Plugin>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    //        private ConcurrentHashMap<String, List<Plugin>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
+    //
+    //
+    //
+    //    }
 }

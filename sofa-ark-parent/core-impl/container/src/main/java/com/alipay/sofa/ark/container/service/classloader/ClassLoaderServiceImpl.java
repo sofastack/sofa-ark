@@ -23,6 +23,7 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.spi.constant.Constants;
@@ -39,6 +40,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -189,6 +191,25 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
     }
 
     @Override
+    public ClassLoader findExportClassLoaderByBiz(Biz biz, String className) {
+        BizModel bizModel = (BizModel) biz;
+        Plugin plugin = bizModel.getExportClassAndClassLoaderMap().get(className);
+        String packageName = ClassUtils.getPackageName(className);
+        if (plugin == null) {
+            plugin = bizModel.getExportNodeAndClassLoaderMap().get(packageName);
+        }
+        while (!Constants.DEFAULT_PACKAGE.equals(packageName) && plugin == null) {
+            plugin = bizModel.getExportStemAndClassLoaderMap().get(packageName);
+            packageName = ClassUtils.getPackageName(packageName);
+        }
+        if (plugin != null) {
+            return plugin.getPluginClassLoader();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public Plugin findExportPlugin(String className) {
         Plugin plugin = exportClassAndClassLoaderMap.get(className);
         String packageName = ClassUtils.getPackageName(className);
@@ -237,6 +258,38 @@ public class ClassLoaderServiceImpl implements ClassLoaderService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public List<ClassLoader> findExportResourceClassLoadersInOrderByBiz(Biz biz, String resourceName) {
+        BizModel bizModel = (BizModel) biz;
+        List<Plugin> plugins = findExportResourcePluginsInOrderByBiz(bizModel, resourceName);
+
+        if (plugins != null) {
+            return plugins.stream().map(Plugin::getPluginClassLoader).collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+
+    private List<Plugin> findExportResourcePluginsInOrderByBiz(BizModel bizModel,
+                                                               String resourceName) {
+        if (bizModel.getExportResourceAndClassLoaderMap().containsKey(resourceName)) {
+            return bizModel.getExportResourceAndClassLoaderMap().get(resourceName);
+        }
+
+        for (String stemResource : bizModel.getExportPrefixStemResourceAndClassLoaderMap().keySet()) {
+            if (resourceName.startsWith(stemResource)) {
+                return bizModel.getExportPrefixStemResourceAndClassLoaderMap().get(stemResource);
+            }
+        }
+
+        for (String stemResource : bizModel.getExportSuffixStemResourceAndClassLoaderMap().keySet()) {
+            if (resourceName.endsWith(stemResource)) {
+                return bizModel.getExportSuffixStemResourceAndClassLoaderMap().get(stemResource);
+            }
+        }
+        return null;
     }
 
     private List<Plugin> findExportResourcePluginsInOrder(String resourceName) {

@@ -113,6 +113,7 @@ public class Constants {
     public final static String       INJECT_PLUGIN_DEPENDENCIES                    = "inject-plugin-dependencies";
     public final static String       INJECT_EXPORT_PACKAGES                        = "inject-export-packages";
     public final static String       DECLARED_LIBRARIES                            = "declared-libraries";
+    public final static String       DEPENDENT_PLUGINS                             = "dependent-plugins";
 
     public static final String       BRANCH                                        = "commit-branch";
     public static final String       COMMIT_ID                                     = "commit-id";

@@ -48,6 +48,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -100,6 +101,42 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
             .setClassPath(bizArchive.getUrls()).setPluginClassPath(getPluginURLs());
+
+        // prepare dependent plugins
+        Set<String> pluginNames = StringUtils.strToSet(
+            manifestMainAttributes.getValue("dependent-plugins"), Constants.MANIFEST_VALUE_SPLIT);
+        Set<Plugin> plugins = new HashSet<>();
+        for (String pluginName : pluginNames) {
+            Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+            plugins.add(plugin);
+        }
+        bizModel.setDependentPlugins(plugins);
+        for (Plugin plugin : plugins) {
+            for (String exportIndex : plugin.getExportPackageNodes()) {
+                bizModel.getExportNodeAndClassLoaderMap().putIfAbsent(exportIndex, plugin);
+            }
+            for (String exportIndex : plugin.getExportPackageStems()) {
+                bizModel.getExportStemAndClassLoaderMap().putIfAbsent(exportIndex, plugin);
+            }
+            for (String exportIndex : plugin.getExportClasses()) {
+                bizModel.getExportClassAndClassLoaderMap().putIfAbsent(exportIndex, plugin);
+            }
+            for (String resource : plugin.getExportResources()) {
+                bizModel.getExportResourceAndClassLoaderMap().putIfAbsent(resource,
+                    new LinkedList<>());
+                bizModel.getExportResourceAndClassLoaderMap().get(resource).add(plugin);
+            }
+            for (String resource : plugin.getExportPrefixResourceStems()) {
+                bizModel.getExportPrefixStemResourceAndClassLoaderMap().putIfAbsent(resource,
+                    new LinkedList<>());
+                bizModel.getExportPrefixStemResourceAndClassLoaderMap().get(resource).add(plugin);
+            }
+            for (String resource : plugin.getExportSuffixResourceStems()) {
+                bizModel.getExportSuffixStemResourceAndClassLoaderMap().putIfAbsent(resource,
+                    new LinkedList<>());
+                bizModel.getExportSuffixStemResourceAndClassLoaderMap().get(resource).add(plugin);
+            }
+        }
 
         if (!(bizArchive instanceof DirectoryBizArchive)) {
             bizModel.setBizUrl(bizArchive.getUrl());
