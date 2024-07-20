@@ -1,6 +1,18 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2024 All Rights Reserved.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.alipay.sofa.ark.boot.mojo;
 
@@ -59,12 +71,12 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_GROU
  */
 
 public class ModuleSlimStrategy {
-    private MavenProject project;
-    private ModuleSlimConfig config;
+    private MavenProject        project;
+    private ModuleSlimConfig    config;
 
-    private Log log;
+    private Log                 log;
 
-    private static final String    DEFAULT_EXCLUDE_RULES      = "rules.txt";
+    private static final String DEFAULT_EXCLUDE_RULES = "rules.txt";
 
     ModuleSlimStrategy(MavenProject project, ModuleSlimConfig config, Log log) {
         this.project = project;
@@ -130,14 +142,15 @@ public class ModuleSlimStrategy {
         return artifacts.stream().filter(it -> checkMatchInclude(includeList, it)).collect(Collectors.toSet());
     }
 
-    private Model getBaseDependencyParentOriginalModel(){
-        if(StringUtils.isEmpty(config.getBaseDependencyParentIdentity())){
+    private Model getBaseDependencyParentOriginalModel() {
+        if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
             return null;
         }
 
         MavenProject proj = project;
-        while(null != proj){
-            if(config.getBaseDependencyParentIdentity().equals(getArtifactIdentity(proj.getArtifact()))){
+        while (null != proj) {
+            if (config.getBaseDependencyParentIdentity().equals(
+                getArtifactIdentity(proj.getArtifact()))) {
                 return proj.getOriginalModel();
             }
             proj = proj.getParent();
@@ -145,22 +158,23 @@ public class ModuleSlimStrategy {
         return null;
     }
 
-    private String getArtifactIdentity(Artifact artifact){
+    private String getArtifactIdentity(Artifact artifact) {
         return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
     }
 
-    private String getDependencyIdentity(Dependency dependency){
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
+    private String getDependencyIdentity(Dependency dependency) {
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
+               + dependency.getVersion();
     }
 
     protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
-            extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR + File.separator
-                    + config.getPackExcludesConfig());
+            extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR
+                                      + File.separator + config.getPackExcludesConfig());
         } else {
-            extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR + File.separator
-                    + DEFAULT_EXCLUDE_RULES);
+            extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR
+                                      + File.separator + DEFAULT_EXCLUDE_RULES);
         }
 
         extensionExcludeArtifactsByDefault();
@@ -186,7 +200,6 @@ public class ModuleSlimStrategy {
         return result;
     }
 
-
     /**
      * This method is core method for excluding artifacts in sofa-ark-maven-plugin &lt;excludeGroupIds&gt;
      * and &lt;excludeArtifactIds&gt; config.
@@ -202,7 +215,7 @@ public class ModuleSlimStrategy {
             }
         }
 
-        if(checkMatchGroupId(config.getExcludeGroupIds(),artifact)){
+        if (checkMatchGroupId(config.getExcludeGroupIds(), artifact)) {
             return true;
         }
 
@@ -224,25 +237,23 @@ public class ModuleSlimStrategy {
             }
         }
 
-        if(checkMatchGroupId(config.getExcludeGroupIds(),artifact)){
+        if (checkMatchGroupId(config.getExcludeGroupIds(), artifact)) {
             return true;
         }
 
         return checkMatchArtifactId(config.getExcludeArtifactIds(), artifact);
     }
 
-    private boolean checkMatchGroupId(Set<String> groupIds,Artifact artifact){
+    private boolean checkMatchGroupId(Set<String> groupIds, Artifact artifact) {
         if (groupIds != null) {
             // 支持通配符
             for (String groupId : groupIds) {
                 if (groupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                        || groupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    || groupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                     if (groupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                        groupId = StringUtils.removeEnd(groupId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
+                        groupId = StringUtils.removeEnd(groupId, Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (groupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        groupId = StringUtils.removeEnd(groupId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                        groupId = StringUtils.removeEnd(groupId, Constants.PACKAGE_PREFIX_MARK);
                     }
 
                     if (artifact.getGroupId().startsWith(groupId)) {
@@ -258,18 +269,18 @@ public class ModuleSlimStrategy {
         return false;
     }
 
-    private boolean checkMatchArtifactId(Set<String> artifactIds,Artifact artifact){
+    private boolean checkMatchArtifactId(Set<String> artifactIds, Artifact artifact) {
         if (artifactIds != null) {
             // 支持通配符
             for (String artifactId : artifactIds) {
                 if (artifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                        || artifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    || artifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                     if (artifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         artifactId = StringUtils.removeEnd(artifactId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
+                            Constants.PACKAGE_PREFIX_MARK_2);
                     } else if (artifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                         artifactId = StringUtils.removeEnd(artifactId,
-                                Constants.PACKAGE_PREFIX_MARK);
+                            Constants.PACKAGE_PREFIX_MARK);
                     }
                     if (artifact.getArtifactId().startsWith(artifactId)) {
                         return true;
@@ -283,6 +294,7 @@ public class ModuleSlimStrategy {
         }
         return false;
     }
+
     protected void extensionExcludeArtifacts(String extraResources) {
         try {
             File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
@@ -291,13 +303,14 @@ public class ModuleSlimStrategy {
                 String dataLine;
                 while ((dataLine = bufferedReader.readLine()) != null) {
                     if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
-                        ParseUtils.parseExcludeConf(config.getExcludes(), dataLine, EXTENSION_EXCLUDES);
+                        ParseUtils.parseExcludeConf(config.getExcludes(), dataLine,
+                            EXTENSION_EXCLUDES);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
                         ParseUtils.parseExcludeConf(config.getExcludeGroupIds(), dataLine,
-                                EXTENSION_EXCLUDES_GROUPIDS);
+                            EXTENSION_EXCLUDES_GROUPIDS);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(config.getExcludeArtifactIds(), dataLine,
-                                EXTENSION_EXCLUDES_ARTIFACTIDS);
+                            EXTENSION_EXCLUDES_ARTIFACTIDS);
                     }
                 }
             }
@@ -314,70 +327,75 @@ public class ModuleSlimStrategy {
 
     protected void extensionExcludeArtifactsFromProp() {
         String configPath = getBaseDir() + File.separator + ARK_CONF_BASE_DIR + File.separator
-                + ARK_CONF_FILE;
+                            + ARK_CONF_FILE;
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
         if (!configFile.exists()) {
             getLog().info(
-                    String.format(
-                            "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
-                            configPath));
+                String.format(
+                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
+                    configPath));
             return;
         }
 
         getLog().info(
-                String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
-                        configPath));
+            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
+                configPath));
 
         Properties prop = new Properties();
         try (FileInputStream fis = new FileInputStream(configPath)) {
             prop.load(fis);
 
             parseIncludeOrExcludeProp(config.getExcludes(), prop, EXTENSION_EXCLUDES);
-            parseIncludeOrExcludeProp(config.getExcludeGroupIds(), prop, EXTENSION_EXCLUDES_GROUPIDS);
-            parseIncludeOrExcludeProp(config.getExcludeArtifactIds(), prop, EXTENSION_EXCLUDES_ARTIFACTIDS);
+            parseIncludeOrExcludeProp(config.getExcludeGroupIds(), prop,
+                EXTENSION_EXCLUDES_GROUPIDS);
+            parseIncludeOrExcludeProp(config.getExcludeArtifactIds(), prop,
+                EXTENSION_EXCLUDES_ARTIFACTIDS);
         } catch (IOException ex) {
             getLog().error(
-                    String.format("failed to parse excludes artifacts from %s.", configPath), ex);
+                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
         }
     }
 
     protected void extensionExcludeArtifactsFromYaml() {
         String configPath = getBaseDir() + File.separator + ARK_CONF_BASE_DIR + File.separator
-                + ARK_CONF_YAML_FILE;
+                            + ARK_CONF_YAML_FILE;
         File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
         if (!configFile.exists()) {
             getLog().info(
-                    String.format(
-                            "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
-                            configPath));
+                String.format(
+                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
+                    configPath));
             return;
         }
 
         getLog().info(
-                String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
-                        configPath));
+            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
+                configPath));
 
         try (FileInputStream fis = new FileInputStream(configPath)) {
             Yaml yaml = new Yaml();
             Map<String, List<String>> parsedYaml = yaml.load(fis);
             parseIncludeOrExcludeYaml(config.getExcludes(), parsedYaml, EXTENSION_EXCLUDES);
-            parseIncludeOrExcludeYaml(config.getExcludeGroupIds(), parsedYaml, EXTENSION_EXCLUDES_GROUPIDS);
-            parseIncludeOrExcludeYaml(config.getExcludeArtifactIds(), parsedYaml, EXTENSION_EXCLUDES_ARTIFACTIDS);
+            parseIncludeOrExcludeYaml(config.getExcludeGroupIds(), parsedYaml,
+                EXTENSION_EXCLUDES_GROUPIDS);
+            parseIncludeOrExcludeYaml(config.getExcludeArtifactIds(), parsedYaml,
+                EXTENSION_EXCLUDES_ARTIFACTIDS);
         } catch (IOException ex) {
             getLog().error(
-                    String.format("failed to parse excludes artifacts from %s.", configPath), ex);
+                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
         }
     }
 
-    private void parseIncludeOrExcludeProp(LinkedHashSet<String> targetSet, Properties prop, String confKey) {
+    private void parseIncludeOrExcludeProp(LinkedHashSet<String> targetSet, Properties prop,
+                                           String confKey) {
         String[] parsed = StringUtils.split(prop.getProperty(confKey), COMMA_SPLIT);
         if (null != parsed) {
             targetSet.addAll(Arrays.asList(parsed));
         }
     }
 
-    private void parseIncludeOrExcludeYaml(LinkedHashSet<String> targetSet, Map<String, List<String>> yaml,
-                                           String confKey) {
+    private void parseIncludeOrExcludeYaml(LinkedHashSet<String> targetSet,
+                                           Map<String, List<String>> yaml, String confKey) {
         if (yaml.containsKey(confKey) && null != yaml.get(confKey)) {
             targetSet.addAll(yaml.get(confKey));
         }
@@ -392,11 +410,11 @@ public class ModuleSlimStrategy {
             if (statusCode == 200 && response.getEntity() != null) {
                 String result = EntityUtils.toString(response.getEntity());
                 getLog().info(
-                        String.format("success to get excludes config from url: %s, response: %s",
-                                packExcludesUrl, result));
+                    String.format("success to get excludes config from url: %s, response: %s",
+                        packExcludesUrl, result));
                 ObjectMapper objectMapper = new ObjectMapper();
                 ExcludeConfigResponse excludeConfigResponse = objectMapper.readValue(result,
-                        ExcludeConfigResponse.class);
+                    ExcludeConfigResponse.class);
                 if (excludeConfigResponse.isSuccess() && excludeConfigResponse.getResult() != null) {
                     ExcludeConfig excludeConfig = excludeConfigResponse.getResult();
                     List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
@@ -412,20 +430,20 @@ public class ModuleSlimStrategy {
                         config.getExcludes().addAll(jarBlackList);
                     }
                     logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
-                            artifacts, true);
+                        artifacts, true);
 
                     List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
                     List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
                     List<String> jarWarnList = excludeConfig.getJarWarnList();
                     logExcludeMessage(jarWarnGroupIds, jarWarnArtifactIds, jarWarnList, artifacts,
-                            false);
+                        false);
                 }
             }
             response.close();
             client.close();
         } catch (Exception e) {
             getLog().error(
-                    String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
+                String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
         }
     }
 
@@ -438,28 +456,28 @@ public class ModuleSlimStrategy {
                 }
                 for (String jarBlackGroupId : jarGroupIds) {
                     if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                            || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                             jarBlackGroupId = StringUtils.remove(jarBlackGroupId,
-                                    Constants.PACKAGE_PREFIX_MARK_2);
+                                Constants.PACKAGE_PREFIX_MARK_2);
                         } else if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                             jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                                    Constants.PACKAGE_PREFIX_MARK);
+                                Constants.PACKAGE_PREFIX_MARK);
                         }
 
                         if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
                             if (error) {
                                 getLog()
-                                        .error(
-                                                String
-                                                        .format(
-                                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                                                artifact, jarBlackGroupId));
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
-                                        String.format(
-                                                "Warn to package jar: %s due to match groupId: %s",
-                                                artifact, jarBlackGroupId));
+                                    String.format(
+                                        "Warn to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
                             }
 
                         }
@@ -467,16 +485,16 @@ public class ModuleSlimStrategy {
                         if (artifact.getGroupId().equals(jarBlackGroupId)) {
                             if (error) {
                                 getLog()
-                                        .error(
-                                                String
-                                                        .format(
-                                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                                                artifact, jarBlackGroupId));
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
+                                                artifact, jarBlackGroupId));
                             } else {
                                 getLog().warn(
-                                        String.format(
-                                                "Warn to package jar: %s due to match groupId: %s",
-                                                artifact, jarBlackGroupId));
+                                    String.format(
+                                        "Warn to package jar: %s due to match groupId: %s",
+                                        artifact, jarBlackGroupId));
                             }
                         }
                     }
@@ -490,43 +508,43 @@ public class ModuleSlimStrategy {
                 }
                 for (String jarBlackArtifactId : jarArtifactIds) {
                     if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                            || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                         if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
                             jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                    Constants.PACKAGE_PREFIX_MARK_2);
+                                Constants.PACKAGE_PREFIX_MARK_2);
                         } else if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
                             jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                    Constants.PACKAGE_PREFIX_MARK);
+                                Constants.PACKAGE_PREFIX_MARK);
                         }
                         if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
                             if (error) {
                                 getLog()
-                                        .error(
-                                                String
-                                                        .format(
-                                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                                                artifact, jarBlackArtifactId));
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
-                                        String.format(
-                                                "Warn to package jar: %s due to match artifactId: %s",
-                                                artifact, jarBlackArtifactId));
+                                    String.format(
+                                        "Warn to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
                             }
                         }
                     } else {
                         if (artifact.getArtifactId().equals(jarBlackArtifactId)) {
                             if (error) {
                                 getLog()
-                                        .error(
-                                                String
-                                                        .format(
-                                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                                                artifact, jarBlackArtifactId));
+                                    .error(
+                                        String
+                                            .format(
+                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
+                                                artifact, jarBlackArtifactId));
                             } else {
                                 getLog().warn(
-                                        String.format(
-                                                "Warn to package jar: %s due to match artifactId: %s",
-                                                artifact, jarBlackArtifactId));
+                                    String.format(
+                                        "Warn to package jar: %s due to match artifactId: %s",
+                                        artifact, jarBlackArtifactId));
                             }
                         }
                     }
@@ -540,21 +558,21 @@ public class ModuleSlimStrategy {
                 }
                 for (String jarBlack : jarList) {
                     if (jarBlack.equals(String.join(":", artifact.getGroupId(),
-                            artifact.getArtifactId(), artifact.getVersion()))) {
+                        artifact.getArtifactId(), artifact.getVersion()))) {
                         if (error) {
                             getLog()
-                                    .error(
-                                            String
-                                                    .format(
-                                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
-                                                            artifact, jarBlack));
+                                .error(
+                                    String
+                                        .format(
+                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
+                                            artifact, jarBlack));
                         } else {
                             getLog()
-                                    .warn(
-                                            String
-                                                    .format(
-                                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
-                                                            artifact, jarBlack));
+                                .warn(
+                                    String
+                                        .format(
+                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
+                                            artifact, jarBlack));
                         }
                     }
                 }

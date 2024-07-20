@@ -63,8 +63,7 @@ public class ArkConfigHolder {
         }
 
         log.info(String.format(
-            "sofa-ark-maven-plugin: find extension-config %s and will config it",
-            configPath));
+            "sofa-ark-maven-plugin: find extension-config %s and will config it", configPath));
 
         try (FileInputStream fis = new FileInputStream(configPath)) {
             Yaml yaml = new Yaml();
@@ -89,8 +88,7 @@ public class ArkConfigHolder {
         }
 
         log.info(String.format(
-            "sofa-ark-maven-plugin: find extension-config %s and will config it",
-            configPath));
+            "sofa-ark-maven-plugin: find extension-config %s and will config it", configPath));
 
         Properties prop = new Properties();
         try (FileInputStream fis = new FileInputStream(configPath)) {
@@ -99,8 +97,7 @@ public class ArkConfigHolder {
             return prop;
         } catch (IOException ex) {
             log.error(String.format(
-                "sofa-ark-maven-plugin: failed to read extension-config from %s.",
-                configPath), ex);
+                "sofa-ark-maven-plugin: failed to read extension-config from %s.", configPath), ex);
             throw ex;
         }
     }

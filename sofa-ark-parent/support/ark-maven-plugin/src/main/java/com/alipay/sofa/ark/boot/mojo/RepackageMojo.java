@@ -239,7 +239,6 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludeArtifactIds         = new LinkedHashSet<>();
 
-
     /**
      * Colon separated groupId, artifactId [and classifier] to include (exact match). e.g:
      * group-a:tracer-core:3.0.10
@@ -335,8 +334,7 @@ public class RepackageMojo extends TreeMojo {
      * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
      */
     @Parameter(defaultValue = "")
-    private String baseDependencyParentIdentity;
-
+    private String                 baseDependencyParentIdentity;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -539,16 +537,13 @@ public class RepackageMojo extends TreeMojo {
 
     private Set<Artifact> getSlimmedArtifacts() {
         ModuleSlimConfig moduleSlimConfig = ModuleSlimConfig.builder()
-                .packExcludesConfig(packExcludesConfig)
-                .packExcludesUrl(packExcludesUrl)
-                .excludes(excludes)
-                .excludeGroupIds(excludeGroupIds)
-                .excludeArtifactIds(excludeArtifactIds)
-                .includes(includes)
-                .includeGroupIds(includeGroupIds)
-                .includeArtifactIds(includeArtifactIds)
-                .baseDependencyParentIdentity(baseDependencyParentIdentity).build();
-        ModuleSlimStrategy slimStrategy = new ModuleSlimStrategy(this.mavenProject,moduleSlimConfig, this.getLog());
+            .packExcludesConfig(packExcludesConfig).packExcludesUrl(packExcludesUrl)
+            .excludes(excludes).excludeGroupIds(excludeGroupIds)
+            .excludeArtifactIds(excludeArtifactIds).includes(includes)
+            .includeGroupIds(includeGroupIds).includeArtifactIds(includeArtifactIds)
+            .baseDependencyParentIdentity(baseDependencyParentIdentity).build();
+        ModuleSlimStrategy slimStrategy = new ModuleSlimStrategy(this.mavenProject,
+            moduleSlimConfig, this.getLog());
         return slimStrategy.getSlimmedArtifacts();
     }
 
