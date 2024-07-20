@@ -35,6 +35,7 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -309,6 +310,13 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "")
     private File                   gitDirectory;
 
+    /**
+     * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
+     */
+    @Parameter(defaultValue = "")
+    private String baseDependencyParentIdentity;
+
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if ("war".equals(this.mavenProject.getPackaging())) {
@@ -499,11 +507,23 @@ public class RepackageMojo extends TreeMojo {
                 .getRemoteArtifactRepositories());
             repositorySystem.resolve(artifactResolutionRequest);
             Set<Artifact> artifacts = new HashSet<>(Collections.singleton(arkArtifact));
-            artifacts.addAll(filterExcludeArtifacts(this.mavenProject.getArtifacts()));
+
+            // 读取需要打包的依赖
+            artifacts.addAll(getSlimmedArtifacts(this.mavenProject.getArtifacts()));
             return artifacts;
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
+    }
+
+    private Set<Artifact> getSlimmedArtifacts(Set<Artifact> artifacts) {
+        Set<Artifact> filteredByBase = filterBaseDependencyParentArtifacts(artifacts);
+        filterIncludeAndExcludeArtifacts(filteredByBase);
+        return filterIncludeAndExcludeArtifacts(filteredByBase);
+    }
+
+    private Set<Artifact> filterBaseDependencyParentArtifacts(Set<Artifact> artifacts) {
+        return artifacts;
     }
 
     private File getAppTargetFile() {
@@ -599,7 +619,7 @@ public class RepackageMojo extends TreeMojo {
      * @param artifacts all dependencies of project
      * @return dependencies excluded the excludes config
      */
-    protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
+    protected Set<Artifact> filterIncludeAndExcludeArtifacts(Set<Artifact> artifacts) {
         // extension from other resource
         if (!StringUtils.isEmpty(packExcludesConfig)) {
             extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
@@ -708,6 +728,25 @@ public class RepackageMojo extends TreeMojo {
         if (yaml.containsKey(confKey) && null != yaml.get(confKey)) {
             targetSet.addAll(yaml.get(confKey));
         }
+    }
+
+    private Model getBaseDependencyParentOriginalModel(){
+        if(StringUtils.isEmpty(baseDependencyParentIdentity)){
+            return null;
+        }
+
+        MavenProject proj = getProject();
+        while(null != proj){
+            if(baseDependencyParentIdentity.equals(getArtifactIdentity(proj.getArtifact()))){
+                return proj.getOriginalModel();
+            }
+            proj = proj.getParent();
+        }
+        return null;
+    }
+
+    private String getArtifactIdentity(Artifact artifact){
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
     }
 
     /**
