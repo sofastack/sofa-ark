@@ -18,7 +18,6 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.boot.mojo.RepackageMojo.ExcludeConfig;
 import com.alipay.sofa.ark.boot.mojo.RepackageMojo.ExcludeConfigResponse;
-import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -33,6 +32,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.yaml.snakeyaml.Yaml;
@@ -44,6 +44,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,7 +54,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_YAML_FILE;
@@ -61,9 +61,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_GROUPIDS;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -84,36 +81,35 @@ public class ModuleSlimStrategy {
         this.log = log;
     }
 
-    public Set<Artifact> getSlimmedArtifacts() {
-        Set<Artifact> filteredByBase = filterBaseDependencyParentArtifacts(project.getArtifacts());
-        return filterExcludeArtifacts(filteredByBase);
+    public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException {
+        Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
+        Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project.getArtifacts());
+
+        Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
+        filteredArtifacts.removeAll(toFilterByBase);
+        filteredArtifacts.removeAll(toFilterByExclude);
+        return filteredArtifacts;
     }
 
-    private Set<Artifact> filterBaseDependencyParentArtifacts(Set<Artifact> artifacts) {
+
+    private Set<Artifact> getArtifactsToFilterByParentIdentity(Set<Artifact> artifacts) throws MojoExecutionException {
+        if(StringUtils.isEmpty(config.getBaseDependencyParentIdentity())){
+            return Collections.emptySet();
+        }
+
         // 过滤出模块和基座版本一致的依赖：即需要瘦身的依赖：A
-        Set<Artifact> sameVersionArtifacts = getSameVersionArtifacts(artifacts);
-
-        // 读取用户强制保留的依赖：B
-        Set<Artifact> customIncludeArtifacts = getCustomIncludeArtifacts(artifacts);
-
-        // 得出：需要瘦身的依赖：C = A - B
-        Set<Artifact> toSlimArtifacts = new HashSet<>(sameVersionArtifacts);
-        toSlimArtifacts.removeAll(customIncludeArtifacts);
-
-        // 瘦身后的依赖：artifacts - C
-        artifacts.removeAll(toSlimArtifacts);
-        return artifacts;
+        return getSameVersionArtifactsWithBase(artifacts);
     }
 
-    private Set<Artifact> getSameVersionArtifacts(Set<Artifact> artifacts){
+    private Set<Artifact> getSameVersionArtifactsWithBase(Set<Artifact> artifacts) throws MojoExecutionException {
         // 获取基座DependencyParent的原始Model
         Model baseDependencyPom = getBaseDependencyParentOriginalModel();
         if(null == baseDependencyPom){
-            return artifacts;
+            throw new MojoExecutionException(String.format("can not find base dependency parent: %s",config.getBaseDependencyParentIdentity()));
         }
 
         if(null == baseDependencyPom.getDependencyManagement()){
-            return artifacts;
+            return Collections.emptySet();
         }
 
         List<Dependency> baseDependencies = baseDependencyPom.getDependencyManagement().getDependencies();
@@ -121,36 +117,11 @@ public class ModuleSlimStrategy {
         return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentity(it))).collect(Collectors.toSet());
     }
 
-    private Set<Artifact> getCustomIncludeArtifacts(Set<Artifact> artifacts){
-        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(getBaseDir().getAbsolutePath());
-        Properties prop = ArkConfigHolder.getArkProperties(getBaseDir().getAbsolutePath());
-
-        config.getIncludes().addAll(getStringSet(prop, EXTENSION_INCLUDES));
-        config.getIncludeGroupIds().addAll(getStringSet(prop, EXTENSION_INCLUDES_GROUPIDS));
-        config.getIncludeArtifactIds().addAll(getStringSet(prop, EXTENSION_INCLUDES_ARTIFACTIDS));
-
-        config.getIncludes().addAll(getStringSet(arkYaml, EXTENSION_INCLUDES));
-        config.getIncludeGroupIds().addAll(getStringSet(arkYaml, EXTENSION_INCLUDES_GROUPIDS));
-        config.getIncludeArtifactIds().addAll(getStringSet(arkYaml, EXTENSION_INCLUDES_ARTIFACTIDS));
-
-        List<ArtifactItem> includeList = new ArrayList<>();
-        for (String include : config.getIncludes()) {
-            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(include);
-            includeList.add(item);
-        }
-
-        return artifacts.stream().filter(it -> checkMatchInclude(includeList, it)).collect(Collectors.toSet());
-    }
-
     private Model getBaseDependencyParentOriginalModel() {
-        if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
-            return null;
-        }
-
         MavenProject proj = project;
         while (null != proj) {
-            if (config.getBaseDependencyParentIdentity().equals(
-                getArtifactIdentity(proj.getArtifact()))) {
+            if (getArtifactIdentity(proj.getArtifact()).equals(
+                config.getBaseDependencyParentIdentity())) {
                 return proj.getOriginalModel();
             }
             proj = proj.getParent();
@@ -167,7 +138,7 @@ public class ModuleSlimStrategy {
                + dependency.getVersion();
     }
 
-    protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
+    protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
             extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR
@@ -192,7 +163,7 @@ public class ModuleSlimStrategy {
 
         Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
-            if (!checkMatchExclude(excludeList, e)) {
+            if (checkMatchExclude(excludeList, e)) {
                 result.add(e);
             }
         }
@@ -211,28 +182,6 @@ public class ModuleSlimStrategy {
     private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
         for (ArtifactItem exclude : excludeList) {
             if (exclude.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
-                return true;
-            }
-        }
-
-        if (checkMatchGroupId(config.getExcludeGroupIds(), artifact)) {
-            return true;
-        }
-
-        return checkMatchArtifactId(config.getExcludeArtifactIds(), artifact);
-    }
-
-    /**
-     * This method is core method for excluding artifacts in sofa-ark-maven-plugin &lt;excludeGroupIds&gt;
-     * and &lt;excludeArtifactIds&gt; config.
-     *
-     * @param includeList
-     * @param artifact
-     * @return
-     */
-    private boolean checkMatchInclude(List<ArtifactItem> includeList, Artifact artifact) {
-        for (ArtifactItem include : includeList) {
-            if (include.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
                 return true;
             }
         }

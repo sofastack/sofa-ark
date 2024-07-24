@@ -58,26 +58,6 @@ public class ModuleSlimConfig {
     private LinkedHashSet<String> excludeArtifactIds = new LinkedHashSet<>();
 
     /**
-     * Colon separated groupId, artifactId [and classifier] to include (exact match). e.g:
-     * group-a:tracer-core:3.0.10
-     * group-b:tracer-core:3.0.10:jdk17
-     */
-    @Parameter(defaultValue = "")
-    private LinkedHashSet<String> includes           = new LinkedHashSet<>();
-
-    /**
-     * list of groupId names to include (exact match).
-     */
-    @Parameter(defaultValue = "")
-    private LinkedHashSet<String> includeGroupIds    = new LinkedHashSet<>();
-
-    /**
-     * list of artifact names to include (exact match).
-     */
-    @Parameter(defaultValue = "")
-    private LinkedHashSet<String> includeArtifactIds = new LinkedHashSet<>();
-
-    /**
      * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
      */
     private String                baseDependencyParentIdentity;
