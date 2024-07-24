@@ -61,6 +61,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -83,7 +84,8 @@ public class ModuleSlimStrategy {
 
     public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException {
         Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
-        Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project.getArtifacts());
+        Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project
+            .getArtifacts());
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
         filteredArtifacts.removeAll(toFilterByBase);
@@ -91,9 +93,9 @@ public class ModuleSlimStrategy {
         return filteredArtifacts;
     }
 
-
-    private Set<Artifact> getArtifactsToFilterByParentIdentity(Set<Artifact> artifacts) throws MojoExecutionException {
-        if(StringUtils.isEmpty(config.getBaseDependencyParentIdentity())){
+    protected Set<Artifact> getArtifactsToFilterByParentIdentity(Set<Artifact> artifacts)
+                                                                                         throws MojoExecutionException {
+        if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
             return Collections.emptySet();
         }
 
@@ -130,12 +132,25 @@ public class ModuleSlimStrategy {
     }
 
     private String getArtifactIdentity(Artifact artifact) {
-        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+        if (artifact.hasClassifier()) {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getVersion() + ":" + artifact.getClassifier();
+        } else {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getVersion();
+        }
+
     }
 
     private String getDependencyIdentity(Dependency dependency) {
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
-               + dependency.getVersion();
+        if (StringUtils.isNotEmpty(dependency.getClassifier())) {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getVersion() + STRING_COLON
+                   + dependency.getClassifier();
+        } else {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getVersion();
+        }
     }
 
     protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
