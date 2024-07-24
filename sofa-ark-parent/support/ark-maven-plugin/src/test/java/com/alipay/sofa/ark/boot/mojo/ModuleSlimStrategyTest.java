@@ -19,20 +19,34 @@ package com.alipay.sofa.ark.boot.mojo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import static com.alipay.sofa.ark.boot.mojo.ReflectionUtils.setField;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -85,6 +99,116 @@ public class ModuleSlimStrategyTest {
         assertFalse(res.contains(differenceArtifact));
     }
 
+    @Test
+    public void testExtensionExcludeArtifactsByDefault() throws URISyntaxException {
+        ModuleSlimConfig config = new ModuleSlimConfig();
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
+            mockLog());
+
+        strategy.extensionExcludeArtifactsByDefault();
+
+        // 验证 ark.properties
+        assertTrue(config.getExcludes().contains("commons-beanutils:commons-beanutils"));
+        assertTrue(config.getExcludeGroupIds().contains("org.springframework"));
+        assertTrue(config.getExcludeArtifactIds().contains("sofa-ark-spi"));
+
+        // 验证 ark.yml
+        assertTrue(config.getExcludes().contains("commons-beanutils:commons-beanutils-yml"));
+        assertTrue(config.getExcludeGroupIds().contains("org.springframework-yml"));
+        assertTrue(config.getExcludeArtifactIds().contains("sofa-ark-spi-yml"));
+    }
+
+    @Test
+    public void testExtensionExcludeArtifacts() {
+        ModuleSlimConfig config = new ModuleSlimConfig();
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, config, mockLog());
+        URL resource = this.getClass().getClassLoader().getResource("excludes.txt");
+        strategy.extensionExcludeArtifacts(resource.getPath());
+
+        assertTrue(config.getExcludes().contains("tracer-core:3.0.10")
+                   && config.getExcludes().contains("tracer-core:3.0.11"));
+    }
+
+    @Test
+    public void testLogExcludeMessage() {
+        List<String> jarGroupIds = asList("com.alipay.sofa", "org.springframework");
+        List<String> jarArtifactIds = asList("netty");
+        List<String> jarList = asList("commons-io:commons-io:2.7");
+
+        DefaultArtifact defaultArtifact = new DefaultArtifact("com.alipay.sofa", "artifactId",
+            "version", "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact1 = new DefaultArtifact("io.netty", "netty", "version",
+            "compile", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact2 = new DefaultArtifact("commons-io", "commons-io", "2.7",
+            "compile", "jar", null, new DefaultArtifactHandler());
+        Set<Artifact> artifacts = new HashSet<>();
+        artifacts.add(defaultArtifact);
+        artifacts.add(defaultArtifact1);
+        artifacts.add(defaultArtifact2);
+
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockLog());
+        strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
+        strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
+    }
+
+    @Test
+    public void testExtensionExcludeArtifactsFromUrl() {
+
+        DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
+            "provided", "jar", null, new DefaultArtifactHandler());
+        DefaultArtifact defaultArtifact1 = new DefaultArtifact("groupId", "artifactId", "version",
+            "provided", "jar", null, new DefaultArtifactHandler());
+        Set<Artifact> artifacts = new HashSet<>();
+        artifacts.add(defaultArtifact);
+        artifacts.add(defaultArtifact1);
+
+        // NOTE: Access httpbin to run unit test, need vpn maybe.
+        String packExcludesUrl = "http://httpbin.org/get";
+
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, new ModuleSlimConfig(),
+            mockLog());
+        strategy.extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
+    }
+
+    @Test
+    public void testLogExcludeMessageWithMoreCases() {
+        List<String> jarGroupIds = new ArrayList<>();
+        jarGroupIds.add("group1*");
+        jarGroupIds.add("group2.*");
+
+        List<String> jarArtifactIds = new ArrayList<>();
+        jarArtifactIds.add("artifact1*");
+        jarArtifactIds.add("artifact2.g.*");
+
+        List<String> jarList = new ArrayList<>();
+        Set<Artifact> artifacts = new HashSet<>();
+        Artifact artifact = new DefaultArtifact("group1.a.b", "artifact1gkl", "1.0", "test", "",
+            null, new DefaultArtifactHandler());
+        artifact.setFile(new File("./"));
+        artifacts.add(artifact);
+        artifact = new DefaultArtifact("group2.c", "artifact1gkl", "1.0", "", "", null,
+            new DefaultArtifactHandler());
+        artifact.setFile(new File("./"));
+        artifacts.add(artifact);
+        artifact = new DefaultArtifact("group3", "artifact1.e", "1.0", "", "", null,
+            new DefaultArtifactHandler());
+        artifact.setFile(new File("./"));
+        artifacts.add(artifact);
+        artifact = new DefaultArtifact("group3", "artifact2.g.h", "1.0", "", "", null,
+            new DefaultArtifactHandler());
+        artifact.setFile(new File("./"));
+        artifacts.add(artifact);
+
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockLog());
+        strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
+        strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
+    }
+
+    private File getResourceFile(String resourceName) throws URISyntaxException {
+        URL url = this.getClass().getClassLoader().getResource(resourceName);
+        return new File(url.toURI());
+    }
+
     private MavenProject getMockBootstrapProject() throws URISyntaxException {
         MavenProject project = new MavenProject();
         project.setArtifactId("base-bootstrap");
@@ -100,10 +224,12 @@ public class ModuleSlimStrategyTest {
         project.setArtifact(artifact);
 
         project.setParent(getRootProject());
+
+        setField("basedir", project, getResourceFile("baseDir"));
         return project;
     }
 
-    private MavenProject getRootProject() throws URISyntaxException {
+    private MavenProject getRootProject() {
         MavenProject project = new MavenProject();
         project.setArtifactId("base-dependencies-starter");
         project.setGroupId("com.mock");
@@ -136,5 +262,11 @@ public class ModuleSlimStrategyTest {
 
         project.setOriginalModel(pom);
         return project;
+    }
+
+    private Log mockLog() {
+        Log log = mock(Log.class);
+        doNothing().when(log).info(anyString());
+        return log;
     }
 }

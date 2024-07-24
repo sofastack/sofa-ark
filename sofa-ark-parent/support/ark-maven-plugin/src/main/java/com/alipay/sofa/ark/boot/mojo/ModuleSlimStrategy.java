@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import com.alipay.sofa.ark.boot.mojo.RepackageMojo.ExcludeConfig;
-import com.alipay.sofa.ark.boot.mojo.RepackageMojo.ExcludeConfigResponse;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -550,6 +548,102 @@ public class ModuleSlimStrategy {
 
     private Log getLog() {
         return log;
+    }
+
+    public static class ExcludeConfigResponse {
+
+        private boolean       success;
+
+        private ExcludeConfig result;
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public void setSuccess(boolean success) {
+            this.success = success;
+        }
+
+        public ExcludeConfig getResult() {
+            return result;
+        }
+
+        public void setResult(ExcludeConfig result) {
+            this.result = result;
+        }
+    }
+
+    public static class ExcludeConfig {
+
+        private String       app;
+
+        private List<String> jarBlackGroupIds;
+
+        private List<String> jarBlackArtifactIds;
+
+        private List<String> jarBlackList;
+
+        private List<String> jarWarnGroupIds;
+
+        private List<String> jarWarnArtifactIds;
+
+        private List<String> jarWarnList;
+
+        public String getApp() {
+            return app;
+        }
+
+        public void setApp(String app) {
+            this.app = app;
+        }
+
+        public List<String> getJarBlackGroupIds() {
+            return jarBlackGroupIds;
+        }
+
+        public void setJarBlackGroupIds(List<String> jarBlackGroupIds) {
+            this.jarBlackGroupIds = jarBlackGroupIds;
+        }
+
+        public List<String> getJarBlackArtifactIds() {
+            return jarBlackArtifactIds;
+        }
+
+        public void setJarBlackArtifactIds(List<String> jarBlackArtifactIds) {
+            this.jarBlackArtifactIds = jarBlackArtifactIds;
+        }
+
+        public List<String> getJarBlackList() {
+            return jarBlackList;
+        }
+
+        public void setJarBlackList(List<String> jarBlackList) {
+            this.jarBlackList = jarBlackList;
+        }
+
+        public List<String> getJarWarnGroupIds() {
+            return jarWarnGroupIds;
+        }
+
+        public void setJarWarnGroupIds(List<String> jarWarnGroupIds) {
+            this.jarWarnGroupIds = jarWarnGroupIds;
+        }
+
+        public List<String> getJarWarnArtifactIds() {
+            return jarWarnArtifactIds;
+        }
+
+        public void setJarWarnArtifactIds(List<String> jarWarnArtifactIds) {
+            this.jarWarnArtifactIds = jarWarnArtifactIds;
+        }
+
+        public List<String> getJarWarnList() {
+            return jarWarnList;
+        }
+
+        public void setJarWarnList(List<String> jarWarnList) {
+            this.jarWarnList = jarWarnList;
+        }
     }
 
 }
