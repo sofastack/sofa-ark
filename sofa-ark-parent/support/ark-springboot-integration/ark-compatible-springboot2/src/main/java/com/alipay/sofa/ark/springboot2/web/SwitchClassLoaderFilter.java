@@ -48,7 +48,7 @@ public class SwitchClassLoaderFilter implements Filter {
                 .equals(oldClassloader.getClass().getName())) {
                 ClassLoader bizClassLoader = oldClassloader.getParent();
                 if (bizClassLoader != null) {
-                    logger.info("switch web classLoader from {} to {}", oldClassloader,
+                    logger.debug("switch web classLoader from {} to {}", oldClassloader,
                         bizClassLoader);
                     Thread.currentThread().setContextClassLoader(bizClassLoader);
                 }
