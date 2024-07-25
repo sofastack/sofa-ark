@@ -16,20 +16,12 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import com.alipay.sofa.ark.common.util.ParseUtils;
-import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -55,34 +47,19 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_YAML_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -239,6 +216,26 @@ public class RepackageMojo extends TreeMojo {
     private LinkedHashSet<String>  excludeArtifactIds         = new LinkedHashSet<>();
 
     /**
+     * Colon separated groupId, artifactId [and classifier] to include (exact match). e.g:
+     * group-a:tracer-core:3.0.10
+     * group-b:tracer-core:3.0.10:jdk17
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includes                   = new LinkedHashSet<>();
+
+    /**
+     * list of groupId names to include (exact match).
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includeGroupIds            = new LinkedHashSet<>();
+
+    /**
+     * list of artifact names to include (exact match).
+     */
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includeArtifactIds         = new LinkedHashSet<>();
+
+    /**
      * list of packages denied to be imported
      */
     @Parameter(defaultValue = "")
@@ -308,6 +305,12 @@ public class RepackageMojo extends TreeMojo {
      */
     @Parameter(defaultValue = "")
     private File                   gitDirectory;
+
+    /**
+     * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
+     */
+    @Parameter(defaultValue = "")
+    private String                 baseDependencyParentIdentity;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -499,11 +502,24 @@ public class RepackageMojo extends TreeMojo {
                 .getRemoteArtifactRepositories());
             repositorySystem.resolve(artifactResolutionRequest);
             Set<Artifact> artifacts = new HashSet<>(Collections.singleton(arkArtifact));
-            artifacts.addAll(filterExcludeArtifacts(this.mavenProject.getArtifacts()));
+
+            // 读取需要打包的依赖
+            artifacts.addAll(getSlimmedArtifacts());
             return artifacts;
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
+    }
+
+    private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
+        ModuleSlimConfig moduleSlimConfig = (new ModuleSlimConfig())
+            .setPackExcludesConfig(packExcludesConfig).setPackExcludesUrl(packExcludesUrl)
+            .setExcludes(excludes).setExcludeGroupIds(excludeGroupIds)
+            .setExcludeArtifactIds(excludeArtifactIds)
+            .setBaseDependencyParentIdentity(baseDependencyParentIdentity);
+        ModuleSlimStrategy slimStrategy = new ModuleSlimStrategy(this.mavenProject,
+            moduleSlimConfig, this.baseDir, this.getLog());
+        return slimStrategy.getSlimmedArtifacts();
     }
 
     private File getAppTargetFile() {
@@ -593,396 +609,6 @@ public class RepackageMojo extends TreeMojo {
 
     }
 
-    /**
-     * filter the excluded dependencies
-     *
-     * @param artifacts all dependencies of project
-     * @return dependencies excluded the excludes config
-     */
-    protected Set<Artifact> filterExcludeArtifacts(Set<Artifact> artifacts) {
-        // extension from other resource
-        if (!StringUtils.isEmpty(packExcludesConfig)) {
-            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                                      + packExcludesConfig);
-        } else {
-            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                                      + DEFAULT_EXCLUDE_RULES);
-        }
-
-        extensionExcludeArtifactsByDefault();
-
-        // extension from url
-        if (StringUtils.isNotBlank(packExcludesUrl)) {
-            extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
-        }
-
-        List<ArtifactItem> excludeList = new ArrayList<>();
-        for (String exclude : excludes) {
-            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(exclude);
-            excludeList.add(item);
-        }
-
-        Set<Artifact> result = new LinkedHashSet<>();
-        for (Artifact e : artifacts) {
-            if (!checkMatchExclude(excludeList, e)) {
-                result.add(e);
-            }
-        }
-
-        return result;
-    }
-
-    protected void extensionExcludeArtifactsByDefault() {
-        // extension from default ark.properties and ark.yml
-        extensionExcludeArtifactsFromProp();
-        extensionExcludeArtifactsFromYaml();
-    }
-
-    protected void extensionExcludeArtifactsFromProp() {
-        String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                            + ARK_CONF_FILE;
-        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
-        if (!configFile.exists()) {
-            getLog().info(
-                String.format(
-                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
-                    configPath));
-            return;
-        }
-
-        getLog().info(
-            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
-                configPath));
-
-        Properties prop = new Properties();
-        try (FileInputStream fis = new FileInputStream(configPath)) {
-            prop.load(fis);
-
-            parseExcludeProp(excludes, prop, EXTENSION_EXCLUDES);
-            parseExcludeProp(excludeGroupIds, prop, EXTENSION_EXCLUDES_GROUPIDS);
-            parseExcludeProp(excludeArtifactIds, prop, EXTENSION_EXCLUDES_ARTIFACTIDS);
-        } catch (IOException ex) {
-            getLog().error(
-                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
-        }
-    }
-
-    protected void extensionExcludeArtifactsFromYaml() {
-        String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                            + ARK_CONF_YAML_FILE;
-        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
-        if (!configFile.exists()) {
-            getLog().info(
-                String.format(
-                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
-                    configPath));
-            return;
-        }
-
-        getLog().info(
-            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
-                configPath));
-
-        try (FileInputStream fis = new FileInputStream(configPath)) {
-            Yaml yaml = new Yaml();
-            Map<String, List<String>> parsedYaml = yaml.load(fis);
-            parseExcludeYaml(excludes, parsedYaml, EXTENSION_EXCLUDES);
-            parseExcludeYaml(excludeGroupIds, parsedYaml, EXTENSION_EXCLUDES_GROUPIDS);
-            parseExcludeYaml(excludeArtifactIds, parsedYaml, EXTENSION_EXCLUDES_ARTIFACTIDS);
-
-        } catch (IOException ex) {
-            getLog().error(
-                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
-        }
-    }
-
-    private void parseExcludeProp(LinkedHashSet<String> targetSet, Properties prop, String confKey) {
-        String[] parsed = StringUtils.split(prop.getProperty(confKey), COMMA_SPLIT);
-        if (null != parsed) {
-            targetSet.addAll(Arrays.asList(parsed));
-        }
-    }
-
-    private void parseExcludeYaml(LinkedHashSet<String> targetSet, Map<String, List<String>> yaml,
-                                  String confKey) {
-        if (yaml.containsKey(confKey) && null != yaml.get(confKey)) {
-            targetSet.addAll(yaml.get(confKey));
-        }
-    }
-
-    /**
-     * This method is core method for excluding artifacts in sofa-ark-maven-plugin &lt;excludeGroupIds&gt;
-     * and &lt;excludeArtifactIds&gt; config.
-     *
-     * @param excludeList
-     * @param artifact
-     * @return
-     */
-    private boolean checkMatchExclude(List<ArtifactItem> excludeList, Artifact artifact) {
-        for (ArtifactItem exclude : excludeList) {
-            if (exclude.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
-                return true;
-            }
-        }
-
-        if (excludeGroupIds != null) {
-            // 支持通配符
-            for (String excludeGroupId : excludeGroupIds) {
-                if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                    || excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                    if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                        excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                            Constants.PACKAGE_PREFIX_MARK_2);
-                    } else if (excludeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        excludeGroupId = StringUtils.removeEnd(excludeGroupId,
-                            Constants.PACKAGE_PREFIX_MARK);
-                    }
-
-                    if (artifact.getGroupId().startsWith(excludeGroupId)) {
-                        return true;
-                    }
-                } else {
-                    if (artifact.getGroupId().equals(excludeGroupId)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        if (excludeArtifactIds != null) {
-            // 支持通配符
-            for (String excludeArtifactId : excludeArtifactIds) {
-                if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                    || excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                    if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                        excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK_2);
-                    } else if (excludeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                        excludeArtifactId = StringUtils.removeEnd(excludeArtifactId,
-                            Constants.PACKAGE_PREFIX_MARK);
-                    }
-                    if (artifact.getArtifactId().startsWith(excludeArtifactId)) {
-                        return true;
-                    }
-                } else {
-                    if (artifact.getArtifactId().equals(excludeArtifactId)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    protected void extensionExcludeArtifacts(String extraResources) {
-        try {
-            File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
-            if (configFile.exists()) {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(configFile));
-                String dataLine;
-                while ((dataLine = bufferedReader.readLine()) != null) {
-                    if (dataLine.startsWith(EXTENSION_EXCLUDES)) {
-                        ParseUtils.parseExcludeConf(excludes, dataLine, EXTENSION_EXCLUDES);
-                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
-                        ParseUtils.parseExcludeConf(excludeGroupIds, dataLine,
-                            EXTENSION_EXCLUDES_GROUPIDS);
-                    } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
-                        ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
-                            EXTENSION_EXCLUDES_ARTIFACTIDS);
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            getLog().error("failed to extension excludes artifacts.", ex);
-        }
-    }
-
-    /**
-     * We support put sofa-ark-maven-plugin exclude config file in remote url location.
-     *
-     * @param packExcludesUrl
-     * @param artifacts
-     */
-    protected void extensionExcludeArtifactsFromUrl(String packExcludesUrl, Set<Artifact> artifacts) {
-        try {
-            CloseableHttpClient client = HttpClients.createDefault();
-            HttpGet request = new HttpGet(packExcludesUrl);
-            CloseableHttpResponse response = client.execute(request);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == 200 && response.getEntity() != null) {
-                String result = EntityUtils.toString(response.getEntity());
-                getLog().info(
-                    String.format("success to get excludes config from url: %s, response: %s",
-                        packExcludesUrl, result));
-                ObjectMapper objectMapper = new ObjectMapper();
-                ExcludeConfigResponse excludeConfigResponse = objectMapper.readValue(result,
-                    ExcludeConfigResponse.class);
-                if (excludeConfigResponse.isSuccess() && excludeConfigResponse.getResult() != null) {
-                    ExcludeConfig excludeConfig = excludeConfigResponse.getResult();
-                    List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
-                    List<String> jarBlackArtifactIds = excludeConfig.getJarBlackArtifactIds();
-                    List<String> jarBlackList = excludeConfig.getJarBlackList();
-                    if (CollectionUtils.isNotEmpty(jarBlackGroupIds)) {
-                        excludeGroupIds.addAll(jarBlackGroupIds);
-                    }
-                    if (CollectionUtils.isNotEmpty(jarBlackArtifactIds)) {
-                        excludeArtifactIds.addAll(jarBlackArtifactIds);
-                    }
-                    if (CollectionUtils.isNotEmpty(jarBlackList)) {
-                        excludes.addAll(jarBlackList);
-                    }
-                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
-                        artifacts, true);
-
-                    List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
-                    List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
-                    List<String> jarWarnList = excludeConfig.getJarWarnList();
-                    logExcludeMessage(jarWarnGroupIds, jarWarnArtifactIds, jarWarnList, artifacts,
-                        false);
-                }
-            }
-            response.close();
-            client.close();
-        } catch (Exception e) {
-            getLog().error(
-                String.format("failed to get excludes config from url: %s", packExcludesUrl), e);
-        }
-    }
-
-    protected void logExcludeMessage(List<String> jarGroupIds, List<String> jarArtifactIds,
-                                     List<String> jarList, Set<Artifact> artifacts, boolean error) {
-        if (CollectionUtils.isNotEmpty(jarGroupIds)) {
-            for (Artifact artifact : artifacts) {
-                if (inUnLogScopes(artifact.getScope())) {
-                    continue;
-                }
-                for (String jarBlackGroupId : jarGroupIds) {
-                    if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                        || jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                        if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                            jarBlackGroupId = StringUtils.remove(jarBlackGroupId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
-                        } else if (jarBlackGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                            jarBlackGroupId = StringUtils.removeEnd(jarBlackGroupId,
-                                Constants.PACKAGE_PREFIX_MARK);
-                        }
-
-                        if (artifact.getGroupId().startsWith(jarBlackGroupId)) {
-                            if (error) {
-                                getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                                artifact, jarBlackGroupId));
-                            } else {
-                                getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match groupId: %s",
-                                        artifact, jarBlackGroupId));
-                            }
-
-                        }
-                    } else {
-                        if (artifact.getGroupId().equals(jarBlackGroupId)) {
-                            if (error) {
-                                getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match groupId: %s, automatically exclude it.",
-                                                artifact, jarBlackGroupId));
-                            } else {
-                                getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match groupId: %s",
-                                        artifact, jarBlackGroupId));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (CollectionUtils.isNotEmpty(jarArtifactIds)) {
-            for (Artifact artifact : artifacts) {
-                if (inUnLogScopes(artifact.getScope())) {
-                    continue;
-                }
-                for (String jarBlackArtifactId : jarArtifactIds) {
-                    if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
-                        || jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                        if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
-                            jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                Constants.PACKAGE_PREFIX_MARK_2);
-                        } else if (jarBlackArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
-                            jarBlackArtifactId = StringUtils.removeEnd(jarBlackArtifactId,
-                                Constants.PACKAGE_PREFIX_MARK);
-                        }
-                        if (artifact.getArtifactId().startsWith(jarBlackArtifactId)) {
-                            if (error) {
-                                getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                                artifact, jarBlackArtifactId));
-                            } else {
-                                getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match artifactId: %s",
-                                        artifact, jarBlackArtifactId));
-                            }
-                        }
-                    } else {
-                        if (artifact.getArtifactId().equals(jarBlackArtifactId)) {
-                            if (error) {
-                                getLog()
-                                    .error(
-                                        String
-                                            .format(
-                                                "Error to package jar: %s due to match artifactId: %s, automatically exclude it.",
-                                                artifact, jarBlackArtifactId));
-                            } else {
-                                getLog().warn(
-                                    String.format(
-                                        "Warn to package jar: %s due to match artifactId: %s",
-                                        artifact, jarBlackArtifactId));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (CollectionUtils.isNotEmpty(jarList)) {
-            for (Artifact artifact : artifacts) {
-                if (inUnLogScopes(artifact.getScope())) {
-                    continue;
-                }
-                for (String jarBlack : jarList) {
-                    if (jarBlack.equals(String.join(":", artifact.getGroupId(),
-                        artifact.getArtifactId(), artifact.getVersion()))) {
-                        if (error) {
-                            getLog()
-                                .error(
-                                    String
-                                        .format(
-                                            "Error to package jar: %s due to match groupId:artifactId:version: %s, automatically exclude it.",
-                                            artifact, jarBlack));
-                        } else {
-                            getLog()
-                                .warn(
-                                    String
-                                        .format(
-                                            "Warn to package jar: %s due to match groupId:artifactId:version: %s",
-                                            artifact, jarBlack));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public void setExcludes(String str) {
         this.excludes = parseToSet(str);
     }
@@ -1025,102 +651,6 @@ public class RepackageMojo extends TreeMojo {
                 .filter(StringUtils::isNotBlank)
                 .forEach(set::add);
         return set;
-    }
-
-    public static class ExcludeConfigResponse {
-
-        private boolean       success;
-
-        private ExcludeConfig result;
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public void setSuccess(boolean success) {
-            this.success = success;
-        }
-
-        public ExcludeConfig getResult() {
-            return result;
-        }
-
-        public void setResult(ExcludeConfig result) {
-            this.result = result;
-        }
-    }
-
-    public static class ExcludeConfig {
-
-        private String       app;
-
-        private List<String> jarBlackGroupIds;
-
-        private List<String> jarBlackArtifactIds;
-
-        private List<String> jarBlackList;
-
-        private List<String> jarWarnGroupIds;
-
-        private List<String> jarWarnArtifactIds;
-
-        private List<String> jarWarnList;
-
-        public String getApp() {
-            return app;
-        }
-
-        public void setApp(String app) {
-            this.app = app;
-        }
-
-        public List<String> getJarBlackGroupIds() {
-            return jarBlackGroupIds;
-        }
-
-        public void setJarBlackGroupIds(List<String> jarBlackGroupIds) {
-            this.jarBlackGroupIds = jarBlackGroupIds;
-        }
-
-        public List<String> getJarBlackArtifactIds() {
-            return jarBlackArtifactIds;
-        }
-
-        public void setJarBlackArtifactIds(List<String> jarBlackArtifactIds) {
-            this.jarBlackArtifactIds = jarBlackArtifactIds;
-        }
-
-        public List<String> getJarBlackList() {
-            return jarBlackList;
-        }
-
-        public void setJarBlackList(List<String> jarBlackList) {
-            this.jarBlackList = jarBlackList;
-        }
-
-        public List<String> getJarWarnGroupIds() {
-            return jarWarnGroupIds;
-        }
-
-        public void setJarWarnGroupIds(List<String> jarWarnGroupIds) {
-            this.jarWarnGroupIds = jarWarnGroupIds;
-        }
-
-        public List<String> getJarWarnArtifactIds() {
-            return jarWarnArtifactIds;
-        }
-
-        public void setJarWarnArtifactIds(List<String> jarWarnArtifactIds) {
-            this.jarWarnArtifactIds = jarWarnArtifactIds;
-        }
-
-        public List<String> getJarWarnList() {
-            return jarWarnList;
-        }
-
-        public void setJarWarnList(List<String> jarWarnList) {
-            this.jarWarnList = jarWarnList;
-        }
     }
 
     public static class ArkConstants {
