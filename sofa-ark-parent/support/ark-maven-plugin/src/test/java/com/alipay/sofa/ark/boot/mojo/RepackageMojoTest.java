@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import com.alipay.sofa.ark.boot.mojo.RepackageMojo.ExcludeConfig;
-import com.alipay.sofa.ark.boot.mojo.RepackageMojo.ExcludeConfigResponse;
+import com.alipay.sofa.ark.boot.mojo.ModuleSlimStrategy.ExcludeConfig;
+import com.alipay.sofa.ark.boot.mojo.ModuleSlimStrategy.ExcludeConfigResponse;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -78,34 +78,6 @@ public class RepackageMojoTest {
     @After
     public void tearDown() {
         clearProperty("maven.home");
-    }
-
-    @Test
-    public void testRepackageMojo() throws NoSuchMethodException, InvocationTargetException,
-                                   IllegalAccessException, NoSuchFieldException {
-        RepackageMojo repackageMojo = new RepackageMojo();
-        Method extensionExcludeArtifacts = repackageMojo.getClass().getDeclaredMethod(
-            "extensionExcludeArtifacts", String.class);
-
-        extensionExcludeArtifacts.setAccessible(true);
-        URL resource = this.getClass().getClassLoader().getResource("excludes.txt");
-        extensionExcludeArtifacts.invoke(repackageMojo, resource.getPath());
-        Field excludes = repackageMojo.getClass().getDeclaredField("excludes");
-        Field excludeGroupIds = repackageMojo.getClass().getDeclaredField("excludeGroupIds");
-        Field excludeArtifactIds = repackageMojo.getClass().getDeclaredField("excludeArtifactIds");
-
-        excludes.setAccessible(true);
-        excludeGroupIds.setAccessible(true);
-        excludeArtifactIds.setAccessible(true);
-
-        Object excludesResult = excludes.get(repackageMojo);
-        Object excludeGroupIdResult = excludeGroupIds.get(repackageMojo);
-        Object excludeArtifactIdsResult = excludeArtifactIds.get(repackageMojo);
-        assertTrue(excludesResult instanceof LinkedHashSet
-                   && excludeGroupIdResult instanceof LinkedHashSet
-                   && excludeArtifactIdsResult instanceof LinkedHashSet);
-        assertTrue(((LinkedHashSet) excludesResult).contains("tracer-core:3.0.10")
-                   && ((LinkedHashSet) excludesResult).contains("tracer-core:3.0.11"));
     }
 
     /**
@@ -216,103 +188,6 @@ public class RepackageMojoTest {
             "setSettingsLocation", InvocationRequest.class);
         setSettingsLocation.setAccessible(true);
         setSettingsLocation.invoke(repackageMojo, request);
-    }
-
-    @Test
-    public void testExtensionExcludeArtifactsFromUrl() throws NoSuchMethodException,
-                                                      InvocationTargetException,
-                                                      IllegalAccessException {
-        RepackageMojo repackageMojo = new RepackageMojo();
-        Method extensionExcludeArtifactsFromUrl = repackageMojo.getClass().getDeclaredMethod(
-            "extensionExcludeArtifactsFromUrl", String.class, Set.class);
-        extensionExcludeArtifactsFromUrl.setAccessible(true);
-
-        DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
-            "provided", "jar", null, new DefaultArtifactHandler());
-        DefaultArtifact defaultArtifact1 = new DefaultArtifact("groupId", "artifactId", "version",
-            "provided", "jar", null, new DefaultArtifactHandler());
-        Set<Artifact> artifacts = new HashSet<>();
-        artifacts.add(defaultArtifact);
-        artifacts.add(defaultArtifact1);
-
-        // NOTE: Access httpbin to run unit test, need vpn maybe.
-        String packExcludesUrl = "http://httpbin.org/get";
-        extensionExcludeArtifactsFromUrl.invoke(repackageMojo, packExcludesUrl, artifacts);
-    }
-
-    @Test
-    public void testExtensionExcludeArtifactsByDefault() throws NoSuchMethodException,
-                                                        NoSuchFieldException, URISyntaxException,
-                                                        IllegalAccessException,
-                                                        InvocationTargetException {
-        RepackageMojo repackageMojo = new RepackageMojo();
-        Method extensionExcludeArtifactsByDefault = repackageMojo.getClass().getDeclaredMethod(
-            "extensionExcludeArtifactsByDefault");
-        extensionExcludeArtifactsByDefault.setAccessible(true);
-
-        Field baseDirField = RepackageMojo.class.getDeclaredField("baseDir");
-        baseDirField.setAccessible(true);
-        baseDirField.set(repackageMojo, getResourceFile("baseDir"));
-
-        Field excludesField = RepackageMojo.class.getDeclaredField("excludes");
-        excludesField.setAccessible(true);
-        LinkedHashSet<String> excludes = (LinkedHashSet<String>) excludesField.get(repackageMojo);
-
-        Field excludeGroupIdsField = RepackageMojo.class.getDeclaredField("excludeGroupIds");
-        excludeGroupIdsField.setAccessible(true);
-        LinkedHashSet<String> excludeGroupIds = (LinkedHashSet<String>) excludeGroupIdsField
-            .get(repackageMojo);
-
-        Field excludeArtifactIdsField = RepackageMojo.class.getDeclaredField("excludeArtifactIds");
-        excludeArtifactIdsField.setAccessible(true);
-        LinkedHashSet<String> excludeArtifactIds = (LinkedHashSet<String>) excludeArtifactIdsField
-            .get(repackageMojo);
-
-        extensionExcludeArtifactsByDefault.invoke(repackageMojo);
-
-        // 验证 ark.properties
-        assertTrue(excludes.contains("commons-beanutils:commons-beanutils"));
-        assertTrue(excludeGroupIds.contains("org.springframework"));
-        assertTrue(excludeArtifactIds.contains("sofa-ark-spi"));
-
-        // 验证 ark.yml
-        assertTrue(excludes.contains("commons-beanutils:commons-beanutils-yml"));
-        assertTrue(excludeGroupIds.contains("org.springframework-yml"));
-        assertTrue(excludeArtifactIds.contains("sofa-ark-spi-yml"));
-    }
-
-    private File getResourceFile(String resourceName) throws URISyntaxException {
-        URL url = this.getClass().getClassLoader().getResource(resourceName);
-        return new File(url.toURI());
-    }
-
-    @Test
-    public void testLogExcludeMessage() throws NoSuchMethodException, InvocationTargetException,
-                                       IllegalAccessException {
-        List<String> jarGroupIds = asList("com.alipay.sofa", "org.springframework");
-        List<String> jarArtifactIds = asList("netty");
-        List<String> jarList = asList("commons-io:commons-io:2.7");
-
-        DefaultArtifact defaultArtifact = new DefaultArtifact("com.alipay.sofa", "artifactId",
-            "version", "compile", "jar", null, new DefaultArtifactHandler());
-        DefaultArtifact defaultArtifact1 = new DefaultArtifact("io.netty", "netty", "version",
-            "compile", "jar", null, new DefaultArtifactHandler());
-        DefaultArtifact defaultArtifact2 = new DefaultArtifact("commons-io", "commons-io", "2.7",
-            "compile", "jar", null, new DefaultArtifactHandler());
-        Set<Artifact> artifacts = new HashSet<>();
-        artifacts.add(defaultArtifact);
-        artifacts.add(defaultArtifact1);
-        artifacts.add(defaultArtifact2);
-
-        RepackageMojo repackageMojo = new RepackageMojo();
-        Method logExcludeMessage = repackageMojo.getClass().getDeclaredMethod("logExcludeMessage",
-            List.class, List.class, List.class, Set.class, boolean.class);
-        logExcludeMessage.setAccessible(true);
-        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts,
-            true);
-
-        logExcludeMessage.invoke(repackageMojo, jarGroupIds, jarArtifactIds, jarList, artifacts,
-            false);
     }
 
     @Test
@@ -530,41 +405,6 @@ public class RepackageMojoTest {
         field.setAccessible(true);
         field.set(repackageMojo, true);
         method.invoke(repackageMojo, new File("./"), new File("./"));
-    }
-
-    @Test
-    public void testLogExcludeMessageWithMoreCases() {
-
-        RepackageMojo repackageMojo = new RepackageMojo();
-        List<String> jarGroupIds = new ArrayList<>();
-        jarGroupIds.add("group1*");
-        jarGroupIds.add("group2.*");
-
-        List<String> jarArtifactIds = new ArrayList<>();
-        jarArtifactIds.add("artifact1*");
-        jarArtifactIds.add("artifact2.g.*");
-
-        List<String> jarList = new ArrayList<>();
-        Set<Artifact> artifacts = new HashSet<>();
-        Artifact artifact = new DefaultArtifact("group1.a.b", "artifact1gkl", "1.0", "test", "",
-            null, new DefaultArtifactHandler());
-        artifact.setFile(new File("./"));
-        artifacts.add(artifact);
-        artifact = new DefaultArtifact("group2.c", "artifact1gkl", "1.0", "", "", null,
-            new DefaultArtifactHandler());
-        artifact.setFile(new File("./"));
-        artifacts.add(artifact);
-        artifact = new DefaultArtifact("group3", "artifact1.e", "1.0", "", "", null,
-            new DefaultArtifactHandler());
-        artifact.setFile(new File("./"));
-        artifacts.add(artifact);
-        artifact = new DefaultArtifact("group3", "artifact2.g.h", "1.0", "", "", null,
-            new DefaultArtifactHandler());
-        artifact.setFile(new File("./"));
-        artifacts.add(artifact);
-
-        repackageMojo.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
-        repackageMojo.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
 
     @Test
