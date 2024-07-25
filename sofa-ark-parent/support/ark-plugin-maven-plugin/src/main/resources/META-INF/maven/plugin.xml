@@ -7,7 +7,7 @@
     <description>A light-weight, java based classloader-isolated framework open-sourced by Ant Financial.</description>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-ark-plugin-maven-plugin</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.1.5</version>
     <goalPrefix>sofa-ark</goalPrefix>
     <isolatedRealm>false</isolatedRealm>
     <inheritedByDefault>true</inheritedByDefault>
