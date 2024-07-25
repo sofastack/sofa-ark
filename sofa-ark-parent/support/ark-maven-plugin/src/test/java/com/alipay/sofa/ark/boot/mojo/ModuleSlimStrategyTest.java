@@ -58,7 +58,8 @@ import static org.mockito.Mockito.when;
 public class ModuleSlimStrategyTest {
 
     @Test
-    public void testGetSlimmedArtifacts() throws MojoExecutionException, IOException {
+    public void testGetSlimmedArtifacts() throws MojoExecutionException, IOException,
+                                         URISyntaxException {
         MavenProject proj = mock(MavenProject.class);
         Artifact a1 = mock(Artifact.class);
         Artifact a2 = mock(Artifact.class);
@@ -67,7 +68,7 @@ public class ModuleSlimStrategyTest {
         Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3);
         when(proj.getArtifacts()).thenReturn(artifacts);
 
-        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, null));
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, mockBaseDir(), null));
         doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
         doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
 
@@ -80,7 +81,7 @@ public class ModuleSlimStrategyTest {
         ModuleSlimConfig config = (new ModuleSlimConfig())
             .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
-            null);
+            mockBaseDir(), null);
 
         Artifact sameArtifact = mock(Artifact.class);
         when(sameArtifact.getGroupId()).thenReturn("com.mock");
@@ -102,7 +103,7 @@ public class ModuleSlimStrategyTest {
     public void testExtensionExcludeArtifactsByDefault() throws URISyntaxException, IOException {
         ModuleSlimConfig config = new ModuleSlimConfig();
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
-            mockLog());
+            mockBaseDir(), mockLog());
 
         strategy.configExcludeArtifactsByDefault();
 
@@ -118,9 +119,9 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testExtensionExcludeArtifacts() {
+    public void testExtensionExcludeArtifacts() throws URISyntaxException {
         ModuleSlimConfig config = new ModuleSlimConfig();
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, config, mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, config, mockBaseDir(), mockLog());
         URL resource = this.getClass().getClassLoader().getResource("excludes.txt");
         strategy.extensionExcludeArtifacts(resource.getPath());
 
@@ -129,7 +130,7 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testLogExcludeMessage() {
+    public void testLogExcludeMessage() throws URISyntaxException {
         List<String> jarGroupIds = asList("com.alipay.sofa", "org.springframework");
         List<String> jarArtifactIds = asList("netty");
         List<String> jarList = asList("commons-io:commons-io:2.7");
@@ -145,13 +146,13 @@ public class ModuleSlimStrategyTest {
         artifacts.add(defaultArtifact1);
         artifacts.add(defaultArtifact2);
 
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockBaseDir(), mockLog());
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
 
     @Test
-    public void testExtensionExcludeArtifactsFromUrl() {
+    public void testExtensionExcludeArtifactsFromUrl() throws URISyntaxException {
 
         DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
             "provided", "jar", null, new DefaultArtifactHandler());
@@ -165,12 +166,12 @@ public class ModuleSlimStrategyTest {
         String packExcludesUrl = "http://httpbin.org/get";
 
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, new ModuleSlimConfig(),
-            mockLog());
+            mockBaseDir(), mockLog());
         strategy.extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
     }
 
     @Test
-    public void testLogExcludeMessageWithMoreCases() {
+    public void testLogExcludeMessageWithMoreCases() throws URISyntaxException {
         List<String> jarGroupIds = new ArrayList<>();
         jarGroupIds.add("group1*");
         jarGroupIds.add("group2.*");
@@ -198,7 +199,7 @@ public class ModuleSlimStrategyTest {
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
 
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockBaseDir(), mockLog());
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
@@ -267,5 +268,9 @@ public class ModuleSlimStrategyTest {
         Log log = mock(Log.class);
         doNothing().when(log).info(anyString());
         return log;
+    }
+
+    private File mockBaseDir() throws URISyntaxException {
+        return getResourceFile("baseDir");
     }
 }

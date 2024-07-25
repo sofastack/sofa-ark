@@ -34,15 +34,12 @@ import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -71,11 +68,14 @@ public class ModuleSlimStrategy {
 
     private Log                 log;
 
+    private File                baseDir;
+
     private static final String DEFAULT_EXCLUDE_RULES = "rules.txt";
 
-    ModuleSlimStrategy(MavenProject project, ModuleSlimConfig config, Log log) {
+    ModuleSlimStrategy(MavenProject project, ModuleSlimConfig config, File baseDir, Log log) {
         this.project = project;
         this.config = config;
+        this.baseDir = baseDir;
         this.log = log;
     }
 
@@ -96,7 +96,7 @@ public class ModuleSlimStrategy {
             return Collections.emptySet();
         }
 
-        // 过滤出模块和基座版本一致的依赖：即需要瘦身的依赖：A
+        // 过滤出模块和基座版本一致的依赖，即需要瘦身的依赖
         return getSameVersionArtifactsWithBase(artifacts);
     }
 
@@ -154,11 +154,11 @@ public class ModuleSlimStrategy {
                                                                                         throws IOException {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
-            extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR
-                                      + File.separator + config.getPackExcludesConfig());
+            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                                      + config.getPackExcludesConfig());
         } else {
-            extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR
-                                      + File.separator + DEFAULT_EXCLUDE_RULES);
+            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
+                                      + DEFAULT_EXCLUDE_RULES);
         }
 
         configExcludeArtifactsByDefault();
@@ -283,8 +283,8 @@ public class ModuleSlimStrategy {
 
     protected void configExcludeArtifactsByDefault() throws IOException {
         // extension from default ark.properties and ark.yml
-        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(getBaseDir().getAbsolutePath());
-        Properties prop = ArkConfigHolder.getArkProperties(getBaseDir().getAbsolutePath());
+        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
+        Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
 
         config.getExcludes().addAll(getStringSet(prop, EXTENSION_EXCLUDES));
         config.getExcludeGroupIds().addAll(getStringSet(prop, EXTENSION_EXCLUDES_GROUPIDS));
@@ -473,10 +473,6 @@ public class ModuleSlimStrategy {
                 }
             }
         }
-    }
-
-    private File getBaseDir() {
-        return project.getBasedir();
     }
 
     private Log getLog() {
