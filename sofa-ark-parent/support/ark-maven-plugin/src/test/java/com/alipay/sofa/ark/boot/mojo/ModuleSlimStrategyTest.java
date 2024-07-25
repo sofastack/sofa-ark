@@ -78,8 +78,8 @@ public class ModuleSlimStrategyTest {
     @Test
     public void testGetArtifactsToFilterByParentIdentity() throws URISyntaxException,
                                                           MojoExecutionException {
-        ModuleSlimConfig config = ModuleSlimConfig.builder()
-            .baseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0").build();
+        ModuleSlimConfig config = (new ModuleSlimConfig())
+            .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
             null);
 

@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.ark.boot.mojo.model;
 
-import lombok.SneakyThrows;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.yaml.snakeyaml.Yaml;
 
@@ -42,16 +41,15 @@ public class ArkConfigHolder {
 
     private static SystemStreamLog     log = new SystemStreamLog();
 
-    public static Properties getArkProperties(String baseDir) {
+    public static Properties getArkProperties(String baseDir) throws IOException {
         return arkProperties == null ? initArkProperties(baseDir) : arkProperties;
     }
 
-    public static Map<String, Object> getArkYaml(String baseDir) {
+    public static Map<String, Object> getArkYaml(String baseDir) throws IOException {
         return arkYaml == null ? initArkYaml(baseDir) : arkYaml;
     }
 
-    @SneakyThrows
-    private static Map<String, Object> initArkYaml(String baseDir) {
+    private static Map<String, Object> initArkYaml(String baseDir) throws IOException {
         String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
                             + ARK_CONF_YAML_FILE;
         File configFile = new File(configPath);
@@ -75,8 +73,7 @@ public class ArkConfigHolder {
         }
     }
 
-    @SneakyThrows
-    private static Properties initArkProperties(String baseDir) {
+    private static Properties initArkProperties(String baseDir) throws IOException {
         String configPath = baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
                             + ARK_CONF_FILE;
         File configFile = new File(configPath);

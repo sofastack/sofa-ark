@@ -16,24 +16,12 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.util.LinkedHashSet;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
  * @version $Id: ModuleSlimConfig.java, v 0.1 2024年07月12日 16:28 立蓬 Exp $
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Getter
-@Setter
 public class ModuleSlimConfig {
 
     private String                packExcludesConfig;
@@ -61,4 +49,58 @@ public class ModuleSlimConfig {
      * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
      */
     private String                baseDependencyParentIdentity;
+
+    public LinkedHashSet<String> getExcludeArtifactIds() {
+        return excludeArtifactIds;
+    }
+
+    public LinkedHashSet<String> getExcludeGroupIds() {
+        return excludeGroupIds;
+    }
+
+    public LinkedHashSet<String> getExcludes() {
+        return excludes;
+    }
+
+    public String getPackExcludesConfig() {
+        return packExcludesConfig;
+    }
+
+    public ModuleSlimConfig setPackExcludesConfig(String packExcludesConfig) {
+        this.packExcludesConfig = packExcludesConfig;
+        return this;
+    }
+
+    public String getPackExcludesUrl() {
+        return packExcludesUrl;
+    }
+
+    public ModuleSlimConfig setPackExcludesUrl(String packExcludesUrl) {
+        this.packExcludesUrl = packExcludesUrl;
+        return this;
+    }
+
+    public String getBaseDependencyParentIdentity() {
+        return baseDependencyParentIdentity;
+    }
+
+    public ModuleSlimConfig setBaseDependencyParentIdentity(String baseDependencyParentIdentity) {
+        this.baseDependencyParentIdentity = baseDependencyParentIdentity;
+        return this;
+    }
+
+    public ModuleSlimConfig setExcludes(LinkedHashSet<String> excludes) {
+        this.excludes = excludes;
+        return this;
+    }
+
+    public ModuleSlimConfig setExcludeGroupIds(LinkedHashSet<String> excludeGroupIds) {
+        this.excludeGroupIds = excludeGroupIds;
+        return this;
+    }
+
+    public ModuleSlimConfig setExcludeArtifactIds(LinkedHashSet<String> excludeArtifactIds) {
+        this.excludeArtifactIds = excludeArtifactIds;
+        return this;
+    }
 }

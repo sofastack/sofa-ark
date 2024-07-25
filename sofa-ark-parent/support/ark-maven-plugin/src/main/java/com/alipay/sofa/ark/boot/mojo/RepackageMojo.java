@@ -536,11 +536,11 @@ public class RepackageMojo extends TreeMojo {
     }
 
     private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException {
-        ModuleSlimConfig moduleSlimConfig = ModuleSlimConfig.builder()
-            .packExcludesConfig(packExcludesConfig).packExcludesUrl(packExcludesUrl)
-            .excludes(excludes).excludeGroupIds(excludeGroupIds)
-            .excludeArtifactIds(excludeArtifactIds)
-            .baseDependencyParentIdentity(baseDependencyParentIdentity).build();
+        ModuleSlimConfig moduleSlimConfig = (new ModuleSlimConfig())
+            .setPackExcludesConfig(packExcludesConfig).setPackExcludesUrl(packExcludesUrl)
+            .setExcludes(excludes).setExcludeGroupIds(excludeGroupIds)
+            .setExcludeArtifactIds(excludeArtifactIds)
+            .setBaseDependencyParentIdentity(baseDependencyParentIdentity);
         ModuleSlimStrategy slimStrategy = new ModuleSlimStrategy(this.mavenProject,
             moduleSlimConfig, this.getLog());
         return slimStrategy.getSlimmedArtifacts();
