@@ -30,8 +30,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ import static org.mockito.Mockito.when;
 public class ModuleSlimStrategyTest {
 
     @Test
-    public void testGetSlimmedArtifacts() throws MojoExecutionException {
+    public void testGetSlimmedArtifacts() throws MojoExecutionException, IOException {
         MavenProject proj = mock(MavenProject.class);
         Artifact a1 = mock(Artifact.class);
         Artifact a2 = mock(Artifact.class);
@@ -100,12 +99,12 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testExtensionExcludeArtifactsByDefault() throws URISyntaxException {
+    public void testExtensionExcludeArtifactsByDefault() throws URISyntaxException, IOException {
         ModuleSlimConfig config = new ModuleSlimConfig();
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
             mockLog());
 
-        strategy.extensionExcludeArtifactsByDefault();
+        strategy.configExcludeArtifactsByDefault();
 
         // 验证 ark.properties
         assertTrue(config.getExcludes().contains("commons-beanutils:commons-beanutils"));

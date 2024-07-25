@@ -535,7 +535,7 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
-    private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException {
+    private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
         ModuleSlimConfig moduleSlimConfig = (new ModuleSlimConfig())
             .setPackExcludesConfig(packExcludesConfig).setPackExcludesUrl(packExcludesUrl)
             .setExcludes(excludes).setExcludeGroupIds(excludeGroupIds)

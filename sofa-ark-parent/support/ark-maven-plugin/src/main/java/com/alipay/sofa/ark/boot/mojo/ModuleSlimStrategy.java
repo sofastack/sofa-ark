@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
 import com.alipay.sofa.ark.common.util.ParseUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.tools.ArtifactItem;
@@ -52,10 +53,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
+import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_YAML_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
@@ -80,7 +79,7 @@ public class ModuleSlimStrategy {
         this.log = log;
     }
 
-    public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException {
+    public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
         Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
         Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project
             .getArtifacts());
@@ -151,7 +150,8 @@ public class ModuleSlimStrategy {
         }
     }
 
-    protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
+    protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts)
+                                                                                        throws IOException {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
             extensionExcludeArtifacts(getBaseDir() + File.separator + ARK_CONF_BASE_DIR
@@ -161,7 +161,7 @@ public class ModuleSlimStrategy {
                                       + File.separator + DEFAULT_EXCLUDE_RULES);
         }
 
-        extensionExcludeArtifactsByDefault();
+        configExcludeArtifactsByDefault();
 
         // extension from url
         if (StringUtils.isNotBlank(config.getPackExcludesUrl())) {
@@ -281,86 +281,19 @@ public class ModuleSlimStrategy {
         }
     }
 
-    protected void extensionExcludeArtifactsByDefault() {
+    protected void configExcludeArtifactsByDefault() throws IOException {
         // extension from default ark.properties and ark.yml
-        extensionExcludeArtifactsFromProp();
-        extensionExcludeArtifactsFromYaml();
-    }
+        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(getBaseDir().getAbsolutePath());
+        Properties prop = ArkConfigHolder.getArkProperties(getBaseDir().getAbsolutePath());
 
-    protected void extensionExcludeArtifactsFromProp() {
-        String configPath = getBaseDir() + File.separator + ARK_CONF_BASE_DIR + File.separator
-                            + ARK_CONF_FILE;
-        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
-        if (!configFile.exists()) {
-            getLog().info(
-                String.format(
-                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
-                    configPath));
-            return;
-        }
+        config.getExcludes().addAll(getStringSet(prop, EXTENSION_EXCLUDES));
+        config.getExcludeGroupIds().addAll(getStringSet(prop, EXTENSION_EXCLUDES_GROUPIDS));
+        config.getExcludeArtifactIds().addAll(getStringSet(prop, EXTENSION_EXCLUDES_ARTIFACTIDS));
 
-        getLog().info(
-            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
-                configPath));
-
-        Properties prop = new Properties();
-        try (FileInputStream fis = new FileInputStream(configPath)) {
-            prop.load(fis);
-
-            parseIncludeOrExcludeProp(config.getExcludes(), prop, EXTENSION_EXCLUDES);
-            parseIncludeOrExcludeProp(config.getExcludeGroupIds(), prop,
-                EXTENSION_EXCLUDES_GROUPIDS);
-            parseIncludeOrExcludeProp(config.getExcludeArtifactIds(), prop,
-                EXTENSION_EXCLUDES_ARTIFACTIDS);
-        } catch (IOException ex) {
-            getLog().error(
-                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
-        }
-    }
-
-    protected void extensionExcludeArtifactsFromYaml() {
-        String configPath = getBaseDir() + File.separator + ARK_CONF_BASE_DIR + File.separator
-                            + ARK_CONF_YAML_FILE;
-        File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(configPath);
-        if (!configFile.exists()) {
-            getLog().info(
-                String.format(
-                    "sofa-ark-maven-plugin: extension-config %s not found, will not config it",
-                    configPath));
-            return;
-        }
-
-        getLog().info(
-            String.format("sofa-ark-maven-plugin: find extension-config %s and will config it",
-                configPath));
-
-        try (FileInputStream fis = new FileInputStream(configPath)) {
-            Yaml yaml = new Yaml();
-            Map<String, List<String>> parsedYaml = yaml.load(fis);
-            parseIncludeOrExcludeYaml(config.getExcludes(), parsedYaml, EXTENSION_EXCLUDES);
-            parseIncludeOrExcludeYaml(config.getExcludeGroupIds(), parsedYaml,
-                EXTENSION_EXCLUDES_GROUPIDS);
-            parseIncludeOrExcludeYaml(config.getExcludeArtifactIds(), parsedYaml,
-                EXTENSION_EXCLUDES_ARTIFACTIDS);
-        } catch (IOException ex) {
-            getLog().error(
-                String.format("failed to parse excludes artifacts from %s.", configPath), ex);
-        }
-    }
-
-    private void parseIncludeOrExcludeProp(LinkedHashSet<String> targetSet, Properties prop,
-                                           String confKey) {
-        String[] parsed = StringUtils.split(prop.getProperty(confKey), COMMA_SPLIT);
-        if (null != parsed) {
-            targetSet.addAll(Arrays.asList(parsed));
-        }
-    }
-
-    private void parseIncludeOrExcludeYaml(LinkedHashSet<String> targetSet,
-                                           Map<String, List<String>> yaml, String confKey) {
-        if (yaml.containsKey(confKey) && null != yaml.get(confKey)) {
-            targetSet.addAll(yaml.get(confKey));
-        }
+        config.getExcludes().addAll(getStringSet(arkYaml, EXTENSION_EXCLUDES));
+        config.getExcludeGroupIds().addAll(getStringSet(arkYaml, EXTENSION_EXCLUDES_GROUPIDS));
+        config.getExcludeArtifactIds()
+            .addAll(getStringSet(arkYaml, EXTENSION_EXCLUDES_ARTIFACTIDS));
     }
 
     protected void extensionExcludeArtifactsFromUrl(String packExcludesUrl, Set<Artifact> artifacts) {
