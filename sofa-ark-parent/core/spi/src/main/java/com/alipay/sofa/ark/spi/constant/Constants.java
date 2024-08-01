@@ -236,6 +236,7 @@ public class Constants {
     public final static String       CONFIG_PROTOCOL_ZOOKEEPER_HEADER              = "zookeeper://";
     public final static String       ZOOKEEPER_CONTEXT_SPLIT                       = "/";
     public final static String       CONFIG_INSTALL_BIZ_DIR                        = "com.alipay.sofa.ark.biz.dir";
+    public final static String       CONFIG_INSTALL_PLUGIN_DIR                     = "com.alipay.sofa.ark.plugin.dir";
     public final static String       CONFIG_BIZ_URL                                = "bizUrl";
 
     public final static String       CONFIG_CONNECT_TIMEOUT                        = "com.alipay.sofa.ark.config.connect.timeout";

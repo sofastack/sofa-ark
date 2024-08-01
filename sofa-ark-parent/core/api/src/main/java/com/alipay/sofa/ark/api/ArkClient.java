@@ -25,28 +25,24 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizSwitchEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizSwitchEvent;
-import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizInfo;
-import com.alipay.sofa.ark.spi.model.BizOperation;
-import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.*;
 import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.replay.ReplayContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * API used to operate biz
@@ -59,6 +55,7 @@ public class ArkClient {
     private static BizManagerService    bizManagerService;
     private static BizFactoryService    bizFactoryService;
     private static PluginManagerService pluginManagerService;
+    private static PluginFactoryService pluginFactoryService;
     private static Biz                  masterBiz;
     private static InjectionService     injectionService;
     private static String[]             arguments;
@@ -121,6 +118,14 @@ public class ArkClient {
         return pluginManagerService;
     }
 
+    public static PluginFactoryService getPluginFactoryService() {
+        return pluginFactoryService;
+    }
+
+    public static void setPluginFactoryService(PluginFactoryService pluginFactoryService) {
+        ArkClient.pluginFactoryService = pluginFactoryService;
+    }
+
     public static Biz getMasterBiz() {
         return masterBiz;
     }
@@ -170,6 +175,59 @@ public class ArkClient {
 
     public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
         return doInstallBiz(bizFile, args, null);
+    }
+
+    public static ClientResponse installPlugin(PluginOperation pluginOperation) throws Exception {
+        AssertUtils.assertNotNull(pluginOperation, "pluginOperation must not be null");
+        File localFile = pluginOperation.getLocalFile();
+        if (localFile == null && !StringUtils.isEmpty(pluginOperation.getUrl())) {
+            URL url = new URL(pluginOperation.getUrl());
+            String pluginDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_PLUGIN_DIR);
+            File pluginDirectory = StringUtils.isEmpty(pluginDir) ? FileUtils
+                .createTempDir("sofa-ark") : FileUtils.mkdir(pluginDir);
+            localFile = new File(pluginDirectory, pluginOperation.getPluginName() + "-"
+                                                  + pluginOperation.getPluginVersion() + "-"
+                                                  + System.currentTimeMillis());
+            try (InputStream inputStream = url.openStream()) {
+                FileUtils.copyInputStreamToFile(inputStream, localFile);
+            }
+        }
+        List<String> extensionLibs = pluginOperation.getExtensionLibs();
+        List<URL> urlsList = new ArrayList<>();
+        if (extensionLibs != null && !extensionLibs.isEmpty()) {
+            for (String extension : extensionLibs) {
+                URL url = new URL(extension);
+                urlsList.add(url);
+            }
+        }
+        URL[] urls = urlsList.toArray(new URL[0]);
+
+        long start = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
+        String startDate = sdf.format(new Date(start));
+
+        // create
+        Plugin plugin = pluginFactoryService.createPlugin(localFile, urls);
+        // register
+        pluginManagerService.registerPlugin(plugin);
+        // start
+        ClientResponse response = new ClientResponse();
+        try {
+            plugin.start();
+            long end = System.currentTimeMillis();
+            response.setCode(ResponseCode.SUCCESS).setMessage(
+                String.format("Install Plugin: %s success, cost: %s ms, started at: %s",
+                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+            getLogger().info(response.getMessage());
+        } catch (Throwable throwable) {
+            long end = System.currentTimeMillis();
+            response.setCode(ResponseCode.FAILED).setMessage(
+                String.format("Install Plugin: %s fail,cost: %s ms, started at: %s",
+                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+            getLogger().error(response.getMessage(), throwable);
+            throw throwable;
+        }
+        return response;
     }
 
     private static ClientResponse doInstallBiz(File bizFile, String[] args, Map<String, String> envs)
