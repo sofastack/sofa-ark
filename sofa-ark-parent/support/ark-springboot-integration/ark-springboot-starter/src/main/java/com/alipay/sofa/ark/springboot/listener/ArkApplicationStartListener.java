@@ -73,12 +73,12 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
             }
             if (isSpringBoot2()
                 && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
-                startUpArk(event);
+                SofaArkBootstrap.launch(event.getArgs());
             }
 
             if (isSpringBoot1()
                 && APPLICATION_STARTED_EVENT.equals(event.getClass().getCanonicalName())) {
-                startUpArk(event);
+                SofaArkBootstrap.launch(event.getArgs());
             }
         } catch (Throwable e) {
             throw new RuntimeException("Meet exception when determine whether to start SOFAArk!", e);
