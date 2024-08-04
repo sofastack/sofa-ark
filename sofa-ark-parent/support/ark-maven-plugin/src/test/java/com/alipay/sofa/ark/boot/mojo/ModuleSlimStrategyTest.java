@@ -100,7 +100,8 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testExtensionExcludeArtifactsByDefault() throws URISyntaxException, IOException {
+    public void testExtensionExcludeAndIncludeArtifactsByDefault() throws URISyntaxException,
+                                                                  IOException {
         ModuleSlimConfig config = new ModuleSlimConfig();
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
             mockBaseDir(), mockLog());
@@ -119,11 +120,11 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testExtensionExcludeArtifacts() throws URISyntaxException {
+    public void testExtensionExcludeAndIncludeArtifacts() throws URISyntaxException {
         ModuleSlimConfig config = new ModuleSlimConfig();
         ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, config, mockBaseDir(), mockLog());
         URL resource = this.getClass().getClassLoader().getResource("excludes.txt");
-        strategy.extensionExcludeArtifacts(resource.getPath());
+        strategy.extensionExcludeAndIncludeArtifacts(resource.getPath());
 
         assertTrue(config.getExcludes().contains("tracer-core:3.0.10")
                    && config.getExcludes().contains("tracer-core:3.0.11"));
@@ -152,7 +153,7 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testExtensionExcludeArtifactsFromUrl() throws URISyntaxException {
+    public void testExtensionExcludeAndIncludeArtifactsFromUrl() throws URISyntaxException {
 
         DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
             "provided", "jar", null, new DefaultArtifactHandler());
