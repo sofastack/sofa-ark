@@ -76,13 +76,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_YAML_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -225,19 +219,23 @@ public class RepackageMojo extends TreeMojo {
      */
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludes                   = new LinkedHashSet<>();
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includes                   = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludeGroupIds            = new LinkedHashSet<>();
-
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includeGroupIds            = new LinkedHashSet<>();
     /**
      * list of artifact names to exclude (exact match).
      */
     @Parameter(defaultValue = "")
     private LinkedHashSet<String>  excludeArtifactIds         = new LinkedHashSet<>();
-
+    @Parameter(defaultValue = "")
+    private LinkedHashSet<String>  includeArtifactIds         = new LinkedHashSet<>();
     /**
      * list of packages denied to be imported
      */
@@ -628,7 +626,6 @@ public class RepackageMojo extends TreeMojo {
                 result.add(e);
             }
         }
-
         return result;
     }
 
@@ -661,6 +658,9 @@ public class RepackageMojo extends TreeMojo {
             parseExcludeProp(excludes, prop, EXTENSION_EXCLUDES);
             parseExcludeProp(excludeGroupIds, prop, EXTENSION_EXCLUDES_GROUPIDS);
             parseExcludeProp(excludeArtifactIds, prop, EXTENSION_EXCLUDES_ARTIFACTIDS);
+            parseExcludeProp(includes, prop, EXTENSION_INCLUDES );
+            parseExcludeProp(includeGroupIds, prop, EXTENSION_INCLUDES_GROUPIDS);
+            parseExcludeProp(includeArtifactIds, prop, EXTENSION_INCLUDES_ARTIFACTIDS);
         } catch (IOException ex) {
             getLog().error(
                 String.format("failed to parse excludes artifacts from %s.", configPath), ex);
@@ -689,6 +689,9 @@ public class RepackageMojo extends TreeMojo {
             parseExcludeYaml(excludes, parsedYaml, EXTENSION_EXCLUDES);
             parseExcludeYaml(excludeGroupIds, parsedYaml, EXTENSION_EXCLUDES_GROUPIDS);
             parseExcludeYaml(excludeArtifactIds, parsedYaml, EXTENSION_EXCLUDES_ARTIFACTIDS);
+            parseExcludeYaml(includes, parsedYaml, EXTENSION_INCLUDES);
+            parseExcludeYaml(includeGroupIds, parsedYaml, EXTENSION_INCLUDES_GROUPIDS);
+            parseExcludeYaml(includeArtifactIds, parsedYaml, EXTENSION_INCLUDES_ARTIFACTIDS);
 
         } catch (IOException ex) {
             getLog().error(
@@ -786,10 +789,18 @@ public class RepackageMojo extends TreeMojo {
                         ParseUtils.parseExcludeConf(excludes, dataLine, EXTENSION_EXCLUDES);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
                         ParseUtils.parseExcludeConf(excludeGroupIds, dataLine,
-                            EXTENSION_EXCLUDES_GROUPIDS);
+                                EXTENSION_EXCLUDES_GROUPIDS);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
-                            EXTENSION_EXCLUDES_ARTIFACTIDS);
+                                EXTENSION_EXCLUDES_ARTIFACTIDS);
+                    } else if (dataLine.startsWith(EXTENSION_INCLUDES)) {
+                        ParseUtils.parseExcludeConf(includes, dataLine, EXTENSION_INCLUDES);
+                    } else if (dataLine.startsWith(EXTENSION_INCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConf(includeGroupIds, dataLine,
+                                EXTENSION_INCLUDES_GROUPIDS);
+                    } else if (dataLine.startsWith(EXTENSION_INCLUDES_ARTIFACTIDS)) {
+                        ParseUtils.parseExcludeConf(includeArtifactIds, dataLine,
+                                EXTENSION_INCLUDES_ARTIFACTIDS);
                     }
                 }
             }
@@ -823,17 +834,28 @@ public class RepackageMojo extends TreeMojo {
                     List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
                     List<String> jarBlackArtifactIds = excludeConfig.getJarBlackArtifactIds();
                     List<String> jarBlackList = excludeConfig.getJarBlackList();
+                    List<String> jarWhiteGroupIds = excludeConfig.getJarWhiteGroupIds();
+                    List<String> jarWhiteArtifactIds = excludeConfig.getJarWhiteArtifactIds();
+                    List<String> jarWhiteList = excludeConfig.getJarWhiteList();
                     if (CollectionUtils.isNotEmpty(jarBlackGroupIds)) {
                         excludeGroupIds.addAll(jarBlackGroupIds);
+                    }
+                    if (CollectionUtils.isNotEmpty(jarWhiteGroupIds)) {
+                        excludeGroupIds.addAll(jarWhiteGroupIds);
                     }
                     if (CollectionUtils.isNotEmpty(jarBlackArtifactIds)) {
                         excludeArtifactIds.addAll(jarBlackArtifactIds);
                     }
+                    if (CollectionUtils.isNotEmpty(jarWhiteArtifactIds)) {
+                        excludeArtifactIds.addAll(jarWhiteArtifactIds);
+                    }
                     if (CollectionUtils.isNotEmpty(jarBlackList)) {
                         excludes.addAll(jarBlackList);
                     }
-                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
-                        artifacts, true);
+                    if (CollectionUtils.isNotEmpty(jarWhiteList )) {
+                        excludes.addAll(jarWhiteList );
+                    }
+                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList, artifacts,true);
 
                     List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
                     List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
@@ -1055,11 +1077,12 @@ public class RepackageMojo extends TreeMojo {
         private String       app;
 
         private List<String> jarBlackGroupIds;
+        private List<String> JarWhiteGroupIds;
 
         private List<String> jarBlackArtifactIds;
-
+        private List<String> jarWhiteArtifactIds;
         private List<String> jarBlackList;
-
+        private List<String> jarWhiteList;
         private List<String> jarWarnGroupIds;
 
         private List<String> jarWarnArtifactIds;
@@ -1077,25 +1100,40 @@ public class RepackageMojo extends TreeMojo {
         public List<String> getJarBlackGroupIds() {
             return jarBlackGroupIds;
         }
+        public List<String> getJarWhiteGroupIds() {
+            return JarWhiteGroupIds;
+        }
 
         public void setJarBlackGroupIds(List<String> jarBlackGroupIds) {
             this.jarBlackGroupIds = jarBlackGroupIds;
+        }
+        public void setJarWhiteGroupIds(List<String> jarWhiteGroupIds) {
+            this. JarWhiteGroupIds = jarWhiteGroupIds;
         }
 
         public List<String> getJarBlackArtifactIds() {
             return jarBlackArtifactIds;
         }
+        public List<String> getJarWhiteArtifactIds() {
+            return JarWhiteGroupIds;
+        }
 
-        public void setJarBlackArtifactIds(List<String> jarBlackArtifactIds) {
-            this.jarBlackArtifactIds = jarBlackArtifactIds;
+        public void setJarWhiteArtifactIds(List<String> jarWhiteArtifactIds) {
+            this.jarWhiteArtifactIds = jarWhiteArtifactIds;
         }
 
         public List<String> getJarBlackList() {
             return jarBlackList;
         }
+        public List<String> getJarWhiteList() {
+            return jarWhiteList;
+        }
 
         public void setJarBlackList(List<String> jarBlackList) {
             this.jarBlackList = jarBlackList;
+        }
+        public void setJarWhiteList(List<String> jarWhiteList) {
+            this.jarWhiteList = jarWhiteList;
         }
 
         public List<String> getJarWarnGroupIds() {

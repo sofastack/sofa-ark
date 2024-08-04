@@ -245,7 +245,9 @@ public class Constants {
      */
     public final static String       FORCE_DELEGATE_TO_TEST_CLASSLOADER            = "com.alipay.sofa.ark.delegate.to.testClassLoader";
     public final static String       FORCE_DELEGATE_TO_APP_CLASSLOADER             = "com.alipay.sofa.ark.delegate.to.appClassLoader";
-
+    public final static String       EXTENSION_INCLUDES                            = "includes";
+    public final static String       EXTENSION_INCLUDES_GROUPIDS                   = "includeGroupIds";
+    public final static String       EXTENSION_INCLUDES_ARTIFACTIDS                = "includeArtifactIds";
     public final static String       EXTENSION_EXCLUDES                            = "excludes";
     public final static String       EXTENSION_EXCLUDES_GROUPIDS                   = "excludeGroupIds";
     public final static String       EXTENSION_EXCLUDES_ARTIFACTIDS                = "excludeArtifactIds";
