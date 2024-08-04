@@ -620,9 +620,18 @@ public class RepackageMojo extends TreeMojo {
             excludeList.add(item);
         }
 
+        List<ArtifactItem> includeList = new ArrayList<>();
+        for (String include : includes) {
+            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(include);
+            includeList.add(item);
+        }
+
         Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
             if (!checkMatchExclude(excludeList, e)) {
+                result.add(e);
+            }
+            if (checkMatchInclude(includeList, e)) {
                 result.add(e);
             }
         }
@@ -658,7 +667,7 @@ public class RepackageMojo extends TreeMojo {
             parseExcludeProp(excludes, prop, EXTENSION_EXCLUDES);
             parseExcludeProp(excludeGroupIds, prop, EXTENSION_EXCLUDES_GROUPIDS);
             parseExcludeProp(excludeArtifactIds, prop, EXTENSION_EXCLUDES_ARTIFACTIDS);
-            parseExcludeProp(includes, prop, EXTENSION_INCLUDES );
+            parseExcludeProp(includes, prop, EXTENSION_INCLUDES);
             parseExcludeProp(includeGroupIds, prop, EXTENSION_INCLUDES_GROUPIDS);
             parseExcludeProp(includeArtifactIds, prop, EXTENSION_INCLUDES_ARTIFACTIDS);
         } catch (IOException ex) {
@@ -778,6 +787,63 @@ public class RepackageMojo extends TreeMojo {
         return false;
     }
 
+    private boolean checkMatchInclude(List<ArtifactItem> includeList, Artifact artifact) {
+        for (ArtifactItem include : includeList) {
+            if (include.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
+                return true;
+            }
+        }
+
+        if (includeGroupIds != null) {
+            // 支持通配符
+            for (String includeGroupId : includeGroupIds) {
+                if (includeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                    || includeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    if (includeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        includeGroupId = StringUtils.removeEnd(includeGroupId,
+                            Constants.PACKAGE_PREFIX_MARK_2);
+                    } else if (includeGroupId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        includeGroupId = StringUtils.removeEnd(includeGroupId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                    }
+
+                    if (artifact.getGroupId().startsWith(includeGroupId)) {
+                        return true;
+                    }
+                } else {
+                    if (artifact.getGroupId().equals(includeGroupId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if (includeArtifactIds != null) {
+            // 支持通配符
+            for (String includeArtifactId : includeArtifactIds) {
+                if (includeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)
+                    || includeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                    if (includeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK_2)) {
+                        includeArtifactId = StringUtils.removeEnd(includeArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK_2);
+                    } else if (includeArtifactId.endsWith(Constants.PACKAGE_PREFIX_MARK)) {
+                        includeArtifactId = StringUtils.removeEnd(includeArtifactId,
+                            Constants.PACKAGE_PREFIX_MARK);
+                    }
+                    if (artifact.getArtifactId().startsWith(includeArtifactId)) {
+                        return true;
+                    }
+                } else {
+                    if (artifact.getArtifactId().equals(includeArtifactId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected void extensionExcludeArtifacts(String extraResources) {
         try {
             File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
@@ -789,18 +855,18 @@ public class RepackageMojo extends TreeMojo {
                         ParseUtils.parseExcludeConf(excludes, dataLine, EXTENSION_EXCLUDES);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_GROUPIDS)) {
                         ParseUtils.parseExcludeConf(excludeGroupIds, dataLine,
-                                EXTENSION_EXCLUDES_GROUPIDS);
+                            EXTENSION_EXCLUDES_GROUPIDS);
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(excludeArtifactIds, dataLine,
-                                EXTENSION_EXCLUDES_ARTIFACTIDS);
+                            EXTENSION_EXCLUDES_ARTIFACTIDS);
                     } else if (dataLine.startsWith(EXTENSION_INCLUDES)) {
                         ParseUtils.parseExcludeConf(includes, dataLine, EXTENSION_INCLUDES);
                     } else if (dataLine.startsWith(EXTENSION_INCLUDES_GROUPIDS)) {
                         ParseUtils.parseExcludeConf(includeGroupIds, dataLine,
-                                EXTENSION_INCLUDES_GROUPIDS);
+                            EXTENSION_INCLUDES_GROUPIDS);
                     } else if (dataLine.startsWith(EXTENSION_INCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(includeArtifactIds, dataLine,
-                                EXTENSION_INCLUDES_ARTIFACTIDS);
+                            EXTENSION_INCLUDES_ARTIFACTIDS);
                     }
                 }
             }
@@ -852,10 +918,11 @@ public class RepackageMojo extends TreeMojo {
                     if (CollectionUtils.isNotEmpty(jarBlackList)) {
                         excludes.addAll(jarBlackList);
                     }
-                    if (CollectionUtils.isNotEmpty(jarWhiteList )) {
-                        excludes.addAll(jarWhiteList );
+                    if (CollectionUtils.isNotEmpty(jarWhiteList)) {
+                        excludes.addAll(jarWhiteList);
                     }
-                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList, artifacts,true);
+                    logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
+                        artifacts, true);
 
                     List<String> jarWarnGroupIds = excludeConfig.getJarWarnGroupIds();
                     List<String> jarWarnArtifactIds = excludeConfig.getJarWarnArtifactIds();
@@ -1100,6 +1167,7 @@ public class RepackageMojo extends TreeMojo {
         public List<String> getJarBlackGroupIds() {
             return jarBlackGroupIds;
         }
+
         public List<String> getJarWhiteGroupIds() {
             return JarWhiteGroupIds;
         }
@@ -1107,13 +1175,15 @@ public class RepackageMojo extends TreeMojo {
         public void setJarBlackGroupIds(List<String> jarBlackGroupIds) {
             this.jarBlackGroupIds = jarBlackGroupIds;
         }
+
         public void setJarWhiteGroupIds(List<String> jarWhiteGroupIds) {
-            this. JarWhiteGroupIds = jarWhiteGroupIds;
+            this.JarWhiteGroupIds = jarWhiteGroupIds;
         }
 
         public List<String> getJarBlackArtifactIds() {
             return jarBlackArtifactIds;
         }
+
         public List<String> getJarWhiteArtifactIds() {
             return JarWhiteGroupIds;
         }
@@ -1125,6 +1195,7 @@ public class RepackageMojo extends TreeMojo {
         public List<String> getJarBlackList() {
             return jarBlackList;
         }
+
         public List<String> getJarWhiteList() {
             return jarWhiteList;
         }
@@ -1132,6 +1203,7 @@ public class RepackageMojo extends TreeMojo {
         public void setJarBlackList(List<String> jarBlackList) {
             this.jarBlackList = jarBlackList;
         }
+
         public void setJarWhiteList(List<String> jarWhiteList) {
             this.jarWhiteList = jarWhiteList;
         }
