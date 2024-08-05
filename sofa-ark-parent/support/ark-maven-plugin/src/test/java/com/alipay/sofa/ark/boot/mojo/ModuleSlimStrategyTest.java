@@ -68,7 +68,8 @@ public class ModuleSlimStrategyTest {
         Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3);
         when(proj.getArtifacts()).thenReturn(artifacts);
 
-        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, mockBaseDir(), null));
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, new ModuleSlimConfig(),
+            mockBaseDir(), null));
         doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
         doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
 
