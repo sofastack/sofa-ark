@@ -51,11 +51,8 @@ import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTIFACTIDS;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -81,12 +78,15 @@ public class ModuleSlimStrategy {
 
     public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
         Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
+        initExcludeAndIncludeConfig(toFilterByBase);
         Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project
             .getArtifacts());
+        Set<Artifact> toAddByInclude = getArtifactsToAddByIncludeConfig(project.getArtifacts());
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
         filteredArtifacts.removeAll(toFilterByBase);
         filteredArtifacts.removeAll(toFilterByExclude);
+        filteredArtifacts.addAll(toAddByInclude);
         return filteredArtifacts;
     }
 
@@ -150,15 +150,14 @@ public class ModuleSlimStrategy {
         }
     }
 
-    protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts)
-                                                                                        throws IOException {
+    protected void initExcludeAndIncludeConfig(Set<Artifact> artifacts) throws IOException {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
-            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                                      + config.getPackExcludesConfig());
+            extensionExcludeAndIncludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR
+                                                + File.separator + config.getPackExcludesConfig());
         } else {
-            extensionExcludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR + File.separator
-                                      + DEFAULT_EXCLUDE_RULES);
+            extensionExcludeAndIncludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR
+                                                + File.separator + DEFAULT_EXCLUDE_RULES);
         }
 
         configExcludeArtifactsByDefault();
@@ -167,7 +166,9 @@ public class ModuleSlimStrategy {
         if (StringUtils.isNotBlank(config.getPackExcludesUrl())) {
             extensionExcludeArtifactsFromUrl(config.getPackExcludesUrl(), artifacts);
         }
+    }
 
+    protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
         List<ArtifactItem> excludeList = new ArrayList<>();
         for (String exclude : config.getExcludes()) {
             ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(exclude);
@@ -177,6 +178,23 @@ public class ModuleSlimStrategy {
         Set<Artifact> result = new LinkedHashSet<>();
         for (Artifact e : artifacts) {
             if (checkMatchExclude(excludeList, e)) {
+                result.add(e);
+            }
+        }
+
+        return result;
+    }
+
+    protected Set<Artifact> getArtifactsToAddByIncludeConfig(Set<Artifact> artifacts) {
+        List<ArtifactItem> includeList = new ArrayList<>();
+        for (String include : config.getIncludes()) {
+            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(include);
+            includeList.add(item);
+        }
+
+        Set<Artifact> result = new LinkedHashSet<>();
+        for (Artifact e : artifacts) {
+            if (checkMatchInclude(includeList, e)) {
                 result.add(e);
             }
         }
@@ -204,6 +222,28 @@ public class ModuleSlimStrategy {
         }
 
         return checkMatchArtifactId(config.getExcludeArtifactIds(), artifact);
+    }
+
+    /**
+     * This method is core method for including artifacts in sofa-ark-maven-plugin &lt;includeGroupIds&gt;
+     * and &lt;includeArtifactIds&gt; config.
+     *
+     * @param includeList
+     * @param artifact
+     * @return
+     */
+    private boolean checkMatchInclude(List<ArtifactItem> includeList, Artifact artifact) {
+        for (ArtifactItem include : includeList) {
+            if (include.isSameWithVersion(ArtifactItem.parseArtifactItem(artifact))) {
+                return true;
+            }
+        }
+
+        if (checkMatchGroupId(config.getIncludeGroupIds(), artifact)) {
+            return true;
+        }
+
+        return checkMatchArtifactId(config.getIncludeArtifactIds(), artifact);
     }
 
     private boolean checkMatchGroupId(Set<String> groupIds, Artifact artifact) {
@@ -257,7 +297,7 @@ public class ModuleSlimStrategy {
         return false;
     }
 
-    protected void extensionExcludeArtifacts(String extraResources) {
+    protected void extensionExcludeAndIncludeArtifacts(String extraResources) {
         try {
             File configFile = com.alipay.sofa.ark.common.util.FileUtils.file(extraResources);
             if (configFile.exists()) {
@@ -273,6 +313,15 @@ public class ModuleSlimStrategy {
                     } else if (dataLine.startsWith(EXTENSION_EXCLUDES_ARTIFACTIDS)) {
                         ParseUtils.parseExcludeConf(config.getExcludeArtifactIds(), dataLine,
                             EXTENSION_EXCLUDES_ARTIFACTIDS);
+                    } else if (dataLine.startsWith(EXTENSION_INCLUDES)) {
+                        ParseUtils.parseExcludeConf(config.getIncludes(), dataLine,
+                            EXTENSION_INCLUDES);
+                    } else if (dataLine.startsWith(EXTENSION_INCLUDES_GROUPIDS)) {
+                        ParseUtils.parseExcludeConf(config.getIncludeGroupIds(), dataLine,
+                            EXTENSION_INCLUDES_GROUPIDS);
+                    } else if (dataLine.startsWith(EXTENSION_INCLUDES_ARTIFACTIDS)) {
+                        ParseUtils.parseExcludeConf(config.getIncludeArtifactIds(), dataLine,
+                            EXTENSION_INCLUDES_ARTIFACTIDS);
                     }
                 }
             }
@@ -289,11 +338,18 @@ public class ModuleSlimStrategy {
         config.getExcludes().addAll(getStringSet(prop, EXTENSION_EXCLUDES));
         config.getExcludeGroupIds().addAll(getStringSet(prop, EXTENSION_EXCLUDES_GROUPIDS));
         config.getExcludeArtifactIds().addAll(getStringSet(prop, EXTENSION_EXCLUDES_ARTIFACTIDS));
+        config.getIncludes().addAll(getStringSet(prop, EXTENSION_INCLUDES));
+        config.getIncludeGroupIds().addAll(getStringSet(prop, EXTENSION_INCLUDES_GROUPIDS));
+        config.getIncludeArtifactIds().addAll(getStringSet(prop, EXTENSION_INCLUDES_ARTIFACTIDS));
 
         config.getExcludes().addAll(getStringSet(arkYaml, EXTENSION_EXCLUDES));
         config.getExcludeGroupIds().addAll(getStringSet(arkYaml, EXTENSION_EXCLUDES_GROUPIDS));
         config.getExcludeArtifactIds()
             .addAll(getStringSet(arkYaml, EXTENSION_EXCLUDES_ARTIFACTIDS));
+        config.getIncludes().addAll(getStringSet(arkYaml, EXTENSION_INCLUDES));
+        config.getIncludeGroupIds().addAll(getStringSet(arkYaml, EXTENSION_INCLUDES_GROUPIDS));
+        config.getIncludeArtifactIds()
+            .addAll(getStringSet(arkYaml, EXTENSION_INCLUDES_ARTIFACTIDS));
     }
 
     protected void extensionExcludeArtifactsFromUrl(String packExcludesUrl, Set<Artifact> artifacts) {
@@ -315,6 +371,9 @@ public class ModuleSlimStrategy {
                     List<String> jarBlackGroupIds = excludeConfig.getJarBlackGroupIds();
                     List<String> jarBlackArtifactIds = excludeConfig.getJarBlackArtifactIds();
                     List<String> jarBlackList = excludeConfig.getJarBlackList();
+                    List<String> jarWhiteGroupIds = excludeConfig.getJarWhiteGroupIds();
+                    List<String> jarWhiteArtifactIds = excludeConfig.getJarWhiteArtifactIds();
+                    List<String> jarWhiteList = excludeConfig.getJarWhiteList();
                     if (CollectionUtils.isNotEmpty(jarBlackGroupIds)) {
                         config.getExcludeGroupIds().addAll(jarBlackGroupIds);
                     }
@@ -323,6 +382,15 @@ public class ModuleSlimStrategy {
                     }
                     if (CollectionUtils.isNotEmpty(jarBlackList)) {
                         config.getExcludes().addAll(jarBlackList);
+                    }
+                    if (CollectionUtils.isNotEmpty(jarWhiteGroupIds)) {
+                        config.getIncludeGroupIds().addAll(jarWhiteGroupIds);
+                    }
+                    if (CollectionUtils.isNotEmpty(jarWhiteArtifactIds)) {
+                        config.getIncludeArtifactIds().addAll(jarWhiteArtifactIds);
+                    }
+                    if (CollectionUtils.isNotEmpty(jarWhiteList)) {
+                        config.getIncludes().addAll(jarWhiteList);
                     }
                     logExcludeMessage(jarBlackGroupIds, jarBlackArtifactIds, jarBlackList,
                         artifacts, true);
@@ -512,6 +580,12 @@ public class ModuleSlimStrategy {
 
         private List<String> jarBlackList;
 
+        private List<String> JarWhiteGroupIds;
+
+        private List<String> jarWhiteArtifactIds;
+
+        private List<String> jarWhiteList;
+
         private List<String> jarWarnGroupIds;
 
         private List<String> jarWarnArtifactIds;
@@ -548,6 +622,30 @@ public class ModuleSlimStrategy {
 
         public void setJarBlackList(List<String> jarBlackList) {
             this.jarBlackList = jarBlackList;
+        }
+
+        public List<String> getJarWhiteGroupIds() {
+            return JarWhiteGroupIds;
+        }
+
+        public void setJarWhiteGroupIds(List<String> jarWhiteGroupIds) {
+            JarWhiteGroupIds = jarWhiteGroupIds;
+        }
+
+        public List<String> getJarWhiteArtifactIds() {
+            return jarWhiteArtifactIds;
+        }
+
+        public void setJarWhiteArtifactIds(List<String> jarWhiteArtifactIds) {
+            this.jarWhiteArtifactIds = jarWhiteArtifactIds;
+        }
+
+        public List<String> getJarWhiteList() {
+            return jarWhiteList;
+        }
+
+        public void setJarWhiteList(List<String> jarWhiteList) {
+            this.jarWhiteList = jarWhiteList;
         }
 
         public List<String> getJarWarnGroupIds() {
