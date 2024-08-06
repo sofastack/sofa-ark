@@ -179,6 +179,8 @@ public class ArkClient {
 
     public static ClientResponse installPlugin(PluginOperation pluginOperation) throws Exception {
         AssertUtils.assertNotNull(pluginOperation, "pluginOperation must not be null");
+
+        // prepare plugin file
         File localFile = pluginOperation.getLocalFile();
         if (localFile == null && !StringUtils.isEmpty(pluginOperation.getUrl())) {
             URL url = new URL(pluginOperation.getUrl());
@@ -192,6 +194,8 @@ public class ArkClient {
                 FileUtils.copyInputStreamToFile(inputStream, localFile);
             }
         }
+
+        // prepare extension urls if necessary
         List<String> extensionLibs = pluginOperation.getExtensionLibs();
         List<URL> urlsList = new ArrayList<>();
         if (extensionLibs != null && !extensionLibs.isEmpty()) {
@@ -200,14 +204,14 @@ public class ArkClient {
                 urlsList.add(url);
             }
         }
-        URL[] urls = urlsList.toArray(new URL[0]);
+        URL[] extensionUrls = urlsList.toArray(new URL[0]);
 
         long start = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
         // create
-        Plugin plugin = pluginFactoryService.createPlugin(localFile, urls);
+        Plugin plugin = pluginFactoryService.createPlugin(localFile, extensionUrls);
         // register
         pluginManagerService.registerPlugin(plugin);
         // start

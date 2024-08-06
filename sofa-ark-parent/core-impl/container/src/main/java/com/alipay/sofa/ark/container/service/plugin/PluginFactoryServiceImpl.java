@@ -36,29 +36,10 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATOR_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARTIFACT_ID_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_CLASSES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_MODE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_PACKAGES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_RESOURCES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.GROUP_ID_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_CLASSES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_PACKAGES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_RESOURCES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXPORT_CLASS_ENABLE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXTENSION_FORMAT;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_NAME_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_VERSION_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_SEMICOLON;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * {@link PluginFactoryService}
@@ -176,7 +157,7 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         JarFile pluginFile = new JarFile(file);
         JarFileArchive jarFileArchive = new JarFileArchive(pluginFile);
         JarPluginArchive jarPluginArchive = new JarPluginArchive(jarFileArchive);
-        return createPlugin(jarPluginArchive, extensions, null);
+        return createPlugin(jarPluginArchive, extensions, new HashSet<>());
     }
 
     @Override
@@ -186,6 +167,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
         boolean enableExportClass = "true".equals(System.getProperty(PLUGIN_EXPORT_CLASS_ENABLE));
+        boolean enableClassIsolation = "true".equals(System
+            .getProperty(PLUGIN_CLASS_ISOLATION_ENABLE));
         boolean overrideExportMode = PluginModel.EXPORTMODE_OVERRIDE.equals(manifestMainAttributes
             .getValue(EXPORT_MODE));
         plugin
@@ -196,8 +179,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(
-                overrideExportMode ? pluginArchive.getUrls() : ClassLoaderUtils
-                    .getURLs(masterClassLoader))
+                (enableClassIsolation || overrideExportMode) ? pluginArchive.getUrls()
+                    : ClassLoaderUtils.getURLs(masterClassLoader))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportMode(manifestMainAttributes.getValue(EXPORT_MODE))
             .setExportClasses(
@@ -211,8 +194,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
             .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
             .setPluginClassLoader(
-                overrideExportMode ? new PluginClassLoader(plugin.getPluginName(), plugin
-                    .getClassPath()) : masterClassLoader)
+                (enableClassIsolation || overrideExportMode) ? new PluginClassLoader(plugin
+                    .getPluginName(), plugin.getClassPath()) : masterClassLoader)
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
     }
