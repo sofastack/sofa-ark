@@ -183,7 +183,7 @@ public class ArtifactItem {
     }
 
     /**
-     * parse string pattern {groupId:artifactId} {groupId:artifactId:version} {groupId:artifactId:*:classifier} or {groupId:artifactId:version:classifier}
+     * parse string pattern {groupId:artifactId} {groupId:artifactId:version} or {groupId:artifactId:version:classifier}
      * @param s location pattern
      * @return
      */

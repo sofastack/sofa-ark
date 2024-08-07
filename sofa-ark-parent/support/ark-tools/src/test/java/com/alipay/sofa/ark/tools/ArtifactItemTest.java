@@ -47,13 +47,6 @@ public class ArtifactItemTest {
         assertEquals("sofa-ark-plugin", item.getArtifactId());
         assertEquals("1.0.0", item.getVersion());
         assertEquals("jdk11", item.getClassifier());
-
-        // case4: {groupId:artifactId:*:classifier}
-        item = ArtifactItem.parseArtifactItem("com.alipay.sofa:sofa-ark-plugin:*:jdk11");
-        assertEquals("com.alipay.sofa", item.getGroupId());
-        assertEquals("sofa-ark-plugin", item.getArtifactId());
-        assertEquals("*", item.getVersion());
-        assertEquals("jdk11", item.getClassifier());
     }
 
     @Test
@@ -87,8 +80,8 @@ public class ArtifactItemTest {
         item = ArtifactItem.parseArtifactItem("com.alipay.sofa:sofa-ark-plugin:1.0.0");
         assertFalse(item.isSameWithVersion(dependencyWithClassifier));
 
-        item = ArtifactItem.parseArtifactItem("com.alipay.sofa:sofa-ark-plugin:*:jdk11");
-        assertTrue(item.isSameWithVersion(dependencyWithClassifier));
+        item = ArtifactItem.parseArtifactItem("com.alipay.sofa:sofa-ark-plugin");
+        assertFalse(item.isSameWithVersion(dependencyWithClassifier));
     }
 
 }
