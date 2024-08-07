@@ -69,6 +69,8 @@ public class BizModel implements Biz {
 
     private String               bizVersion;
 
+    private String               bizAlias;
+
     private BizState             bizState;
 
     private String               mainClass;
@@ -120,6 +122,11 @@ public class BizModel implements Biz {
     public BizModel setBizVersion(String bizVersion) {
         AssertUtils.isFalse(StringUtils.isEmpty(bizVersion), "Biz Version must not be empty!");
         this.bizVersion = bizVersion;
+        return this;
+    }
+
+    public BizModel setBizAlias(String bizAlias) {
+        this.bizAlias = bizAlias;
         return this;
     }
 
@@ -242,6 +249,11 @@ public class BizModel implements Biz {
     @Override
     public String getIdentity() {
         return BizIdentityUtils.generateBizIdentity(this);
+    }
+
+    @Override
+    public String getBizAlias() {
+        return bizAlias;
     }
 
     @Override
