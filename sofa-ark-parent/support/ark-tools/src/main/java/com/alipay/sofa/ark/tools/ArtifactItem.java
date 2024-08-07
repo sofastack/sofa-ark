@@ -17,7 +17,7 @@
 package com.alipay.sofa.ark.tools;
 
 import com.alipay.sofa.ark.common.util.AssertUtils;
-import com.alipay.sofa.ark.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 
 import java.util.Objects;
@@ -28,19 +28,21 @@ import java.util.Objects;
  */
 public class ArtifactItem {
 
-    private static final String GAV_SPLIT = ":";
+    private static final String GAV_SPLIT       = ":";
+
+    private static final String DEFAULT_VERSION = "*";
 
     private String              groupId;
 
     private String              artifactId;
 
-    private String              version   = "?";
+    private String              version         = DEFAULT_VERSION;
 
     private String              classifier;
 
-    private String              type      = "jar";
+    private String              type            = "jar";
 
-    private String              scope     = "compile";
+    private String              scope           = "compile";
 
     public String getGroupId() {
         return groupId;
@@ -117,7 +119,8 @@ public class ArtifactItem {
 
         return isSameStr(this.getGroupId(), that.getGroupId())
                && isSameStr(this.getArtifactId(), that.getArtifactId())
-               && isSameStr(this.getVersion(), that.getVersion())
+               && (StringUtils.equals(this.getVersion(), DEFAULT_VERSION) || isSameStr(
+                   this.getVersion(), that.getVersion()))
                && isSameStr(this.getClassifier(), that.getClassifier());
     }
 
@@ -125,7 +128,7 @@ public class ArtifactItem {
         if ("*".equals(left) || "*".equals(right)) {
             return true;
         }
-        return StringUtils.isSameStr(left, right);
+        return StringUtils.equals(left, right);
     }
 
     /**
@@ -173,6 +176,30 @@ public class ArtifactItem {
         item.setGroupId(arr[0]);
         item.setArtifactId(arr[1]);
         item.setVersion(arr[2]);
+        if (arr.length == 4) {
+            item.setClassifier(arr[3]);
+        }
+        return item;
+    }
+
+    /**
+     * parse string pattern {groupId:artifactId} {groupId:artifactId:version} {groupId:artifactId:*:classifier} or {groupId:artifactId:version:classifier}
+     * @param s location pattern
+     * @return
+     */
+    public static ArtifactItem parseArtifactItem(String s) {
+        String[] arr = StringUtils.split(s, GAV_SPLIT);
+
+        // groupId, artifactId, version(optional) and classifier(optional)
+        AssertUtils.isTrue(arr != null && arr.length >= 2 && arr.length <= 4,
+            "artifact item format error: %s", s);
+
+        ArtifactItem item = new ArtifactItem();
+        item.setGroupId(arr[0]);
+        item.setArtifactId(arr[1]);
+        if (arr.length >= 3) {
+            item.setVersion(arr[2]);
+        }
         if (arr.length == 4) {
             item.setClassifier(arr[3]);
         }
