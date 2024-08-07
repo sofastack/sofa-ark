@@ -165,76 +165,24 @@ public class ArkClient {
      * @throws Throwable
      */
     public static ClientResponse installBiz(File bizFile) throws Throwable {
-        return installBiz(bizFile, arguments, envs);
+        return doInstallBiz(bizFile, null, arguments, envs);
     }
 
     public static ClientResponse installBiz(File bizFile, String[] args, Map<String, String> envs)
                                                                                                   throws Throwable {
-        return doInstallBiz(bizFile, args, envs);
+        return doInstallBiz(bizFile, null, args, envs);
     }
 
     public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
-        return doInstallBiz(bizFile, args, null);
+        return doInstallBiz(bizFile, null, args, null);
     }
 
-    public static ClientResponse installPlugin(PluginOperation pluginOperation) throws Exception {
-        AssertUtils.assertNotNull(pluginOperation, "pluginOperation must not be null");
-
-        // prepare plugin file
-        File localFile = pluginOperation.getLocalFile();
-        if (localFile == null && !StringUtils.isEmpty(pluginOperation.getUrl())) {
-            URL url = new URL(pluginOperation.getUrl());
-            String pluginDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_PLUGIN_DIR);
-            File pluginDirectory = StringUtils.isEmpty(pluginDir) ? FileUtils
-                .createTempDir("sofa-ark") : FileUtils.mkdir(pluginDir);
-            localFile = new File(pluginDirectory, pluginOperation.getPluginName() + "-"
-                                                  + pluginOperation.getPluginVersion() + "-"
-                                                  + System.currentTimeMillis());
-            try (InputStream inputStream = url.openStream()) {
-                FileUtils.copyInputStreamToFile(inputStream, localFile);
-            }
-        }
-
-        // prepare extension urls if necessary
-        List<String> extensionLibs = pluginOperation.getExtensionLibs();
-        List<URL> urlsList = new ArrayList<>();
-        if (extensionLibs != null && !extensionLibs.isEmpty()) {
-            for (String extension : extensionLibs) {
-                URL url = new URL(extension);
-                urlsList.add(url);
-            }
-        }
-        URL[] extensionUrls = urlsList.toArray(new URL[0]);
-
-        long start = System.currentTimeMillis();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
-        String startDate = sdf.format(new Date(start));
-
-        // create
-        Plugin plugin = pluginFactoryService.createPlugin(localFile, extensionUrls);
-        // register
-        pluginManagerService.registerPlugin(plugin);
-        // start
-        ClientResponse response = new ClientResponse();
-        try {
-            plugin.start();
-            long end = System.currentTimeMillis();
-            response.setCode(ResponseCode.SUCCESS).setMessage(
-                String.format("Install Plugin: %s success, cost: %s ms, started at: %s",
-                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
-            getLogger().info(response.getMessage());
-        } catch (Throwable throwable) {
-            long end = System.currentTimeMillis();
-            response.setCode(ResponseCode.FAILED).setMessage(
-                String.format("Install Plugin: %s fail,cost: %s ms, started at: %s",
-                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
-            getLogger().error(response.getMessage(), throwable);
-            throw throwable;
-        }
-        return response;
+    public static ClientResponse installBiz(File bizFile, URL[] extensionUrls, String[] args, Map<String, String> envs)
+            throws Throwable {
+        return doInstallBiz(bizFile, extensionUrls, args, envs);
     }
 
-    private static ClientResponse doInstallBiz(File bizFile, String[] args, Map<String, String> envs)
+    private static ClientResponse doInstallBiz(File bizFile, URL[] extensionUrls, String[] args, Map<String, String> envs)
                                                                                                      throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
@@ -244,7 +192,7 @@ public class ArkClient {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
-        Biz biz = bizFactoryService.createBiz(bizFile);
+        Biz biz = bizFactoryService.createBiz(bizFile, extensionUrls);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
             || !bizManagerService.registerBiz(biz)) {
@@ -447,7 +395,21 @@ public class ArkClient {
                 FileUtils.copyInputStreamToFile(inputStream, bizFile);
             }
         }
-        return installBiz(bizFile, args, envs);
+
+        // prepare extension urls if necessary
+        URL[] extensionUrls = null;
+        if (bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS) != null) {
+            Set<String> extensionLibs = StringUtils.strToSet(bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS), Constants.COMMA_SPLIT);
+            List<URL> urlsList = new ArrayList<>();
+            if (!extensionLibs.isEmpty()) {
+                for (String extension : extensionLibs) {
+                    URL url = new URL(extension);
+                    urlsList.add(url);
+                }
+            }
+            extensionUrls = urlsList.toArray(new URL[0]);
+        }
+        return installBiz(bizFile, extensionUrls, args, envs);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
@@ -469,6 +431,63 @@ public class ArkClient {
             BizOperation.OperationType.CHECK.equals(bizOperation.getOperationType()),
             "Operation type must be check");
         return checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
+    }
+
+    public static ClientResponse installPlugin(PluginOperation pluginOperation) throws Exception {
+        AssertUtils.assertNotNull(pluginOperation, "pluginOperation must not be null");
+
+        // prepare plugin file
+        File localFile = pluginOperation.getLocalFile();
+        if (localFile == null && !StringUtils.isEmpty(pluginOperation.getUrl())) {
+            URL url = new URL(pluginOperation.getUrl());
+            String pluginDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_PLUGIN_DIR);
+            File pluginDirectory = StringUtils.isEmpty(pluginDir) ? FileUtils
+                    .createTempDir("sofa-ark") : FileUtils.mkdir(pluginDir);
+            localFile = new File(pluginDirectory, pluginOperation.getPluginName() + "-"
+                    + pluginOperation.getPluginVersion() + "-"
+                    + System.currentTimeMillis());
+            try (InputStream inputStream = url.openStream()) {
+                FileUtils.copyInputStreamToFile(inputStream, localFile);
+            }
+        }
+
+        // prepare extension urls if necessary
+        List<String> extensionLibs = pluginOperation.getExtensionLibs();
+        List<URL> urlsList = new ArrayList<>();
+        if (extensionLibs != null && !extensionLibs.isEmpty()) {
+            for (String extension : extensionLibs) {
+                URL url = new URL(extension);
+                urlsList.add(url);
+            }
+        }
+        URL[] extensionUrls = urlsList.toArray(new URL[0]);
+
+        long start = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
+        String startDate = sdf.format(new Date(start));
+
+        // create
+        Plugin plugin = pluginFactoryService.createPlugin(localFile, extensionUrls);
+        // register
+        pluginManagerService.registerPlugin(plugin);
+        // start
+        ClientResponse response = new ClientResponse();
+        try {
+            plugin.start();
+            long end = System.currentTimeMillis();
+            response.setCode(ResponseCode.SUCCESS).setMessage(
+                    String.format("Install Plugin: %s success, cost: %s ms, started at: %s",
+                            plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+            getLogger().info(response.getMessage());
+        } catch (Throwable throwable) {
+            long end = System.currentTimeMillis();
+            response.setCode(ResponseCode.FAILED).setMessage(
+                    String.format("Install Plugin: %s fail,cost: %s ms, started at: %s",
+                            plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+            getLogger().error(response.getMessage(), throwable);
+            throw throwable;
+        }
+        return response;
     }
 
     /**

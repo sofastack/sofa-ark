@@ -52,6 +52,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
 import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
@@ -81,6 +82,11 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     @Override
     public Biz createBiz(BizArchive bizArchive) throws IOException {
+        return createBiz(bizArchive, null);
+    }
+
+    @Override
+    public Biz createBiz(BizArchive bizArchive, URL[] extensionUrls) throws IOException {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
         BizModel bizModel = new BizModel();
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();
@@ -100,7 +106,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
-            .setClassPath(bizArchive.getUrls()).setPluginClassPath(getPluginURLs());
+            .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), extensionUrls)).setPluginClassPath(getPluginURLs());
 
         // prepare dependent plugins and plugin export map
         resolveExportMapIfNecessary(bizModel, manifestMainAttributes.getValue("dependent-plugins"));
@@ -115,6 +121,13 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
         return bizModel;
+    }
+
+    private URL[] getMergedBizClassPath(URL[] bizArchiveUrls, URL[] extensionUrls) {
+        if (extensionUrls == null || extensionUrls.length == 0) {
+            return bizArchiveUrls;
+        }
+        return Stream.concat(Arrays.stream(bizArchiveUrls), Arrays.stream(extensionUrls)).toArray(URL[]::new);
     }
 
     private void resolveExportMapIfNecessary(BizModel bizModel, String dependentPlugins) {
@@ -162,6 +175,11 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     @Override
     public Biz createBiz(File file) throws IOException {
+        return createBiz(file, null);
+    }
+
+    @Override
+    public Biz createBiz(File file, URL[] extensionUrls) throws IOException {
         BizArchive bizArchive;
         if (ArkConfigs.isEmbedEnable()) {
             File unpackFile = FileUtils.file(file.getAbsolutePath() + "-unpack");
@@ -178,14 +196,14 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
             bizArchive = new JarBizArchive(jarFileArchive);
         }
-        BizModel biz = (BizModel) createBiz(bizArchive);
+        BizModel biz = (BizModel) createBiz(bizArchive, extensionUrls);
         biz.setBizTempWorkDir(file);
         return biz;
     }
 
     @Override
     public Biz createBiz(BizOperation bizOperation, File file) throws IOException {
-        BizModel biz = (BizModel) createBiz(file);
+        BizModel biz = (BizModel) createBiz(file, null);
         if (bizOperation != null && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
             biz.setBizVersion(bizOperation.getBizVersion());
             if (biz.getBizClassLoader() instanceof BizClassLoader) {
