@@ -663,23 +663,4 @@ public class BizModel implements Biz {
         return exportSuffixStemResourceAndClassLoaderMap;
     }
 
-    //    public static class PluginExportCache {
-    //
-    //        private Biz biz;
-    //
-    //        private List<Plugin> dependentPlugins;
-    //
-    //        /* export class and classloader relationship cache */
-    //        private ConcurrentHashMap<String, Plugin>       exportClassAndClassLoaderMap              = new ConcurrentHashMap<>();
-    //        private ConcurrentHashMap<String, Plugin>       exportNodeAndClassLoaderMap               = new ConcurrentHashMap<>();
-    //        private ConcurrentHashMap<String, Plugin>       exportStemAndClassLoaderMap               = new ConcurrentHashMap<>();
-    //
-    //        /* export cache and classloader relationship cache */
-    //        private ConcurrentHashMap<String, List<Plugin>> exportResourceAndClassLoaderMap           = new ConcurrentHashMap<>();
-    //        private ConcurrentHashMap<String, List<Plugin>> exportPrefixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
-    //        private ConcurrentHashMap<String, List<Plugin>> exportSuffixStemResourceAndClassLoaderMap = new ConcurrentHashMap<>();
-    //
-    //
-    //
-    //    }
 }
