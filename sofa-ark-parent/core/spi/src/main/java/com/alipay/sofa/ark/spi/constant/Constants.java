@@ -203,6 +203,7 @@ public class Constants {
     public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
     public final static String       PLUGIN_CLASS_ISOLATION_ENABLE                 = "sofa.ark.plugin.class.isolation.enable";
+    public final static String       ALL_PLUGINS_VISIBLE_FOR_BIZ                   = "sofa.ark.all.plugins.visible.for.biz";
 
     public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
 

@@ -102,14 +102,35 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
             .setClassPath(bizArchive.getUrls()).setPluginClassPath(getPluginURLs());
 
-        // prepare dependent plugins
-        Set<String> pluginNames = StringUtils.strToSet(
-            manifestMainAttributes.getValue("dependent-plugins"), Constants.MANIFEST_VALUE_SPLIT);
-        Set<Plugin> plugins = new HashSet<>();
-        for (String pluginName : pluginNames) {
-            Plugin plugin = pluginManagerService.getPluginByName(pluginName);
-            plugins.add(plugin);
+        // prepare dependent plugins and plugin export map
+        resolveExportMapIfNecessary(bizModel, manifestMainAttributes.getValue("dependent-plugins"));
+
+        if (!(bizArchive instanceof DirectoryBizArchive)) {
+            bizModel.setBizUrl(bizArchive.getUrl());
         }
+
+        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
+            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
+                                                || bizArchive instanceof DirectoryBizArchive);
+        bizClassLoader.setBizModel(bizModel);
+        bizModel.setClassLoader(bizClassLoader);
+        return bizModel;
+    }
+
+    private void resolveExportMapIfNecessary(BizModel bizModel, String dependentPlugins) {
+        Set<Plugin> plugins = new HashSet<>();
+        if (ArkConfigs.areAllPluginsVisibleForBiz()) {
+            plugins.addAll(pluginManagerService.getPluginsInOrder());
+        }
+
+        if (dependentPlugins != null) {
+            Set<String> pluginNames = StringUtils.strToSet(dependentPlugins, Constants.MANIFEST_VALUE_SPLIT);
+            for (String pluginName : pluginNames) {
+                Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+                plugins.add(plugin);
+            }
+        }
+
         bizModel.setDependentPlugins(plugins);
         for (Plugin plugin : plugins) {
             for (String exportIndex : plugin.getExportPackageNodes()) {
@@ -137,17 +158,6 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                 bizModel.getExportSuffixStemResourceAndClassLoaderMap().get(resource).add(plugin);
             }
         }
-
-        if (!(bizArchive instanceof DirectoryBizArchive)) {
-            bizModel.setBizUrl(bizArchive.getUrl());
-        }
-
-        BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
-            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
-                                                || bizArchive instanceof DirectoryBizArchive);
-        bizClassLoader.setBizModel(bizModel);
-        bizModel.setClassLoader(bizClassLoader);
-        return bizModel;
     }
 
     @Override
