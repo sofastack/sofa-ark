@@ -44,7 +44,7 @@ public class ArtifactsLibraries implements Libraries {
         libraryScopes.put(Artifact.SCOPE_COMPILE, LibraryScope.COMPILE);
         libraryScopes.put(Artifact.SCOPE_RUNTIME, LibraryScope.RUNTIME);
         libraryScopes.put(Artifact.SCOPE_PROVIDED, LibraryScope.PROVIDED);
-        libraryScopes.put(Artifact.SCOPE_SYSTEM, LibraryScope.PROVIDED);
+        libraryScopes.put(Artifact.SCOPE_SYSTEM, LibraryScope.COMPILE);
         SCOPES = Collections.unmodifiableMap(libraryScopes);
     }
 
