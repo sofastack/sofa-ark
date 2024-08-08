@@ -30,7 +30,7 @@ public class ArtifactItem {
 
     private static final String GAV_SPLIT       = ":";
 
-    private static final String DEFAULT_VERSION = "*";
+    private static final String DEFAULT_VERSION = "?";
 
     private String              groupId;
 
