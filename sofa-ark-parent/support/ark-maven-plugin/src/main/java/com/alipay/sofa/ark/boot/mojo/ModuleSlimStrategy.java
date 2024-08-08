@@ -170,10 +170,6 @@ public class ModuleSlimStrategy {
 
     protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
         List<ArtifactItem> excludeList = new ArrayList<>();
-        if (config != null
-            && (config.getExcludes().contains("*") || config.getExcludes().contains(".*"))) {
-            return artifacts;
-        }
         for (String exclude : config.getExcludes()) {
             ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(exclude);
             excludeList.add(item);
@@ -191,10 +187,6 @@ public class ModuleSlimStrategy {
 
     protected Set<Artifact> getArtifactsToAddByIncludeConfig(Set<Artifact> artifacts) {
         List<ArtifactItem> includeList = new ArrayList<>();
-        if (config != null
-            && (config.getIncludes().contains("*") || config.getIncludes().contains(".*"))) {
-            return artifacts;
-        }
         for (String include : config.getIncludes()) {
             ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(include);
             includeList.add(item);
