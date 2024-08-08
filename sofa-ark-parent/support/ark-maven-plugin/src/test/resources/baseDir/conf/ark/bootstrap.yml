@@ -1,4 +1,4 @@
-# excludes 中配置 groupId:artifactId} {groupId:artifactId:version} {groupId:artifactId:*:classifier} 或 {groupId:artifactId:version:classifier}, 不同依赖以 - 隔开
+# excludes 中配置 groupId:artifactId} {groupId:artifactId:version} 或 {groupId:artifactId:version:classifier}, 不同依赖以 - 隔开
 # excludeGroupIds 中配置 ${groupId}, 不同依赖以 - 隔开
 # excludeArtifactIds 中配置 ${artifactId}, 不同依赖以 - 隔开
 excludes:
