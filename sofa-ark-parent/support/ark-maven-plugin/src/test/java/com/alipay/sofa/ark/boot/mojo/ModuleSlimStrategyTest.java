@@ -33,10 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.alipay.sofa.ark.boot.mojo.ReflectionUtils.setField;
 import static java.util.Arrays.asList;
@@ -74,6 +71,26 @@ public class ModuleSlimStrategyTest {
         doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
 
         assertEquals(1, strategy.getSlimmedArtifacts().size());
+    }
+
+    @Test
+    public void testSlimmedAllArtifacts() throws MojoExecutionException, IOException,
+                                         URISyntaxException {
+        MavenProject proj = mock(MavenProject.class);
+        Artifact a1 = mock(Artifact.class);
+        Artifact a2 = mock(Artifact.class);
+        Artifact a3 = mock(Artifact.class);
+        Artifact a4 = mock(Artifact.class);
+        Artifact a5 = mock(Artifact.class);
+        Artifact a6 = mock(Artifact.class);
+        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5, a6);
+        when(proj.getArtifacts()).thenReturn(artifacts);
+        ModuleSlimConfig moduleSlimConfig = new ModuleSlimConfig();
+        moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Arrays.asList(".*")));
+        moduleSlimConfig.setIncludes(Sets.newLinkedHashSet(Arrays.asList("*")));
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, moduleSlimConfig,
+            mockBaseDir(), null));
+        assertEquals(6, strategy.getSlimmedArtifacts().size());
     }
 
     @Test
