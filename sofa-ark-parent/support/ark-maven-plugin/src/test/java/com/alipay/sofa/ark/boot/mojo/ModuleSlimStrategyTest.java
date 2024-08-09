@@ -72,9 +72,10 @@ public class ModuleSlimStrategyTest {
 
         assertEquals(1, strategy.getSlimmedArtifacts().size());
     }
-   @Test
-   public void testSlimmedAllArtifacts() throws MojoExecutionException,IOException,
-           URISyntaxException {
+
+    @Test
+    public void testSlimmedAllArtifacts() throws MojoExecutionException, IOException,
+                                         URISyntaxException {
         MavenProject proj = mock(MavenProject.class);
         Artifact a1 = mock(Artifact.class);
         Artifact a2 = mock(Artifact.class);
@@ -82,14 +83,16 @@ public class ModuleSlimStrategyTest {
         Artifact a4 = mock(Artifact.class);
         Artifact a5 = mock(Artifact.class);
         Artifact a6 = mock(Artifact.class);
-        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5,a6);
+        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5, a6);
         when(proj.getArtifacts()).thenReturn(artifacts);
         ModuleSlimConfig moduleSlimConfig = new ModuleSlimConfig();
         moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Arrays.asList(".*")));
         moduleSlimConfig.setIncludes(Sets.newLinkedHashSet(Arrays.asList("*")));
-        ModuleSlimStrategy strategy =spy(new ModuleSlimStrategy(proj,moduleSlimConfig,mockBaseDir(),null));
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, moduleSlimConfig,
+            mockBaseDir(), null));
         assertEquals(6, strategy.getSlimmedArtifacts().size());
-   }
+    }
+
     @Test
     public void testGetArtifactsToFilterByParentIdentity() throws URISyntaxException,
                                                           MojoExecutionException {
