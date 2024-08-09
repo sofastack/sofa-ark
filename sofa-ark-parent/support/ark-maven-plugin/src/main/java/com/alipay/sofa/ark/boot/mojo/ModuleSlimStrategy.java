@@ -175,7 +175,7 @@ public class ModuleSlimStrategy {
             return artifacts;
         }
         for (String exclude : config.getExcludes()) {
-            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(exclude);
+            ArtifactItem item = ArtifactItem.parseArtifactItem(exclude);
             excludeList.add(item);
         }
 
@@ -196,7 +196,7 @@ public class ModuleSlimStrategy {
             return artifacts;
         }
         for (String include : config.getIncludes()) {
-            ArtifactItem item = ArtifactItem.parseArtifactItemWithVersion(include);
+            ArtifactItem item = ArtifactItem.parseArtifactItem(include);
             includeList.add(item);
         }
 
