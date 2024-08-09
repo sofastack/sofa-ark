@@ -60,6 +60,8 @@ public interface PluginFactoryService {
      */
     Plugin createPlugin(File file) throws IOException;
 
+    Plugin createPlugin(File file, URL[] extensions) throws IOException;
+
     /**
      * Mock Plugin Model according to master biz
      * @return

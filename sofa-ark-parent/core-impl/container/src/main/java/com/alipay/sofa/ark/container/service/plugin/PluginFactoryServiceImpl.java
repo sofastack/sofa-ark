@@ -36,29 +36,10 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATOR_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARTIFACT_ID_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_CLASSES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_MODE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_PACKAGES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.EXPORT_RESOURCES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.GROUP_ID_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_CLASSES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_PACKAGES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.IMPORT_RESOURCES_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXPORT_CLASS_ENABLE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_EXTENSION_FORMAT;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_NAME_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_VERSION_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_SEMICOLON;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * {@link PluginFactoryService}
@@ -132,39 +113,35 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
 
     public URL[] getFinalPluginUrls(PluginArchive pluginArchive, URL[] extensions, String pluginName)
                                                                                                      throws IOException {
-        // get config by PLUGIN-EXPORT key
         URL[] urls = pluginArchive.getUrls();
+        List<URL> urlList = new ArrayList<>(Arrays.asList(urls));
+        urlList.remove(null);
+
+        // get config by PLUGIN-EXPORT key, exclude jar by config
         String excludeArtifact = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
             pluginName));
-        if (StringUtils.isEmpty(excludeArtifact) || extensions == null) {
-            return urls;
-        }
-        pluginArchive.setExtensionUrls(extensions);
-        ArrayList<URL> urlList = new ArrayList<>(Arrays.asList(urls));
-        List<URL> preRemoveList = new ArrayList<>();
-        urlList.remove(null);
-        for (URL url : urlList) {
-            String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
-            for (String dependency : dependencies) {
-                String artifactId = dependency.split(STRING_COLON)[0];
-                String version = dependency.split(STRING_COLON)[1];
-                if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
-                    preRemoveList.add(url);
-                    break;
+        if (!StringUtils.isEmpty(excludeArtifact)) {
+            List<URL> preRemoveList = new ArrayList<>();
+            for (URL url : urlList) {
+                String[] dependencies = excludeArtifact.split(STRING_SEMICOLON);
+                for (String dependency : dependencies) {
+                    String artifactId = dependency.split(STRING_COLON)[0];
+                    String version = dependency.split(STRING_COLON)[1];
+                    if (url.getPath().endsWith(artifactId + "-" + version + ".jar!/")) {
+                        preRemoveList.add(url);
+                        break;
+                    }
                 }
             }
-        }
-        urlList.removeAll(preRemoveList);
-        if (pluginArchive instanceof JarPluginArchive) {
-            URL[] extensionUrls = ((JarPluginArchive) pluginArchive).getExtensionUrls();
-            if (extensionUrls != null) {
-                urlList.addAll(Arrays.asList(extensionUrls));
-            }
+            urlList.removeAll(preRemoveList);
         }
 
-        Object[] objects = urlList.toArray();
-        urls = new URL[objects.length];
-        return urlList.toArray(urls);
+        // add extension urls to plugin classloader classpath
+        if (extensions != null && extensions.length > 0) {
+            pluginArchive.setExtensionUrls(extensions);
+            urlList.addAll(Arrays.asList(extensions));
+        }
+        return urlList.toArray(new URL[0]);
     }
 
     @Override
@@ -176,12 +153,22 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
     }
 
     @Override
+    public Plugin createPlugin(File file, URL[] extensions) throws IOException {
+        JarFile pluginFile = new JarFile(file);
+        JarFileArchive jarFileArchive = new JarFileArchive(pluginFile);
+        JarPluginArchive jarPluginArchive = new JarPluginArchive(jarFileArchive);
+        return createPlugin(jarPluginArchive, extensions, new HashSet<>());
+    }
+
+    @Override
     public Plugin createEmbedPlugin(PluginArchive pluginArchive, ClassLoader masterClassLoader)
                                                                                                throws IOException {
         AssertUtils.isTrue(isArkPlugin(pluginArchive), "Archive must be a ark plugin!");
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
         boolean enableExportClass = "true".equals(System.getProperty(PLUGIN_EXPORT_CLASS_ENABLE));
+        boolean enableClassIsolation = "true".equals(System
+            .getProperty(PLUGIN_CLASS_ISOLATION_ENABLE));
         boolean overrideExportMode = PluginModel.EXPORTMODE_OVERRIDE.equals(manifestMainAttributes
             .getValue(EXPORT_MODE));
         plugin
@@ -192,8 +179,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
             .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
             .setClassPath(
-                overrideExportMode ? pluginArchive.getUrls() : ClassLoaderUtils
-                    .getURLs(masterClassLoader))
+                (enableClassIsolation || overrideExportMode) ? pluginArchive.getUrls()
+                    : ClassLoaderUtils.getURLs(masterClassLoader))
             .setPluginUrl(pluginArchive.getUrl())
             .setExportMode(manifestMainAttributes.getValue(EXPORT_MODE))
             .setExportClasses(
@@ -207,8 +194,8 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
             .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
             .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
             .setPluginClassLoader(
-                overrideExportMode ? new PluginClassLoader(plugin.getPluginName(), plugin
-                    .getClassPath()) : masterClassLoader)
+                (enableClassIsolation || overrideExportMode) ? new PluginClassLoader(plugin
+                    .getPluginName(), plugin.getClassPath()) : masterClassLoader)
             .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
     }

@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.AfterFinishDeployEvent;
 import com.alipay.sofa.ark.spi.event.AfterFinishStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
@@ -72,12 +73,12 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
             }
             if (isSpringBoot2()
                 && APPLICATION_STARTING_EVENT.equals(event.getClass().getCanonicalName())) {
-                startUpArk(event);
+                SofaArkBootstrap.launch(event.getArgs());
             }
 
             if (isSpringBoot1()
                 && APPLICATION_STARTED_EVENT.equals(event.getClass().getCanonicalName())) {
-                startUpArk(event);
+                SofaArkBootstrap.launch(event.getArgs());
             }
         } catch (Throwable e) {
             throw new RuntimeException("Meet exception when determine whether to start SOFAArk!", e);
@@ -88,15 +89,18 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         if (ArkConfigs.isEmbedEnable()) {
             return true;
         }
-        if (SPRING_BOOT_LOADER_CLASS != null
-            && SPRING_BOOT_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
-                .getClass())) {
-            return true;
-        }
-        if (SPRING_BOOT_NEW_LOADER_CLASS != null
-            && SPRING_BOOT_NEW_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
-                .getClass())) {
-            return true;
+        String value = System.getProperty(Constants.EMBED_ENABLE);
+        if (value == null) {
+            if (SPRING_BOOT_LOADER_CLASS != null
+                && SPRING_BOOT_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
+                    .getClass())) {
+                return true;
+            }
+            if (SPRING_BOOT_NEW_LOADER_CLASS != null
+                && SPRING_BOOT_NEW_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
+                    .getClass())) {
+                return true;
+            }
         }
         return false;
     }
