@@ -131,10 +131,10 @@ public class ModuleSlimStrategy {
     private String getArtifactIdentity(Artifact artifact) {
         if (artifact.hasClassifier()) {
             return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-                   + artifact.getVersion() + ":" + artifact.getClassifier();
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getClassifier();
         } else {
             return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-                   + artifact.getVersion();
+                   + artifact.getBaseVersion();
         }
 
     }
