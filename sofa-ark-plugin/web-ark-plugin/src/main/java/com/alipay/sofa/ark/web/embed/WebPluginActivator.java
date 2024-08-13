@@ -20,8 +20,10 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import com.alipay.sofa.ark.spi.web.EmbeddedServerServiceFactory;
+import com.alipay.sofa.ark.spi.web.EmbeddedServerServiceRegistry;
+import com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedServerServiceFactory;
 import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
 /**
@@ -30,11 +32,15 @@ import org.apache.catalina.startup.Tomcat;
  */
 public class WebPluginActivator implements PluginActivator {
 
-    EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
+    EmbeddedServerService         embeddedServerService         = new EmbeddedServerServiceImpl();
+    EmbeddedServerServiceRegistry embeddedServerServiceRegistry = new EmbeddedServerServiceRegistryImpl();
+    EmbeddedServerServiceFactory<Tomcat> embeddedServerServiceFactory = new ArkTomcatEmbeddedServerServiceFactory();
 
     @Override
     public void start(PluginContext context) {
         context.publishService(EmbeddedServerService.class, embeddedServerService);
+        context.publishService(EmbeddedServerServiceRegistry.class, embeddedServerServiceRegistry);
+        context.publishService(EmbeddedServerServiceFactory.class, embeddedServerServiceFactory);
     }
 
     @Override
