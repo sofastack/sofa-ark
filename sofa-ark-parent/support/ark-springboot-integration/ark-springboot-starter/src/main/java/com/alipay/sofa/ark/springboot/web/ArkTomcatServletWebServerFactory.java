@@ -71,48 +71,64 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
  */
 public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory {
 
-    private static final Charset                 DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-    private final Object                         lock            = new Object();
+    private final Object lock = new Object();
 
     @ArkInject
-    private EmbeddedServerService<Tomcat>        embeddedServerService;
+    private EmbeddedServerService<Tomcat> embeddedServerService;
 
     @ArkInject
     private EmbeddedServerServiceFactory<Tomcat> embeddedServerServiceFactory;
 
     @ArkInject
-    private EmbeddedServerServiceRegistry        embeddedServerServiceRegistry;
+    private EmbeddedServerServiceRegistry embeddedServerServiceRegistry;
 
     @ArkInject
-    private BizManagerService                    bizManagerService;
+    private BizManagerService bizManagerService;
 
-    private File                                 baseDirectory;
+    private File baseDirectory;
 
-    private String                               protocol        = DEFAULT_PROTOCOL;
+    private String protocol = DEFAULT_PROTOCOL;
 
-    private int                                  backgroundProcessorDelay;
+    private int backgroundProcessorDelay;
 
     @Override
     public WebServer getWebServer(ServletContextInitializer... initializers) {
-        if (embeddedServerServiceRegistry == null) {
+        // 根据 @ArkInject 是否被处理进行判断是否为 managementContext
+        //     (managementContext 没有经历 Start 生命周期, 因此不会被注入 ArkServiceInjectProcessor)
+        boolean isApplicationContext = embeddedServerService != null;
+        if (!isApplicationContext) {
             ArkClient.getInjectionService().inject(this);
         }
         if (embeddedServerService == null) {
             return super.getWebServer(initializers);
         }
-        if (embeddedServerServiceRegistry.getService(getPort()) == null) {
-            synchronized (lock) {
-                if (embeddedServerServiceRegistry.getService(getPort()) == null) {
-                    EmbeddedServerService<Tomcat> tomcatEmbeddedServerService = embeddedServerServiceFactory
-                        .createEmbeddedServerService(initEmbedTomcat());
-                    embeddedServerServiceRegistry
-                        .putService(getPort(), tomcatEmbeddedServerService);
+        EmbeddedServerService embedServerService;
+        if (isApplicationContext) {
+            // 仍然使用 embeddedServerService 字段存储应用上下文的 Tomcat, 避免 模块 与 基座配置文件指定的 server.port 不同
+            // 导致在使用 web-ark-plugin 的情况下使用不同的Tomcat
+            if (embeddedServerService.getEmbedServer() == null) {
+                // 应用Tomcat上下文初始化
+                embeddedServerService.setEmbedServer(initEmbedTomcat());
+                embeddedServerServiceRegistry.putService(getPort(), embeddedServerService);
+            }
+            embedServerService = embeddedServerService;
+        } else {
+            // 在非应用上下文中, 根据监听端口获取 EmbeddedServerService 以实现复用 Tomcat 的目的
+            if (embeddedServerServiceRegistry.getService(getPort()) == null) {
+                synchronized (lock) {
+                    if (embeddedServerServiceRegistry.getService(getPort()) == null) {
+                        EmbeddedServerService<Tomcat> tomcatEmbeddedServerService = embeddedServerServiceFactory
+                                .createEmbeddedServerService(initEmbedTomcat());
+                        embeddedServerServiceRegistry
+                                .putService(getPort(), tomcatEmbeddedServerService);
+                    }
                 }
             }
+            embedServerService = embeddedServerServiceRegistry
+                    .getService(getPort());
         }
-        EmbeddedServerService embedServerService = embeddedServerServiceRegistry
-            .getService(getPort());
         Tomcat embedTomcat = (Tomcat) embedServerService.getEmbedServer();
         prepareContext(embedTomcat.getHost(), initializers);
         return getWebServer(embedTomcat);
@@ -125,7 +141,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             return contextPath;
         }
         Biz biz = bizManagerService.getBizByClassLoader(Thread.currentThread()
-            .getContextClassLoader());
+                .getContextClassLoader());
         if (!StringUtils.isEmpty(contextPath)) {
             return contextPath;
         } else if (biz != null) {
@@ -186,7 +202,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     @Override
     protected void postProcessContext(Context context) {
         ((WebappLoader) context.getLoader())
-            .setLoaderClass("com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader");
+                .setLoaderClass("com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader");
     }
 
     @Override
@@ -212,7 +228,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             configureTldSkipPatterns(context);
             WebappLoader loader = new WebappLoader();
             loader
-                .setLoaderClass("com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader");
+                    .setLoaderClass("com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader");
             loader.setDelegate(true);
             context.setLoader(loader);
             if (isRegisterDefaultServlet()) {
@@ -238,15 +254,15 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
      */
     private void resetDefaultLocaleMapping(StandardContext context) {
         context.addLocaleEncodingMappingParameter(Locale.ENGLISH.toString(),
-            DEFAULT_CHARSET.displayName());
+                DEFAULT_CHARSET.displayName());
         context.addLocaleEncodingMappingParameter(Locale.FRENCH.toString(),
-            DEFAULT_CHARSET.displayName());
+                DEFAULT_CHARSET.displayName());
     }
 
     private void addLocaleMappings(StandardContext context) {
         for (Map.Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
             context.addLocaleEncodingMappingParameter(entry.getKey().toString(), entry.getValue()
-                .toString());
+                    .toString());
         }
     }
 
@@ -286,7 +302,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     private void addJasperInitializer(StandardContext context) {
         try {
             ServletContainerInitializer initializer = (ServletContainerInitializer) ClassUtils
-                .forName("org.apache.jasper.servlet.JasperInitializer", null).newInstance();
+                    .forName("org.apache.jasper.servlet.JasperInitializer", null).newInstance();
             context.addServletContainerInitializer(initializer, null);
         } catch (Exception ex) {
             // Probably not Tomcat 8
@@ -335,7 +351,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
                 URL url = new URL(resource);
                 String path = "/META-INF/resources";
                 this.context.getResources().createWebResourceSet(
-                    WebResourceRoot.ResourceSetType.RESOURCE_JAR, "/", url, path);
+                        WebResourceRoot.ResourceSetType.RESOURCE_JAR, "/", url, path);
             } catch (Exception ex) {
                 // Ignore (probably not a directory)
             }
