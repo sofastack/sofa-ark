@@ -26,26 +26,13 @@ public class EmbeddedServerServiceRegistryImpl implements EmbeddedServerServiceR
 
     private final Map<Integer, EmbeddedServerService<?>> embeddedServerServices;
 
-    private final Object                                 lock = new Object();
-
     public EmbeddedServerServiceRegistryImpl() {
         this.embeddedServerServices = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean putService(Integer port, EmbeddedServerService service) {
-        EmbeddedServerService svc = getService(port);
-        if (svc != null) {
-            return false;
-        }
-        synchronized (lock) {
-            svc = getService(port);
-            if (svc != null) {
-                return false;
-            }
-            embeddedServerServices.put(port, service);
-        }
-        return true;
+        return embeddedServerServices.putIfAbsent(port, service) == null;
     }
 
     @Override
