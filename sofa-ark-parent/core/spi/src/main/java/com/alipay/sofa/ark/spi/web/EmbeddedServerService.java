@@ -22,18 +22,18 @@ package com.alipay.sofa.ark.spi.web;
  * @author qilong.zql
  * @since 0.6.0
  */
-public interface EmbeddedServerService<T> {
+public interface EmbeddedServerService<T> extends Iterable<T> {
     /**
-     * get embed tomcat
+     * get embed tomcat with port.
      * @return
      */
-    T getEmbedServer();
+    T getEmbedServer(int port);
 
     /**
-     * set embed tomcat.
+     * put embed tomcat with port.
      * Once web container instance (e.g. Tomcat, Netty) set to this EmbeddedServerService, it is usually can not be modified!
-     *
-     * @param container
+     * @param port server port
+     * @param container server container
      */
-    void setEmbedServer(T container);
+    boolean putEmbedServer(int port, T container);
 }

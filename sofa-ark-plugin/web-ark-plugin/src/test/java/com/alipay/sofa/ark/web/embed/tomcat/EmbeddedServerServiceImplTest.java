@@ -36,18 +36,18 @@ public class EmbeddedServerServiceImplTest {
     }
 
     @Test
-    public void testSetEmbedServer() {
-
-        embeddedServerServiceImpl.setEmbedServer(null);
-        assertEquals(null, embeddedServerServiceImpl.getEmbedServer());
+    public void testPutEmbedServer() {
+        int port = 8080;
+        assertEquals(false, embeddedServerServiceImpl.putEmbedServer(port, null));
+        assertEquals(null, embeddedServerServiceImpl.getEmbedServer(port));
 
         Tomcat tomcat = new Tomcat();
-        embeddedServerServiceImpl.setEmbedServer(tomcat);
-        assertEquals(tomcat, embeddedServerServiceImpl.getEmbedServer());
+        embeddedServerServiceImpl.putEmbedServer(port, tomcat);
+        assertEquals(tomcat, embeddedServerServiceImpl.getEmbedServer(port));
 
         Tomcat tomcat2 = new Tomcat();
-        embeddedServerServiceImpl.setEmbedServer(tomcat2);
+        embeddedServerServiceImpl.putEmbedServer(port, tomcat2);
         // should be still old tomcat
-        assertEquals(tomcat, embeddedServerServiceImpl.getEmbedServer());
+        assertEquals(tomcat, embeddedServerServiceImpl.getEmbedServer(port));
     }
 }

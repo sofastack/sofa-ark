@@ -14,20 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.web.embed.tomcat;
+package com.alipay.sofa.ark.spi.web;
 
-import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
-import com.alipay.sofa.ark.spi.web.EmbeddedServerServiceFactory;
-import org.apache.catalina.startup.Tomcat;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ArkTomcatEmbeddedServerServiceFactory implements EmbeddedServerServiceFactory<Tomcat> {
+public abstract class AbstractEmbeddedServerService<T> implements EmbeddedServerService<T> {
+    private Map<Integer, T> servers = new ConcurrentHashMap<>();
+
     @Override
-    public EmbeddedServerService<Tomcat> createEmbeddedServerService(Tomcat container) {
-        EmbeddedServerServiceImpl embeddedServerService = new EmbeddedServerServiceImpl();
-        if (container != null) {
-            embeddedServerService.setEmbedServer(container);
-        }
-        return embeddedServerService;
+    public T getEmbedServer(int port) {
+        return servers.get(port);
     }
 
+    @Override
+    public boolean putEmbedServer(int port, T container) {
+        if (container == null) {
+            return false;
+        }
+        return servers.putIfAbsent(port, container) == null;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return servers.values().iterator();
+    }
 }

@@ -20,9 +20,6 @@ import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
-import com.alipay.sofa.ark.spi.web.EmbeddedServerServiceFactory;
-import com.alipay.sofa.ark.spi.web.EmbeddedServerServiceRegistry;
-import com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedServerServiceFactory;
 import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
 import org.apache.catalina.startup.Tomcat;
 
@@ -32,24 +29,20 @@ import org.apache.catalina.startup.Tomcat;
  */
 public class WebPluginActivator implements PluginActivator {
 
-    EmbeddedServerService         embeddedServerService         = new EmbeddedServerServiceImpl();
-    EmbeddedServerServiceRegistry embeddedServerServiceRegistry = new EmbeddedServerServiceRegistryImpl();
-    EmbeddedServerServiceFactory<Tomcat> embeddedServerServiceFactory = new ArkTomcatEmbeddedServerServiceFactory();
+    EmbeddedServerService embeddedServerService = new EmbeddedServerServiceImpl();
 
     @Override
     public void start(PluginContext context) {
         context.publishService(EmbeddedServerService.class, embeddedServerService);
-        context.publishService(EmbeddedServerServiceRegistry.class, embeddedServerServiceRegistry);
-        context.publishService(EmbeddedServerServiceFactory.class, embeddedServerServiceFactory);
     }
 
     @Override
     public void stop(PluginContext context) {
-        Tomcat webServer = null;
-        if (embeddedServerService.getEmbedServer() instanceof Tomcat) {
-            webServer = (Tomcat) embeddedServerService.getEmbedServer();
-        }
-        if (webServer != null) {
+        for (Object o : embeddedServerService) {
+            if (!(o instanceof Tomcat)) {
+                continue;
+            }
+            Tomcat webServer = (Tomcat) o;
             try {
                 webServer.destroy();
             } catch (Exception ex) {

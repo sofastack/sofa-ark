@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.web;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -75,9 +76,15 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
     @Override
     public WebServer getWebServer(HttpHandler httpHandler) {
         if (embeddedNettyService == null) {
+            // 非应用上下文 (例如: Spring Management Context) 没有经历 Start 生命周期, 不会被注入 ArkServiceInjectProcessor,
+            // 因此 @ArkInject 没有被处理, 需要手动处理
+            ArkClient.getInjectionService().inject(this);
+        }
+        if (embeddedNettyService == null) {
             return super.getWebServer(httpHandler);
-        } else if (embeddedNettyService.getEmbedServer() == null) {
-            embeddedNettyService.setEmbedServer(initEmbedNetty());
+        }
+        if (embeddedNettyService.getEmbedServer(getPort()) == null) {
+            embeddedNettyService.putEmbedServer(getPort(), initEmbedNetty());
         }
 
         String contextPath = getContextPath();
@@ -92,7 +99,7 @@ public class ArkNettyReactiveWebServerFactory extends NettyReactiveWebServerFact
                 new ReactorHttpHandlerAdapter(contextHandler));
         }
 
-        HttpServer httpServer = (HttpServer) embeddedNettyService.getEmbedServer();
+        HttpServer httpServer = (HttpServer) embeddedNettyService.getEmbedServer(getPort());
         ArkNettyWebServer webServer = (ArkNettyWebServer) createNettyWebServer(contextPath,
             httpServer, adapter, lifecycleTimeout);
         webServer.setRouteProviders(this.routeProviders);

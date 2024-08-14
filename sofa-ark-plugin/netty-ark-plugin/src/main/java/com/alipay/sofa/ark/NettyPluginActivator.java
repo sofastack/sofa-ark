@@ -34,11 +34,11 @@ public class NettyPluginActivator implements PluginActivator {
 
     @Override
     public void stop(PluginContext context) {
-        HttpServer webServer = null;
-        if (embeddedNettyService.getEmbedServer() instanceof HttpServer) {
-            webServer = (HttpServer) embeddedNettyService.getEmbedServer();
-        }
-        if (webServer != null) {
+        for (Object o : embeddedNettyService) {
+            if (!(o instanceof HttpServer)) {
+                continue;
+            }
+            HttpServer webServer = (HttpServer) o;
             try {
                 //webServer.stop();
             } catch (Exception ex) {
