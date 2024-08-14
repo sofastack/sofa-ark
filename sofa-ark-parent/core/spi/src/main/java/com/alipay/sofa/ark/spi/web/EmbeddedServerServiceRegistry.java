@@ -25,14 +25,14 @@ public interface EmbeddedServerServiceRegistry {
      * put embed server with server port
      * @param serverPort
      * @param service
-     * @return
+     * @return true if the service was successfully added, false otherwise
      */
     boolean putService(Integer serverPort, EmbeddedServerService service);
 
     /**
      * get embed server with server port
      * @param serverPort
-     * @return
+     * @return the EmbeddedServerService associated with the given port, or null if not found
      */
     EmbeddedServerService getService(Integer serverPort);
 
