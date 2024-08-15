@@ -49,5 +49,12 @@ public class EmbeddedServerServiceImplTest {
         embeddedServerServiceImpl.putEmbedServer(port, tomcat2);
         // should be still old tomcat
         assertEquals(tomcat, embeddedServerServiceImpl.getEmbedServer(port));
+
+        // New test case for edge case
+        int newPort = 9090;
+        embeddedServerServiceImpl.putEmbedServer(newPort, tomcat2);
+        assertEquals(tomcat2, embeddedServerServiceImpl.getEmbedServer(newPort));
+        assertEquals(tomcat, embeddedServerServiceImpl.getEmbedServer(port));
+
     }
 }
