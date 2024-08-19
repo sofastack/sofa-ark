@@ -77,13 +77,19 @@ public class ArkTomcatServletWebServerFactoryTest {
     public void testGetWebServerWithEmbeddedServerServiceNull() {
         RegistryServiceHolder holder = new RegistryServiceHolder();
         ArkClient.getInjectionService().inject(holder);
-        ServiceReference<EmbeddedServerService> reference = holder.getRegistryService().referenceService(EmbeddedServerService.class);
-        holder.getRegistryService().unPublishServices(svc -> svc == reference);
+        ServiceReference<EmbeddedServerService> reference = null;
+        if (holder.getRegistryService() != null) {
+            ServiceReference<EmbeddedServerService> ref = holder.getRegistryService().referenceService(EmbeddedServerService.class);
+            holder.getRegistryService().unPublishServices(svc -> svc == ref);
+            reference = ref;
+        }
         try {
             assertEquals(TomcatWebServer.class, arkTomcatServletWebServerFactory.getWebServer()
                     .getClass());
         } finally {
-            holder.getRegistryService().publishService(EmbeddedServerService.class, reference.getService(), reference.getServiceMetadata().getUniqueId(), reference.getServiceMetadata().getServiceProvider());
+            if (reference != null) {
+                holder.getRegistryService().publishService(EmbeddedServerService.class, reference.getService(), reference.getServiceMetadata().getUniqueId(), reference.getServiceMetadata().getServiceProvider());
+            }
         }
     }
 
