@@ -87,7 +87,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
 
     @Override
     public WebServer getWebServer(ServletContextInitializer... initializers) {
-        if (embeddedServerService == null) {
+        if (embeddedServerService == null && ArkClient.getInjectionService() != null) {
             // 非应用上下文 (例如: Spring Management Context) 没有经历 Start 生命周期, 不会被注入 ArkServiceInjectProcessor,
             // 因此 @ArkInject 没有被处理, 需要手动处理
             ArkClient.getInjectionService().inject(this);
