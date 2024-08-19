@@ -93,6 +93,8 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
             ArkClient.getInjectionService().inject(this);
         }
         if (embeddedServerService == null) {
+            // 原有的逻辑中也有这个空值判断, 不确定注入后是否还会有用例会导致 embeddedServerService 为空
+            // 因此仍保留此 if 空值判断
             return super.getWebServer(initializers);
         }
         if (embeddedServerService.getEmbedServer(getPort()) == null) {
