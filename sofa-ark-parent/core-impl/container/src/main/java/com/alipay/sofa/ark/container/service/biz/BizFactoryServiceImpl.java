@@ -116,7 +116,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         }
 
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
-            getBizUcp(bizModel.getClassPath()), bizArchive instanceof ExplodedBizArchive
+            getBizUcp(bizModel), bizArchive instanceof ExplodedBizArchive
                                                 || bizArchive instanceof DirectoryBizArchive);
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
@@ -248,10 +248,17 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         });
     }
 
-    private URL[] getBizUcp(URL[] bizClassPath) {
+    private URL[] getBizUcp(BizModel bizModel) {
         List<URL> bizUcp = new ArrayList<>();
-        bizUcp.addAll(Arrays.asList(bizClassPath));
-        bizUcp.addAll(Arrays.asList(getPluginURLs()));
+        bizUcp.addAll(Arrays.asList(bizModel.getClassPath()));
+
+        List<URL> pluginUrls = new ArrayList<>();
+        Set<Plugin> dependentPlugins = bizModel.getDependentPlugins();
+        for (Plugin plugin : dependentPlugins) {
+            pluginUrls.add(plugin.getPluginURL());
+        }
+        bizUcp.addAll(pluginUrls);
+
         return bizUcp.toArray(new URL[bizUcp.size()]);
     }
 
