@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
@@ -56,10 +57,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_ARTIFACT_IDS;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -363,7 +368,7 @@ public class RepackageMojo extends TreeMojo {
                 } else {
                     artifactItems = getAllArtifactByMavenTree();
                 }
-                repackager.prepareDeclaredLibraries(artifactItems);
+                repackager.prepareDeclaredLibraries(artifactItems, getDeclaredArtifactIds());
             }
             MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
             repackager.setGitDirectory(getGitDirectory(rootProject));
@@ -372,6 +377,15 @@ public class RepackageMojo extends TreeMojo {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
         updateArtifact(appTarget, repackager.getModuleTargetFile());
+    }
+
+    protected Set<String> getDeclaredArtifactIds() throws IOException {
+        Set<String> res = new HashSet<>();
+        Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
+        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
+        res.addAll(getStringSet(prop, DECLARED_ARTIFACT_IDS));
+        res.addAll(getStringSet(arkYaml, DECLARED_ARTIFACT_IDS));
+        return res;
     }
 
     private File getGitDirectory(MavenProject rootProject) {

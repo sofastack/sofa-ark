@@ -229,11 +229,6 @@ public class ModuleSlimStrategyTest {
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
 
-    private File getResourceFile(String resourceName) throws URISyntaxException {
-        URL url = this.getClass().getClassLoader().getResource(resourceName);
-        return new File(url.toURI());
-    }
-
     private MavenProject getMockBootstrapProject() throws URISyntaxException {
         MavenProject project = new MavenProject();
         project.setArtifactId("base-bootstrap");
@@ -250,7 +245,7 @@ public class ModuleSlimStrategyTest {
 
         project.setParent(getRootProject());
 
-        setField("basedir", project, getResourceFile("baseDir"));
+        setField("basedir", project, CommonUtils.getResourceFile("baseDir"));
         return project;
     }
 
@@ -297,6 +292,6 @@ public class ModuleSlimStrategyTest {
     }
 
     private File mockBaseDir() throws URISyntaxException {
-        return getResourceFile("baseDir");
+        return CommonUtils.getResourceFile("baseDir");
     }
 }

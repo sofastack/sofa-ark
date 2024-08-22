@@ -45,23 +45,21 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.alipay.sofa.ark.boot.mojo.RepackageMojo.ArkConstants.getClassifier;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
-import static java.util.Arrays.asList;
 import static org.apache.commons.beanutils.BeanUtils.copyProperties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -412,5 +410,18 @@ public class RepackageMojoTest {
         copyProperties(new ExcludeConfig(), new ExcludeConfig());
         copyProperties(new ExcludeConfigResponse(), new ExcludeConfigResponse());
         assertEquals("", getClassifier());
+    }
+
+    @Test
+    public void testGetDeclaredLibrariesWhiteList() throws URISyntaxException, IOException {
+        RepackageMojo repackageMojo = new RepackageMojo();
+        ReflectionUtils.setField("declaredMode", repackageMojo, true);
+        ReflectionUtils.setField("baseDir", repackageMojo, CommonUtils.getResourceFile("baseDir"));
+
+        Set<String> whitelist = repackageMojo.getDeclaredArtifactIds();
+        assertTrue(whitelist.contains("ark-common-yml"));
+        assertTrue(whitelist.contains("biz-common-yml"));
+        assertTrue(whitelist.contains("biz-common"));
+        assertTrue(whitelist.contains("ark-common"));
     }
 }

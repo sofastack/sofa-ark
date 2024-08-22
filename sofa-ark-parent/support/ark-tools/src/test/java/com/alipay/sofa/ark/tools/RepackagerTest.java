@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -124,17 +125,17 @@ public class RepackagerTest {
     @Test
     public void testPrepareDeclaredLibraries() throws Exception {
 
-        repackager.prepareDeclaredLibraries(null);
+        repackager.prepareDeclaredLibraries(null, Collections.emptySet());
         repackager.setDeclaredMode(true);
-        repackager.prepareDeclaredLibraries(null);
+        repackager.prepareDeclaredLibraries(null, Collections.emptySet());
 
         ArtifactItem artifactItem = new ArtifactItem();
         artifactItem.setArtifactId("x");
-        repackager.prepareDeclaredLibraries(newArrayList(artifactItem));
+        repackager.prepareDeclaredLibraries(newArrayList(artifactItem), newHashSet("y"));
 
         Field field = Repackager.class.getDeclaredField("declaredLibraries");
         field.setAccessible(true);
-        assertEquals(newHashSet("x"), field.get(repackager));
+        assertEquals(newHashSet("x", "y"), field.get(repackager));
     }
 
     @Test
