@@ -254,7 +254,7 @@ public class Constants {
     public final static String       EXTENSION_INCLUDES_GROUPIDS                   = "includeGroupIds";
     public final static String       EXTENSION_INCLUDES_ARTIFACTIDS                = "includeArtifactIds";
 
-    public final static String       DECLARED_ARTIFACT_IDS                         = "declaredArtifactIds";
+    public final static String       DECLARED_LIBRARIES_WHITELIST                  = "declared.libraries.whitelist";
 
     public static final List<String> CHANNEL_QUIT                                  = new ArrayList<>();
 

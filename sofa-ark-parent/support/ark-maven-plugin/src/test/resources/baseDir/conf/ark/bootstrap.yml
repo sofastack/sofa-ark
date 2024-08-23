@@ -11,6 +11,8 @@ excludeArtifactIds:
 
 # declaredArtifactIds 中配置 ${artifactId}, 不同依赖以 - 隔开
 
-declaredArtifactIds:
-  - ark-common-yml
-  - biz-common-yml
+declared:
+  libraries:
+    whitelist:
+      - com.ark.yml:ark-common-yml
+      - com.biz.yml:biz-common-yml

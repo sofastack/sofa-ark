@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
@@ -64,7 +65,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
-import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_ARTIFACT_IDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES_WHITELIST;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -368,7 +369,7 @@ public class RepackageMojo extends TreeMojo {
                 } else {
                     artifactItems = getAllArtifactByMavenTree();
                 }
-                repackager.prepareDeclaredLibraries(artifactItems, getDeclaredArtifactIds());
+                repackager.prepareDeclaredLibraries(artifactItems, getDeclaredLibrariesWhitelist());
             }
             MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
             repackager.setGitDirectory(getGitDirectory(rootProject));
@@ -379,12 +380,22 @@ public class RepackageMojo extends TreeMojo {
         updateArtifact(appTarget, repackager.getModuleTargetFile());
     }
 
-    protected Set<String> getDeclaredArtifactIds() throws IOException {
+    protected Set<String> getDeclaredLibrariesWhitelist() throws IOException {
         Set<String> res = new HashSet<>();
         Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
         Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
-        res.addAll(getStringSet(prop, DECLARED_ARTIFACT_IDS));
-        res.addAll(getStringSet(arkYaml, DECLARED_ARTIFACT_IDS));
+
+        Set<String> declaredLibrariesWhitelist = new HashSet<>();
+        declaredLibrariesWhitelist.addAll(getStringSet(prop, DECLARED_LIBRARIES_WHITELIST));
+        declaredLibrariesWhitelist.addAll(getStringSet(arkYaml, DECLARED_LIBRARIES_WHITELIST));
+
+        for (String declaredLibrary : declaredLibrariesWhitelist) {
+            String[] groupIdAndArtifactId = StringUtils.split(declaredLibrary, ":");
+            AssertUtils.isTrue(groupIdAndArtifactId != null && groupIdAndArtifactId.length == 2,
+                "artifact item format error: %s", declaredLibrary);
+
+            res.add(groupIdAndArtifactId[1]);
+        }
         return res;
     }
 

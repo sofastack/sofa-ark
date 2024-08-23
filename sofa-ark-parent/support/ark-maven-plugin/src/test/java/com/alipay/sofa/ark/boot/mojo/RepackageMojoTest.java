@@ -418,7 +418,7 @@ public class RepackageMojoTest {
         ReflectionUtils.setField("declaredMode", repackageMojo, true);
         ReflectionUtils.setField("baseDir", repackageMojo, CommonUtils.getResourceFile("baseDir"));
 
-        Set<String> whitelist = repackageMojo.getDeclaredArtifactIds();
+        Set<String> whitelist = repackageMojo.getDeclaredLibrariesWhitelist();
         assertTrue(whitelist.contains("ark-common-yml"));
         assertTrue(whitelist.contains("biz-common-yml"));
         assertTrue(whitelist.contains("biz-common"));
