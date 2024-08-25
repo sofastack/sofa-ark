@@ -195,8 +195,7 @@ public class Repackager {
         this.gitDirectory = gitDirectory;
     }
 
-    public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems,
-                                         Set<String> declaredArtifactIds) {
+    public void prepareDeclaredLibraries(Collection<ArtifactItem> artifactItems) {
         if (!this.declaredMode) {
             return;
         }
@@ -208,8 +207,6 @@ public class Repackager {
                 declaredLibraries.add(artifactItem.getArtifactId());
             }
         }
-
-        declaredLibraries.addAll(declaredArtifactIds);
     }
 
     /**

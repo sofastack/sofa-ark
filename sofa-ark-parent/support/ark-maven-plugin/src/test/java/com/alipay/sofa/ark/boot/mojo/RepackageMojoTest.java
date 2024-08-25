@@ -56,6 +56,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.boot.mojo.RepackageMojo.ArkConstants.getClassifier;
 import static java.lang.System.clearProperty;
@@ -418,10 +419,12 @@ public class RepackageMojoTest {
         ReflectionUtils.setField("declaredMode", repackageMojo, true);
         ReflectionUtils.setField("baseDir", repackageMojo, CommonUtils.getResourceFile("baseDir"));
 
-        Set<String> whitelist = repackageMojo.getDeclaredLibrariesWhitelist();
-        assertTrue(whitelist.contains("ark-common-yml"));
-        assertTrue(whitelist.contains("biz-common-yml"));
-        assertTrue(whitelist.contains("biz-common"));
-        assertTrue(whitelist.contains("ark-common"));
+        Set<ArtifactItem> whitelist = repackageMojo.getDeclaredLibrariesWhitelist();
+
+        Set<String> res = whitelist.stream().map(it->it.getGroupId()+":"+it.getArtifactId()).collect(Collectors.toSet());
+        assertTrue(res.contains("com.ark.yml:ark-common-yml"));
+        assertTrue(res.contains("com.biz.yml:biz-common-yml"));
+        assertTrue(res.contains("com.biz:biz-common"));
+        assertTrue(res.contains("com.ark:ark-common"));
     }
 }

@@ -125,17 +125,17 @@ public class RepackagerTest {
     @Test
     public void testPrepareDeclaredLibraries() throws Exception {
 
-        repackager.prepareDeclaredLibraries(null, Collections.emptySet());
+        repackager.prepareDeclaredLibraries(null);
         repackager.setDeclaredMode(true);
-        repackager.prepareDeclaredLibraries(null, Collections.emptySet());
+        repackager.prepareDeclaredLibraries(null);
 
         ArtifactItem artifactItem = new ArtifactItem();
         artifactItem.setArtifactId("x");
-        repackager.prepareDeclaredLibraries(newArrayList(artifactItem), newHashSet("y"));
+        repackager.prepareDeclaredLibraries(newArrayList(artifactItem));
 
         Field field = Repackager.class.getDeclaredField("declaredLibraries");
         field.setAccessible(true);
-        assertEquals(newHashSet("x", "y"), field.get(repackager));
+        assertEquals(newHashSet("x"), field.get(repackager));
     }
 
     @Test

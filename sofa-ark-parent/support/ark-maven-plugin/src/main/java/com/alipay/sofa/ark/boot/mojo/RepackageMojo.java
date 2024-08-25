@@ -66,6 +66,7 @@ import java.util.stream.Stream;
 
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
 import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES_WHITELIST;
+import static com.alipay.sofa.ark.tools.ArtifactItem.parseArtifactItem;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -369,7 +370,8 @@ public class RepackageMojo extends TreeMojo {
                 } else {
                     artifactItems = getAllArtifactByMavenTree();
                 }
-                repackager.prepareDeclaredLibraries(artifactItems, getDeclaredLibrariesWhitelist());
+                artifactItems.addAll(getDeclaredLibrariesWhitelist());
+                repackager.prepareDeclaredLibraries(artifactItems);
             }
             MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
             repackager.setGitDirectory(getGitDirectory(rootProject));
@@ -380,8 +382,8 @@ public class RepackageMojo extends TreeMojo {
         updateArtifact(appTarget, repackager.getModuleTargetFile());
     }
 
-    protected Set<String> getDeclaredLibrariesWhitelist() throws IOException {
-        Set<String> res = new HashSet<>();
+    protected Set<ArtifactItem> getDeclaredLibrariesWhitelist() throws IOException {
+        Set<ArtifactItem> res = new HashSet<>();
         Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
         Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
 
@@ -390,11 +392,7 @@ public class RepackageMojo extends TreeMojo {
         declaredLibrariesWhitelist.addAll(getStringSet(arkYaml, DECLARED_LIBRARIES_WHITELIST));
 
         for (String declaredLibrary : declaredLibrariesWhitelist) {
-            String[] groupIdAndArtifactId = StringUtils.split(declaredLibrary, ":");
-            AssertUtils.isTrue(groupIdAndArtifactId != null && groupIdAndArtifactId.length == 2,
-                "artifact item format error: %s", declaredLibrary);
-
-            res.add(groupIdAndArtifactId[1]);
+            res.add(parseArtifactItem(declaredLibrary));
         }
         return res;
     }
@@ -413,7 +411,7 @@ public class RepackageMojo extends TreeMojo {
     private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
         if (rootNode != null) {
             if (!StringUtils.equalsIgnoreCase(rootNode.getArtifact().getScope(), "test")) {
-                result.add(ArtifactItem.parseArtifactItem(rootNode.getArtifact()));
+                result.add(parseArtifactItem(rootNode.getArtifact()));
             }
 
             if (CollectionUtils.isNotEmpty(rootNode.getChildren())) {
