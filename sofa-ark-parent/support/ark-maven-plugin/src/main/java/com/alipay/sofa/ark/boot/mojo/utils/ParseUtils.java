@@ -16,8 +16,10 @@
  */
 package com.alipay.sofa.ark.boot.mojo.utils;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,9 +42,29 @@ public class ParseUtils {
     }
 
     public static Set<String> getStringSet(Map<String, Object> yaml, String confKey) {
-        if (null != yaml && yaml.containsKey(confKey) && null != yaml.get(confKey)) {
-            return newHashSet((List<String>) yaml.get(confKey));
+        Object value = getValue(yaml, confKey);
+        if (null == value) {
+            return newHashSet();
         }
-        return newHashSet();
+        return newHashSet((List<String>) value);
+    }
+
+    private static Object getValue(Map<String, Object> yaml, String confKey) {
+        if (MapUtils.isEmpty(yaml) || StringUtils.isEmpty(confKey)) {
+            return null;
+        }
+
+        List<String> keys = Arrays.asList(StringUtils.split(confKey, "."));
+        String currentKey = keys.get(0);
+        if (yaml.containsKey(currentKey) && null != yaml.get(currentKey) && keys.size() == 1) {
+            return yaml.get(currentKey);
+        }
+
+        if (yaml.containsKey(currentKey) && null != yaml.get(currentKey) && keys.size() > 1
+            && yaml.get(currentKey) instanceof Map) {
+            return getValue((Map<String, Object>) yaml.get(currentKey),
+                StringUtils.join(keys.subList(1, keys.size()), "."));
+        }
+        return null;
     }
 }
