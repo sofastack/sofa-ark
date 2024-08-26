@@ -24,6 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 
 public class WebPluginActivatorTest {
@@ -53,20 +56,21 @@ public class WebPluginActivatorTest {
             embeddedServerService);
 
         Tomcat tomcat = mock(Tomcat.class);
-        when(embeddedServerService.getEmbedServer()).thenReturn(tomcat);
+        List<Tomcat> servers = Arrays.asList(tomcat);
+        when(embeddedServerService.iterator()).then(var -> servers.iterator());
 
         webPluginActivator.stop(pluginContext);
-        verify(embeddedServerService, times(2)).getEmbedServer();
+        verify(embeddedServerService, times(1)).iterator();
         verify(tomcat, times(1)).destroy();
 
         doThrow(new LifecycleException()).when(tomcat).destroy();
         webPluginActivator.stop(pluginContext);
-        verify(embeddedServerService, times(4)).getEmbedServer();
+        verify(embeddedServerService, times(2)).iterator();
         verify(tomcat, times(2)).destroy();
 
-        when(embeddedServerService.getEmbedServer()).thenReturn(new Object());
+        when(embeddedServerService.iterator()).thenReturn(Arrays.asList(new Object()).iterator());
         webPluginActivator.stop(pluginContext);
-        verify(embeddedServerService, times(5)).getEmbedServer();
+        verify(embeddedServerService, times(3)).iterator();
         verify(tomcat, times(2)).destroy();
     }
 }

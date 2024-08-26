@@ -84,10 +84,10 @@ public class ArkTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServ
             }
             prepareContext(tomcat.getHost(), initializers);
             return getEmbeddedServletContainer(tomcat);
-        } else if (embeddedServerService.getEmbedServer() == null) {
-            embeddedServerService.setEmbedServer(initEmbedTomcat());
+        } else if (embeddedServerService.getEmbedServer(getPort()) == null) {
+            embeddedServerService.putEmbedServer(getPort(), initEmbedTomcat());
         }
-        Tomcat embedTomcat = embeddedServerService.getEmbedServer();
+        Tomcat embedTomcat = embeddedServerService.getEmbedServer(getPort());
         prepareContext(embedTomcat.getHost(), initializers);
 
         return getEmbeddedServletContainer(embedTomcat);

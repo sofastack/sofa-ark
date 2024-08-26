@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
+import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
@@ -56,10 +58,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
+import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES_WHITELIST;
+import static com.alipay.sofa.ark.tools.ArtifactItem.parseArtifactItem;
 
 /**
  * Repackages existing JAR archives so that they can be executed from the command
@@ -363,6 +370,7 @@ public class RepackageMojo extends TreeMojo {
                 } else {
                     artifactItems = getAllArtifactByMavenTree();
                 }
+                artifactItems.addAll(getDeclaredLibrariesWhitelist());
                 repackager.prepareDeclaredLibraries(artifactItems);
             }
             MavenProject rootProject = MavenUtils.getRootProject(this.mavenProject);
@@ -372,6 +380,21 @@ public class RepackageMojo extends TreeMojo {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
         updateArtifact(appTarget, repackager.getModuleTargetFile());
+    }
+
+    protected Set<ArtifactItem> getDeclaredLibrariesWhitelist() throws IOException {
+        Set<ArtifactItem> res = new HashSet<>();
+        Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
+        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
+
+        Set<String> declaredLibrariesWhitelist = new HashSet<>();
+        declaredLibrariesWhitelist.addAll(getStringSet(prop, DECLARED_LIBRARIES_WHITELIST));
+        declaredLibrariesWhitelist.addAll(getStringSet(arkYaml, DECLARED_LIBRARIES_WHITELIST));
+
+        for (String declaredLibrary : declaredLibrariesWhitelist) {
+            res.add(parseArtifactItem(declaredLibrary));
+        }
+        return res;
     }
 
     private File getGitDirectory(MavenProject rootProject) {
@@ -388,7 +411,7 @@ public class RepackageMojo extends TreeMojo {
     private void parseArtifactItems(DependencyNode rootNode, Set<ArtifactItem> result) {
         if (rootNode != null) {
             if (!StringUtils.equalsIgnoreCase(rootNode.getArtifact().getScope(), "test")) {
-                result.add(ArtifactItem.parseArtifactItem(rootNode.getArtifact()));
+                result.add(parseArtifactItem(rootNode.getArtifact()));
             }
 
             if (CollectionUtils.isNotEmpty(rootNode.getChildren())) {
