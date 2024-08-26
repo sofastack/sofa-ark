@@ -140,24 +140,31 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         PluginModel plugin = new PluginModel();
         Attributes manifestMainAttributes = pluginArchive.getManifest().getMainAttributes();
         plugin
-                .setPluginName(!StringUtils.isEmpty(pluginConfig.getSpecifiedName()) ? pluginConfig.getSpecifiedName() : manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
-                .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
-                .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
-                .setVersion(!StringUtils.isEmpty(pluginConfig.getSpecifiedVersion()) ? pluginConfig.getSpecifiedVersion() : manifestMainAttributes.getValue(PLUGIN_VERSION_ATTRIBUTE))
-                .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
-                .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
-                .setClassPath(getFinalPluginUrls(pluginArchive, pluginConfig.getExtensionUrls(), plugin.getPluginName()))
-                .setPluginUrl(pluginArchive.getUrl())
-                .setExportMode(manifestMainAttributes.getValue(EXPORT_MODE))
-                .setExportClasses(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE))
-                .setExportPackages(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE))
-                .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
-                .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
-                .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
-                .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
-                .setPluginClassLoader(
-                        new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
-                .setPluginContext(new PluginContextImpl(plugin));
+            .setPluginName(
+                !StringUtils.isEmpty(pluginConfig.getSpecifiedName()) ? pluginConfig
+                    .getSpecifiedName() : manifestMainAttributes.getValue(PLUGIN_NAME_ATTRIBUTE))
+            .setGroupId(manifestMainAttributes.getValue(GROUP_ID_ATTRIBUTE))
+            .setArtifactId(manifestMainAttributes.getValue(ARTIFACT_ID_ATTRIBUTE))
+            .setVersion(
+                !StringUtils.isEmpty(pluginConfig.getSpecifiedVersion()) ? pluginConfig
+                    .getSpecifiedVersion() : manifestMainAttributes
+                    .getValue(PLUGIN_VERSION_ATTRIBUTE))
+            .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setPluginActivator(manifestMainAttributes.getValue(ACTIVATOR_ATTRIBUTE))
+            .setClassPath(
+                getFinalPluginUrls(pluginArchive, pluginConfig.getExtensionUrls(),
+                    plugin.getPluginName()))
+            .setPluginUrl(pluginArchive.getUrl())
+            .setExportMode(manifestMainAttributes.getValue(EXPORT_MODE))
+            .setExportClasses(manifestMainAttributes.getValue(EXPORT_CLASSES_ATTRIBUTE))
+            .setExportPackages(manifestMainAttributes.getValue(EXPORT_PACKAGES_ATTRIBUTE))
+            .setImportClasses(manifestMainAttributes.getValue(IMPORT_CLASSES_ATTRIBUTE))
+            .setImportPackages(manifestMainAttributes.getValue(IMPORT_PACKAGES_ATTRIBUTE))
+            .setImportResources(manifestMainAttributes.getValue(IMPORT_RESOURCES_ATTRIBUTE))
+            .setExportResources(manifestMainAttributes.getValue(EXPORT_RESOURCES_ATTRIBUTE))
+            .setPluginClassLoader(
+                new PluginClassLoader(plugin.getPluginName(), plugin.getClassPath()))
+            .setPluginContext(new PluginContextImpl(plugin));
         return plugin;
     }
 
@@ -201,15 +208,15 @@ public class PluginFactoryServiceImpl implements PluginFactoryService {
         return plugin;
     }
 
-    private URL[] getFinalPluginUrls(PluginArchive pluginArchive, URL[] extensions, String pluginName)
-            throws IOException {
+    private URL[] getFinalPluginUrls(PluginArchive pluginArchive, URL[] extensions,
+                                     String pluginName) throws IOException {
         URL[] urls = pluginArchive.getUrls();
         List<URL> urlList = new ArrayList<>(Arrays.asList(urls));
         urlList.remove(null);
 
         // get config by PLUGIN-EXPORT key, exclude jar by config
         String excludeArtifact = ArkConfigs.getStringValue(String.format(PLUGIN_EXTENSION_FORMAT,
-                pluginName));
+            pluginName));
         if (!StringUtils.isEmpty(excludeArtifact)) {
             List<URL> preRemoveList = new ArrayList<>();
             for (URL url : urlList) {

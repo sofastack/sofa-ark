@@ -460,7 +460,7 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
             ClassLoader importClassLoader = null;
             if (this instanceof BizClassLoader) {
                 importClassLoader = classloaderService.findExportClassLoaderByBiz(
-                        ((BizClassLoader) this).getBizModel(), name);
+                    ((BizClassLoader) this).getBizModel(), name);
             } else if (this instanceof PluginClassLoader) {
                 importClassLoader = classloaderService.findExportClassLoader(name);
             }
@@ -563,9 +563,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         if (shouldFindExportedResource(resourceName)) {
             List<ClassLoader> exportResourceClassLoadersInOrder = null;
             if (this instanceof BizClassLoader) {
-                exportResourceClassLoadersInOrder = classloaderService.findExportResourceClassLoadersInOrderByBiz(((BizClassLoader) this).getBizModel(), resourceName);
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrderByBiz(
+                        ((BizClassLoader) this).getBizModel(), resourceName);
             } else if (this instanceof PluginClassLoader) {
-                exportResourceClassLoadersInOrder = classloaderService.findExportResourceClassLoadersInOrder(resourceName);
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrder(resourceName);
             }
             if (exportResourceClassLoadersInOrder != null) {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
@@ -640,9 +643,12 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
         if (shouldFindExportedResource(resourceName)) {
             List<ClassLoader> exportResourceClassLoadersInOrder = null;
             if (this instanceof BizClassLoader) {
-                exportResourceClassLoadersInOrder = classloaderService.findExportResourceClassLoadersInOrderByBiz(((BizClassLoader) this).getBizModel(), resourceName);
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrderByBiz(
+                        ((BizClassLoader) this).getBizModel(), resourceName);
             } else if (this instanceof PluginClassLoader) {
-                exportResourceClassLoadersInOrder = classloaderService.findExportResourceClassLoadersInOrder(resourceName);
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrder(resourceName);
             }
             if (exportResourceClassLoadersInOrder != null) {
                 List<Enumeration<URL>> enumerationList = new ArrayList<>();

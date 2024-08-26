@@ -180,13 +180,11 @@ public class ArkClient {
         return doInstallBiz(bizFile, bizConfig);
     }
 
-    public static ClientResponse installBiz(File bizFile, BizConfig bizConfig)
-            throws Throwable {
+    public static ClientResponse installBiz(File bizFile, BizConfig bizConfig) throws Throwable {
         return doInstallBiz(bizFile, bizConfig);
     }
 
-    private static ClientResponse doInstallBiz(File bizFile, BizConfig bizConfig)
-                                                                                                     throws Throwable {
+    private static ClientResponse doInstallBiz(File bizFile, BizConfig bizConfig) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
@@ -403,7 +401,9 @@ public class ArkClient {
         // prepare extension urls if necessary
         URL[] extensionUrls = null;
         if (bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS) != null) {
-            Set<String> extensionLibs = StringUtils.strToSet(bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS), Constants.COMMA_SPLIT);
+            Set<String> extensionLibs = StringUtils.strToSet(
+                bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS),
+                Constants.COMMA_SPLIT);
             List<URL> urlsList = new ArrayList<>();
             if (!extensionLibs.isEmpty()) {
                 for (String extension : extensionLibs) {
@@ -451,10 +451,10 @@ public class ArkClient {
             URL url = new URL(pluginOperation.getUrl());
             String pluginDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_PLUGIN_DIR);
             File pluginDirectory = StringUtils.isEmpty(pluginDir) ? FileUtils
-                    .createTempDir("sofa-ark") : FileUtils.mkdir(pluginDir);
+                .createTempDir("sofa-ark") : FileUtils.mkdir(pluginDir);
             localFile = new File(pluginDirectory, pluginOperation.getPluginName() + "-"
-                    + pluginOperation.getPluginVersion() + "-"
-                    + System.currentTimeMillis());
+                                                  + pluginOperation.getPluginVersion() + "-"
+                                                  + System.currentTimeMillis());
             try (InputStream inputStream = url.openStream()) {
                 FileUtils.copyInputStreamToFile(inputStream, localFile);
             }
@@ -494,14 +494,14 @@ public class ArkClient {
             plugin.start();
             long end = System.currentTimeMillis();
             response.setCode(ResponseCode.SUCCESS).setMessage(
-                    String.format("Install Plugin: %s success, cost: %s ms, started at: %s",
-                            plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+                String.format("Install Plugin: %s success, cost: %s ms, started at: %s",
+                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
             getLogger().info(response.getMessage());
         } catch (Throwable throwable) {
             long end = System.currentTimeMillis();
             response.setCode(ResponseCode.FAILED).setMessage(
-                    String.format("Install Plugin: %s fail,cost: %s ms, started at: %s",
-                            plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+                String.format("Install Plugin: %s fail,cost: %s ms, started at: %s",
+                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
             getLogger().error(response.getMessage(), throwable);
             throw throwable;
         }
@@ -531,8 +531,8 @@ public class ArkClient {
         sb.append(String.format("Plugin count=%d", plugins.size())).append("\n");
         for (Plugin plugin : plugins) {
             sb.append(
-                    String.format("pluginName=%s, pluginVersion=%s", plugin.getPluginName(),
-                            plugin.getVersion())).append("\n");
+                String.format("pluginName=%s, pluginVersion=%s", plugin.getPluginName(),
+                    plugin.getVersion())).append("\n");
         }
         response.setCode(ResponseCode.SUCCESS).setPluginInfos(plugins).setMessage(sb.toString());
         getLogger().info(String.format("Check Plugin: %s", response.getMessage()));

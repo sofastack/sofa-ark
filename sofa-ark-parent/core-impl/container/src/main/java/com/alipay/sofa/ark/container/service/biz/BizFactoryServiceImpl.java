@@ -128,33 +128,38 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         String startClass = manifestMainAttributes.getValue(START_CLASS_ATTRIBUTE);
         BizModel bizModel = new BizModel();
         bizModel
-                .setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
-                .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
-                .setBizVersion(!StringUtils.isEmpty(bizConfig.getSpecifiedVersion()) ? bizConfig.getSpecifiedVersion() : manifestMainAttributes.getValue(ARK_BIZ_VERSION))
-                .setBizUrl(!(bizArchive instanceof DirectoryBizArchive) ? bizArchive.getUrl() : null)
-                .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
-                .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
-                .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
-                .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
-                .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
-                .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
-                .setInjectPluginDependencies(getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
-                .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
-                .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
-                .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), bizConfig.getExtensionUrls()))
-                .setPluginClassPath(getPluginURLs());
+            .setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
+            .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
+            .setBizVersion(
+                !StringUtils.isEmpty(bizConfig.getSpecifiedVersion()) ? bizConfig
+                    .getSpecifiedVersion() : manifestMainAttributes.getValue(ARK_BIZ_VERSION))
+            .setBizUrl(!(bizArchive instanceof DirectoryBizArchive) ? bizArchive.getUrl() : null)
+            .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
+            .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+            .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
+            .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
+            .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
+            .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
+            .setInjectPluginDependencies(
+                getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
+            .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
+            .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
+            .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), bizConfig.getExtensionUrls()))
+            .setPluginClassPath(getPluginURLs());
 
         // prepare dependent plugins and plugin export map
         List<String> dependentPlugins = bizConfig.getDependentPlugins();
         if (dependentPlugins == null || dependentPlugins.isEmpty()) {
-            dependentPlugins = StringUtils.strToList(manifestMainAttributes.getValue("dependent-plugins"), Constants.MANIFEST_VALUE_SPLIT);
+            dependentPlugins = StringUtils.strToList(
+                manifestMainAttributes.getValue("dependent-plugins"),
+                Constants.MANIFEST_VALUE_SPLIT);
         }
         resolveExportMapIfNecessary(bizModel, dependentPlugins);
 
         // create biz classloader
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
-                getBizUcp(bizModel), bizArchive instanceof ExplodedBizArchive
-                || bizArchive instanceof DirectoryBizArchive);
+            getBizUcp(bizModel), bizArchive instanceof ExplodedBizArchive
+                                 || bizArchive instanceof DirectoryBizArchive);
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
 
@@ -165,12 +170,12 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
         BizModel bizModel = new BizModel();
         bizModel.setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
-                .setBizName(ArkConfigs.getStringValue(MASTER_BIZ)).setBizVersion("1.0.0")
-                .setMainClass("embed main").setPriority("100").setWebContextPath("/")
-                .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
-                .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
-                .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
-                .setClassLoader(masterClassLoader);
+            .setBizName(ArkConfigs.getStringValue(MASTER_BIZ)).setBizVersion("1.0.0")
+            .setMainClass("embed main").setPriority("100").setWebContextPath("/")
+            .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
+            .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
+            .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
+            .setClassLoader(masterClassLoader);
         return bizModel;
     }
 
@@ -225,23 +230,21 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             }
             for (String resource : plugin.getExportResources()) {
                 bizModel.getExportResourceAndClassLoaderMap().putIfAbsent(resource,
-                        new LinkedList<>());
+                    new LinkedList<>());
                 bizModel.getExportResourceAndClassLoaderMap().get(resource).add(plugin);
             }
             for (String resource : plugin.getExportPrefixResourceStems()) {
                 bizModel.getExportPrefixStemResourceAndClassLoaderMap().putIfAbsent(resource,
-                        new LinkedList<>());
+                    new LinkedList<>());
                 bizModel.getExportPrefixStemResourceAndClassLoaderMap().get(resource).add(plugin);
             }
             for (String resource : plugin.getExportSuffixResourceStems()) {
                 bizModel.getExportSuffixStemResourceAndClassLoaderMap().putIfAbsent(resource,
-                        new LinkedList<>());
+                    new LinkedList<>());
                 bizModel.getExportSuffixStemResourceAndClassLoaderMap().get(resource).add(plugin);
             }
         }
     }
-
-
 
     private Set<String> getInjectDependencies(String injectPluginDependencies) {
         Set<String> dependencies = new HashSet<>();
