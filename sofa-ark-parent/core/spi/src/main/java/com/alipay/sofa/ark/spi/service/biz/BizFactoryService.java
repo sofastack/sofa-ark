@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.spi.service.biz;
 
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizConfig;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 
 import java.io.File;
@@ -71,6 +72,22 @@ public interface BizFactoryService {
      * @return
      */
     Biz createBiz(BizOperation bizOperation, File file) throws IOException;
+
+    /**
+     * @param file
+     * @param bizConfig
+     * @return
+     * @throws IOException
+     */
+    Biz createBiz(File file, BizConfig bizConfig) throws IOException;
+
+    /**
+     * @param bizArchive
+     * @param bizConfig
+     * @return
+     * @throws IOException
+     */
+    Biz createBiz(BizArchive bizArchive, BizConfig bizConfig) throws IOException;
 
     /**
      * Create Biz Model according to master biz

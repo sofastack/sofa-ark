@@ -31,15 +31,13 @@ import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.Archive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.*;
 import com.alipay.sofa.ark.spi.model.BizInfo.StateChangeReason;
-import com.alipay.sofa.ark.spi.model.BizOperation;
-import com.alipay.sofa.ark.spi.model.BizState;
-import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.codehaus.plexus.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,45 +80,118 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     @Override
     public Biz createBiz(BizArchive bizArchive) throws IOException {
-        return createBiz(bizArchive, null);
+        return createBiz(bizArchive, new BizConfig());
     }
 
     @Override
     public Biz createBiz(BizArchive bizArchive, URL[] extensionUrls) throws IOException {
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setExtensionUrls(extensionUrls);
+        return createBiz(bizArchive, bizConfig);
+    }
+
+    @Override
+    public Biz createBiz(File file) throws IOException {
+        BizArchive bizArchive = prepareBizArchive(file);
+        return createBiz(bizArchive, new BizConfig());
+    }
+
+    @Override
+    public Biz createBiz(File file, URL[] extensionUrls) throws IOException {
+        BizArchive bizArchive = prepareBizArchive(file);
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setExtensionUrls(extensionUrls);
+        return createBiz(bizArchive, bizConfig);
+    }
+
+    @Override
+    public Biz createBiz(BizOperation bizOperation, File file) throws IOException {
+        BizArchive bizArchive = prepareBizArchive(file);
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setSpecifiedVersion(bizOperation.getBizVersion());
+        return createBiz(bizArchive, new BizConfig());
+    }
+
+    @Override
+    public Biz createBiz(File file, BizConfig bizConfig) throws IOException {
+        BizArchive bizArchive = prepareBizArchive(file);
+        return createBiz(bizArchive, bizConfig);
+    }
+
+    @Override
+    public Biz createBiz(BizArchive bizArchive, BizConfig bizConfig) throws IOException {
         AssertUtils.isTrue(isArkBiz(bizArchive), "Archive must be a ark biz!");
-        BizModel bizModel = new BizModel();
+        AssertUtils.isTrue(bizConfig != null, "BizConfig must not be null!");
+
         Attributes manifestMainAttributes = bizArchive.getManifest().getMainAttributes();
         String mainClass = manifestMainAttributes.getValue(MAIN_CLASS_ATTRIBUTE);
         String startClass = manifestMainAttributes.getValue(START_CLASS_ATTRIBUTE);
+        BizModel bizModel = new BizModel();
         bizModel
-            .setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
-            .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
-            .setBizVersion(manifestMainAttributes.getValue(ARK_BIZ_VERSION))
-            .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
-            .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
-            .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
-            .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
-            .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
-            .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
-            .setInjectPluginDependencies(
-                getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
-            .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
-            .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
-            .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), extensionUrls)).setPluginClassPath(getPluginURLs());
+                .setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
+                .setBizName(manifestMainAttributes.getValue(ARK_BIZ_NAME))
+                .setBizVersion(!StringUtils.isEmpty(bizConfig.getSpecifiedVersion()) ? bizConfig.getSpecifiedVersion() : manifestMainAttributes.getValue(ARK_BIZ_VERSION))
+                .setBizUrl(!(bizArchive instanceof DirectoryBizArchive) ? bizArchive.getUrl() : null)
+                .setMainClass(!StringUtils.isEmpty(startClass) ? startClass : mainClass)
+                .setPriority(manifestMainAttributes.getValue(PRIORITY_ATTRIBUTE))
+                .setWebContextPath(manifestMainAttributes.getValue(WEB_CONTEXT_PATH))
+                .setDenyImportPackages(manifestMainAttributes.getValue(DENY_IMPORT_PACKAGES))
+                .setDenyImportClasses(manifestMainAttributes.getValue(DENY_IMPORT_CLASSES))
+                .setDenyImportResources(manifestMainAttributes.getValue(DENY_IMPORT_RESOURCES))
+                .setInjectPluginDependencies(getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
+                .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
+                .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
+                .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), bizConfig.getExtensionUrls()))
+                .setPluginClassPath(getPluginURLs());
 
         // prepare dependent plugins and plugin export map
-        resolveExportMapIfNecessary(bizModel, manifestMainAttributes.getValue("dependent-plugins"));
-
-        if (!(bizArchive instanceof DirectoryBizArchive)) {
-            bizModel.setBizUrl(bizArchive.getUrl());
+        List<String> dependentPlugins = bizConfig.getDependentPlugins();
+        if (dependentPlugins == null || dependentPlugins.isEmpty()) {
+            dependentPlugins = StringUtils.strToList(manifestMainAttributes.getValue("dependent-plugins"), Constants.MANIFEST_VALUE_SPLIT);
         }
+        resolveExportMapIfNecessary(bizModel, dependentPlugins);
 
+        // create biz classloader
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
-            getBizUcp(bizModel), bizArchive instanceof ExplodedBizArchive
-                                                || bizArchive instanceof DirectoryBizArchive);
+                getBizUcp(bizModel), bizArchive instanceof ExplodedBizArchive
+                || bizArchive instanceof DirectoryBizArchive);
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
+
         return bizModel;
+    }
+
+    @Override
+    public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
+        BizModel bizModel = new BizModel();
+        bizModel.setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
+                .setBizName(ArkConfigs.getStringValue(MASTER_BIZ)).setBizVersion("1.0.0")
+                .setMainClass("embed main").setPriority("100").setWebContextPath("/")
+                .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
+                .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
+                .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
+                .setClassLoader(masterClassLoader);
+        return bizModel;
+    }
+
+    private BizArchive prepareBizArchive(File file) throws IOException {
+        BizArchive bizArchive;
+        if (ArkConfigs.isEmbedEnable()) {
+            File unpackFile = FileUtils.file(file.getAbsolutePath() + "-unpack");
+            if (!unpackFile.exists()) {
+                unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
+            }
+            if (file.exists()) {
+                file.delete();
+            }
+            file = unpackFile;
+            bizArchive = new ExplodedBizArchive(unpackFile);
+        } else {
+            JarFile bizFile = new JarFile(file);
+            JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
+            bizArchive = new JarBizArchive(jarFileArchive);
+        }
+        return bizArchive;
     }
 
     private URL[] getMergedBizClassPath(URL[] bizArchiveUrls, URL[] extensionUrls) {
@@ -130,15 +201,12 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         return Stream.concat(Arrays.stream(bizArchiveUrls), Arrays.stream(extensionUrls)).toArray(URL[]::new);
     }
 
-    private void resolveExportMapIfNecessary(BizModel bizModel, String dependentPlugins) {
+    private void resolveExportMapIfNecessary(BizModel bizModel, List<String> dependentPlugins) {
         Set<Plugin> plugins = new HashSet<>();
         if (ArkConfigs.areAllPluginsVisibleForBiz()) {
             plugins.addAll(pluginManagerService.getPluginsInOrder());
-        }
-
-        if (dependentPlugins != null) {
-            Set<String> pluginNames = StringUtils.strToSet(dependentPlugins, Constants.MANIFEST_VALUE_SPLIT);
-            for (String pluginName : pluginNames) {
+        } else if (dependentPlugins != null && !dependentPlugins.isEmpty()) {
+            for (String pluginName : dependentPlugins) {
                 Plugin plugin = pluginManagerService.getPluginByName(pluginName);
                 plugins.add(plugin);
             }
@@ -157,75 +225,23 @@ public class BizFactoryServiceImpl implements BizFactoryService {
             }
             for (String resource : plugin.getExportResources()) {
                 bizModel.getExportResourceAndClassLoaderMap().putIfAbsent(resource,
-                    new LinkedList<>());
+                        new LinkedList<>());
                 bizModel.getExportResourceAndClassLoaderMap().get(resource).add(plugin);
             }
             for (String resource : plugin.getExportPrefixResourceStems()) {
                 bizModel.getExportPrefixStemResourceAndClassLoaderMap().putIfAbsent(resource,
-                    new LinkedList<>());
+                        new LinkedList<>());
                 bizModel.getExportPrefixStemResourceAndClassLoaderMap().get(resource).add(plugin);
             }
             for (String resource : plugin.getExportSuffixResourceStems()) {
                 bizModel.getExportSuffixStemResourceAndClassLoaderMap().putIfAbsent(resource,
-                    new LinkedList<>());
+                        new LinkedList<>());
                 bizModel.getExportSuffixStemResourceAndClassLoaderMap().get(resource).add(plugin);
             }
         }
     }
 
-    @Override
-    public Biz createBiz(File file) throws IOException {
-        return createBiz(file, null);
-    }
 
-    @Override
-    public Biz createBiz(File file, URL[] extensionUrls) throws IOException {
-        BizArchive bizArchive;
-        if (ArkConfigs.isEmbedEnable()) {
-            File unpackFile = FileUtils.file(file.getAbsolutePath() + "-unpack");
-            if (!unpackFile.exists()) {
-                unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
-            }
-            if (file.exists()) {
-                file.delete();
-            }
-            file = unpackFile;
-            bizArchive = new ExplodedBizArchive(unpackFile);
-        } else {
-            JarFile bizFile = new JarFile(file);
-            JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
-            bizArchive = new JarBizArchive(jarFileArchive);
-        }
-        BizModel biz = (BizModel) createBiz(bizArchive, extensionUrls);
-        biz.setBizTempWorkDir(file);
-        return biz;
-    }
-
-    @Override
-    public Biz createBiz(BizOperation bizOperation, File file) throws IOException {
-        BizModel biz = (BizModel) createBiz(file, null);
-        if (bizOperation != null && !StringUtils.isEmpty(bizOperation.getBizVersion())) {
-            biz.setBizVersion(bizOperation.getBizVersion());
-            if (biz.getBizClassLoader() instanceof BizClassLoader) {
-                BizClassLoader bizClassLoader = (BizClassLoader) (biz.getBizClassLoader());
-                bizClassLoader.setBizIdentity(biz.getIdentity());
-            }
-        }
-        return biz;
-    }
-
-    @Override
-    public Biz createEmbedMasterBiz(ClassLoader masterClassLoader) {
-        BizModel bizModel = new BizModel();
-        bizModel.setBizState(BizState.RESOLVED, StateChangeReason.CREATED)
-            .setBizName(ArkConfigs.getStringValue(MASTER_BIZ)).setBizVersion("1.0.0")
-            .setMainClass("embed main").setPriority("100").setWebContextPath("/")
-            .setDenyImportPackages(null).setDenyImportClasses(null).setDenyImportResources(null)
-            .setInjectPluginDependencies(new HashSet<>()).setInjectExportPackages(null)
-            .setClassPath(ClassLoaderUtils.getURLs(masterClassLoader))
-            .setClassLoader(masterClassLoader);
-        return bizModel;
-    }
 
     private Set<String> getInjectDependencies(String injectPluginDependencies) {
         Set<String> dependencies = new HashSet<>();

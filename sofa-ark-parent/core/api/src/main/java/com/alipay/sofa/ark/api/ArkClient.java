@@ -165,34 +165,38 @@ public class ArkClient {
      * @throws Throwable
      */
     public static ClientResponse installBiz(File bizFile) throws Throwable {
-        return doInstallBiz(bizFile, null, arguments, envs);
+        return installBiz(bizFile, arguments, envs);
+    }
+
+    public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
+        return installBiz(bizFile, args, null);
     }
 
     public static ClientResponse installBiz(File bizFile, String[] args, Map<String, String> envs)
                                                                                                   throws Throwable {
-        return doInstallBiz(bizFile, null, args, envs);
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setArgs(args);
+        bizConfig.setEnvs(envs);
+        return doInstallBiz(bizFile, bizConfig);
     }
 
-    public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
-        return doInstallBiz(bizFile, null, args, null);
-    }
-
-    public static ClientResponse installBiz(File bizFile, URL[] extensionUrls, String[] args, Map<String, String> envs)
+    public static ClientResponse installBiz(File bizFile, BizConfig bizConfig)
             throws Throwable {
-        return doInstallBiz(bizFile, extensionUrls, args, envs);
+        return doInstallBiz(bizFile, bizConfig);
     }
 
-    private static ClientResponse doInstallBiz(File bizFile, URL[] extensionUrls, String[] args, Map<String, String> envs)
+    private static ClientResponse doInstallBiz(File bizFile, BizConfig bizConfig)
                                                                                                      throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
+        AssertUtils.assertNotNull(bizConfig, "bizConfig must not be null!");
 
         long start = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
-        Biz biz = bizFactoryService.createBiz(bizFile, extensionUrls);
+        Biz biz = bizFactoryService.createBiz(bizFile, bizConfig);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
             || !bizManagerService.registerBiz(biz)) {
@@ -201,7 +205,7 @@ public class ArkClient {
         }
 
         try {
-            biz.start(args, envs);
+            biz.start(bizConfig.getArgs(), bizConfig.getEnvs());
             long end = System.currentTimeMillis();
             response
                 .setCode(ResponseCode.SUCCESS)
@@ -409,7 +413,12 @@ public class ArkClient {
             }
             extensionUrls = urlsList.toArray(new URL[0]);
         }
-        return installBiz(bizFile, extensionUrls, args, envs);
+
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setExtensionUrls(extensionUrls);
+        bizConfig.setArgs(args);
+        bizConfig.setEnvs(envs);
+        return installBiz(bizFile, bizConfig);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
@@ -451,6 +460,14 @@ public class ArkClient {
             }
         }
 
+        PluginConfig pluginConfig = new PluginConfig();
+        if (!StringUtils.isEmpty(pluginOperation.getPluginName())) {
+            pluginConfig.setSpecifiedName(pluginOperation.getPluginName());
+        }
+        if (!StringUtils.isEmpty(pluginOperation.getPluginVersion())) {
+            pluginConfig.setSpecifiedVersion(pluginOperation.getPluginVersion());
+        }
+
         // prepare extension urls if necessary
         List<String> extensionLibs = pluginOperation.getExtensionLibs();
         List<URL> urlsList = new ArrayList<>();
@@ -461,13 +478,14 @@ public class ArkClient {
             }
         }
         URL[] extensionUrls = urlsList.toArray(new URL[0]);
+        pluginConfig.setExtensionUrls(extensionUrls);
 
         long start = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
         // create
-        Plugin plugin = pluginFactoryService.createPlugin(localFile, extensionUrls);
+        Plugin plugin = pluginFactoryService.createPlugin(localFile, pluginConfig);
         // register
         pluginManagerService.registerPlugin(plugin);
         // start
@@ -487,6 +505,37 @@ public class ArkClient {
             getLogger().error(response.getMessage(), throwable);
             throw throwable;
         }
+        return response;
+    }
+
+    public static ClientResponse checkPlugin() {
+        return checkPlugin(null);
+    }
+
+    public static ClientResponse checkPlugin(String pluginName) {
+        AssertUtils.assertNotNull(pluginFactoryService, "pluginFactoryService must not be null!");
+        AssertUtils.assertNotNull(pluginManagerService, "pluginManagerService must not be null!");
+
+        ClientResponse response = new ClientResponse();
+        Set<Plugin> plugins = new HashSet<>();
+        if (pluginName != null) {
+            Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+            if (plugin != null) {
+                plugins.add(plugin);
+            }
+        } else {
+            plugins.addAll(pluginManagerService.getPluginsInOrder());
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Plugin count=%d", plugins.size())).append("\n");
+        for (Plugin plugin : plugins) {
+            sb.append(
+                    String.format("pluginName=%s, pluginVersion=%s", plugin.getPluginName(),
+                            plugin.getVersion())).append("\n");
+        }
+        response.setCode(ResponseCode.SUCCESS).setPluginInfos(plugins).setMessage(sb.toString());
+        getLogger().info(String.format("Check Plugin: %s", response.getMessage()));
         return response;
     }
 
