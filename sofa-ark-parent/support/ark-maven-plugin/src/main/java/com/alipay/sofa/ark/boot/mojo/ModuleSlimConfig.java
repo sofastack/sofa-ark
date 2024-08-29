@@ -33,39 +33,44 @@ public class ModuleSlimConfig {
      * group-a:tracer-core:3.0.10
      * group-b:tracer-core:3.0.10:jdk17
      */
-    private LinkedHashSet<String> excludes           = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludes                   = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
-    private LinkedHashSet<String> excludeGroupIds    = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeGroupIds            = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
-    private LinkedHashSet<String> excludeArtifactIds = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeArtifactIds         = new LinkedHashSet<>();
 
     /**
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match). e.g:
      * group-a:tracer-core:3.0.10
      * group-b:tracer-core:3.0.10:jdk17
      */
-    private LinkedHashSet<String> includes           = new LinkedHashSet<>();
+    private LinkedHashSet<String> includes                   = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
-    private LinkedHashSet<String> includeGroupIds    = new LinkedHashSet<>();
+    private LinkedHashSet<String> includeGroupIds            = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
-    private LinkedHashSet<String> includeArtifactIds = new LinkedHashSet<>();
+    private LinkedHashSet<String> includeArtifactIds         = new LinkedHashSet<>();
 
     /**
      * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
      */
     private String                baseDependencyParentIdentity;
+
+    /**
+     * 是否排除依赖时，同时排除其依赖。如：A依赖B，B依赖C，当 excludes 只配置了 A 时，B 和 C 都会被排除
+     */
+    private boolean               excludeWithItsDependencies = true;
 
     public LinkedHashSet<String> getExcludeArtifactIds() {
         return excludeArtifactIds;
@@ -143,5 +148,13 @@ public class ModuleSlimConfig {
 
     public void setIncludeArtifactIds(LinkedHashSet<String> includeArtifactIds) {
         this.includeArtifactIds = includeArtifactIds;
+    }
+
+    public boolean isExcludeWithItsDependencies() {
+        return excludeWithItsDependencies;
+    }
+
+    public void setExcludeWithItsDependencies(boolean excludeWithItsDependencies) {
+        this.excludeWithItsDependencies = excludeWithItsDependencies;
     }
 }
