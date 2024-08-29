@@ -21,7 +21,6 @@ import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
 import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
 import com.alipay.sofa.ark.web.embed.tomcat.EmbeddedServerServiceImpl;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
 /**
@@ -39,11 +38,11 @@ public class WebPluginActivator implements PluginActivator {
 
     @Override
     public void stop(PluginContext context) {
-        Tomcat webServer = null;
-        if (embeddedServerService.getEmbedServer() instanceof Tomcat) {
-            webServer = (Tomcat) embeddedServerService.getEmbedServer();
-        }
-        if (webServer != null) {
+        for (Object o : embeddedServerService) {
+            if (!(o instanceof Tomcat)) {
+                continue;
+            }
+            Tomcat webServer = (Tomcat) o;
             try {
                 webServer.destroy();
             } catch (Exception ex) {

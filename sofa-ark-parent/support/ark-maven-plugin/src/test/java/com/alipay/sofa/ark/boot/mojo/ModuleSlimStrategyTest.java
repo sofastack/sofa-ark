@@ -33,7 +33,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.alipay.sofa.ark.boot.mojo.ReflectionUtils.setField;
 import static java.util.Arrays.asList;
@@ -105,11 +109,13 @@ public class ModuleSlimStrategyTest {
         when(sameArtifact.getGroupId()).thenReturn("com.mock");
         when(sameArtifact.getArtifactId()).thenReturn("same-dependency-artifact");
         when(sameArtifact.getVersion()).thenReturn("1.0");
+        when(sameArtifact.getBaseVersion()).thenReturn("1.0-SNAPSHOT");
 
         Artifact differenceArtifact = mock(Artifact.class);
         when(differenceArtifact.getGroupId()).thenReturn("com.mock");
         when(differenceArtifact.getArtifactId()).thenReturn("difference-dependency-artifact");
         when(differenceArtifact.getVersion()).thenReturn("2.0");
+        when(differenceArtifact.getBaseVersion()).thenReturn("2.0-SNAPSHOT");
 
         Set<Artifact> res = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(
             sameArtifact, differenceArtifact));
@@ -223,11 +229,6 @@ public class ModuleSlimStrategyTest {
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
 
-    private File getResourceFile(String resourceName) throws URISyntaxException {
-        URL url = this.getClass().getClassLoader().getResource(resourceName);
-        return new File(url.toURI());
-    }
-
     private MavenProject getMockBootstrapProject() throws URISyntaxException {
         MavenProject project = new MavenProject();
         project.setArtifactId("base-bootstrap");
@@ -244,7 +245,7 @@ public class ModuleSlimStrategyTest {
 
         project.setParent(getRootProject());
 
-        setField("basedir", project, getResourceFile("baseDir"));
+        setField("basedir", project, CommonUtils.getResourceFile("baseDir"));
         return project;
     }
 
@@ -259,6 +260,7 @@ public class ModuleSlimStrategyTest {
         when(artifact.getArtifactId()).thenReturn("base-dependencies-starter");
         when(artifact.getGroupId()).thenReturn("com.mock");
         when(artifact.getVersion()).thenReturn("1.0");
+        when(artifact.getBaseVersion()).thenReturn("1.0");
 
         project.setArtifact(artifact);
         project.setParent(null);
@@ -266,12 +268,12 @@ public class ModuleSlimStrategyTest {
         Dependency sameDependency = new Dependency();
         sameDependency.setArtifactId("same-dependency-artifact");
         sameDependency.setGroupId("com.mock");
-        sameDependency.setVersion("1.0");
+        sameDependency.setVersion("1.0-SNAPSHOT");
 
         Dependency differenceDependency = new Dependency();
         differenceDependency.setArtifactId("difference-dependency-artifact");
         differenceDependency.setGroupId("com.mock");
-        differenceDependency.setVersion("1.0");
+        differenceDependency.setVersion("1.0-SNAPSHOT");
 
         DependencyManagement dm = new DependencyManagement();
         dm.setDependencies(Lists.newArrayList(sameDependency, differenceDependency));
@@ -290,6 +292,6 @@ public class ModuleSlimStrategyTest {
     }
 
     private File mockBaseDir() throws URISyntaxException {
-        return getResourceFile("baseDir");
+        return CommonUtils.getResourceFile("baseDir");
     }
 }
