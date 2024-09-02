@@ -77,9 +77,9 @@ public class ModuleSlimStrategy {
 
     private File                baseDir;
 
-    private static final String EXTENSION_EXCLUDE_WITH_ITS_DEPENDENCIES = "excludeWithItsDependencies";
+    private static final String EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES = "excludeWithIndirectDependencies";
 
-    private static final String DEFAULT_EXCLUDE_RULES                   = "rules.txt";
+    private static final String DEFAULT_EXCLUDE_RULES                        = "rules.txt";
 
     ModuleSlimStrategy(MavenProject project, DependencyNode projDependencyGraph,
                        ModuleSlimConfig config, File baseDir, Log log) {
@@ -173,10 +173,10 @@ public class ModuleSlimStrategy {
     protected void initSlimStrategyConfig() throws IOException {
         Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
         Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
-        config.setExcludeWithItsDependencies(getBooleanWithDefault(prop,
-            EXTENSION_EXCLUDE_WITH_ITS_DEPENDENCIES, true));
-        config.setExcludeWithItsDependencies(getBooleanWithDefault(arkYaml,
-            EXTENSION_EXCLUDE_WITH_ITS_DEPENDENCIES, true));
+        config.setExcludeWithIndirectDependencies(getBooleanWithDefault(prop,
+            EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
+        config.setExcludeWithIndirectDependencies(getBooleanWithDefault(arkYaml,
+            EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
 
         initExcludeAndIncludeConfig();
     }
@@ -201,21 +201,21 @@ public class ModuleSlimStrategy {
 
     protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
         Set<Artifact> literalArtifactsToExclude = getLiteralArtifactsToFilterByExcludeConfig(artifacts);
-        if (config.isExcludeWithItsDependencies()) {
-            return excludeWithItsDependencies(literalArtifactsToExclude, artifacts);
+        if (config.isExcludeWithIndirectDependencies()) {
+            return excludeWithIndirectDependencies(literalArtifactsToExclude, artifacts);
         }
         return literalArtifactsToExclude;
     }
 
-    private Set<Artifact> excludeWithItsDependencies(Set<Artifact> literalArtifactsToExclude,Set<Artifact> artifacts) {
+    private Set<Artifact> excludeWithIndirectDependencies(Set<Artifact> literalArtifactsToExclude, Set<Artifact> artifacts) {
         Set<String> excludeArtifactIdentities = literalArtifactsToExclude.stream().map(this::getArtifactIdentity).collect(Collectors.toSet());
         Map<String,Artifact> artifactMap = artifacts.stream().collect(Collectors.toMap(this::getArtifactIdentity,it->it));
-        return getExcludeWithItsDependencies(projDependencyGraph,excludeArtifactIdentities,artifactMap);
+        return getExcludeWithIndirectDependencies(projDependencyGraph,excludeArtifactIdentities,artifactMap);
     }
 
-    private Set<Artifact> getExcludeWithItsDependencies(DependencyNode node,
-                                                        Set<String> literalArtifactsToExclude,
-                                                        Map<String, Artifact> artifacts) {
+    private Set<Artifact> getExcludeWithIndirectDependencies(DependencyNode node,
+                                                             Set<String> literalArtifactsToExclude,
+                                                             Map<String, Artifact> artifacts) {
         if (null == node) {
             return Collections.emptySet();
         }
@@ -233,8 +233,8 @@ public class ModuleSlimStrategy {
         }
 
         for (DependencyNode child : node.getChildren()) {
-            result
-                .addAll(getExcludeWithItsDependencies(child, literalArtifactsToExclude, artifacts));
+            result.addAll(getExcludeWithIndirectDependencies(child, literalArtifactsToExclude,
+                artifacts));
         }
 
         return result;

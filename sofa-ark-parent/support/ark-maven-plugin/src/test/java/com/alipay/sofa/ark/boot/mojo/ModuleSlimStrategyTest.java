@@ -261,7 +261,7 @@ public class ModuleSlimStrategyTest {
             .singletonList("com.exclude.group.id")));
         moduleSlimConfig.setExcludeArtifactIds(Sets.newLinkedHashSet(Collections
             .singletonList("a3")));
-        moduleSlimConfig.setExcludeWithItsDependencies(false);
+        moduleSlimConfig.setExcludeWithIndirectDependencies(false);
 
         ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, moduleSlimConfig,
             mockBaseDir(), null));
@@ -270,7 +270,7 @@ public class ModuleSlimStrategyTest {
     }
 
     @Test
-    public void testExcludeWithItsDependencies() throws URISyntaxException {
+    public void testExcludeWithIndirectDependencies() throws URISyntaxException {
         MavenProject proj = mock(MavenProject.class);
         Artifact a1 = mockArtifact("com.exclude", "a1", "1.0.0", "jar", null, "compile");
         Artifact a2 = mockArtifact("com.exclude.group.id", "a2", "1.0.0", "jar", null, "compile");
@@ -289,14 +289,16 @@ public class ModuleSlimStrategyTest {
         moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Collections.singletonList("com.exclude:a1")));
         moduleSlimConfig.setExcludeGroupIds(Sets.newLinkedHashSet(Collections.singletonList("com.exclude.group.id")));
         moduleSlimConfig.setExcludeArtifactIds(Sets.newLinkedHashSet(Collections.singletonList("a3")));
-        moduleSlimConfig.setExcludeWithItsDependencies(true);
+        moduleSlimConfig.setExcludeWithIndirectDependencies(true);
 
         /*
          * 依赖关系如下：
-         *      -> a1 -> d1 -> d2
-         * root -> a2 -> a3 -> d3
-         *                  -> d4
-         *      -> a4 -> d5
+         *       -> a1 -> d1 -> d2
+         *     /
+         * root  -> a2 -> a3 -> d3
+         *     \            \
+         *      \            -> d4
+         *       -> a4 -> d5
          * 在此依赖关系下，a1, a2, a3 会因为 exclude 被排除
          * d1, d2, d3, d4 会因为 excludeWithDependencies 被排除
          * a4, d5 不会被排除
