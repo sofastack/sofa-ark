@@ -422,9 +422,16 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
+    private DependencyNode parseDependencyGraph() throws MojoExecutionException,
+                                                 MojoFailureException {
+        if (null == super.getDependencyGraph()) {
+            super.execute();
+        }
+        return super.getDependencyGraph();
+    }
+
     private Set<ArtifactItem> getAllArtifact() throws MojoExecutionException, MojoFailureException {
-        super.execute();
-        DependencyNode dependencyNode = super.getDependencyGraph();
+        DependencyNode dependencyNode = parseDependencyGraph();
         Set<ArtifactItem> results = new HashSet<>();
         parseArtifactItems(dependencyNode, results);
         return results;
@@ -534,14 +541,15 @@ public class RepackageMojo extends TreeMojo {
         }
     }
 
-    private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
+    private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException,
+                                               MojoFailureException {
         ModuleSlimConfig moduleSlimConfig = (new ModuleSlimConfig())
             .setPackExcludesConfig(packExcludesConfig).setPackExcludesUrl(packExcludesUrl)
             .setExcludes(excludes).setExcludeGroupIds(excludeGroupIds)
             .setExcludeArtifactIds(excludeArtifactIds)
             .setBaseDependencyParentIdentity(baseDependencyParentIdentity);
         ModuleSlimStrategy slimStrategy = new ModuleSlimStrategy(this.mavenProject,
-            moduleSlimConfig, this.baseDir, this.getLog());
+            parseDependencyGraph(), moduleSlimConfig, this.baseDir, this.getLog());
         return slimStrategy.getSlimmedArtifacts();
     }
 
