@@ -28,7 +28,9 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
+import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getBooleanWithDefault;
 import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES_WHITELIST;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -47,6 +49,13 @@ public class ParseUtilsTest {
 
         assertTrue(whitelist.contains("com.biz.yml:biz-common-yml"));
         assertTrue(whitelist.contains("com.ark.yml:ark-common-yml"));
+    }
+
+    @Test
+    public void testGetBooleanWithDefault() throws URISyntaxException {
+        Map<String, Object> yml = (Map<String, Object>) loadYaml();
+        assertFalse(getBooleanWithDefault(yml, "excludeWithIndirectDependencies", true));
+        assertTrue(getBooleanWithDefault(yml, "aaa", true));
     }
 
     private Object loadYaml() throws URISyntaxException {

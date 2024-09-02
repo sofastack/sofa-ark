@@ -49,6 +49,25 @@ public class ParseUtils {
         return newHashSet((List<String>) value);
     }
 
+    public static boolean getBooleanWithDefault(Map<String, Object> yaml, String confKey,
+                                                boolean defaultValue) {
+        Object value = getValue(yaml, confKey);
+
+        if (null == value) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value.toString());
+    }
+
+    public static boolean getBooleanWithDefault(Properties prop, String confKey,
+                                                boolean defaultValue) {
+        Object value = prop.getProperty(confKey);
+        if (null == value) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value.toString());
+    }
+
     private static Object getValue(Map<String, Object> yaml, String confKey) {
         if (MapUtils.isEmpty(yaml) || StringUtils.isEmpty(confKey)) {
             return null;
