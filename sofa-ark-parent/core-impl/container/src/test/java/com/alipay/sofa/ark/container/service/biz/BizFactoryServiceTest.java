@@ -33,8 +33,7 @@ import java.net.URL;
 
 import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
 import static com.alipay.sofa.ark.container.service.ArkServiceContainerHolder.getContainer;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_PLUGIN_MARK_ENTRY;
-import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertNotNull;
 
@@ -69,6 +68,7 @@ public class BizFactoryServiceTest extends BaseTest {
         Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         pluginManagerService.registerPlugin(plugin);
 
+        System.setProperty(ALL_PLUGINS_VISIBLE_FOR_BIZ, Boolean.TRUE.toString());
         URL sampleBiz = cl.getResource("sample-biz.jar");
         Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
         bizManagerService.registerBiz(biz);

@@ -109,7 +109,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         BizArchive bizArchive = prepareBizArchive(file);
         BizConfig bizConfig = new BizConfig();
         bizConfig.setSpecifiedVersion(bizOperation.getBizVersion());
-        return createBiz(bizArchive, new BizConfig());
+        return createBiz(bizArchive, bizConfig);
     }
 
     @Override

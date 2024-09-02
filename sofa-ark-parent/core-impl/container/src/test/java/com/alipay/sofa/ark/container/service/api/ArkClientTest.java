@@ -255,7 +255,7 @@ public class ArkClientTest extends BaseTest {
         setBizFactoryService(bizFactoryServiceMock);
         Biz biz = mock(Biz.class);
         doThrow(new IllegalArgumentException()).when(biz).start(any());
-        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+        when(bizFactoryServiceMock.createBiz((File) any(), (BizConfig) any())).thenReturn(biz);
 
         try {
             installBiz(bizFile, new BizConfig());
@@ -299,7 +299,7 @@ public class ArkClientTest extends BaseTest {
         when(biz.getBizName()).thenReturn("biz-install-failed-demo");
         when(biz.getBizVersion()).thenReturn("1.0.0");
         doThrow(new IllegalArgumentException()).when(biz).start(any(), any());
-        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+        when(bizFactoryServiceMock.createBiz((File) any(), (BizConfig) any())).thenReturn(biz);
 
         // case1: not set AUTO_UNINSTALL_ENABLE
         try {

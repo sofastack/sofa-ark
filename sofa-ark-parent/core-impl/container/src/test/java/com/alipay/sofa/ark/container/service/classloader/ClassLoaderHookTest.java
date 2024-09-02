@@ -19,9 +19,11 @@ package com.alipay.sofa.ark.container.service.classloader;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.container.BaseTest;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestBizClassLoaderHook;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.classloader.hook.TestDefaultBizClassLoaderHook;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderHook;
 import com.alipay.sofa.ark.spi.service.extension.ArkServiceLoader;
 import org.junit.Assert;
@@ -52,6 +54,9 @@ public class ClassLoaderHookTest extends BaseTest {
             (ClassLoaderUtils.getURLs(this.getClass().getClassLoader())));
         Assert.assertTrue(TestBizClassLoaderHook.ClassA.class.getName().equals(
             bizClassLoader.loadClass("A.A").getName()));
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        bizClassLoader.setBizModel((BizModel) bizManagerService.getBiz("mock", "1.0"));
         Assert.assertTrue(TestBizClassLoaderHook.ClassB.class.getName().equals(
             bizClassLoader.loadClass("B").getName()));
         Assert.assertTrue(bizClassLoader.getResource("R1").getFile()
