@@ -90,7 +90,6 @@ class LoaderZipEntries {
 	}
 
 	private void copy(InputStream in, OutputStream out) throws IOException {
-		System.out.println("55555555555555555555555555555");
 		StreamUtils.copy(in, out);
 	}
 

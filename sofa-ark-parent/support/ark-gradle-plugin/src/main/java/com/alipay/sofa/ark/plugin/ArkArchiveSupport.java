@@ -144,13 +144,6 @@ public class ArkArchiveSupport {
         attributes.putIfAbsent("Ark-Biz-Version",this.arkExtension.getBizVersion().get());
         attributes.putIfAbsent("priority",this.arkExtension.getPriority().get());
         attributes.putIfAbsent("web-context-path", this.arkExtension.getWebContextPath().get());
-//        attributes.putIfAbsent("deny-import-classes",this.arkExtension.);
-//        attributes.putIfAbsent("deny-import-classes","");
-////        attributes.putIfAbsent("deny-import-resources","");
-////        attributes.putIfAbsent("inject-plugin-dependencies","");
-////        attributes.putIfAbsent("inject-export-packages","");
-////        attributes.putIfAbsent("inject-export-packages","");
-//        attributes.putIfAbsent("declared-libraries","");
         appendBuildInfo(manifest);
     }
 
@@ -186,9 +179,6 @@ public class ArkArchiveSupport {
         File bizOutput = getTargetFile(jar, this.arkExtension.getBizClassifier().get());
         File arkOutput = getTargetFile(jar, this.arkExtension.getArkClassifier().get());
 
-        System.out.println("bizOutput:"+bizOutput.getAbsolutePath());
-        System.out.println("arkOutput:"+arkOutput.getAbsolutePath());
-
         Manifest manifest = jar.getManifest();
         boolean preserveFileTimestamps = jar.isPreserveFileTimestamps();
         Integer dirMode = getDirMode(jar);
@@ -223,7 +213,6 @@ public class ArkArchiveSupport {
         name += maybe(name,  classifier);
         String extension = jar.getArchiveExtension().getOrNull();
         name += (isTrue(extension) ? "." + extension : "");
-        System.out.println("name:::::->>"+name);
         return name;
     }
 
@@ -316,8 +305,6 @@ public class ArkArchiveSupport {
     }
 
     public void moveToRoot(FileCopyDetails details) {
-        System.out.println("this is path:");
-        System.out.println(details.getPath());
         details.setRelativePath(details.getRelativeSourcePath());
     }
 

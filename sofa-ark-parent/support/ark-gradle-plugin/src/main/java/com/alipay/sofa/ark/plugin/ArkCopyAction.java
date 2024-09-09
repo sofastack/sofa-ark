@@ -267,7 +267,6 @@ public class ArkCopyAction implements CopyAction {
 
         private void processDirectory(FileCopyDetails details) throws IOException {
             String name = details.getRelativePath().getPathString();
-            System.out.println("processDirectory->" + name);
             //JarEntry entr = new JarEntry(name + '/');
             ZipArchiveEntry entry = new ZipArchiveEntry(name + '/');
             prepareEntry(entry, name, getTime(details), getFileMode(details));
@@ -278,7 +277,7 @@ public class ArkCopyAction implements CopyAction {
 
         private void processFile(FileCopyDetails details) throws IOException {
             String name = details.getRelativePath().getPathString();
-            System.out.println("processFile->"+name);
+
             ZipArchiveEntry entry = new ZipArchiveEntry(name);
             prepareEntry(entry, name, getTime(details), getFileMode(details));
             ZipCompression compression = ArkCopyAction.this.compressionResolver.apply(details);
@@ -296,7 +295,6 @@ public class ArkCopyAction implements CopyAction {
 
         private void writeParentDirectoriesIfNecessary(String name, Long time) throws IOException {
             String parentDirectory = getParentDirectory(name);
-            System.out.println("writeParentDirectoriesIfNecessary-> "+parentDirectory);
             if (parentDirectory != null && this.writtenDirectories.add(parentDirectory)) {
                 ZipArchiveEntry entry = new ZipArchiveEntry(parentDirectory + '/');
                 prepareEntry(entry, parentDirectory, time, getDirMode());
@@ -314,23 +312,17 @@ public class ArkCopyAction implements CopyAction {
         }
 
         void finish() throws IOException {
-            //writeLoaderEntriesIfNecessary(null);
             writeClassPathIndexIfNecessary();
             writeArkBizMark();
             writeBootstrapEntry();
-            // We must write the layer index last
-            //writeLayersIndexIfNecessary();
         }
 
 
         private void writeBootstrapEntry() throws IOException {
-
-            System.out.println("arkFile:->>>>>>"+arkFile);
             try (JarFile jarFileSource = new JarFile(this.arkFile)){
                 Enumeration<JarEntry> entries = jarFileSource.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry entry = entries.nextElement();
-                    System.out.println("||"+entry.getName());
                     if (entry.getName().contains("sofa-ark-archive")
                         || entry.getName().contains("sofa-ark-spi")
                         || entry.getName().contains("sofa-ark-common")) {
@@ -383,7 +375,6 @@ public class ArkCopyAction implements CopyAction {
         }
 
         private void writeEntry(JarEntry entry, EntryWriter entryWriter,  JarFile jarFileSource) throws IOException {
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+entry.getName());
 
             JarArchiveEntry newEntry = new JarArchiveEntry(entry.getName());
             newEntry.setSize(entry.getSize());
@@ -397,25 +388,6 @@ public class ArkCopyAction implements CopyAction {
             }
 
             jarOutput.closeArchiveEntry();
-
-
-//			String parent = entry.getName();
-//			if (parent.endsWith("/")) {
-//				parent = parent.substring(0, parent.length() - 1);
-//			}
-//			if (parent.lastIndexOf("/") != -1) {
-//				parent = parent.substring(0, parent.lastIndexOf("/") + 1);
-//				if (parent.length() > 0) {
-//					writeEntry(new JarEntry(parent), null);
-//				}
-//			}
-//
-//
-//			this.jarOutput.putNextEntry(entry);
-//			if (entryWriter != null) {
-//				entryWriter.write(this.jarOutput);
-//			}
-//			this.jarOutput.closeEntry();
 
         }
 
@@ -474,7 +446,6 @@ public class ArkCopyAction implements CopyAction {
 
         private void writeEntry(String name, ZipEntryContentWriter entryWriter, boolean addToLayerIndex,
             ZipEntryCustomizer entryCustomizer) throws IOException {
-            System.out.println("write zip name ->>>" + name);
             ZipArchiveEntry entry = new ZipArchiveEntry(name);
             prepareEntry(entry, name, getTime(), getFileMode());
             entryCustomizer.customize(entry);
@@ -586,7 +557,6 @@ public class ArkCopyAction implements CopyAction {
          * @return a new {@link ZipEntryContentWriter} instance
          */
         static ZipEntryContentWriter fromInputStream(InputStream in) {
-            System.out.println("44444444444444");
             return (out) -> {
                 StreamUtils.copy(in, out);
                 in.close();

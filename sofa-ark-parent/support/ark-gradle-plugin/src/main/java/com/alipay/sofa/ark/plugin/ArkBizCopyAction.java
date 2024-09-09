@@ -123,7 +123,6 @@ public class ArkBizCopyAction implements CopyAction {
     }
 
     private void writeBizArchive(CopyActionProcessingStream copyActions) throws IOException {
-        System.out.println("``````````````````````````````````````````````````````````````````````````````````");
         OutputStream output = new FileOutputStream(this.bizOutput);
         try {
             writeArchive(copyActions, output);
@@ -145,10 +144,8 @@ public class ArkBizCopyAction implements CopyAction {
 
     private void writeArkArchive(OutputStream output) throws IOException {
         ZipArchiveOutputStream zipOutput = new ZipArchiveOutputStream(output);
-        System.out.println("111111111111111111111111111111111");
         try {
             setEncodingIfNecessary(zipOutput);
-            System.out.println("2222222222222222222222222222");
             Processor1 processor = new Processor1(zipOutput);
             processor.process();
         }
@@ -220,12 +217,10 @@ private class Processor1{
     }
 
     private void writeBootstrapEntry() throws IOException {
-        System.out.println("arkFile:->>>>>>"+arkFile);
         try (JarFile jarFileSource = new JarFile(this.arkFile)){
             Enumeration<JarEntry> entries = jarFileSource.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
-                System.out.println("||"+entry.getName());
                 if (entry.getName().contains("sofa-ark-archive")
                     || entry.getName().contains("sofa-ark-spi")
                     || entry.getName().contains("sofa-ark-common")) {
@@ -350,7 +345,6 @@ private class Processor1{
         void process(FileCopyDetails details) {
 
             if(details.getName().contains("sofa-ark-all")){
-                System.out.println("aaaa:"+details.getFile());
                 ArkBizCopyAction.this.arkBootFile = String.valueOf(details.getFile());
                 return;
             }
@@ -377,7 +371,6 @@ private class Processor1{
 
         private void processDirectory(FileCopyDetails details) throws IOException {
             String name = details.getRelativePath().getPathString();
-            System.out.println("processDirectory->" + name);
             ZipArchiveEntry entry = new ZipArchiveEntry(name + '/');
             prepareEntry(entry, name, getTime(details), getFileMode(details));
             this.out.putArchiveEntry(entry);
@@ -387,7 +380,6 @@ private class Processor1{
 
         private void processFile(FileCopyDetails details) throws IOException {
             String name = details.getRelativePath().getPathString();
-            System.out.println("processFile->"+name);
             ZipArchiveEntry entry = new ZipArchiveEntry(name);
             prepareEntry(entry, name, getTime(details), getFileMode(details));
             ZipCompression compression = ArkBizCopyAction.this.compressionResolver.apply(details);
@@ -421,7 +413,6 @@ private class Processor1{
 
         private void writeParentDirectoriesIfNecessary(String name, Long time) throws IOException {
             String parentDirectory = getParentDirectory(name);
-            System.out.println("writeParentDirectoriesIfNecessary-> "+parentDirectory);
             if (parentDirectory != null && this.writtenDirectories.add(parentDirectory)) {
                 ZipArchiveEntry entry = new ZipArchiveEntry(parentDirectory + '/');
                 prepareEntry(entry, parentDirectory, time, getDirMode());

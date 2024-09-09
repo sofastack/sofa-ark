@@ -72,8 +72,6 @@ public class ArkJar extends Jar implements BootArchive {
 
         this.bootInfSpec = project.copySpec().into("");
         this.mainClass = project.getObjects().property(String.class);
-        System.out.println("mainClass:" + this.mainClass);
-
         configureBootInfSpec(this.bootInfSpec);
         getMainSpec().with(this.bootInfSpec);
 
