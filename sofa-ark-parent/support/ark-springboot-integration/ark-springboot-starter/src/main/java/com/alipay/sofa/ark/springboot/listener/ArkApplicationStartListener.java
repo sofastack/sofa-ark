@@ -89,18 +89,15 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
         if (ArkConfigs.isEmbedEnable()) {
             return true;
         }
-        String value = System.getProperty(Constants.EMBED_ENABLE);
-        if (value == null) {
-            if (SPRING_BOOT_LOADER_CLASS != null
+        if (SPRING_BOOT_LOADER_CLASS != null
                 && SPRING_BOOT_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
-                    .getClass())) {
-                return true;
-            }
-            if (SPRING_BOOT_NEW_LOADER_CLASS != null
+                .getClass())) {
+            return true;
+        }
+        if (SPRING_BOOT_NEW_LOADER_CLASS != null
                 && SPRING_BOOT_NEW_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
-                    .getClass())) {
-                return true;
-            }
+                .getClass())) {
+            return true;
         }
         return false;
     }

@@ -41,6 +41,7 @@ import org.codehaus.plexus.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -144,8 +145,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
                 getInjectDependencies(manifestMainAttributes.getValue(INJECT_PLUGIN_DEPENDENCIES)))
             .setInjectExportPackages(manifestMainAttributes.getValue(INJECT_EXPORT_PACKAGES))
             .setDeclaredLibraries(manifestMainAttributes.getValue(DECLARED_LIBRARIES))
-            .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), bizConfig.getExtensionUrls()))
-            .setPluginClassPath(getPluginURLs());
+            .setClassPath(getMergedBizClassPath(bizArchive.getUrls(), bizConfig.getExtensionUrls()));
 
         // prepare dependent plugins and plugin export map
         List<String> dependentPlugins = bizConfig.getDependentPlugins();
@@ -156,12 +156,20 @@ public class BizFactoryServiceImpl implements BizFactoryService {
         }
         resolveExportMapIfNecessary(bizModel, dependentPlugins);
 
+        // must be after prepare dependent plugins
+        bizModel.setPluginClassPath(getPluginURLs(bizModel));
+
         // create biz classloader
         BizClassLoader bizClassLoader = new BizClassLoader(bizModel.getIdentity(),
             getBizUcp(bizModel), bizArchive instanceof ExplodedBizArchive
                                  || bizArchive instanceof DirectoryBizArchive);
         bizClassLoader.setBizModel(bizModel);
         bizModel.setClassLoader(bizClassLoader);
+
+        // set biz work dir
+        if (bizModel.getBizUrl() != null) {
+            bizModel.setBizTempWorkDir(new File(bizModel.getBizUrl().getFile()));
+        }
 
         return bizModel;
     }
@@ -270,20 +278,13 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     private URL[] getBizUcp(BizModel bizModel) {
         List<URL> bizUcp = new ArrayList<>();
         bizUcp.addAll(Arrays.asList(bizModel.getClassPath()));
-
-        List<URL> pluginUrls = new ArrayList<>();
-        Set<Plugin> dependentPlugins = bizModel.getDependentPlugins();
-        for (Plugin plugin : dependentPlugins) {
-            pluginUrls.add(plugin.getPluginURL());
-        }
-        bizUcp.addAll(pluginUrls);
-
+        bizUcp.addAll(Arrays.asList(getPluginURLs(bizModel)));
         return bizUcp.toArray(new URL[bizUcp.size()]);
     }
 
-    private URL[] getPluginURLs() {
+    private URL[] getPluginURLs(BizModel bizModel) {
         List<URL> pluginUrls = new ArrayList<>();
-        for (Plugin plugin : pluginManagerService.getPluginsInOrder()) {
+        for (Plugin plugin :  bizModel.getDependentPlugins()) {
             pluginUrls.add(plugin.getPluginURL());
         }
         return pluginUrls.toArray(new URL[pluginUrls.size()]);
