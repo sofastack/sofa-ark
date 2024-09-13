@@ -27,6 +27,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,9 +36,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.boot.mojo.ReflectionUtils.setField;
 import static java.util.Arrays.asList;
@@ -69,8 +72,8 @@ public class ModuleSlimStrategyTest {
         Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3);
         when(proj.getArtifacts()).thenReturn(artifacts);
 
-        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, new ModuleSlimConfig(),
-            mockBaseDir(), null));
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null,
+            new ModuleSlimConfig(), mockBaseDir(), null));
         doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
         doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
 
@@ -92,8 +95,16 @@ public class ModuleSlimStrategyTest {
         ModuleSlimConfig moduleSlimConfig = new ModuleSlimConfig();
         moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Arrays.asList(".*")));
         moduleSlimConfig.setIncludes(Sets.newLinkedHashSet(Arrays.asList("*")));
-        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, moduleSlimConfig,
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, moduleSlimConfig,
             mockBaseDir(), null));
+
+        doReturn("a1").when(strategy).getArtifactIdentity(a1);
+        doReturn("a2").when(strategy).getArtifactIdentity(a2);
+        doReturn("a3").when(strategy).getArtifactIdentity(a3);
+        doReturn("a4").when(strategy).getArtifactIdentity(a4);
+        doReturn("a5").when(strategy).getArtifactIdentity(a5);
+        doReturn("a6").when(strategy).getArtifactIdentity(a6);
+
         assertEquals(6, strategy.getSlimmedArtifacts().size());
     }
 
@@ -102,20 +113,22 @@ public class ModuleSlimStrategyTest {
                                                           MojoExecutionException {
         ModuleSlimConfig config = (new ModuleSlimConfig())
             .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
-            mockBaseDir(), null);
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), null,
+            config, mockBaseDir(), null);
 
         Artifact sameArtifact = mock(Artifact.class);
         when(sameArtifact.getGroupId()).thenReturn("com.mock");
         when(sameArtifact.getArtifactId()).thenReturn("same-dependency-artifact");
         when(sameArtifact.getVersion()).thenReturn("1.0");
         when(sameArtifact.getBaseVersion()).thenReturn("1.0-SNAPSHOT");
+        when(sameArtifact.getType()).thenReturn("jar");
 
         Artifact differenceArtifact = mock(Artifact.class);
         when(differenceArtifact.getGroupId()).thenReturn("com.mock");
         when(differenceArtifact.getArtifactId()).thenReturn("difference-dependency-artifact");
         when(differenceArtifact.getVersion()).thenReturn("2.0");
         when(differenceArtifact.getBaseVersion()).thenReturn("2.0-SNAPSHOT");
+        when(sameArtifact.getType()).thenReturn("jar");
 
         Set<Artifact> res = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(
             sameArtifact, differenceArtifact));
@@ -127,8 +140,8 @@ public class ModuleSlimStrategyTest {
     public void testExtensionExcludeAndIncludeArtifactsByDefault() throws URISyntaxException,
                                                                   IOException {
         ModuleSlimConfig config = new ModuleSlimConfig();
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), config,
-            mockBaseDir(), mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), null,
+            config, mockBaseDir(), mockLog());
 
         strategy.configExcludeArtifactsByDefault();
 
@@ -146,7 +159,8 @@ public class ModuleSlimStrategyTest {
     @Test
     public void testExtensionExcludeAndIncludeArtifacts() throws URISyntaxException {
         ModuleSlimConfig config = new ModuleSlimConfig();
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, config, mockBaseDir(), mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, config, mockBaseDir(),
+            mockLog());
         URL resource = this.getClass().getClassLoader().getResource("excludes.txt");
         strategy.extensionExcludeAndIncludeArtifacts(resource.getPath());
 
@@ -171,7 +185,8 @@ public class ModuleSlimStrategyTest {
         artifacts.add(defaultArtifact1);
         artifacts.add(defaultArtifact2);
 
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockBaseDir(), mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, null, mockBaseDir(),
+            mockLog());
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
@@ -190,7 +205,7 @@ public class ModuleSlimStrategyTest {
         // NOTE: Access httpbin to run unit test, need vpn maybe.
         String packExcludesUrl = "http://httpbin.org/get";
 
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, new ModuleSlimConfig(),
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, new ModuleSlimConfig(),
             mockBaseDir(), mockLog());
         strategy.extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
     }
@@ -224,14 +239,123 @@ public class ModuleSlimStrategyTest {
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
 
-        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, mockBaseDir(), mockLog());
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(null, null, null, mockBaseDir(),
+            mockLog());
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
 
-    private File getResourceFile(String resourceName) throws URISyntaxException {
-        URL url = this.getClass().getClassLoader().getResource(resourceName);
-        return new File(url.toURI());
+    @Test
+    public void testExcludeWithoutItsDependencies() throws URISyntaxException {
+        MavenProject proj = mock(MavenProject.class);
+        Artifact a1 = mockArtifact("com.exclude", "a1", "1.0.0", "jar", null, "compile");
+        Artifact a2 = mockArtifact("com.exclude.group.id", "a2", "1.0.0", "jar", null, "compile");
+        Artifact a3 = mockArtifact("com.exclude.artifact.id", "a3", "1.0.0", "jar", null, "compile");
+        Artifact a4 = mockArtifact("com.include", "a4", "1.0.0", "jar", null, "compile");
+        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4);
+
+        ModuleSlimConfig moduleSlimConfig = new ModuleSlimConfig();
+        moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Collections
+            .singletonList("com.exclude:a1")));
+        moduleSlimConfig.setExcludeGroupIds(Sets.newLinkedHashSet(Collections
+            .singletonList("com.exclude.group.id")));
+        moduleSlimConfig.setExcludeArtifactIds(Sets.newLinkedHashSet(Collections
+            .singletonList("a3")));
+        moduleSlimConfig.setExcludeWithIndirectDependencies(false);
+
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, moduleSlimConfig,
+            mockBaseDir(), null));
+        Set<Artifact> res = strategy.getArtifactsToFilterByExcludeConfig(artifacts);
+        assertEquals(3, res.size());
+    }
+
+    @Test
+    public void testExcludeWithIndirectDependencies() throws URISyntaxException {
+        MavenProject proj = mock(MavenProject.class);
+        Artifact a1 = mockArtifact("com.exclude", "a1", "1.0.0", "jar", null, "compile");
+        Artifact a2 = mockArtifact("com.exclude.group.id", "a2", "1.0.0", "jar", null, "compile");
+        Artifact a3 = mockArtifact("com.exclude.artifact.id", "a3", "1.0.0", "jar", null, "compile");
+        Artifact a4 = mockArtifact("com.include", "a4", "1.0.0", "jar", null, "compile");
+        Artifact d1 = mockArtifact("com.exclude.dependency", "d1", "1.0.0", "jar", null, "compile");
+        Artifact d2 = mockArtifact("com.exclude.dependency", "d2", "1.0.0", "jar", null, "compile");
+        Artifact d3 = mockArtifact("com.exclude.dependency", "d3", "1.0.0", "jar", null, "compile");
+        Artifact d4 = mockArtifact("com.exclude.dependency", "d4", "1.0.0", "jar", null, "compile");
+        Artifact d5 = mockArtifact("com.include.dependency", "d5", "1.0.0", "jar", null, "compile");
+
+
+        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, d1,d2,d3,d4,d5);
+
+        ModuleSlimConfig moduleSlimConfig = new ModuleSlimConfig();
+        moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Collections.singletonList("com.exclude:a1")));
+        moduleSlimConfig.setExcludeGroupIds(Sets.newLinkedHashSet(Collections.singletonList("com.exclude.group.id")));
+        moduleSlimConfig.setExcludeArtifactIds(Sets.newLinkedHashSet(Collections.singletonList("a3")));
+        moduleSlimConfig.setExcludeWithIndirectDependencies(true);
+
+        /*
+         * 依赖关系如下：
+         *       -> a1 -> d1 -> d2
+         *     /
+         * root  -> a2 -> a3 -> d3
+         *     \            \
+         *      \            -> d4
+         *       -> a4 -> d5
+         * 在此依赖关系下，a1, a2, a3 会因为 exclude 被排除
+         * d1, d2, d3, d4 会因为 excludeWithDependencies 被排除
+         * a4, d5 不会被排除
+         */
+        DependencyNode root = mockNode(mockArtifact("com.mock", "root", "1.0", "jar", null, "compile"));
+        DependencyNode a1Node = mockNode(a1);
+        DependencyNode a2Node = mockNode(a2);
+        DependencyNode a3Node = mockNode(a3);
+        DependencyNode a4Node = mockNode(a4);
+        DependencyNode d1Node = mockNode(d1);
+        DependencyNode d2Node = mockNode(d2);
+        DependencyNode d3Node = mockNode(d3);
+        DependencyNode d4Node = mockNode(d4);
+        DependencyNode d5Node = mockNode(d5);
+
+        when(root.getChildren()).thenReturn(Lists.newArrayList(a1Node, a2Node,a4Node));
+        when(a1Node.getChildren()).thenReturn(Lists.newArrayList(d1Node));
+        when(d1Node.getChildren()).thenReturn(Lists.newArrayList(d2Node));
+        when(a2Node.getChildren()).thenReturn(Lists.newArrayList(a3Node));
+        when(a3Node.getChildren()).thenReturn(Lists.newArrayList(d3Node,d4Node));
+        when(a4Node.getChildren()).thenReturn(Lists.newArrayList(d5Node));
+        when(d2Node.getChildren()).thenReturn(Lists.newArrayList());
+        when(d3Node.getChildren()).thenReturn(Lists.newArrayList(d4Node));
+        when(d4Node.getChildren()).thenReturn(Lists.newArrayList());
+
+
+        ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, root, moduleSlimConfig,
+                null, null));
+        Set<Artifact> res = strategy.getArtifactsToFilterByExcludeConfig(artifacts);
+        assertEquals(7, res.size());
+
+        Set<String> resIdentities = res.stream().map(Artifact::getArtifactId).collect(Collectors.toSet());
+        assertTrue(resIdentities.contains("a1"));
+        assertTrue(resIdentities.contains("a2"));
+        assertTrue(resIdentities.contains("a3"));
+        assertTrue(resIdentities.contains("d1"));
+        assertTrue(resIdentities.contains("d2"));
+        assertTrue(resIdentities.contains("d3"));
+        assertTrue(resIdentities.contains("d4"));
+    }
+
+    private DependencyNode mockNode(Artifact artifact) {
+        DependencyNode node = mock(DependencyNode.class);
+        when(node.getArtifact()).thenReturn(artifact);
+        return node;
+    }
+
+    private Artifact mockArtifact(String groupId, String artifactId, String version, String type,
+                                  String classifier, String scope) {
+        Artifact artifact = mock(Artifact.class);
+        when(artifact.getArtifactId()).thenReturn(artifactId);
+        when(artifact.getGroupId()).thenReturn(groupId);
+        when(artifact.getVersion()).thenReturn(version);
+        when(artifact.getType()).thenReturn(type);
+        when(artifact.getClassifier()).thenReturn(classifier);
+        when(artifact.getScope()).thenReturn(scope);
+        return artifact;
     }
 
     private MavenProject getMockBootstrapProject() throws URISyntaxException {
@@ -250,7 +374,7 @@ public class ModuleSlimStrategyTest {
 
         project.setParent(getRootProject());
 
-        setField("basedir", project, getResourceFile("baseDir"));
+        setField("basedir", project, CommonUtils.getResourceFile("baseDir"));
         return project;
     }
 
@@ -297,6 +421,6 @@ public class ModuleSlimStrategyTest {
     }
 
     private File mockBaseDir() throws URISyntaxException {
-        return getResourceFile("baseDir");
+        return CommonUtils.getResourceFile("baseDir");
     }
 }

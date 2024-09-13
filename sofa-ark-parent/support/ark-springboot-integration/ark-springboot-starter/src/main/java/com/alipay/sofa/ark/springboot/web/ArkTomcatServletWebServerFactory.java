@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.springboot.web;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.service.ArkInject;
@@ -68,28 +69,42 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ROOT_WEB_CONTEXT_PATH;
  */
 public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFactory {
 
-    private static final Charset          DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    private static final Charset  DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
+    private final Object          lock            = new Object();
 
     @ArkInject
-    private EmbeddedServerService<Tomcat> embeddedServerService;
+    private EmbeddedServerService embeddedServerService;
 
     @ArkInject
-    private BizManagerService             bizManagerService;
+    private BizManagerService     bizManagerService;
 
-    private File                          baseDirectory;
+    private File                  baseDirectory;
 
-    private String                        protocol        = DEFAULT_PROTOCOL;
+    private String                protocol        = DEFAULT_PROTOCOL;
 
-    private int                           backgroundProcessorDelay;
+    private int                   backgroundProcessorDelay;
 
     @Override
     public WebServer getWebServer(ServletContextInitializer... initializers) {
-        if (embeddedServerService == null) {
-            return super.getWebServer(initializers);
-        } else if (embeddedServerService.getEmbedServer() == null) {
-            embeddedServerService.setEmbedServer(initEmbedTomcat());
+        if (embeddedServerService == null && ArkClient.getInjectionService() != null) {
+            // 非应用上下文 (例如: Spring Management Context) 没有经历 Start 生命周期, 不会被注入 ArkServiceInjectProcessor,
+            // 因此 @ArkInject 没有被处理, 需要手动处理
+            ArkClient.getInjectionService().inject(this);
         }
-        Tomcat embedTomcat = embeddedServerService.getEmbedServer();
+        if (embeddedServerService == null) {
+            // 原有的逻辑中也有这个空值判断, 不确定注入后是否还会有用例会导致 embeddedServerService 为空
+            // 因此仍保留此 if 空值判断
+            return super.getWebServer(initializers);
+        }
+        if (embeddedServerService.getEmbedServer(getPort()) == null) {
+            synchronized (lock) {
+                if (embeddedServerService.getEmbedServer(getPort()) == null) {
+                    embeddedServerService.putEmbedServer(getPort(), initEmbedTomcat());
+                }
+            }
+        }
+        Tomcat embedTomcat = (Tomcat) embeddedServerService.getEmbedServer(getPort());
         prepareContext(embedTomcat.getHost(), initializers);
         return getWebServer(embedTomcat);
     }
@@ -137,6 +152,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
 
     /**
      * The Tomcat protocol to use when create the {@link Connector}.
+     *
      * @param protocol the protocol
      * @see Connector#Connector(String)
      */
@@ -208,6 +224,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
     /**
      * Override Tomcat's default locale mappings to align with other servers. See
      * {@code org.apache.catalina.util.CharsetMapperDefault.properties}.
+     *
      * @param context the context to reset
      */
     private void resetDefaultLocaleMapping(StandardContext context) {
@@ -324,6 +341,7 @@ public class ArkTomcatServletWebServerFactory extends TomcatServletWebServerFact
      * Factory method called to create the {@link TomcatWebServer}. Subclasses can
      * override this method to return a different {@link TomcatWebServer} or apply
      * additional processing to the Tomcat server.
+     *
      * @param tomcat the Tomcat server.
      * @return a new {@link TomcatWebServer} instance
      */
