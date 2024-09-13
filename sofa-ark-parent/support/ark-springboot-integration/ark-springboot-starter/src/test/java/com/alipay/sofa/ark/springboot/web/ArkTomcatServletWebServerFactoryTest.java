@@ -19,10 +19,7 @@ package com.alipay.sofa.ark.springboot.web;
 import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
-import com.alipay.sofa.ark.spi.registry.ServiceReference;
-import com.alipay.sofa.ark.spi.service.ArkInject;
-import com.alipay.sofa.ark.spi.service.registry.RegistryService;
-import com.alipay.sofa.ark.spi.web.EmbeddedServerService;
+import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory.StaticResourceConfigurer;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -52,48 +49,25 @@ public class ArkTomcatServletWebServerFactoryTest {
     private ArkTomcatServletWebServerFactory arkTomcatServletWebServerFactory = new ArkTomcatServletWebServerFactory();
 
     private ClassLoader                      currentThreadContextClassLoader;
+    private InjectionService                 injectionService;
 
     @Before
     public void setUp() {
+        injectionService = ArkClient.getInjectionService();
+        ArkClient.setInjectionService(null);
         currentThreadContextClassLoader = currentThread().getContextClassLoader();
     }
 
     @After
     public void tearDown() {
+        ArkClient.setInjectionService(injectionService);
         currentThread().setContextClassLoader(currentThreadContextClassLoader);
-    }
-
-    private static class RegistryServiceHolder {
-        @ArkInject
-        private RegistryService registryService;
-
-        public RegistryService getRegistryService() {
-            return registryService;
-        }
-
     }
 
     @Test
     public void testGetWebServerWithEmbeddedServerServiceNull() {
-        ServiceReference<EmbeddedServerService> reference = null;
-        RegistryServiceHolder holder = null;
-        if (ArkClient.getInjectionService() != null) {
-            holder = new RegistryServiceHolder();
-            ArkClient.getInjectionService().inject(holder);
-            if (holder.getRegistryService() != null) {
-                ServiceReference<EmbeddedServerService> ref = holder.getRegistryService().referenceService(EmbeddedServerService.class);
-                holder.getRegistryService().unPublishServices(svc -> svc == ref);
-                reference = ref;
-            }
-        }
-        try {
-            assertEquals(TomcatWebServer.class, arkTomcatServletWebServerFactory.getWebServer()
-                    .getClass());
-        } finally {
-            if (reference != null) {
-                holder.getRegistryService().publishService(EmbeddedServerService.class, reference.getService(), reference.getServiceMetadata().getUniqueId(), reference.getServiceMetadata().getServiceProvider());
-            }
-        }
+        assertEquals(TomcatWebServer.class, arkTomcatServletWebServerFactory.getWebServer()
+            .getClass());
     }
 
     @Test
