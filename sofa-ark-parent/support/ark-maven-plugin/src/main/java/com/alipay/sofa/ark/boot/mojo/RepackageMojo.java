@@ -17,7 +17,6 @@
 package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.boot.mojo.model.ArkConfigHolder;
-import com.alipay.sofa.ark.common.util.AssertUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.alipay.sofa.ark.tools.Libraries;
 import com.alipay.sofa.ark.tools.Repackager;
@@ -107,6 +106,10 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "${project.basedir}", required = true)
     private File                   baseDir;
 
+    /**
+     * Deprecated by the default conf/ark/bootstrap.properties or conf/ark/bootstrap.yml
+     */
+    @Deprecated
     @Parameter(defaultValue = "", required = false)
     private String                 packExcludesConfig;
 
@@ -543,6 +546,10 @@ public class RepackageMojo extends TreeMojo {
 
     private Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException,
                                                MojoFailureException {
+        if (StringUtils.endsWithAny(packExcludesConfig, ".yml", ".properties")) {
+            throw new MojoExecutionException(
+                "not support packExcludesConfig of .yml or .properties in sofa-ark-maven-plugin, please using default conf/ark/bootstrap.yml or conf/ark/bootstrap.properties");
+        }
         ModuleSlimConfig moduleSlimConfig = (new ModuleSlimConfig())
             .setPackExcludesConfig(packExcludesConfig).setPackExcludesUrl(packExcludesUrl)
             .setExcludes(excludes).setExcludeGroupIds(excludeGroupIds)
