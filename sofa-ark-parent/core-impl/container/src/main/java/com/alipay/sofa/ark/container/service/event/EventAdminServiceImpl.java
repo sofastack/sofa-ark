@@ -19,7 +19,7 @@ package com.alipay.sofa.ark.container.service.event;
 import com.alipay.sofa.ark.common.log.ArkLoggerFactory;
 import com.alipay.sofa.ark.common.util.OrderComparator;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
-import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
 import com.alipay.sofa.ark.spi.registry.ServiceReference;
 import com.alipay.sofa.ark.spi.service.PriorityOrdered;
@@ -112,8 +112,8 @@ public class EventAdminServiceImpl implements EventAdminService, EventHandler {
     public void handleEvent(ArkEvent event) {
         ClassLoader classLoader = null;
 
-        if (event instanceof BeforeBizRecycleEvent) {
-            classLoader = ((BeforeBizRecycleEvent) event).getSource().getBizClassLoader();
+        if (event instanceof AfterBizStopEvent) {
+            classLoader = ((AfterBizStopEvent) event).getSource().getBizClassLoader();
         } else if (event instanceof AfterPluginStopEvent) {
             classLoader = ((AfterPluginStopEvent) event).getSource().getPluginClassLoader();
         }

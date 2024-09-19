@@ -415,8 +415,8 @@ public class BizModel implements Biz {
             classLoader = null;
             recycleBizTempWorkDir(bizTempWorkDir);
             bizTempWorkDir = null;
-            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
     }
 
