@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -393,32 +394,34 @@ public class BizModel implements Biz {
             ArkLoggerFactory.getDefaultLogger().info("Ark biz {} stopped in {} ms", getIdentity(),
                 (System.currentTimeMillis() - start));
         } finally {
-            BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
-                .getService(BizManagerService.class);
-            bizManagerService.unRegisterBiz(bizName, bizVersion);
-            setBizState(BizState.UNRESOLVED, StateChangeReason.STOPPED);
-            eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
-            urls = null;
-            denyImportPackages = null;
-            denyImportClasses = null;
-            denyImportResources = null;
-            // close classloader
-            if (classLoader instanceof AbstractClasspathClassLoader) {
-                try {
-                    ((AbstractClasspathClassLoader) classLoader).close();
-                    ((AbstractClasspathClassLoader) classLoader).clearCache();
-                } catch (IOException e) {
-                    ArkLoggerFactory.getDefaultLogger().warn(
-                        "Ark biz {} close biz classloader fail", getIdentity());
+            boolean autoUninstall = Boolean.parseBoolean(ArkConfigs.getStringValue(
+                AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true"));
+            if (!autoUninstall) {
+                BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
+                    .getService(BizManagerService.class);
+                bizManagerService.unRegisterBiz(bizName, bizVersion);
+                setBizState(BizState.UNRESOLVED, StateChangeReason.STOPPED);
+                eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
+                urls = null;
+                denyImportPackages = null;
+                denyImportClasses = null;
+                denyImportResources = null;
+                // close classloader
+                if (classLoader instanceof AbstractClasspathClassLoader) {
+                    try {
+                        ((AbstractClasspathClassLoader) classLoader).close();
+                        ((AbstractClasspathClassLoader) classLoader).clearCache();
+                    } catch (IOException e) {
+                        ArkLoggerFactory.getDefaultLogger().warn(
+                            "Ark biz {} close biz classloader fail", getIdentity());
+                    }
                 }
+    eventAdminService.sendEvent(new AfterBizStopEvent(this));
+            eventAdminService.unRegister(classLoader);            classLoader = null;
+                recycleBizTempWorkDir(bizTempWorkDir);
+                bizTempWorkDir = null;
+                ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
-
-            eventAdminService.sendEvent(new AfterBizStopEvent(this));
-            eventAdminService.unRegister(classLoader);
-            classLoader = null;
-            recycleBizTempWorkDir(bizTempWorkDir);
-            bizTempWorkDir = null;
-            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
     }
 

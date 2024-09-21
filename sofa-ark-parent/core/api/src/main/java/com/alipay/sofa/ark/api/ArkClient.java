@@ -36,7 +36,6 @@ import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
-import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 
 import java.io.File;
 import java.io.InputStream;
@@ -47,6 +46,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 
 /**
  * API used to operate biz
@@ -257,7 +258,11 @@ public class ArkClient {
                     throwable);
                 throw throwable;
             } finally {
-                bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
+                boolean autoUninstall = Boolean.parseBoolean(ArkConfigs.getStringValue(
+                    AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true"));
+                if (!autoUninstall) {
+                    bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
+                }
             }
             response.setCode(ResponseCode.SUCCESS).setMessage(
                 String.format("Uninstall biz: %s success.", biz.getIdentity()));
