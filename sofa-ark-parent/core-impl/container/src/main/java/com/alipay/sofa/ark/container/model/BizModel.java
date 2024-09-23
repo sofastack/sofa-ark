@@ -30,9 +30,10 @@ import com.alipay.sofa.ark.container.service.classloader.AbstractClasspathClassL
 import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.jar.JarUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.biz.AfterBizFailedEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStartupFailedEvent;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.AfterBizStopFailedEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
@@ -55,8 +56,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
+import static com.alipay.sofa.ark.spi.constant.Constants.REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 /**
@@ -341,8 +342,8 @@ public class BizModel implements Biz {
                     getIdentity(), (System.currentTimeMillis() - start));
             }
         } catch (Throwable e) {
-            setBizState(BizState.BROKEN, StateChangeReason.FAILED, e.getMessage());
-            eventAdminService.sendEvent(new AfterBizFailedEvent(this, e));
+            setBizState(BizState.BROKEN, StateChangeReason.INSTALL_FAILED, e.getMessage());
+            eventAdminService.sendEvent(new AfterBizStartupFailedEvent(this, e));
             throw e;
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
@@ -386,17 +387,29 @@ public class BizModel implements Biz {
         }
         EventAdminService eventAdminService = ArkServiceContainerHolder.getContainer().getService(
             EventAdminService.class);
+
+        boolean isStopFailed = false;
+        long start = System.currentTimeMillis();
         try {
             // this can trigger uninstall handler
-            long start = System.currentTimeMillis();
             ArkLoggerFactory.getDefaultLogger().info("Ark biz {} stops.", getIdentity());
             eventAdminService.sendEvent(new BeforeBizStopEvent(this));
             ArkLoggerFactory.getDefaultLogger().info("Ark biz {} stopped in {} ms", getIdentity(),
                 (System.currentTimeMillis() - start));
+        } catch (Throwable t) {
+            // handle stop failed
+            ArkLoggerFactory.getDefaultLogger().info("Ark biz {} stop failed in {} ms",
+                getIdentity(), (System.currentTimeMillis() - start));
+            isStopFailed = true;
+            setBizState(BizState.BROKEN, StateChangeReason.UN_INSTALL_FAILED);
+            eventAdminService.sendEvent(new AfterBizStopFailedEvent(this, t));
+            throw t;
         } finally {
-            boolean autoUninstall = Boolean.parseBoolean(ArkConfigs.getStringValue(
-                AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true"));
-            if (!autoUninstall) {
+            boolean removeInstanceAfterStopFailed = Boolean.parseBoolean(ArkConfigs.getStringValue(
+                REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED, "true"));
+            // 只有成功后才清理, 或者失败后允许清理的情况，失败后如果不允许情况则不执行清理
+
+            if (!isStopFailed || (isStopFailed && removeInstanceAfterStopFailed)) {
                 BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                     .getService(BizManagerService.class);
                 bizManagerService.unRegisterBiz(bizName, bizVersion);
@@ -422,6 +435,7 @@ public class BizModel implements Biz {
                 bizTempWorkDir = null;
                 ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
+            ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
     }
 

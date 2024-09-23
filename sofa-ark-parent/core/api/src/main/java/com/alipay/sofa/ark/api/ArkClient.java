@@ -213,12 +213,13 @@ public class ArkClient {
                 AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true"));
             if (autoUninstall) {
                 try {
+                    getLogger().error(
+                        String.format("Start Biz: %s failed, try to unInstall this biz.",
+                            biz.getIdentity()));
                     biz.stop();
                 } catch (Throwable e) {
                     getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()),
                         e);
-                } finally {
-                    bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
                 }
             }
             throw throwable;
@@ -257,12 +258,6 @@ public class ArkClient {
                 getLogger().error(String.format("UnInstall Biz: %s fail.", biz.getIdentity()),
                     throwable);
                 throw throwable;
-            } finally {
-                boolean autoUninstall = Boolean.parseBoolean(ArkConfigs.getStringValue(
-                    AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true"));
-                if (!autoUninstall) {
-                    bizManagerService.unRegisterBizStrictly(biz.getBizName(), biz.getBizVersion());
-                }
             }
             response.setCode(ResponseCode.SUCCESS).setMessage(
                 String.format("Uninstall biz: %s success.", biz.getIdentity()));

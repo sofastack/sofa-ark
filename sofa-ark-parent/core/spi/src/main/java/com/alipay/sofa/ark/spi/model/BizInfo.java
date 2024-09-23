@@ -185,7 +185,12 @@ public interface BizInfo {
         /**
          * 模块启动失败
          */
-        FAILED("Failed"),
+        INSTALL_FAILED("Install Failed"),
+
+        /**
+         * 模块卸载失败
+         */
+        UN_INSTALL_FAILED("Uninstall Failed"),
 
         /**
          * 模块被切换为 ACTIVATED 或 DEACTIVATED 状态
