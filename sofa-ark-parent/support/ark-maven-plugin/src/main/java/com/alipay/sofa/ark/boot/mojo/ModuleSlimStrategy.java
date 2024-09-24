@@ -34,6 +34,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,9 +51,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
+import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getBooleanWithDefault;
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_BASE_DIR;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_ARTIFACTIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTIFACTIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -61,24 +69,31 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTI
 
 public class ModuleSlimStrategy {
     private MavenProject        project;
+
+    private DependencyNode      projDependencyGraph;
     private ModuleSlimConfig    config;
 
     private Log                 log;
 
     private File                baseDir;
 
-    private static final String DEFAULT_EXCLUDE_RULES = "rules.txt";
+    private static final String EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES = "excludeWithIndirectDependencies";
 
-    ModuleSlimStrategy(MavenProject project, ModuleSlimConfig config, File baseDir, Log log) {
+    private static final String DEFAULT_EXCLUDE_RULES                        = "rules.txt";
+
+    ModuleSlimStrategy(MavenProject project, DependencyNode projDependencyGraph,
+                       ModuleSlimConfig config, File baseDir, Log log) {
         this.project = project;
+        this.projDependencyGraph = projDependencyGraph;
         this.config = config;
         this.baseDir = baseDir;
         this.log = log;
     }
 
     public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
+        initSlimStrategyConfig();
         Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
-        initExcludeAndIncludeConfig(toFilterByBase);
+
         Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project
             .getArtifacts());
         Set<Artifact> toAddByInclude = getArtifactsToAddByIncludeConfig(project.getArtifacts());
@@ -119,8 +134,7 @@ public class ModuleSlimStrategy {
     private Model getBaseDependencyParentOriginalModel() {
         MavenProject proj = project;
         while (null != proj) {
-            if (getArtifactIdentity(proj.getArtifact()).equals(
-                config.getBaseDependencyParentIdentity())) {
+            if (getGAVIdentity(proj.getArtifact()).equals(config.getBaseDependencyParentIdentity())) {
                 return proj.getOriginalModel();
             }
             proj = proj.getParent();
@@ -128,13 +142,19 @@ public class ModuleSlimStrategy {
         return null;
     }
 
-    private String getArtifactIdentity(Artifact artifact) {
+    private String getGAVIdentity(Artifact artifact) {
+        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+               + artifact.getBaseVersion();
+    }
+
+    protected String getArtifactIdentity(Artifact artifact) {
         if (artifact.hasClassifier()) {
             return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-                   + artifact.getBaseVersion() + STRING_COLON + artifact.getClassifier();
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getClassifier()
+                   + STRING_COLON + artifact.getType();
         } else {
             return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-                   + artifact.getBaseVersion();
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getType();
         }
 
     }
@@ -143,14 +163,32 @@ public class ModuleSlimStrategy {
         if (StringUtils.isNotEmpty(dependency.getClassifier())) {
             return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
                    + STRING_COLON + dependency.getVersion() + STRING_COLON
-                   + dependency.getClassifier();
+                   + dependency.getClassifier() + STRING_COLON + dependency.getType();
         } else {
             return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
-                   + STRING_COLON + dependency.getVersion();
+                   + STRING_COLON + dependency.getVersion() + STRING_COLON + dependency.getType();
         }
     }
 
-    protected void initExcludeAndIncludeConfig(Set<Artifact> artifacts) throws IOException {
+    protected void initSlimStrategyConfig() throws IOException {
+        Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
+        Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
+        config.setExcludeWithIndirectDependencies(getBooleanWithDefault(prop,
+            EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
+        config.setExcludeWithIndirectDependencies(getBooleanWithDefault(arkYaml,
+            EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
+
+        initExcludeAndIncludeConfig();
+    }
+
+    /**
+     * exclude and include config comes from 3 parts:
+     * 1. extension from config file that configured by user in sofa-ark-maven-plugin
+     * 2. extension from default bootstrap.properties or bootstrap.yml
+     * 3. extension from url
+     * @throws IOException
+     */
+    protected void initExcludeAndIncludeConfig() throws IOException {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
             extensionExcludeAndIncludeArtifacts(baseDir + File.separator + ARK_CONF_BASE_DIR
@@ -160,15 +198,70 @@ public class ModuleSlimStrategy {
                                                 + File.separator + DEFAULT_EXCLUDE_RULES);
         }
 
+        // extension from default bootstrap.properties or bootstrap.yml
         configExcludeArtifactsByDefault();
 
         // extension from url
         if (StringUtils.isNotBlank(config.getPackExcludesUrl())) {
-            extensionExcludeArtifactsFromUrl(config.getPackExcludesUrl(), artifacts);
+            extensionExcludeArtifactsFromUrl(config.getPackExcludesUrl(), project.getArtifacts());
         }
     }
 
     protected Set<Artifact> getArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
+        Set<Artifact> literalArtifactsToExclude = getLiteralArtifactsToFilterByExcludeConfig(artifacts);
+        if (config.isExcludeWithIndirectDependencies()) {
+            return excludeWithIndirectDependencies(literalArtifactsToExclude, artifacts);
+        }
+        return literalArtifactsToExclude;
+    }
+
+    private Set<Artifact> excludeWithIndirectDependencies(Set<Artifact> literalArtifactsToExclude, Set<Artifact> artifacts) {
+        Set<String> excludeArtifactIdentities = literalArtifactsToExclude.stream().map(this::getArtifactIdentity).collect(Collectors.toSet());
+        Map<String,Artifact> artifactMap = artifacts.stream().collect(Collectors.toMap(this::getArtifactIdentity,it->it));
+        return getExcludeWithIndirectDependencies(projDependencyGraph,excludeArtifactIdentities,artifactMap);
+    }
+
+    private Set<Artifact> getExcludeWithIndirectDependencies(DependencyNode node,
+                                                             Set<String> literalArtifactsToExclude,
+                                                             Map<String, Artifact> artifacts) {
+        if (null == node) {
+            return Collections.emptySet();
+        }
+
+        Set<Artifact> result = new LinkedHashSet<>();
+
+        String artifactIdentity = getArtifactIdentity(node.getArtifact());
+        if (literalArtifactsToExclude.contains(artifactIdentity)) {
+            // 排除当前依赖
+            result.add(artifacts.get(artifactIdentity));
+
+            // 排除当前依赖的所有依赖
+            result.addAll(getAllDependencies(node, artifacts));
+            return result;
+        }
+
+        for (DependencyNode child : node.getChildren()) {
+            result.addAll(getExcludeWithIndirectDependencies(child, literalArtifactsToExclude,
+                artifacts));
+        }
+
+        return result;
+    }
+
+    private Set<Artifact> getAllDependencies(DependencyNode node, Map<String, Artifact> artifacts) {
+        if (null == node) {
+            return Collections.emptySet();
+        }
+
+        Set<Artifact> result = new HashSet<>();
+        for (DependencyNode child : node.getChildren()) {
+            result.add(artifacts.get(getArtifactIdentity(child.getArtifact())));
+            result.addAll(getAllDependencies(child, artifacts));
+        }
+        return result;
+    }
+
+    protected Set<Artifact> getLiteralArtifactsToFilterByExcludeConfig(Set<Artifact> artifacts) {
         List<ArtifactItem> excludeList = new ArrayList<>();
         if (config != null
             && (config.getExcludes().contains("*") || config.getExcludes().contains(".*"))) {

@@ -175,6 +175,7 @@ public class Constants {
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START        = "AFTER-INVOKE-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP         = "AFTER-INVOKE-BIZ-STOP";
     public final static String       BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED              = "BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED";
+
     public final static String       BIZ_EVENT_TOPIC_BEFORE_RECYCLE_BIZ            = "BEFORE-RECYCLE-BIZ";
     public final static String       BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_START       = "BEFORE-INVOKE-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_STOP        = "BEFORE-INVOKE-BIZ-STOP";

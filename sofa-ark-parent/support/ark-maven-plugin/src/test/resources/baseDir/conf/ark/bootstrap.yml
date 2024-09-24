@@ -16,3 +16,5 @@ declared:
     whitelist:
       - com.ark.yml:ark-common-yml
       - com.biz.yml:biz-common-yml
+
+excludeWithIndirectDependencies: false
