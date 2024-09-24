@@ -186,7 +186,8 @@ public class ArkClientTest extends BaseTest {
         assertEquals("AFTER-INVOKE-BIZ-START", topicList.get(2));
         // new event
         assertEquals("BEFORE-RECYCLE-BIZ", topicList.get(4));
-        assertEquals("demo", topicList.get(7));
+        assertEquals("CLEAN-AFTER-INVOKE-BIZ-STOP", topicList.get(6));
+        assertEquals("demo", topicList.get(8));
     }
 
     @Test
