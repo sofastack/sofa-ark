@@ -33,8 +33,7 @@ import java.net.URL;
 
 import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
 import static com.alipay.sofa.ark.container.service.ArkServiceContainerHolder.getContainer;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_PLUGIN_MARK_ENTRY;
-import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertNotNull;
 

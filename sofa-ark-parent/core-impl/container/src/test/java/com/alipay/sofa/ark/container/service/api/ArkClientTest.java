@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizConfig;
 import com.alipay.sofa.ark.spi.model.BizInfo;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 import com.alipay.sofa.ark.spi.replay.Replay;
@@ -254,10 +255,10 @@ public class ArkClientTest extends BaseTest {
         setBizFactoryService(bizFactoryServiceMock);
         Biz biz = mock(Biz.class);
         doThrow(new IllegalArgumentException()).when(biz).start(any());
-        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+        when(bizFactoryServiceMock.createBiz((File) any(), (BizConfig) any())).thenReturn(biz);
 
         try {
-            installBiz(bizFile, null);
+            installBiz(bizFile, new BizConfig());
             assertTrue(false);
         } catch (Throwable e) {
             setBizFactoryService(bizFactoryService);
@@ -298,7 +299,7 @@ public class ArkClientTest extends BaseTest {
         when(biz.getBizName()).thenReturn("biz-install-failed-demo");
         when(biz.getBizVersion()).thenReturn("1.0.0");
         doThrow(new IllegalArgumentException()).when(biz).start(any(), any());
-        when(bizFactoryServiceMock.createBiz((File) any())).thenReturn(biz);
+        when(bizFactoryServiceMock.createBiz((File) any(), (BizConfig) any())).thenReturn(biz);
 
         // case1: not set AUTO_UNINSTALL_ENABLE
         try {
@@ -306,7 +307,7 @@ public class ArkClientTest extends BaseTest {
             setBizManagerService(bizManagerServiceMock);
             doThrow(new Exception()).when(biz).stop();
 
-            installBiz(bizFile, null);
+            installBiz(bizFile, new BizConfig());
             assertTrue(false);
         } catch (Throwable e) {
             assertTrue(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
@@ -321,7 +322,7 @@ public class ArkClientTest extends BaseTest {
             setBizFactoryService(bizFactoryServiceMock);
             setBizManagerService(bizManagerServiceMock);
 
-            installBiz(bizFile, null);
+            installBiz(bizFile, new BizConfig());
             assertTrue(false);
         } catch (Throwable e) {
             assertFalse(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
