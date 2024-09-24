@@ -36,6 +36,7 @@ import com.alipay.sofa.ark.spi.event.biz.AfterBizStopEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizRecycleEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStartupEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
+import com.alipay.sofa.ark.spi.event.biz.CleanAfterBizStopEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizState;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -416,6 +417,7 @@ public class BizModel implements Biz {
             recycleBizTempWorkDir(bizTempWorkDir);
             bizTempWorkDir = null;
             eventAdminService.sendEvent(new AfterBizStopEvent(this));
+            eventAdminService.sendEvent(new CleanAfterBizStopEvent(this));
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
     }

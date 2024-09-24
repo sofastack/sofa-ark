@@ -26,6 +26,7 @@ import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStartupEvent;
 import com.alipay.sofa.ark.spi.event.plugin.AfterPluginStopEvent;
 import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStartupEvent;
 import com.alipay.sofa.ark.spi.event.plugin.BeforePluginStopEvent;
+import com.alipay.sofa.ark.spi.event.plugin.CleanAfterPluginStopEvent;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.model.PluginContext;
 import com.alipay.sofa.ark.spi.service.PluginActivator;
@@ -367,6 +368,7 @@ public class PluginModel implements Plugin {
             throw new ArkRuntimeException(ex.getMessage(), ex);
         } finally {
             eventAdminService.sendEvent(new AfterPluginStopEvent(this));
+            eventAdminService.sendEvent(new CleanAfterPluginStopEvent(this));
         }
     }
 
