@@ -429,12 +429,11 @@ public class BizModel implements Biz {
                             "Ark biz {} close biz classloader fail", getIdentity());
                     }
                 }
-    eventAdminService.sendEvent(new AfterBizStopEvent(this));
-            eventAdminService.unRegister(classLoader);            classLoader = null;
+                eventAdminService.sendEvent(new AfterBizStopEvent(this));
+                eventAdminService.unRegister(classLoader);
+                classLoader = null;
                 recycleBizTempWorkDir(bizTempWorkDir);
                 bizTempWorkDir = null;
-
-                ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
