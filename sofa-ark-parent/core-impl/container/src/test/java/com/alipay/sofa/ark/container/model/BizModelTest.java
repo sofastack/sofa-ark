@@ -56,7 +56,7 @@ public class BizModelTest {
 
         BizModel bizModel = new BizModel();
         assertEquals(new HashSet(), bizModel.setAttribute("a", "b").setAttributes(new HashMap<>())
-                .getInjectExportPackages());
+            .getInjectExportPackages());
         assertEquals(new HashSet(), bizModel.getInjectPluginDependencies());
         bizModel.setCustomBizName("abc");
         assertNotNull(bizModel.getAttributes());
@@ -65,8 +65,8 @@ public class BizModelTest {
 
         bizModel.setPluginClassPath(new URL[] { new URL("file://b/a.jar!/") });
         assertTrue(bizModel.doCheckDeclared("file://b/a.jar!/b.jar"));
-        assertTrue(bizModel.doCheckDeclared(
-                this.getClass().getClassLoader().getResource("test.jar").getPath()));
+        assertTrue(bizModel.doCheckDeclared(this.getClass().getClassLoader()
+            .getResource("test.jar").getPath()));
     }
 
     @Test

@@ -433,6 +433,7 @@ public class BizModel implements Biz {
             eventAdminService.unRegister(classLoader);            classLoader = null;
                 recycleBizTempWorkDir(bizTempWorkDir);
                 bizTempWorkDir = null;
+
                 ClassLoaderUtils.popContextClassLoader(oldClassLoader);
             }
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
