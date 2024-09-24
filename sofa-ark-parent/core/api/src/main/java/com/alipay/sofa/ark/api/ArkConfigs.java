@@ -168,7 +168,7 @@ public class ArkConfigs {
         System.setProperty(Constants.EMBED_STATIC_BIZ_ENABLE, enable ? "true" : "false");
     }
 
-    public static boolean areAllPluginsVisibleForBiz() {
-        return Boolean.getBoolean(Constants.ALL_PLUGINS_VISIBLE_FOR_BIZ);
+    public static boolean isBizSpecifyDependentPluginsEnable() {
+        return Boolean.getBoolean(Constants.BIZ_SPECIFY_DEPENDENT_PLUGINS_ENABLE);
     }
 }

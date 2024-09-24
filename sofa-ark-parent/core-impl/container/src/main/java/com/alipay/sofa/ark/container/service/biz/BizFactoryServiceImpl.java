@@ -37,11 +37,9 @@ import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.codehaus.plexus.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -216,13 +214,15 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     private void resolveExportMapIfNecessary(BizModel bizModel, List<String> dependentPlugins) {
         Set<Plugin> plugins = new HashSet<>();
-        if (ArkConfigs.areAllPluginsVisibleForBiz()) {
-            plugins.addAll(pluginManagerService.getPluginsInOrder());
-        } else if (dependentPlugins != null && !dependentPlugins.isEmpty()) {
-            for (String pluginName : dependentPlugins) {
-                Plugin plugin = pluginManagerService.getPluginByName(pluginName);
-                plugins.add(plugin);
+        if (ArkConfigs.isBizSpecifyDependentPluginsEnable()) {
+            if (dependentPlugins != null && !dependentPlugins.isEmpty()) {
+                for (String pluginName : dependentPlugins) {
+                    Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+                    plugins.add(plugin);
+                }
             }
+        } else {
+            plugins.addAll(pluginManagerService.getPluginsInOrder());
         }
 
         bizModel.setDependentPlugins(plugins);

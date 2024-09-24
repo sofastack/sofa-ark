@@ -68,7 +68,6 @@ public class BizFactoryServiceTest extends BaseTest {
         Plugin plugin = pluginFactoryService.createPlugin(FileUtils.file(samplePlugin.getFile()));
         pluginManagerService.registerPlugin(plugin);
 
-        System.setProperty(ALL_PLUGINS_VISIBLE_FOR_BIZ, Boolean.TRUE.toString());
         URL sampleBiz = cl.getResource("sample-biz.jar");
         Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
         bizManagerService.registerBiz(biz);
