@@ -284,7 +284,7 @@ public class BizFactoryServiceImpl implements BizFactoryService {
 
     private URL[] getPluginURLs(BizModel bizModel) {
         List<URL> pluginUrls = new ArrayList<>();
-        for (Plugin plugin :  bizModel.getDependentPlugins()) {
+        for (Plugin plugin : bizModel.getDependentPlugins()) {
             pluginUrls.add(plugin.getPluginURL());
         }
         return pluginUrls.toArray(new URL[pluginUrls.size()]);

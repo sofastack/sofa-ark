@@ -90,12 +90,12 @@ public class ArkApplicationStartListener implements ApplicationListener<SpringAp
             return true;
         }
         if (SPRING_BOOT_LOADER_CLASS != null
-                && SPRING_BOOT_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
+            && SPRING_BOOT_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
                 .getClass())) {
             return true;
         }
         if (SPRING_BOOT_NEW_LOADER_CLASS != null
-                && SPRING_BOOT_NEW_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
+            && SPRING_BOOT_NEW_LOADER_CLASS.isAssignableFrom(this.getClass().getClassLoader()
                 .getClass())) {
             return true;
         }
