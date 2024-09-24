@@ -16,9 +16,18 @@
  */
 package com.alipay.sofa.ark.container.model;
 
+import com.alipay.sofa.ark.api.ArkConfigs;
+import com.alipay.sofa.ark.container.service.ArkServiceContainer;
+import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
+import com.alipay.sofa.ark.container.service.event.EventAdminServiceImpl;
+import com.alipay.sofa.ark.spi.event.biz.BeforeBizStopEvent;
 import com.alipay.sofa.ark.spi.model.BizInfo.BizStateRecord;
 import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
+import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -27,11 +36,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.alipay.sofa.ark.api.ArkConfigs.getStringValue;
-import static com.alipay.sofa.ark.api.ArkConfigs.init;
-import static java.util.Arrays.asList;
+import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED;
 import static org.apache.commons.io.FileUtils.touch;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BizModelTest {
 
@@ -107,5 +123,87 @@ public class BizModelTest {
         assertTrue(BizModel.recycleBizTempWorkDir(fileDir));
         assertFalse(fileDir.exists());
         assertFalse(fileSubFile.exists());
+    }
+
+    @Test
+    public void testStopFailedWithClean() {
+        BizModel bizModel = new BizModel();
+        bizModel.setBizName("biz1");
+        bizModel.setBizVersion("0.0.1-SNAPSHOT");
+        bizModel.setBizState(BizState.ACTIVATED);
+
+        try (MockedStatic<ArkServiceContainerHolder> mockedStatic = Mockito.mockStatic(ArkServiceContainerHolder.class)) {
+            EventAdminService eventAdminService = mock(EventAdminServiceImpl.class);
+            BizManagerService bizManagerService = mock(BizManagerService.class);
+
+            ArkServiceContainer arkServiceContainer = mock(ArkServiceContainer.class);
+            doThrow(new RuntimeException()).when(eventAdminService).sendEvent(any(BeforeBizStopEvent.class));
+            when(arkServiceContainer.getService(EventAdminService.class)).thenReturn(eventAdminService);
+            when(arkServiceContainer.getService(BizManagerService.class)).thenReturn(bizManagerService);
+            mockedStatic.when(ArkServiceContainerHolder::getContainer).thenReturn(arkServiceContainer);
+            try {
+                bizModel.stop();
+            } catch (RuntimeException e) {
+            }
+            assertEquals(BizState.UNRESOLVED, bizModel.getBizState());
+        }
+
+        bizModel.setBizState(BizState.ACTIVATED);
+        try (MockedStatic<ArkServiceContainerHolder> mockedStatic = Mockito.mockStatic(ArkServiceContainerHolder.class)) {
+            ArkConfigs.putStringValue(REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED, "false");
+            EventAdminService eventAdminService = mock(EventAdminServiceImpl.class);
+            BizManagerService bizManagerService = mock(BizManagerService.class);
+
+            ArkServiceContainer arkServiceContainer = mock(ArkServiceContainer.class);
+            doThrow(new RuntimeException()).when(eventAdminService).sendEvent(any(BeforeBizStopEvent.class));
+            when(arkServiceContainer.getService(EventAdminService.class)).thenReturn(eventAdminService);
+            when(arkServiceContainer.getService(BizManagerService.class)).thenReturn(bizManagerService);
+            mockedStatic.when(ArkServiceContainerHolder::getContainer).thenReturn(arkServiceContainer);
+            try {
+                bizModel.stop();
+            } catch (RuntimeException e) {
+            }
+            assertEquals(BizState.BROKEN, bizModel.getBizState());
+        } finally {
+            ArkConfigs.putStringValue(REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED, "true");
+        }
+    }
+
+    @Test
+    public void testStopSucceedWithClean() {
+        BizModel bizModel = new BizModel();
+        bizModel.setBizName("biz1");
+        bizModel.setBizVersion("0.0.1-SNAPSHOT");
+        bizModel.setBizState(BizState.ACTIVATED);
+
+        try (MockedStatic<ArkServiceContainerHolder> mockedStatic = Mockito.mockStatic(ArkServiceContainerHolder.class)) {
+            EventAdminService eventAdminService = mock(EventAdminService.class);
+            BizManagerService bizManagerService = mock(BizManagerService.class);
+
+            ArkServiceContainer arkServiceContainer = mock(ArkServiceContainer.class);
+            when(arkServiceContainer.getService(EventAdminService.class)).thenReturn(eventAdminService);
+            when(arkServiceContainer.getService(BizManagerService.class)).thenReturn(bizManagerService);
+            mockedStatic.when(ArkServiceContainerHolder::getContainer).thenReturn(arkServiceContainer);
+            bizModel.stop();
+
+            assertEquals(BizState.UNRESOLVED, bizModel.getBizState());
+        }
+
+        bizModel.setBizState(BizState.ACTIVATED);
+        try (MockedStatic<ArkServiceContainerHolder> mockedStatic = Mockito.mockStatic(ArkServiceContainerHolder.class)) {
+            ArkConfigs.putStringValue(REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED, "false");
+            EventAdminService eventAdminService = mock(EventAdminService.class);
+            BizManagerService bizManagerService = mock(BizManagerService.class);
+
+            ArkServiceContainer arkServiceContainer = mock(ArkServiceContainer.class);
+            when(arkServiceContainer.getService(EventAdminService.class)).thenReturn(eventAdminService);
+            when(arkServiceContainer.getService(BizManagerService.class)).thenReturn(bizManagerService);
+            mockedStatic.when(ArkServiceContainerHolder::getContainer).thenReturn(arkServiceContainer);
+            bizModel.stop();
+
+            assertEquals(BizState.UNRESOLVED, bizModel.getBizState());
+        } finally {
+            ArkConfigs.putStringValue(AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true");
+        }
     }
 }

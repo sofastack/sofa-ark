@@ -172,8 +172,9 @@ public class Constants {
      * Event
      */
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START        = "AFTER-INVOKE-BIZ-START";
-    public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP         = "AFTER-INVOKE-BIZ-STOP";
     public final static String       BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED              = "BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED";
+    public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP         = "AFTER-INVOKE-BIZ-STOP";
+    public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP_FAILED  = "AFTER-INVOKE-BIZ-STOP-FAILED";
 
     public final static String       BIZ_EVENT_TOPIC_BEFORE_RECYCLE_BIZ            = "BEFORE-RECYCLE-BIZ";
     public final static String       BIZ_EVENT_TOPIC_BEFORE_INVOKE_BIZ_START       = "BEFORE-INVOKE-BIZ-START";
@@ -203,7 +204,14 @@ public class Constants {
     public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
 
+    /**
+     * uninstall the biz if it starts up failed
+     */
     public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
+    /**
+     * auto remove the biz instance in BizManagerService if it stops failed
+     */
+    public final static String       REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED         = "sofa.ark.remove.biz.instance.when.stop.failed.enable";
 
     /**
      * Command Provider
