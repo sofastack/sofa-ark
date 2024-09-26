@@ -41,10 +41,10 @@ public class ArkPluginJarTask extends Jar {
 
     private final ArkPluginExtension arkPluginExtension;
 
-    private Set<ExcludeRule> excludeRules = new HashSet<>();
-
     private final Set<ResolvedArtifact> filteredArtifacts;
     private final Set<ResolvedArtifact> conflictArtifacts;
+
+    private final Set<File> shadeFiles = new HashSet<>();
 
     public ArkPluginJarTask(){
         super();
@@ -52,10 +52,7 @@ public class ArkPluginJarTask extends Jar {
         arkPluginExtension = project.getExtensions().findByType(ArkPluginExtension.class);
 
         configureDestination();
-        getArchiveFileName().set(project.provider(() -> {
-            String pluginName = arkPluginExtension.getPluginName().get();
-            return pluginName + ".jar";
-        }));
+        configurePluginJar();
 
         from(project.getTasks().getByName("classes"));
 
@@ -72,40 +69,22 @@ public class ArkPluginJarTask extends Jar {
         addArkPluginMark();
     }
 
+    private void configurePluginJar(){
+        getArchiveFileName().set(getProject().provider(() -> {
+            String pluginName = arkPluginExtension.getPluginName().get();
+            return pluginName + ".jar";
+        }));
+    }
+
     private void configureArtifacts() {
         into("lib", copySpec -> {
-            copySpec.from(getProject().provider(this::getArtifactFiles));
+                copySpec.from(getProject().provider(this::getFilteredArtifactFiles));
             copySpec.rename(this::renameArtifactIfConflict);
         });
 
-        into("lib", copySpec -> {
-            copySpec.from(getProject().provider(this::getShadeFiles));
+        into("", copySpec -> {
+            copySpec.from(getProject().provider(() -> shadeFiles));
         });
-    }
-
-    private Set<File> getShadeFiles() {
-        return arkPluginExtension.getShades().get().stream()
-            .map(this::resolveArtifact)
-            .collect(Collectors.toSet());
-    }
-
-    private File resolveArtifact(String shade) {
-        String[] parts = shade.split(":");
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("Invalid shade format: " + shade);
-        }
-        String group = parts[0];
-        String name = parts[1];
-        String version = parts[2];
-
-        Configuration configuration = getProject().getConfigurations().detachedConfiguration(
-            getProject().getDependencies().create(group + ":" + name + ":" + version)
-        );
-
-        return configuration.getResolvedConfiguration().getResolvedArtifacts().stream()
-            .findFirst()
-            .map(ResolvedArtifact::getFile)
-            .orElseThrow(() -> new IllegalArgumentException("Could not resolve artifact: " + shade));
     }
 
     private String renameArtifactIfConflict(String fileName) {
@@ -123,11 +102,32 @@ public class ArkPluginJarTask extends Jar {
             .orElse(null);
     }
 
-    private Set<File> getArtifactFiles() {
-        return filteredArtifacts.stream()
-            .filter(artifact -> isZip(artifact.getFile()))// && !isShadeJar(artifact))
-            .map(ResolvedArtifact::getFile)
+    private Set<File> getFilteredArtifactFiles() {
+        Set<String> shadeNames = arkPluginExtension.getShades().get().stream()
+            .map(this::getShadeFileName)
             .collect(Collectors.toSet());
+
+        return filteredArtifacts.stream()
+            .filter(artifact -> {
+                boolean isShade = shadeNames.contains(artifact.getFile().getName());
+                if (isShade) {
+                    shadeFiles.add(artifact.getFile());
+                }
+                return !isShade;
+            })
+            .map(ResolvedArtifact::getFile)
+            .filter(this::isZip)
+            .collect(Collectors.toSet());
+    }
+
+    private String getShadeFileName(String shade) {
+        String[] parts = shade.split(":");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid shade format: " + shade);
+        }
+        String name = parts[1];
+        String version = parts[2];
+        return name + "-" + version + ".jar";
     }
 
     private void configureManifest(Project project){
@@ -229,16 +229,10 @@ public class ArkPluginJarTask extends Jar {
         }
     }
 
-    private void collectExcludeRules() {
-        Project project = getProject();
-        Configuration configuration = project.getConfigurations().getByName("compileClasspath");
-        excludeRules.addAll(configuration.getExcludeRules());
-    }
-
     @Override
     protected CopyAction createCopyAction() {
         File jarFile = getArchiveFile().get().getAsFile();
-        return new ArkPluginCopyAction(jarFile);
+        return new ArkPluginCopyAction(jarFile, shadeFiles);
     }
 
     @TaskAction
