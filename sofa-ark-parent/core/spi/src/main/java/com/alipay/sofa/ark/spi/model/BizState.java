@@ -40,7 +40,7 @@ public enum BizState {
     ACTIVATED("activated"),
 
     /**
-     * uninstall
+     * install succeed, but stop serving, usually caused by a new version installed
      */
     DEACTIVATED("deactivated"),
 
