@@ -105,7 +105,7 @@ public class ArkPluginCopyAction implements CopyAction {
                     CrcAndSize crcAndSize = new CrcAndSize(inputStream);
                     crcAndSize.setUpStoredEntry(entry);
                 } catch (Exception e) {
-                    System.out.println("please check this jar file");
+                    throw new IOException("please check this jar file");
                 }
             }
 
