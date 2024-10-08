@@ -48,7 +48,6 @@ public class ArkPluginAction implements Action<Project> {
 
     private static final String PARAMETERS_COMPILER_ARG  = "-parameters";
 
-
     @Override
     public void execute(Project project) {
         classifyJarTask(project);
@@ -70,16 +69,12 @@ public class ArkPluginAction implements Action<Project> {
 
 
     private void configureArkAllArtifact(Project project) {
-
         Configuration runtimeClasspath = project.getConfigurations().getByName("runtimeClasspath");
         Configuration sofaArkConfig = project.getConfigurations().maybeCreate("sofaArkConfig");
-
-        Dependency arkDependency = project.getDependencies().create("com.alipay.sofa:sofa-ark-all"+SofaArkGradlePlugin.ARK_VERSION);
+        Dependency arkDependency = project.getDependencies().create(SofaArkGradlePlugin.ARK_BOOTSTRAP+SofaArkGradlePlugin.ARK_VERSION);
         ((ModuleDependency) arkDependency).setTransitive(false);
         sofaArkConfig.getDependencies().add(arkDependency);
-
         runtimeClasspath.extendsFrom(sofaArkConfig);
-
     }
 
     private void configureBuildTask(Project project) {
@@ -91,9 +86,9 @@ public class ArkPluginAction implements Action<Project> {
     private TaskProvider<ArkJar> configureBootJarTask(Project project) {
         SourceSet mainSourceSet = sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME);
         Configuration developmentOnly = project.getConfigurations()
-            .getByName("developmentOnly");
+            .getByName(SofaArkGradlePlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
         Configuration productionRuntimeClasspath = project.getConfigurations()
-            .getByName("productionRuntimeClasspath");
+            .getByName(SofaArkGradlePlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
         Callable<FileCollection> classpath = () -> mainSourceSet.getRuntimeClasspath()
             .minus((developmentOnly.minus(productionRuntimeClasspath)))
             .filter(new JarTypeFileSpec());
@@ -161,13 +156,13 @@ public class ArkPluginAction implements Action<Project> {
 
     private void configureDevelopmentOnlyConfiguration(Project project) {
         Configuration developmentOnly = project.getConfigurations()
-            .create("developmentOnly");
+            .create(SofaArkGradlePlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
         developmentOnly
             .setDescription("Configuration for development-only dependencies such as Spring Boot's DevTools.");
         Configuration runtimeClasspath = project.getConfigurations()
             .getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
         Configuration productionRuntimeClasspath = project.getConfigurations()
-            .create("productionRuntimeClasspath");
+            .create(SofaArkGradlePlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
         AttributeContainer attributes = productionRuntimeClasspath.getAttributes();
         ObjectFactory objectFactory = project.getObjects();
         attributes.attribute(Usage.USAGE_ATTRIBUTE, objectFactory.named(Usage.class, Usage.JAVA_RUNTIME));

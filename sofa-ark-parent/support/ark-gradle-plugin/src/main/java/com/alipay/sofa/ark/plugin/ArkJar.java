@@ -63,7 +63,6 @@ public class ArkJar extends Jar implements BootArchive {
      * Creates a new {@code BootJar} task.
      */
     public ArkJar() {
-
         Project project = getProject();
         this.gitInfo = getGitDirectory(project);
 
@@ -76,8 +75,6 @@ public class ArkJar extends Jar implements BootArchive {
         getMainSpec().with(this.bootInfSpec);
 
     }
-
-
 
     private File getGitDirectory(Project project) {
         File projectDir = project.getRootDir();
@@ -121,7 +118,7 @@ public class ArkJar extends Jar implements BootArchive {
 
     @Override
     public void copy() {
-        this.support.configureManifest(getManifest(), getMainClass().get(), CLASSES_DIRECTORY, LIB_DIRECTORY,
+        this.support.configureBizManifest(getManifest(), getMainClass().get(), CLASSES_DIRECTORY, LIB_DIRECTORY,
             CLASSPATH_INDEX);
         super.copy();
     }

@@ -40,6 +40,7 @@ import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.java.archives.Manifest;
+import org.gradle.api.java.archives.internal.DefaultManifest;
 import org.gradle.api.provider.Property;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
@@ -89,14 +90,14 @@ public class ArkArchiveSupport {
         this.librarySpec = librarySpec;
         this.compressionResolver = compressionResolver;
         this.requiresUnpack.include(Specs.satisfyNone());
-        this.arkVersion = "2.1.3";
+        this.arkVersion = arkExtension.getArkVersion().get();
         this.arkExtension = arkExtension;
         this.gitInfo = JGitParser.parse(gitDic);
         buildArkManifest();
     }
 
 
-    public void configureManifest(Manifest manifest, String mainClass, String classes, String lib, String classPathIndex) {
+    public void configureBizManifest(Manifest manifest, String mainClass, String classes, String lib, String classPathIndex) {
         Attributes attributes = manifest.getAttributes();
         attributes.putIfAbsent("Main-Class", this.loaderMainClass);
         attributes.putIfAbsent("Start-Class", mainClass);
@@ -113,7 +114,7 @@ public class ArkArchiveSupport {
 
     }
 
-    private void buildArkManifest(){
+    public void buildArkManifest(){
         this.arkManifest.getMainAttributes().putValue("Manifest-Version", "1.0");
         this.arkManifest.getMainAttributes().putValue("Main-Class", this.loaderMainClass);
         this.arkManifest.getMainAttributes().putValue("Start-Class", this.loaderMainClass);

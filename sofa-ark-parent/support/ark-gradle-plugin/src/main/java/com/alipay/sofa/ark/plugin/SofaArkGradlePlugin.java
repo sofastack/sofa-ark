@@ -20,6 +20,7 @@ package com.alipay.sofa.ark.plugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.internal.impldep.org.bouncycastle.pqc.crypto.newhope.NHSecretKeyProcessor.PartyUBuilder;
 import org.gradle.util.GradleVersion;
 
 public class SofaArkGradlePlugin implements Plugin<Project> {
@@ -31,6 +32,7 @@ public class SofaArkGradlePlugin implements Plugin<Project> {
     public static final String ARK_TASK_NAME = "arkJar";
     public static final String DEVELOPMENT_ONLY_CONFIGURATION_NAME = "developmentOnly";
     public static final String PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "productionRuntimeClasspath";
+    public static final String ARK_BOOTSTRAP = "com.alipay.sofa:sofa-ark-all";
 
     @Override
     public void apply(Project project) {
@@ -49,7 +51,6 @@ public class SofaArkGradlePlugin implements Plugin<Project> {
 
     private void createAndSetExtension(Project project) {
         SofaArkGradlePluginExtension arkExtension =  project.getExtensions().create("arkConfig", SofaArkGradlePluginExtension.class, project);
-
     }
 
     private void  registerPluginActions(Project project) {

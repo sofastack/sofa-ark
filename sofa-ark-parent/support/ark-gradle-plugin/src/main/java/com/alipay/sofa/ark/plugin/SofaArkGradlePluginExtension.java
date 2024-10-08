@@ -80,5 +80,11 @@ abstract public class SofaArkGradlePluginExtension {
 
      @Optional
      abstract public SetProperty<String> getExcludes();
+     abstract public SetProperty<String> getExcludeArtifactIds();
+     abstract public SetProperty<String> getExcludeGroupIds();
+
+     abstract public SetProperty<String> getDenyImportPackages();
+     abstract public SetProperty<String> getDenyImportClasses();
+     abstract public SetProperty<String> getDenyImportResources();
 
 }

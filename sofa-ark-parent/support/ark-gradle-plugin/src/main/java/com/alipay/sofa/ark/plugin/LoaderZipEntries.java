@@ -90,8 +90,10 @@ class LoaderZipEntries {
 	}
 
 	private void copy(InputStream in, OutputStream out) throws IOException {
-		StreamUtils.copy(in, out);
+		StringUtils.copyTo(in, out);
 	}
+
+
 
 	/**
 	 * Tracks entries that have been written.

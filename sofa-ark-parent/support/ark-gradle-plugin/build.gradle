@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'java-gradle-plugin'
+}
+
+group = 'com.alipay.sofa'
+version = '1.0.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm:9.4'
+    implementation 'org.apache.commons:commons-compress:1.26.1'
+    implementation 'com.alipay.sofa:sofa-ark-tools:2.2.12'
+}
+
+test {
+    useJUnitPlatform()
+}

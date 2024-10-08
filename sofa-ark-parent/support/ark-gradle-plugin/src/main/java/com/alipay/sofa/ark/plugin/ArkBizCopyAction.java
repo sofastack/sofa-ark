@@ -17,8 +17,7 @@
 
 package com.alipay.sofa.ark.plugin;
 
-import com.alipay.sofa.ark.boot.mojo.tasks.bundling.FileUtils;
-import com.alipay.sofa.ark.boot.mojo.tasks.bundling.ZipCompression;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +51,6 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.api.tasks.WorkResults;
 import org.gradle.util.GradleVersion;
-import org.springframework.util.Assert;
 
 public class ArkBizCopyAction implements CopyAction {
 
@@ -274,22 +272,8 @@ private class Processor1{
 
     private void writeClass(ZipArchiveEntry entry, ZipInputStream in, ZipArchiveOutputStream out) throws IOException {
         out.putArchiveEntry(entry);
-        copy(in, out);
+        StringUtils.copyTo(in, out);
         out.closeArchiveEntry();
-    }
-
-    private int copy(InputStream in, OutputStream out) throws IOException {
-        Assert.notNull(in, "No InputStream specified");
-        Assert.notNull(out, "No OutputStream specified");
-        int byteCount = 0;
-
-        int bytesRead;
-        for(byte[] buffer = new byte[4096]; (bytesRead = in.read(buffer)) != -1; byteCount += bytesRead) {
-            out.write(buffer, 0, bytesRead);
-        }
-
-        out.flush();
-        return byteCount;
     }
 
     private int getDirMode() {
