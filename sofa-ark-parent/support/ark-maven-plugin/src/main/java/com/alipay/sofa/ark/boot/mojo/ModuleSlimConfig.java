@@ -33,34 +33,34 @@ public class ModuleSlimConfig {
      * group-a:tracer-core:3.0.10
      * group-b:tracer-core:3.0.10:jdk17
      */
-    private LinkedHashSet<String> excludes                        = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludes                               = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
-    private LinkedHashSet<String> excludeGroupIds                 = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeGroupIds                        = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
-    private LinkedHashSet<String> excludeArtifactIds              = new LinkedHashSet<>();
+    private LinkedHashSet<String> excludeArtifactIds                     = new LinkedHashSet<>();
 
     /**
      * Colon separated groupId, artifactId [and classifier] to exclude (exact match). e.g:
      * group-a:tracer-core:3.0.10
      * group-b:tracer-core:3.0.10:jdk17
      */
-    private LinkedHashSet<String> includes                        = new LinkedHashSet<>();
+    private LinkedHashSet<String> includes                               = new LinkedHashSet<>();
 
     /**
      * list of groupId names to exclude (exact match).
      */
-    private LinkedHashSet<String> includeGroupIds                 = new LinkedHashSet<>();
+    private LinkedHashSet<String> includeGroupIds                        = new LinkedHashSet<>();
 
     /**
      * list of artifact names to exclude (exact match).
      */
-    private LinkedHashSet<String> includeArtifactIds              = new LinkedHashSet<>();
+    private LinkedHashSet<String> includeArtifactIds                     = new LinkedHashSet<>();
 
     /**
      * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
@@ -68,9 +68,19 @@ public class ModuleSlimConfig {
     private String                baseDependencyParentIdentity;
 
     /**
-     * 是否排除依赖时，同时排除依赖及间接依赖。如：A依赖B，B依赖C，当 excludes 只配置了 A 时，B 和 C 都会被排除
+     * 在排除依赖时，是否同时排除依赖及间接依赖。如：A依赖B，B依赖C，当 excludes 只配置了 A 时，B 和 C 都会被排除
      */
-    private boolean               excludeWithIndirectDependencies = true;
+    private boolean               excludeWithIndirectDependencies        = true;
+
+    /**
+     * 在排除依赖时，是否根据基座依赖标识（baseDependencyParentIdentity）排除与基座相同的依赖（GAV 均相同）
+     */
+    private boolean               excludeSameBaseDependency              = true;
+
+    /**
+     * 在排除依赖时，如果排除的依赖与基座不一致，是否构建失败
+     */
+    private boolean               buildFailWhenExcludeDiffBaseDependency = false;
 
     public LinkedHashSet<String> getExcludeArtifactIds() {
         return excludeArtifactIds;
@@ -156,5 +166,21 @@ public class ModuleSlimConfig {
 
     public void setExcludeWithIndirectDependencies(boolean excludeWithIndirectDependencies) {
         this.excludeWithIndirectDependencies = excludeWithIndirectDependencies;
+    }
+
+    public boolean isExcludeSameBaseDependency() {
+        return excludeSameBaseDependency;
+    }
+
+    public void setExcludeSameBaseDependency(boolean excludeSameBaseDependency) {
+        this.excludeSameBaseDependency = excludeSameBaseDependency;
+    }
+
+    public boolean isBuildFailWhenExcludeDiffBaseDependency() {
+        return buildFailWhenExcludeDiffBaseDependency;
+    }
+
+    public void setBuildFailWhenExcludeDiffBaseDependency(boolean buildFailWhenExcludeDiffBaseDependency) {
+        this.buildFailWhenExcludeDiffBaseDependency = buildFailWhenExcludeDiffBaseDependency;
     }
 }
