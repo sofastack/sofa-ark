@@ -53,38 +53,49 @@ abstract public class SofaArkGradlePluginExtension {
         getBizVersion().convention(project.provider(() -> ARK_JAR_PLUGIN_VERSION));
         getArkVersion().convention(project.provider(() -> ARK_JAR_PLUGIN_VERSION));
         getWebContextPath().convention(project.provider(()-> WEB_CONTEXT_PATH));
+
+        getOutputDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
     }
 
     public Property<String> getMainClass() {
         return this.mainClass;
     }
 
-     @OutputDirectory
-     @Optional
-     abstract public DirectoryProperty getOutputDirectory();
+    @OutputDirectory
+    abstract public DirectoryProperty getOutputDirectory();
 
-     abstract public Property<String> getFinalName();
+    abstract public Property<String> getFinalName();
 
-     abstract public Property<String> getArkClassifier();
+    abstract public Property<String> getArkClassifier();
 
-     abstract public Property<String> getArkVersion();
+    abstract public Property<String> getArkVersion();
 
-     abstract public Property<String> getWebContextPath();
+    abstract public Property<String> getWebContextPath();
 
 
-     abstract public Property<String> getBizName();
-     abstract public Property<String> getBizClassifier();
-     abstract public Property<String> getBizVersion();
+    abstract public Property<String> getBizName();
+    abstract public Property<String> getBizClassifier();
+    abstract public Property<String> getBizVersion();
 
-     abstract public Property<Integer> getPriority();
+    abstract public Property<Integer> getPriority();
 
-     @Optional
-     abstract public SetProperty<String> getExcludes();
-     abstract public SetProperty<String> getExcludeArtifactIds();
-     abstract public SetProperty<String> getExcludeGroupIds();
-
-     abstract public SetProperty<String> getDenyImportPackages();
-     abstract public SetProperty<String> getDenyImportClasses();
-     abstract public SetProperty<String> getDenyImportResources();
+    @Optional
+    abstract public SetProperty<String> getExcludes();
+    @Optional
+    abstract public SetProperty<String> getExcludeArtifactIds();
+    @Optional
+    abstract public SetProperty<String> getExcludeGroupIds();
+    @Optional
+    abstract public SetProperty<String> getDenyImportPackages();
+    @Optional
+    abstract public SetProperty<String> getDenyImportClasses();
+    @Optional
+    abstract public SetProperty<String> getDenyImportResources();
+    @Optional
+    abstract public SetProperty<String> getInjectPluginDependencies();
+    @Optional
+    abstract public SetProperty<String> getInjectPluginExportPackages();
+    @Optional
+    abstract public SetProperty<String> getDeclaredLibraries();
 
 }

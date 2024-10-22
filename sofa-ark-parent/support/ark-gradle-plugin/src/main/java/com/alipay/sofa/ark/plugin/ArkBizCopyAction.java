@@ -30,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
@@ -86,12 +87,16 @@ public class ArkBizCopyAction implements CopyAction {
 
     private final java.util.jar.Manifest arkManifest;
 
+    private List<File> pluginFiles;
+    private List<File> bizFiles;
+    private List<File> conFile;
+
 
 
     ArkBizCopyAction(File bizOutput,File arkOutput, Manifest manifest, boolean preserveFileTimestamps, Integer dirMode, Integer fileMode,
         boolean includeDefaultLoader,  Spec<FileTreeElement> requiresUnpack,
         Spec<FileTreeElement> exclusions, Spec<FileCopyDetails> librarySpec,
-        Function<FileCopyDetails, ZipCompression> compressionResolver, String encoding, java.util.jar.Manifest arkManifest
+        Function<FileCopyDetails, ZipCompression> compressionResolver, String encoding, java.util.jar.Manifest arkManifest, List<File> pluginFiles, List<File> bizFiles, List<File> conFile
     ) throws IOException {
         this.bizOutput = bizOutput;
         this.arkOutput = arkOutput;
@@ -106,6 +111,9 @@ public class ArkBizCopyAction implements CopyAction {
         this.compressionResolver = compressionResolver;
         this.encoding = encoding;
         this.arkManifest = arkManifest;
+        this.pluginFiles = pluginFiles;
+        this.bizFiles = bizFiles;
+        this.conFile = conFile;
     }
 
     @Override
@@ -152,8 +160,6 @@ public class ArkBizCopyAction implements CopyAction {
         }
     }
 
-
-
     private void writeArchive(CopyActionProcessingStream copyActions, OutputStream output) throws IOException {
         ZipArchiveOutputStream zipOutput = new ZipArchiveOutputStream(output);
         try {
@@ -195,15 +201,19 @@ private class Processor1{
 
     Processor1(ZipArchiveOutputStream out) throws IOException {
         this.out = out;
-        this.arkFile = ArkBizCopyAction.this.arkBootFile;
+        this.arkFile = conFile.get(0).getAbsolutePath();
     }
 
     void process() throws IOException {
+        writePluginJar();
         writeBootstrapEntry();
         writeArkManifest();
         writeContainer();
         writeBizJar();
-        writeConfig();
+    }
+
+    void writePluginJar() throws IOException {
+        writeFiles(pluginFiles, "SOFA-ARK/plugin/");
     }
 
     void writeArkManifest() throws IOException {
@@ -211,7 +221,6 @@ private class Processor1{
         this.out.putArchiveEntry(zipArchiveEntry);
         ArkBizCopyAction.this.arkManifest.write(this.out);
         this.out.closeArchiveEntry();
-
     }
 
     private void writeBootstrapEntry() throws IOException {
@@ -243,10 +252,18 @@ private class Processor1{
     }
 
     void writeBizJar() throws IOException {
-        File file = new File(String.valueOf(ArkBizCopyAction.this.bizOutput));
-        try( FileInputStream fileInputStream = new FileInputStream(file)) {
-            ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry("SOFA-ARK/biz/"+ file.getName());
-            writeEntry(fileInputStream, zipArchiveEntry);
+        bizFiles.add(bizOutput);
+        writeFiles(bizFiles, "SOFA-ARK/biz/");
+    }
+
+    void writeFiles(List<File> files, String path){
+        for(File file : files){
+            try(  FileInputStream fileInputStream = new FileInputStream(file)) {
+                ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(path + file.getName());
+                writeEntry(fileInputStream, zipArchiveEntry);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -260,9 +277,6 @@ private class Processor1{
         this.out.closeArchiveEntry();
     }
 
-    void writeConfig(){
-
-    }
 
 
     private void writeDirectory(ZipArchiveEntry entry, ZipArchiveOutputStream out) throws IOException {
@@ -327,12 +341,6 @@ private class Processor1{
         }
 
         void process(FileCopyDetails details) {
-
-            if(details.getName().contains("sofa-ark-all")){
-                ArkBizCopyAction.this.arkBootFile = String.valueOf(details.getFile());
-                return;
-            }
-
             if (skipProcessing(details)) {
                 return;
             }

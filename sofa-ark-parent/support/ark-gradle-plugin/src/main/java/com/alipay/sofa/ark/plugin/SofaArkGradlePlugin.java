@@ -26,10 +26,7 @@ import org.gradle.util.GradleVersion;
 public class SofaArkGradlePlugin implements Plugin<Project> {
 
     public static final String ARK_VERSION = "2.2.14";
-    public static final String ARK_BIZ_CONFIGURATION_NAME = "bizJar";
-    public static final String ARK_CONFIGURATION_NAME = "arkJar";
-    public static final String ARK_BIZ_TASK_NAME = "bizJar";
-    public static final String ARK_TASK_NAME = "arkJar";
+    public static final String ARK_BIZ_TASK_NAME = "arkJar";
     public static final String DEVELOPMENT_ONLY_CONFIGURATION_NAME = "developmentOnly";
     public static final String PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "productionRuntimeClasspath";
     public static final String ARK_BOOTSTRAP = "com.alipay.sofa:sofa-ark-all";
@@ -50,7 +47,7 @@ public class SofaArkGradlePlugin implements Plugin<Project> {
     }
 
     private void createAndSetExtension(Project project) {
-        SofaArkGradlePluginExtension arkExtension =  project.getExtensions().create("arkConfig", SofaArkGradlePluginExtension.class, project);
+        project.getExtensions().create("arkConfig", SofaArkGradlePluginExtension.class, project);
     }
 
     private void  registerPluginActions(Project project) {

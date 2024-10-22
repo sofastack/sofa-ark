@@ -22,14 +22,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCopyDetails;
@@ -40,7 +44,6 @@ import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.java.archives.Manifest;
-import org.gradle.api.java.archives.internal.DefaultManifest;
 import org.gradle.api.provider.Property;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
@@ -55,6 +58,10 @@ import com.alipay.sofa.ark.tools.git.JGitParser;
 public class ArkArchiveSupport {
 
     private static final byte[] ZIP_FILE_HEADER = new byte[] { 'P', 'K', 3, 4 };
+
+    private static final String BIZ_MARKER = "com/alipay/sofa/ark/biz/mark";
+    private static final String PLUGIN_MARKER = "com/alipay/sofa/ark/plugin/mark";
+    private static final String CONTAINER_MARK = "com/alipay/sofa/ark/container/mark";
 
     private static final Set<String> DEFAULT_LAUNCHER_CLASSES;
 
@@ -83,6 +90,10 @@ public class ArkArchiveSupport {
     private final GitInfo gitInfo;
 
     private java.util.jar.Manifest arkManifest = new java.util.jar.Manifest();
+
+    private final List<File> pluginFiles = new ArrayList<>();
+    private final List<File> bizFiles = new ArrayList<>();
+    private List<File> conFile = new ArrayList<>();
 
     public ArkArchiveSupport(String loaderMainClass, Spec<FileCopyDetails> librarySpec,
         Function<FileCopyDetails, ZipCompression> compressionResolver, File gitDic, SofaArkGradlePluginExtension arkExtension) {
@@ -145,7 +156,17 @@ public class ArkArchiveSupport {
         attributes.putIfAbsent("Ark-Biz-Version",this.arkExtension.getBizVersion().get());
         attributes.putIfAbsent("priority",this.arkExtension.getPriority().get());
         attributes.putIfAbsent("web-context-path", this.arkExtension.getWebContextPath().get());
+        attributes.putIfAbsent("deny-import-packages",joinSet(this.arkExtension.getDenyImportPackages().get()));
+        attributes.putIfAbsent("deny-import-classes",joinSet(this.arkExtension.getDenyImportClasses().get()));
+        attributes.putIfAbsent("deny-import-resources",joinSet(this.arkExtension.getDenyImportResources().get()));
+        attributes.putIfAbsent("inject-plugin-dependencies", joinSet(this.arkExtension.getInjectPluginDependencies().get()));
+        attributes.putIfAbsent("inject-export-packages",joinSet(this.arkExtension.getInjectPluginExportPackages().get()));
+        attributes.putIfAbsent("declared-libraries",joinSet(this.arkExtension.getDeclaredLibraries().get()));
         appendBuildInfo(manifest);
+    }
+
+    private String joinSet(Set<String> set) {
+        return set != null ? String.join(",", set) : "";
     }
 
 
@@ -193,7 +214,7 @@ public class ArkArchiveSupport {
 
         CopyAction action = new ArkBizCopyAction(bizOutput,arkOutput, manifest, preserveFileTimestamps, dirMode, fileMode,
             includeDefaultLoader,  requiresUnpack, exclusions, librarySpec,
-            compressionResolver, encoding, this.arkManifest);
+            compressionResolver, encoding, this.arkManifest, pluginFiles, bizFiles, conFile);
 
 
         return jar.isReproducibleFileOrder() ? new ReproducibleOrderingCopyAction(action) : action;
@@ -276,7 +297,7 @@ public class ArkArchiveSupport {
     }
 
     public void excludeNonZipFiles(FileCopyDetails details) {
-        if (!isZip(details.getFile())) {
+        if (!isZip(details.getFile())  || isSofaArk(details.getFile())) {
             details.exclude();
         }
     }
@@ -300,6 +321,28 @@ public class ArkArchiveSupport {
         }
         return true;
     }
+
+
+    private boolean isSofaArk(File jarFile){
+        try (JarFile jar = new JarFile(jarFile)) {
+            for (JarEntry entry : Collections.list(jar.entries())) {
+                if (entry.getName().contains(BIZ_MARKER)) {
+                    bizFiles.add(jarFile);
+                    return true;
+                } else if (entry.getName().contains(PLUGIN_MARKER)) {
+                    pluginFiles.add(jarFile);
+                    return true;
+                } else if (entry.getName().contains(CONTAINER_MARK)){
+                    conFile.add(jarFile);
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+
+        }
+        return false;
+    }
+
 
     public void moveModuleInfoToRoot(CopySpec spec) {
         spec.filesMatching("module-info.class", this::moveToRoot);
