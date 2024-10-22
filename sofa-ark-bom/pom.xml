@@ -14,7 +14,7 @@
 
     <properties>
         <log4j.version>1.7.32</log4j.version>
-        <log.sofa.starter.version>3.16.3</log.sofa.starter.version>
+        <log.sofa.starter.version>3.2.0</log.sofa.starter.version>
         <logback.version>1.2.13</logback.version>
 
         <guice.version>6.0.0</guice.version>

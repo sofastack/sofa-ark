@@ -181,6 +181,13 @@ public class ModuleSlimStrategy {
         initExcludeAndIncludeConfig();
     }
 
+    /**
+     * exclude and include config comes from 3 parts:
+     * 1. extension from config file that configured by user in sofa-ark-maven-plugin
+     * 2. extension from default bootstrap.properties or bootstrap.yml
+     * 3. extension from url
+     * @throws IOException
+     */
     protected void initExcludeAndIncludeConfig() throws IOException {
         // extension from other resource
         if (!StringUtils.isEmpty(config.getPackExcludesConfig())) {
@@ -191,6 +198,7 @@ public class ModuleSlimStrategy {
                                                 + File.separator + DEFAULT_EXCLUDE_RULES);
         }
 
+        // extension from default bootstrap.properties or bootstrap.yml
         configExcludeArtifactsByDefault();
 
         // extension from url

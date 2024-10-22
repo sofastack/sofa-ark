@@ -367,6 +367,9 @@ public class PluginModel implements Plugin {
             throw new ArkRuntimeException(ex.getMessage(), ex);
         } finally {
             eventAdminService.sendEvent(new AfterPluginStopEvent(this));
+            if (this.getPluginClassLoader() != null) {
+                eventAdminService.unRegister(this.getPluginClassLoader());
+            }
         }
     }
 
