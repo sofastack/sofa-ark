@@ -208,6 +208,12 @@ public class Constants {
      * uninstall the biz if it starts up failed
      */
     public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
+
+    /**
+     *
+     */
+    public final static String       KEEP_OLD_MODULE_STATE                         = "sofa.ark.keep.old.module.state";
+
     /**
      * auto remove the biz instance in BizManagerService if it stops failed
      */

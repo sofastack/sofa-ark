@@ -57,6 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
+import static com.alipay.sofa.ark.spi.constant.Constants.KEEP_OLD_MODULE_STATE;
 import static com.alipay.sofa.ark.spi.constant.Constants.REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -351,7 +352,17 @@ public class BizModel implements Biz {
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
 
+        // keep old module state
+        boolean keepOldModuleState = Boolean.parseBoolean(ArkConfigs.getStringValue(
+            KEEP_OLD_MODULE_STATE, "false"));
+        if (keepOldModuleState) {
+            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
+                String.format("started a new biz: %s", this.getIdentity()));
+            return;
+        }
+
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
+            // active latest
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             if (currentActiveBiz == null) {
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
@@ -363,6 +374,7 @@ public class BizModel implements Biz {
                     String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
             }
         } else {
+            // deactivate latest and keep old module activated
             if (bizManagerService.getActiveBiz(bizName) == null) {
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             } else {

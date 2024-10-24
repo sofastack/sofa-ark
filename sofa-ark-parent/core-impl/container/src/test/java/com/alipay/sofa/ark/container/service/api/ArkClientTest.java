@@ -59,6 +59,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_NEW_MODULE;
 import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_BIZ_URL;
 import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.KEEP_OLD_MODULE_STATE;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.CHECK;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.INSTALL;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.SWITCH;
@@ -70,6 +71,7 @@ import static java.lang.System.setProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -89,6 +91,8 @@ public class ArkClientTest extends BaseTest {
     private URL bizUrl2;
     // bizName=biz-demo, bizVersion=3.0.0
     private URL bizUrl3;
+    // bizName=biz-demo, bizVersion=4.0.0
+    private URL bizUrl4;
 
     @Before
     public void before() {
@@ -99,6 +103,8 @@ public class ArkClientTest extends BaseTest {
         bizUrl2 = this.getClass().getClassLoader().getResource("sample-ark-2.0.0-ark-biz.jar");
         // bizName=biz-demo, bizVersion=3.0.0
         bizUrl3 = this.getClass().getClassLoader().getResource("sample-ark-3.0.0-ark-biz.jar");
+        // bizName=biz-demo, bizVersion=4.0.0
+        bizUrl4 = this.getClass().getClassLoader().getResource("sample-ark-4.0.0-ark-biz.jar");
     }
 
     @Test
@@ -150,6 +156,17 @@ public class ArkClientTest extends BaseTest {
         assertEquals(SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
         assertEquals(ACTIVATED, bizInfo.getBizState());
+
+        // test install biz with same bizName and different bizVersion and keep old module state
+        setProperty(KEEP_OLD_MODULE_STATE, "true");
+        File bizFile4 = createBizSaveFile("biz-demo", "4.0.0");
+        copyInputStreamToFile(bizUrl4.openStream(), bizFile4);
+        response = installBiz(bizFile4);
+        assertEquals(SUCCESS, response.getCode());
+        BizManagerService bizManagerService = arkServiceContainer
+            .getService(BizManagerService.class);
+        assertSame(bizManagerService.getBiz("biz-demo", "3.0.0").getBizState(), ACTIVATED);
+        setProperty(KEEP_OLD_MODULE_STATE, "");
     }
 
     @Test
