@@ -349,38 +349,32 @@ public class BizModel implements Biz {
         } finally {
             ClassLoaderUtils.popContextClassLoader(oldClassLoader);
         }
+
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
 
-        // support multiple version biz as activated
-        boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
-            ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
-        if (activateMultiBizVersion) {
-            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
-                String.format("started a new biz: %s", this.getIdentity()));
+        // active the first module as activated
+        if (bizManagerService.getActiveBiz(bizName) == null) {
+            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             return;
         }
 
+        // case1: support multiple version biz as activated
+        boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
+            ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
+        if (activateMultiBizVersion)
+            return;
+
+        // case2: always activate the latest version and deactivate the old module
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
-            // active latest
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
-            if (currentActiveBiz == null) {
-                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
-            } else {
-                ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
-                    StateChangeReason.SWITCHED,
-                    String.format("switch to new biz %s", getIdentity()));
-                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
-                    String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
-            }
+            ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
+                StateChangeReason.SWITCHED, String.format("switch to new biz %s", getIdentity()));
+            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
+                String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
         } else {
-            // deactivate latest and keep old module activated
-            if (bizManagerService.getActiveBiz(bizName) == null) {
-                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
-            } else {
-                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED,
-                    "start but is deactivated");
-            }
+            // case3: deactivate the latest and keep old module activated
+            setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED, "start but is deactivated");
         }
     }
 
