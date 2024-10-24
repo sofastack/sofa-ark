@@ -359,7 +359,7 @@ public class BizModel implements Biz {
             return;
         }
 
-        // case1: support multiple version biz as activated
+        // case1: support multiple version biz as activated: always activate the new version and keep the old module activated
         boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
             ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
         if (activateMultiBizVersion) {
