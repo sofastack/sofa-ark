@@ -353,7 +353,7 @@ public class BizModel implements Biz {
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
 
-        // active the first module as activated
+        // case0: active the first module as activated
         if (bizManagerService.getActiveBiz(bizName) == null) {
             setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             return;
@@ -362,10 +362,12 @@ public class BizModel implements Biz {
         // case1: support multiple version biz as activated
         boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
             ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
-        if (activateMultiBizVersion)
+        if (activateMultiBizVersion) {
+            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
             return;
+        }
 
-        // case2: always activate the latest version and deactivate the old module
+        // case2: always activate the new version and deactivate the old module according to ACTIVATE_NEW_MODULE config
         if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
             Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
             ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
@@ -373,7 +375,7 @@ public class BizModel implements Biz {
             setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
                 String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
         } else {
-            // case3: deactivate the latest and keep old module activated
+            // case3: always deactivate the new version and keep old module activated according to ACTIVATE_NEW_MODULE config
             setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED, "start but is deactivated");
         }
     }
