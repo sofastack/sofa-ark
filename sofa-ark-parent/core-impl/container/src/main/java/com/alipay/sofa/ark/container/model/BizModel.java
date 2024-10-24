@@ -57,7 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
-import static com.alipay.sofa.ark.spi.constant.Constants.KEEP_OLD_MODULE_STATE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_MULTI_BIZ_VERSION_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.REMOVE_BIZ_INSTANCE_AFTER_STOP_FAILED;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -354,7 +354,7 @@ public class BizModel implements Biz {
 
         // keep old module state
         boolean keepOldModuleState = Boolean.parseBoolean(ArkConfigs.getStringValue(
-            KEEP_OLD_MODULE_STATE, "false"));
+            ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
         if (keepOldModuleState) {
             setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
                 String.format("started a new biz: %s", this.getIdentity()));

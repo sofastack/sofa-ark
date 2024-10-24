@@ -212,7 +212,7 @@ public class Constants {
     /**
      *
      */
-    public final static String       KEEP_OLD_MODULE_STATE                         = "sofa.ark.keep.old.module.state";
+    public final static String       ACTIVATE_MULTI_BIZ_VERSION_ENABLE             = "sofa.ark.activate.multi.biz.version.enable";
 
     /**
      * auto remove the biz instance in BizManagerService if it stops failed
