@@ -231,6 +231,10 @@ public class ArkClientTest extends BaseTest {
 
         response = checkBiz("biz-demo", "4.0.0");
         assertEquals(SUCCESS, response.getCode());
+        assertEquals(1, response.getBizInfos().size());
+
+        response = checkBiz("biz-demo", "5.0.0");
+        assertEquals(SUCCESS, response.getCode());
         assertEquals(0, response.getBizInfos().size());
     }
 

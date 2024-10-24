@@ -352,10 +352,10 @@ public class BizModel implements Biz {
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
 
-        // keep old module state
-        boolean keepOldModuleState = Boolean.parseBoolean(ArkConfigs.getStringValue(
+        // support multiple version biz as activated
+        boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
             ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
-        if (keepOldModuleState) {
+        if (activateMultiBizVersion) {
             setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
                 String.format("started a new biz: %s", this.getIdentity()));
             return;
