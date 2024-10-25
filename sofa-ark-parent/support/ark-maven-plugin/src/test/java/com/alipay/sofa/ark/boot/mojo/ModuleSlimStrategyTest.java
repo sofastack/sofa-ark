@@ -46,6 +46,7 @@ import static com.alipay.sofa.ark.boot.mojo.ReflectionUtils.setField;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -134,6 +135,20 @@ public class ModuleSlimStrategyTest {
             sameArtifact, differenceArtifact));
         assertTrue(res.contains(sameArtifact));
         assertFalse(res.contains(differenceArtifact));
+    }
+
+    @Test
+    public void testGetBaseDependencyParentOriginalModel() throws URISyntaxException {
+        // find base-dependency-parent by gav identity
+        ModuleSlimConfig config = (new ModuleSlimConfig())
+            .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), null,
+            config, mockBaseDir(), null);
+        assertNotNull(strategy.getBaseDependencyParentOriginalModel());
+
+        // find base-dependency-parent by ga identity
+        config.setBaseDependencyParentIdentity("com.mock:base-dependencies-starter");
+        assertNotNull(strategy.getBaseDependencyParentOriginalModel());
     }
 
     @Test
