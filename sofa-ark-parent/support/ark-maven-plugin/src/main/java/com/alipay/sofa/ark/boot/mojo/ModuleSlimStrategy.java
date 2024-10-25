@@ -131,10 +131,12 @@ public class ModuleSlimStrategy {
         return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentity(it))).collect(Collectors.toSet());
     }
 
-    private Model getBaseDependencyParentOriginalModel() {
+    protected Model getBaseDependencyParentOriginalModel() {
         MavenProject proj = project;
         while (null != proj) {
-            if (getGAVIdentity(proj.getArtifact()).equals(config.getBaseDependencyParentIdentity())) {
+            if (getGAIdentity(proj.getArtifact()).equals(config.getBaseDependencyParentIdentity())
+                || getGAVIdentity(proj.getArtifact()).equals(
+                    config.getBaseDependencyParentIdentity())) {
                 return proj.getOriginalModel();
             }
             proj = proj.getParent();
@@ -145,6 +147,10 @@ public class ModuleSlimStrategy {
     private String getGAVIdentity(Artifact artifact) {
         return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
                + artifact.getBaseVersion();
+    }
+
+    private String getGAIdentity(Artifact artifact) {
+        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId();
     }
 
     protected String getArtifactIdentity(Artifact artifact) {
