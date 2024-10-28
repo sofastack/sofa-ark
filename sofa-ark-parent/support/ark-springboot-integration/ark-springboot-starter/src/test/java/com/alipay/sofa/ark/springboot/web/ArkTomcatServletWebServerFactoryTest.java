@@ -16,8 +16,10 @@
  */
 package com.alipay.sofa.ark.springboot.web;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
+import com.alipay.sofa.ark.spi.service.injection.InjectionService;
 import com.alipay.sofa.ark.springboot.web.ArkTomcatServletWebServerFactory.StaticResourceConfigurer;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -47,14 +49,18 @@ public class ArkTomcatServletWebServerFactoryTest {
     private ArkTomcatServletWebServerFactory arkTomcatServletWebServerFactory = new ArkTomcatServletWebServerFactory();
 
     private ClassLoader                      currentThreadContextClassLoader;
+    private InjectionService                 injectionService;
 
     @Before
     public void setUp() {
+        injectionService = ArkClient.getInjectionService();
+        ArkClient.setInjectionService(null);
         currentThreadContextClassLoader = currentThread().getContextClassLoader();
     }
 
     @After
     public void tearDown() {
+        ArkClient.setInjectionService(injectionService);
         currentThread().setContextClassLoader(currentThreadContextClassLoader);
     }
 

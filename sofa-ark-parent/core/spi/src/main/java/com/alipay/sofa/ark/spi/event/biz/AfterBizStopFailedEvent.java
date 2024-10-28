@@ -14,26 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.web;
+package com.alipay.sofa.ark.spi.event.biz;
+
+import com.alipay.sofa.ark.spi.constant.Constants;
+import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
+import com.alipay.sofa.ark.spi.model.Biz;
 
 /**
- * Fetch embed tomcat container in ark
- *
- * @author qilong.zql
- * @since 0.6.0
- */
-public interface EmbeddedServerService<T> extends Iterable<T> {
-    /**
-     * get embed tomcat with port.
-     * @return
-     */
-    T getEmbedServer(int port);
+ * @author guolei.sgl (guolei.sgl@antfin.com) 2019/11/1 6:21 PM
+ * @since
+ **/
+public class AfterBizStopFailedEvent extends AbstractArkEvent<Biz> {
 
-    /**
-     * put embed tomcat with port.
-     * Once web container instance (e.g. Tomcat, Netty) set to this EmbeddedServerService, it is usually can not be modified!
-     * @param port server port
-     * @param container server container
-     */
-    boolean putEmbedServer(int port, T container);
+    private Throwable throwable;
+
+    public AfterBizStopFailedEvent(Biz source, Throwable t) {
+        super(source);
+        this.throwable = t;
+        this.topic = Constants.BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP_FAILED;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
 }

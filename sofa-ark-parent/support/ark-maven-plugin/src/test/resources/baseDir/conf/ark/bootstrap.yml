@@ -8,3 +8,13 @@ excludeGroupIds:
   - org.springframework-yml
 excludeArtifactIds:
   - sofa-ark-spi-yml
+
+# declaredArtifactIds 中配置 ${artifactId}, 不同依赖以 - 隔开
+
+declared:
+  libraries:
+    whitelist:
+      - com.ark.yml:ark-common-yml
+      - com.biz.yml:biz-common-yml
+
+excludeWithIndirectDependencies: false

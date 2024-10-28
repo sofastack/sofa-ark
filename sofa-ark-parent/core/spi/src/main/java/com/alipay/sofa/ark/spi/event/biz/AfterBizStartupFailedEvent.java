@@ -24,12 +24,18 @@ import com.alipay.sofa.ark.spi.model.Biz;
  * @author lianglipeng.llp@alibaba-inc.com
  * @since 2.2.9
  */
-public class AfterBizFailedEvent extends AbstractArkEvent<Biz> {
-    Throwable throwable;
+public class AfterBizStartupFailedEvent extends AbstractArkEvent<Biz> {
 
-    public AfterBizFailedEvent(Biz source, Throwable e) {
+    private Throwable throwable;
+
+    public AfterBizStartupFailedEvent(Biz source, Throwable e) {
         super(source);
         this.throwable = e;
         this.topic = Constants.BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED;
     }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
 }

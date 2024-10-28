@@ -59,6 +59,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_NEW_MODULE;
 import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_BIZ_URL;
 import static com.alipay.sofa.ark.spi.constant.Constants.EMBED_ENABLE;
+import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_MULTI_BIZ_VERSION_ENABLE;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.CHECK;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.INSTALL;
 import static com.alipay.sofa.ark.spi.model.BizOperation.OperationType.SWITCH;
@@ -70,7 +71,9 @@ import static java.lang.System.setProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -88,6 +91,8 @@ public class ArkClientTest extends BaseTest {
     private URL bizUrl2;
     // bizName=biz-demo, bizVersion=3.0.0
     private URL bizUrl3;
+    // bizName=biz-demo, bizVersion=4.0.0
+    private URL bizUrl4;
 
     @Before
     public void before() {
@@ -98,6 +103,8 @@ public class ArkClientTest extends BaseTest {
         bizUrl2 = this.getClass().getClassLoader().getResource("sample-ark-2.0.0-ark-biz.jar");
         // bizName=biz-demo, bizVersion=3.0.0
         bizUrl3 = this.getClass().getClassLoader().getResource("sample-ark-3.0.0-ark-biz.jar");
+        // bizName=biz-demo, bizVersion=4.0.0
+        bizUrl4 = this.getClass().getClassLoader().getResource("sample-ark-4.0.0-ark-biz.jar");
     }
 
     @Test
@@ -149,6 +156,17 @@ public class ArkClientTest extends BaseTest {
         assertEquals(SUCCESS, response.getCode());
         bizInfo = response.getBizInfos().iterator().next();
         assertEquals(ACTIVATED, bizInfo.getBizState());
+
+        // test install biz with same bizName and different bizVersion and keep old module state
+        setProperty(ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "true");
+        File bizFile4 = createBizSaveFile("biz-demo", "4.0.0");
+        copyInputStreamToFile(bizUrl4.openStream(), bizFile4);
+        response = installBiz(bizFile4);
+        assertEquals(SUCCESS, response.getCode());
+        BizManagerService bizManagerService = arkServiceContainer
+            .getService(BizManagerService.class);
+        assertSame(bizManagerService.getBiz("biz-demo", "3.0.0").getBizState(), ACTIVATED);
+        setProperty(ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "");
     }
 
     @Test
@@ -196,12 +214,12 @@ public class ArkClientTest extends BaseTest {
         // test check all biz
         ClientResponse response = checkBiz();
         assertEquals(SUCCESS, response.getCode());
-        assertEquals(3, response.getBizInfos().size());
+        assertEquals(4, response.getBizInfos().size());
 
         // test check specified bizName
         response = checkBiz("biz-demo");
         assertEquals(SUCCESS, response.getCode());
-        assertEquals(3, response.getBizInfos().size());
+        assertEquals(4, response.getBizInfos().size());
 
         // test check specified bizName and version
         response = checkBiz("biz-demo", "2.0.0");
@@ -212,6 +230,10 @@ public class ArkClientTest extends BaseTest {
         assertEquals(1, response.getBizInfos().size());
 
         response = checkBiz("biz-demo", "4.0.0");
+        assertEquals(SUCCESS, response.getCode());
+        assertEquals(1, response.getBizInfos().size());
+
+        response = checkBiz("biz-demo", "5.0.0");
         assertEquals(SUCCESS, response.getCode());
         assertEquals(0, response.getBizInfos().size());
     }
@@ -227,7 +249,7 @@ public class ArkClientTest extends BaseTest {
         // test check all biz
         response = checkBiz();
         assertEquals(SUCCESS, response.getCode());
-        assertEquals(2, response.getBizInfos().size());
+        assertEquals(3, response.getBizInfos().size());
     }
 
     @Test
@@ -241,7 +263,7 @@ public class ArkClientTest extends BaseTest {
         // test check all biz
         response = checkBiz();
         assertEquals(SUCCESS, response.getCode());
-        assertEquals(2, response.getBizInfos().size());
+        assertEquals(3, response.getBizInfos().size());
     }
 
     @Test
@@ -307,9 +329,9 @@ public class ArkClientTest extends BaseTest {
             doThrow(new Exception()).when(biz).stop();
 
             installBiz(bizFile, null);
-            assertTrue(false);
+            fail();
         } catch (Throwable e) {
-            assertTrue(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
+            assertFalse(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
         } finally {
             setBizFactoryService(bizFactoryService);
             setBizManagerService(bizManagerService);
@@ -322,7 +344,7 @@ public class ArkClientTest extends BaseTest {
             setBizManagerService(bizManagerServiceMock);
 
             installBiz(bizFile, null);
-            assertTrue(false);
+            fail();
         } catch (Throwable e) {
             assertFalse(bizManagerServiceMock.getBiz("biz-install-failed-demo").isEmpty());
             setBizFactoryService(bizFactoryService);

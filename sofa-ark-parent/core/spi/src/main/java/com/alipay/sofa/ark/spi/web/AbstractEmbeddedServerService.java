@@ -16,24 +16,28 @@
  */
 package com.alipay.sofa.ark.spi.web;
 
-/**
- * Fetch embed tomcat container in ark
- *
- * @author qilong.zql
- * @since 0.6.0
- */
-public interface EmbeddedServerService<T> extends Iterable<T> {
-    /**
-     * get embed tomcat with port.
-     * @return
-     */
-    T getEmbedServer(int port);
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-    /**
-     * put embed tomcat with port.
-     * Once web container instance (e.g. Tomcat, Netty) set to this EmbeddedServerService, it is usually can not be modified!
-     * @param port server port
-     * @param container server container
-     */
-    boolean putEmbedServer(int port, T container);
+public abstract class AbstractEmbeddedServerService<T> implements EmbeddedServerService<T> {
+    private Map<Integer, T> servers = new ConcurrentHashMap<>();
+
+    @Override
+    public T getEmbedServer(int port) {
+        return servers.get(port);
+    }
+
+    @Override
+    public boolean putEmbedServer(int port, T container) {
+        if (container == null) {
+            return false;
+        }
+        return servers.putIfAbsent(port, container) == null;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return servers.values().iterator();
+    }
 }
