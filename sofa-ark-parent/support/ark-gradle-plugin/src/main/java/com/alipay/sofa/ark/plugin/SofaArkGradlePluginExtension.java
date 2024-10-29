@@ -94,7 +94,5 @@ abstract public class SofaArkGradlePluginExtension {
     abstract public SetProperty<String> getInjectPluginDependencies();
     @Optional
     abstract public SetProperty<String> getInjectPluginExportPackages();
-    @Optional
-    abstract public SetProperty<String> getDeclaredLibraries();
 
 }

@@ -28,7 +28,7 @@ public class SofaArkGradlePlugin implements Plugin<Project> {
     public static final String ARK_BIZ_TASK_NAME = "arkJar";
     public static final String DEVELOPMENT_ONLY_CONFIGURATION_NAME = "developmentOnly";
     public static final String PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "productionRuntimeClasspath";
-    public static final String ARK_BOOTSTRAP = "com.alipay.sofa:sofa-ark-all";
+    public static final String ARK_BOOTSTRAP = "com.alipay.sofa:sofa-ark-all:";
 
     @Override
     public void apply(Project project) {

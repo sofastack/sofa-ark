@@ -160,7 +160,6 @@ public class ArkArchiveSupport {
         attributes.putIfAbsent("deny-import-resources",joinSet(this.arkExtension.getDenyImportResources().get()));
         attributes.putIfAbsent("inject-plugin-dependencies", joinSet(this.arkExtension.getInjectPluginDependencies().get()));
         attributes.putIfAbsent("inject-export-packages",joinSet(this.arkExtension.getInjectPluginExportPackages().get()));
-        attributes.putIfAbsent("declared-libraries",joinSet(this.arkExtension.getDeclaredLibraries().get()));
         appendBuildInfo(manifest);
     }
 
@@ -221,8 +220,21 @@ public class ArkArchiveSupport {
 
 
     private File getTargetFile(Jar jar, String classifier) {
-        return new File(this.arkExtension.getOutputDirectory().getOrElse(jar.getDestinationDirectory().get()).toString(),
-            getArkBizName(jar, classifier));
+        File outputDir = this.arkExtension.getOutputDirectory()
+            .getOrElse(jar.getDestinationDirectory().get())
+            .getAsFile();
+
+        if (!outputDir.exists()) {
+            boolean created = outputDir.mkdirs();
+            if (!created) {
+                throw new GradleException("Failed to create output directory: " + outputDir.getAbsolutePath());
+            }
+            System.out.println("Created output directory: " + outputDir.getAbsolutePath());
+        }
+        File targetFile = new File(outputDir, getArkBizName(jar, classifier));
+        System.out.println("Target file will be created at: " + targetFile.getAbsolutePath());
+
+        return targetFile;
     }
 
     private String getArkBizName(Jar jar, String classifier){
