@@ -27,8 +27,8 @@ abstract public class ArkPluginExtension {
     public ArkPluginExtension(Project project){
         getPriority().convention(project.provider(() -> "100"));
         getOutputDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
-        getPluginName().convention("sofa-ark-plugin-gradle-plugin");
-        getDescription().convention("ark plugin");
+        getPluginName().convention(project.getName());
+        getDescription().convention("");
         getActivator().convention("");
     }
 

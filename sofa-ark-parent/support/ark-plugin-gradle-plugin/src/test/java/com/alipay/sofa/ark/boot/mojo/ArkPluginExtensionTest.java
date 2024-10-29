@@ -32,16 +32,16 @@ public class ArkPluginExtensionTest {
 
     @Before
     public void setup() {
-        project = ProjectBuilder.builder().build();
-        project.getPluginManager().apply("sofa.ark.plugin.gradle.plugin");
+        project = ProjectBuilder.builder().withName("test-project").build();
+        project.getPluginManager().apply("sofa-ark-plugin-gradle-plugin");
         extension = project.getExtensions().getByType(ArkPluginExtension.class);
     }
 
     @Test
     public void testDefaultValues() {
         assertEquals("100", extension.getPriority().get());
-        assertEquals("sofa-ark-plugin-gradle-plugin", extension.getPluginName().get());
-        assertEquals("ark plugin", extension.getDescription().get());
+        assertEquals("test-project", extension.getPluginName().get());
+        assertEquals("", extension.getDescription().get());
         assertEquals("", extension.getActivator().get());
         assertTrue(extension.getOutputDirectory().get().getAsFile().getPath().endsWith("build" + File.separator + "libs"));
     }
