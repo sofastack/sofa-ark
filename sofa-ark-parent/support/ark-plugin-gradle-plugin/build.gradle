@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+ext {
+    arkPluginGradlePluginId = 'sofa-ark-plugin-gradle-plugin'
+}
+
+group = 'com.alipay.sofa'
+version = '1.0.0'
+sourceCompatibility = '1.8'
+
+gradlePlugin {
+    plugins {
+        DependenciesPlugin{
+            id = arkPluginGradlePluginId
+            implementationClass = 'com.alipay.sofa.ark.boot.mojo.ArkPlugin'
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-compress:1.26.0'
+    testImplementation 'junit:junit:4.13.1'
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = arkPluginGradlePluginId
+            version = project.version
+        }
+    }
+    // publish to local maven repository
+    repositories {
+        maven {
+            mavenLocal()
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
