@@ -49,7 +49,7 @@ abstract public class SofaArkGradlePluginExtension {
         getBizName().convention(project.provider(() -> BIZ_NAME));
         getBizClassifier().convention(project.provider(() -> BIZ_CLASSIFIER));
 
-        getBizVersion().convention(project.provider(() -> ARK_JAR_PLUGIN_VERSION));
+        getBizVersion().convention(project.provider(() -> project.getVersion().toString()));
         getArkVersion().convention(project.provider(() -> ARK_JAR_PLUGIN_VERSION));
         getWebContextPath().convention(project.provider(()-> WEB_CONTEXT_PATH));
 

@@ -109,17 +109,9 @@ public class ArkArchiveSupport {
 
     public void configureBizManifest(Manifest manifest, String mainClass, String classes, String lib, String classPathIndex) {
         Attributes attributes = manifest.getAttributes();
-        attributes.putIfAbsent("Main-Class", this.loaderMainClass);
         attributes.putIfAbsent("Start-Class", mainClass);
-
-        attributes.putIfAbsent("Sofa-Ark-Version", arkVersion);
-        attributes.putIfAbsent("Ark-Container-Root","SOFA-ARK/container/");
-        attributes.computeIfAbsent("Spring-Boot-Version", (name) -> determineSpringBootVersion());
+        attributes.putIfAbsent("Main-Class", mainClass);
         attributes.putIfAbsent("Spring-Boot-Classes", classes);
-        attributes.putIfAbsent("Spring-Boot-Lib", lib);
-        if (classPathIndex != null) {
-            attributes.putIfAbsent("Spring-Boot-Classpath-Index", classPathIndex);
-        }
         buildModuleManifest(manifest);
 
     }
@@ -147,7 +139,6 @@ public class ArkArchiveSupport {
             this.arkManifest.getMainAttributes().putValue("build-email", gitInfo.getBuildEmail());
         }
     }
-
 
     private void buildModuleManifest(Manifest manifest){
         Attributes attributes = manifest.getAttributes();
