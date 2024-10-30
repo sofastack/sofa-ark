@@ -15,3 +15,9 @@ sofa-ark-parent/support/ark-plugin-maven-plugin/null.ark.plugin.bak
 sofa-ark-parent/support/ark-plugin-maven-plugin/xxx.ark.plugin
 sofa-ark-parent/core/common/C/\temp dir\b\c/test.txt
 sofa-ark-parent/core/common/C:\\temp dir\\b\\c/test.txt
+
+.gradle/
+build/
+gradle/
+gradlew
+gradlew.bat
