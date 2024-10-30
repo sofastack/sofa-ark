@@ -50,7 +50,6 @@ abstract public class SofaArkGradlePluginExtension {
         getBizClassifier().convention(project.provider(() -> BIZ_CLASSIFIER));
 
         getBizVersion().convention(project.provider(() -> project.getVersion().toString()));
-        getArkVersion().convention(project.provider(() -> ARK_JAR_PLUGIN_VERSION));
         getWebContextPath().convention(project.provider(()-> WEB_CONTEXT_PATH));
 
         getOutputDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
@@ -66,8 +65,6 @@ abstract public class SofaArkGradlePluginExtension {
     abstract public Property<String> getFinalName();
 
     abstract public Property<String> getArkClassifier();
-
-    abstract public Property<String> getArkVersion();
 
     abstract public Property<String> getWebContextPath();
 

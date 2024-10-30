@@ -138,6 +138,7 @@ public class ResolveMainClassName extends DefaultTask {
 
 	private String findMainClass(File file) {
 		try {
+			// TODO: compatible with non-spring-boot-project
 			return MainClassFinder.findSingleMainClass(file, SPRING_BOOT_APPLICATION_CLASS_NAME);
 		}
 		catch (IOException ex) {

@@ -77,7 +77,8 @@ public class ArkPluginAction implements Action<Project> {
 
         Configuration runtimeClasspath = project.getConfigurations().getByName("runtimeClasspath");
         Configuration sofaArkConfig = project.getConfigurations().maybeCreate("sofaArkConfig");
-        Dependency arkDependency = project.getDependencies().create(SofaArkGradlePlugin.ARK_BOOTSTRAP+arkConfig.getArkVersion().get());
+        // TODO: configure as the version of sofa-ark
+        Dependency arkDependency = project.getDependencies().create(SofaArkGradlePlugin.ARK_BOOTSTRAP+"2.2.14");
         ((ModuleDependency) arkDependency).setTransitive(false);
         sofaArkConfig.getDependencies().add(arkDependency);
         runtimeClasspath.extendsFrom(sofaArkConfig);
@@ -127,6 +128,7 @@ public class ArkPluginAction implements Action<Project> {
     private void applyExclusions(Configuration configuration, SofaArkGradlePluginExtension arkConfig) {
         for (String exclude : arkConfig.getExcludes().get()) {
             String[] parts = exclude.split(":");
+            // TODO: compatible with group:module:version
             if (parts.length == 2) {
                 Map<String, String> excludeMap = new HashMap<>();
                 excludeMap.put("group", parts[0]);

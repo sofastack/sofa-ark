@@ -100,7 +100,8 @@ public class ArkArchiveSupport {
         this.librarySpec = librarySpec;
         this.compressionResolver = compressionResolver;
         this.requiresUnpack.include(Specs.satisfyNone());
-        this.arkVersion = arkExtension.getArkVersion().get();
+        // TODO: configure as the version of sofa-ark
+        this.arkVersion = "2.2.14";
         this.arkExtension = arkExtension;
         this.gitInfo = JGitParser.parse(gitDic);
         buildArkManifest();

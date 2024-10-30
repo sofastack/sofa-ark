@@ -1,10 +1,43 @@
 plugins {
     id 'java'
     id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+ext {
+    arkGradlePluginId = 'sofa-ark-gradle-plugin'
 }
 
 group = 'com.alipay.sofa'
 version = '1.0.0'
+sourceCompatibility = '1.8'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = arkGradlePluginId
+            version = project.version
+        }
+    }
+
+    repositories {
+        maven {
+            mavenLocal()
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        DependenciesPlugin{
+            id = arkGradlePluginId
+            implementationClass = 'com.alipay.sofa.ark.plugin.SofaArkGradlePlugin'
+        }
+    }
+}
+
 
 repositories {
     mavenLocal()
