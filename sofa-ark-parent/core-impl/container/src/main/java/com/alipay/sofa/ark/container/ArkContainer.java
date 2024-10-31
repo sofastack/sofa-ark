@@ -152,6 +152,8 @@ public class ArkContainer {
                 }
             }));
             prepareArkConfig();
+            // don't remove this log print, add to init log space first before initialize ArkLogger
+            ArkLoggerFactory.getDefaultLogger().info("Ark container starting...");
             reInitializeArkLogger();
             arkServiceContainer.start();
             Pipeline pipeline = arkServiceContainer.getService(Pipeline.class);
