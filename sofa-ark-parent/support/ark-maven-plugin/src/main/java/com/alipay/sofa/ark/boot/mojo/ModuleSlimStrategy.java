@@ -64,6 +64,7 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_GROUPIDS;
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
