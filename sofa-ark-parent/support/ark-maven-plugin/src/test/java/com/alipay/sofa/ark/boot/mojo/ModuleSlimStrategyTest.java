@@ -224,7 +224,7 @@ public class ModuleSlimStrategyTest {
                         MavenUtils.getDependencyIdentity(differenceVersionDependency))));
 
         // case4: 配置开关：如果排除的依赖有问题，那么构建报错
-        config.setBuildFailWhenExcludeDiffBaseDependency(true);
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(true);
         try {
             strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
         } catch (MojoExecutionException e) {

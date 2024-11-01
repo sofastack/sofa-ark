@@ -64,7 +64,6 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_GROUPIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
@@ -123,7 +122,7 @@ public class ModuleSlimStrategy {
         Set<Artifact> toFilter = new HashSet<>(toFilterByExclude);
         toFilter.removeAll(toAddByInclude);
 
-        Set<Artifact> excludedButNoDependencyInBase = getExcludedArtifactButNoDependencyInBase(toFilter);
+        Set<Artifact> excludedButNoDependencyInBase = getExcludedButNoDependencyInBase(toFilter);
         Set<Artifact> excludedButDifferentVersionDependencyInBase = getExcludedButDifferentVersionDependencyInBase(toFilter);
 
         if(excludedButNoDependencyInBase.isEmpty() && excludedButDifferentVersionDependencyInBase.isEmpty()){
@@ -131,7 +130,7 @@ public class ModuleSlimStrategy {
             return;
         }
 
-        // 基座中没有该依赖 -> 基座添加该依赖，或模块不要排除该依赖
+        // Dependency not found in base; please add it to the base or do not exclude it in the module
         excludedButNoDependencyInBase.forEach(artifact -> {
             getLog().error(
                     String.format(
@@ -139,7 +138,11 @@ public class ModuleSlimStrategy {
                             getArtifactIdentity(artifact)));
         });
 
-        // 基座中有该依赖，但版本和模块的不一致 -> 请模块使用和基座相同的依赖版本
+        if(!excludedButNoDependencyInBase.isEmpty()){
+            throw new MojoExecutionException(String.format("check excludeWithBaseDependencyParentIdentity failed with base: %s",config.getBaseDependencyParentIdentity()));
+        }
+
+        // The base contains this dependency, but the version and module are inconsistent; Please use the same dependency version as the base in the module.
         List<Dependency> baseDependencies = getAllBaseDependencies();
         Map<String,Dependency> baseDependencyIdentityWithoutVersion = baseDependencies.stream().collect(Collectors.toMap(MavenUtils::getDependencyIdentityWithoutVersion, it -> it));
         excludedButDifferentVersionDependencyInBase.forEach(artifact -> {
@@ -150,8 +153,7 @@ public class ModuleSlimStrategy {
                             getArtifactIdentity(artifact), getDependencyIdentity(baseDependency)));
         });
 
-
-        if(config.isBuildFailWhenExcludeDiffBaseDependency()){
+        if(config.isBuildFailWhenExcludeBaseDependencyWithDiffVersion()){
             throw new MojoExecutionException(String.format("check excludeWithBaseDependencyParentIdentity failed with base: %s",config.getBaseDependencyParentIdentity()));
         }
     }
@@ -178,7 +180,7 @@ public class ModuleSlimStrategy {
         return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentity(it))).collect(Collectors.toSet());
     }
 
-    private Set<Artifact> getExcludedArtifactButNoDependencyInBase(Set<Artifact> toFilter) throws MojoExecutionException {
+    private Set<Artifact> getExcludedButNoDependencyInBase(Set<Artifact> toFilter) throws MojoExecutionException {
         List<Dependency> baseDependencies = getAllBaseDependencies();
 
         Map<String,Dependency> baseDependencyIdentityWithoutVersion = baseDependencies.stream().collect(Collectors.toMap(MavenUtils::getDependencyIdentityWithoutVersion, it -> it));
@@ -239,9 +241,9 @@ public class ModuleSlimStrategy {
         config.setExcludeSameBaseDependency(getBooleanWithDefault(arkYaml,
             EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY, true));
 
-        config.setBuildFailWhenExcludeDiffBaseDependency(getBooleanWithDefault(prop,
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(prop,
             EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
-        config.setBuildFailWhenExcludeDiffBaseDependency(getBooleanWithDefault(arkYaml,
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(arkYaml,
             EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
 
         initExcludeAndIncludeConfig();

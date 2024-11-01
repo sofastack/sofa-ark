@@ -1,0 +1,69 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.alipay.sofa",
+    "module": "sofa-ark-plugin-gradle-plugin",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.10.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "sofa-ark-plugin-gradle-plugin-1.0.0.jar",
+          "url": "sofa-ark-plugin-gradle-plugin-1.0.0.jar",
+          "size": 19651,
+          "sha512": "979faac155975aa4ca069463588fb6bbf1953ddb5f6af7fdd0541e561ecd2fc634293c4738d63c33c270d9e73e30f649305e066727166326384a45aca94b4231",
+          "sha256": "204af54aeae000af1cdebf5cd9d8cad925559cd6e0aec738f5493a75d9038f60",
+          "sha1": "7a8b4215359f82a17f677e119a5f70ce8e1eb518",
+          "md5": "6d57977a428f47166689d4d2bb1facaf"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.apache.commons",
+          "module": "commons-compress",
+          "version": {
+            "requires": "1.26.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "sofa-ark-plugin-gradle-plugin-1.0.0.jar",
+          "url": "sofa-ark-plugin-gradle-plugin-1.0.0.jar",
+          "size": 19651,
+          "sha512": "979faac155975aa4ca069463588fb6bbf1953ddb5f6af7fdd0541e561ecd2fc634293c4738d63c33c270d9e73e30f649305e066727166326384a45aca94b4231",
+          "sha256": "204af54aeae000af1cdebf5cd9d8cad925559cd6e0aec738f5493a75d9038f60",
+          "sha1": "7a8b4215359f82a17f677e119a5f70ce8e1eb518",
+          "md5": "6d57977a428f47166689d4d2bb1facaf"
+        }
+      ]
+    }
+  ]
+}
