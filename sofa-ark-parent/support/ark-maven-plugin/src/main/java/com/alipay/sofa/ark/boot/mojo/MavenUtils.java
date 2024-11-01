@@ -18,6 +18,8 @@ package com.alipay.sofa.ark.boot.mojo;
 
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 
 import java.util.Arrays;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 import static java.util.Arrays.asList;
 
 public class MavenUtils {
@@ -113,4 +116,54 @@ public class MavenUtils {
     public static boolean inUnLogScopes(String scope) {
         return UN_LOG_SCOPES.contains(scope);
     }
+
+    public static String getGAVIdentity(Artifact artifact) {
+        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+               + artifact.getBaseVersion();
+    }
+
+    public static String getArtifactIdentity(Artifact artifact) {
+        if (artifact.hasClassifier()) {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getClassifier()
+                   + STRING_COLON + artifact.getType();
+        } else {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getType();
+        }
+    }
+
+    public static String getArtifactIdentityWithoutVersion(Artifact artifact) {
+        if (artifact.hasClassifier()) {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getClassifier() + STRING_COLON + artifact.getType();
+        } else {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getType();
+        }
+
+    }
+
+    public static String getDependencyIdentity(Dependency dependency) {
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(dependency.getClassifier())) {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getVersion() + STRING_COLON
+                   + dependency.getClassifier() + STRING_COLON + dependency.getType();
+        } else {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getVersion() + STRING_COLON + dependency.getType();
+        }
+    }
+
+    public static String getDependencyIdentityWithoutVersion(Dependency dependency) {
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(dependency.getClassifier())) {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getClassifier() + STRING_COLON
+                   + dependency.getType();
+        } else {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getType();
+        }
+    }
+
 }

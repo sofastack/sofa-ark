@@ -50,6 +50,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getArtifactIdentity;
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getArtifactIdentityWithoutVersion;
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getDependencyIdentity;
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getGAVIdentity;
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getBooleanWithDefault;
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
@@ -77,9 +81,13 @@ public class ModuleSlimStrategy {
 
     private File                baseDir;
 
-    private static final String EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES = "excludeWithIndirectDependencies";
+    private static final String EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES           = "excludeWithIndirectDependencies";
 
-    private static final String DEFAULT_EXCLUDE_RULES                        = "rules.txt";
+    private static final String EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY                 = "excludeSameBaseDependency";
+
+    private static final String EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY = "buildFailWhenExcludeDiffBaseDependency";
+
+    private static final String DEFAULT_EXCLUDE_RULES                                  = "rules.txt";
 
     ModuleSlimStrategy(MavenProject project, DependencyNode projDependencyGraph,
                        ModuleSlimConfig config, File baseDir, Log log) {
@@ -92,11 +100,13 @@ public class ModuleSlimStrategy {
 
     public Set<Artifact> getSlimmedArtifacts() throws MojoExecutionException, IOException {
         initSlimStrategyConfig();
-        Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
 
+        Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
         Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project
             .getArtifacts());
         Set<Artifact> toAddByInclude = getArtifactsToAddByIncludeConfig(project.getArtifacts());
+
+        checkExcludeByParentIdentity(toFilterByExclude, toAddByInclude);
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
         filteredArtifacts.removeAll(toFilterByBase);
@@ -105,9 +115,57 @@ public class ModuleSlimStrategy {
         return filteredArtifacts;
     }
 
+    protected void checkExcludeByParentIdentity(Set<Artifact> toFilterByExclude, Set<Artifact> toAddByInclude) throws MojoExecutionException {
+        if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
+            return;
+        }
+
+        Set<Artifact> toFilter = new HashSet<>(toFilterByExclude);
+        toFilter.removeAll(toAddByInclude);
+
+        Set<Artifact> excludedButNoDependencyInBase = getExcludedButNoDependencyInBase(toFilter);
+        Set<Artifact> excludedButDifferentVersionDependencyInBase = getExcludedButDifferentVersionDependencyInBase(toFilter);
+
+        if(excludedButNoDependencyInBase.isEmpty() && excludedButDifferentVersionDependencyInBase.isEmpty()){
+            getLog().info(String.format("check excludeWithBaseDependencyParentIdentity success with base: %s",config.getBaseDependencyParentIdentity()));
+            return;
+        }
+
+        // Dependency not found in base; please add it to the base or do not exclude it in the module
+        excludedButNoDependencyInBase.forEach(artifact -> {
+            getLog().error(
+                    String.format(
+                            "error to exclude package jar: %s because no such jar in base, please keep the jar or add it to base",
+                            getArtifactIdentity(artifact)));
+        });
+
+        if(!excludedButNoDependencyInBase.isEmpty()){
+            throw new MojoExecutionException(String.format("check excludeWithBaseDependencyParentIdentity failed with base: %s",config.getBaseDependencyParentIdentity()));
+        }
+
+        // The base contains this dependency, but the version and module are inconsistent; Please use the same dependency version as the base in the module.
+        List<Dependency> baseDependencies = getAllBaseDependencies();
+        Map<String,Dependency> baseDependencyIdentityWithoutVersion = baseDependencies.stream().collect(Collectors.toMap(MavenUtils::getDependencyIdentityWithoutVersion, it -> it));
+        excludedButDifferentVersionDependencyInBase.forEach(artifact -> {
+            Dependency baseDependency = baseDependencyIdentityWithoutVersion.get(getArtifactIdentityWithoutVersion(artifact));
+            getLog().error(
+                    String.format(
+                            "error to exclude package jar: %s because it has different version with: %s in base, please keep the jar or set same version with base",
+                            getArtifactIdentity(artifact), getDependencyIdentity(baseDependency)));
+        });
+
+        if(config.isBuildFailWhenExcludeBaseDependencyWithDiffVersion()){
+            throw new MojoExecutionException(String.format("check excludeWithBaseDependencyParentIdentity failed with base: %s",config.getBaseDependencyParentIdentity()));
+        }
+    }
+
     protected Set<Artifact> getArtifactsToFilterByParentIdentity(Set<Artifact> artifacts)
                                                                                          throws MojoExecutionException {
         if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
+            return Collections.emptySet();
+        }
+
+        if (!config.isExcludeSameBaseDependency()) {
             return Collections.emptySet();
         }
 
@@ -116,19 +174,47 @@ public class ModuleSlimStrategy {
     }
 
     private Set<Artifact> getSameVersionArtifactsWithBase(Set<Artifact> artifacts) throws MojoExecutionException {
+        List<Dependency> baseDependencies = getAllBaseDependencies();
+
+        Set<String> dependencyIdentities = baseDependencies.stream().map(MavenUtils::getDependencyIdentity).collect(Collectors.toSet());
+
+        return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentity(it))).collect(Collectors.toSet());
+    }
+
+    private Set<Artifact> getExcludedButNoDependencyInBase(Set<Artifact> toFilter) throws MojoExecutionException {
+        List<Dependency> baseDependencies = getAllBaseDependencies();
+
+        Map<String,Dependency> baseDependencyIdentityWithoutVersion = baseDependencies.stream().collect(Collectors.toMap(MavenUtils::getDependencyIdentityWithoutVersion, it -> it));
+
+        return toFilter.stream().filter(it -> !baseDependencyIdentityWithoutVersion.containsKey(getArtifactIdentityWithoutVersion(it))).collect(Collectors.toSet());
+    }
+
+    private Set<Artifact> getExcludedButDifferentVersionDependencyInBase(Set<Artifact> toFilter) throws MojoExecutionException {
+        List<Dependency> baseDependencies = getAllBaseDependencies();
+        Map<String,Dependency> baseDependencyIdentityWithoutVersion = baseDependencies.stream().collect(Collectors.toMap(MavenUtils::getDependencyIdentityWithoutVersion, it -> it));
+        return toFilter.stream().filter(artifact ->
+                {
+                    String identityWithoutVersion = getArtifactIdentityWithoutVersion(artifact);
+                    return baseDependencyIdentityWithoutVersion.containsKey(identityWithoutVersion)
+                            && (!artifact.getBaseVersion().equals(baseDependencyIdentityWithoutVersion.get(identityWithoutVersion).getVersion()));
+                }
+        ).collect(Collectors.toSet());
+    }
+
+    private List<Dependency> getAllBaseDependencies() throws MojoExecutionException {
         // 获取基座DependencyParent的原始Model
         Model baseDependencyPom = getBaseDependencyParentOriginalModel();
-        if(null == baseDependencyPom){
-            throw new MojoExecutionException(String.format("can not find base dependency parent: %s",config.getBaseDependencyParentIdentity()));
+        if (null == baseDependencyPom) {
+            throw new MojoExecutionException(
+                String.format("can not find base dependency parent: %s",
+                    config.getBaseDependencyParentIdentity()));
         }
 
-        if(null == baseDependencyPom.getDependencyManagement()){
-            return Collections.emptySet();
+        if (null == baseDependencyPom.getDependencyManagement()) {
+            return Collections.emptyList();
         }
 
-        List<Dependency> baseDependencies = baseDependencyPom.getDependencyManagement().getDependencies();
-        Set<String> dependencyIdentities = baseDependencies.stream().map(this::getDependencyIdentity).collect(Collectors.toSet());
-        return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentity(it))).collect(Collectors.toSet());
+        return baseDependencyPom.getDependencyManagement().getDependencies();
     }
 
     protected Model getBaseDependencyParentOriginalModel() {
@@ -179,10 +265,21 @@ public class ModuleSlimStrategy {
     protected void initSlimStrategyConfig() throws IOException {
         Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
         Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
+
         config.setExcludeWithIndirectDependencies(getBooleanWithDefault(prop,
             EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
         config.setExcludeWithIndirectDependencies(getBooleanWithDefault(arkYaml,
             EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
+
+        config.setExcludeSameBaseDependency(getBooleanWithDefault(prop,
+            EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY, true));
+        config.setExcludeSameBaseDependency(getBooleanWithDefault(arkYaml,
+            EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY, true));
+
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(prop,
+            EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(arkYaml,
+            EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
 
         initExcludeAndIncludeConfig();
     }
@@ -222,8 +319,8 @@ public class ModuleSlimStrategy {
     }
 
     private Set<Artifact> excludeWithIndirectDependencies(Set<Artifact> literalArtifactsToExclude, Set<Artifact> artifacts) {
-        Set<String> excludeArtifactIdentities = literalArtifactsToExclude.stream().map(this::getArtifactIdentity).collect(Collectors.toSet());
-        Map<String,Artifact> artifactMap = artifacts.stream().collect(Collectors.toMap(this::getArtifactIdentity,it->it));
+        Set<String> excludeArtifactIdentities = literalArtifactsToExclude.stream().map(MavenUtils::getArtifactIdentity).collect(Collectors.toSet());
+        Map<String,Artifact> artifactMap = artifacts.stream().collect(Collectors.toMap(MavenUtils::getArtifactIdentity,it->it));
         return getExcludeWithIndirectDependencies(projDependencyGraph,excludeArtifactIdentities,artifactMap);
     }
 
