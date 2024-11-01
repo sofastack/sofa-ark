@@ -216,15 +216,49 @@ public class ModuleSlimStrategy {
         return baseDependencyPom.getDependencyManagement().getDependencies();
     }
 
-    private Model getBaseDependencyParentOriginalModel() {
+    protected Model getBaseDependencyParentOriginalModel() {
         MavenProject proj = project;
         while (null != proj) {
-            if (getGAVIdentity(proj.getArtifact()).equals(config.getBaseDependencyParentIdentity())) {
+            if (getGAIdentity(proj.getArtifact()).equals(config.getBaseDependencyParentIdentity())
+                || getGAVIdentity(proj.getArtifact()).equals(
+                    config.getBaseDependencyParentIdentity())) {
                 return proj.getOriginalModel();
             }
             proj = proj.getParent();
         }
         return null;
+    }
+
+    private String getGAVIdentity(Artifact artifact) {
+        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+               + artifact.getBaseVersion();
+    }
+
+    private String getGAIdentity(Artifact artifact) {
+        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId();
+    }
+
+    protected String getArtifactIdentity(Artifact artifact) {
+        if (artifact.hasClassifier()) {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getClassifier()
+                   + STRING_COLON + artifact.getType();
+        } else {
+            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
+                   + artifact.getBaseVersion() + STRING_COLON + artifact.getType();
+        }
+
+    }
+
+    private String getDependencyIdentity(Dependency dependency) {
+        if (StringUtils.isNotEmpty(dependency.getClassifier())) {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getVersion() + STRING_COLON
+                   + dependency.getClassifier() + STRING_COLON + dependency.getType();
+        } else {
+            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
+                   + STRING_COLON + dependency.getVersion() + STRING_COLON + dependency.getType();
+        }
     }
 
     protected void initSlimStrategyConfig() throws IOException {
