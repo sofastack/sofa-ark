@@ -205,13 +205,21 @@ public class ModuleSlimStrategyTest {
 
         // case2: 排除了基座没有的依赖
         toFilterByExclude = Sets.newHashSet(differentArtifact);
-        strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
-        verify(log)
-            .error(
-                eq(String
-                    .format(
-                        "error to exclude package jar: %s because no such jar in base, please keep the jar or add it to base",
-                        MavenUtils.getArtifactIdentity(differentArtifact))));
+        try {
+            strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        } catch (MojoExecutionException e) {
+            // 验证构建失败
+            verify(log)
+                .error(
+                    eq(String
+                        .format(
+                            "error to exclude package jar: %s because no such jar in base, please keep the jar or add it to base",
+                            MavenUtils.getArtifactIdentity(differentArtifact))));
+
+            assertEquals(String.format(
+                "check excludeWithBaseDependencyParentIdentity failed with base: %s",
+                config.getBaseDependencyParentIdentity()), e.getMessage());
+        }
 
         // case3: 排除了不同版本的依赖
         toFilterByExclude = Sets.newHashSet(differentVersionArtifact);
