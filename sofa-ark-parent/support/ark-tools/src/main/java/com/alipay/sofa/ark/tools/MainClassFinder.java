@@ -151,7 +151,7 @@ public class MainClassFinder {
         private boolean           mainMethodFound;
 
         ClassDescriptor() {
-            super(Opcodes.ASM8);
+            super(Opcodes.ASM9);
         }
 
         @Override
