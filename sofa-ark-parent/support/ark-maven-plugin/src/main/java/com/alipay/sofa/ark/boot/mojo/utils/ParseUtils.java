@@ -38,7 +38,11 @@ public class ParseUtils {
             return newHashSet();
         }
         String[] values = StringUtils.split(prop.getProperty(confKey), COMMA_SPLIT);
-        return values == null ? newHashSet() : newHashSet(values);
+        if (values == null) {
+            return newHashSet();
+        }
+        values = Arrays.stream(values).map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+        return newHashSet(values);
     }
 
     public static Set<String> getStringSet(Map<String, Object> yaml, String confKey) {

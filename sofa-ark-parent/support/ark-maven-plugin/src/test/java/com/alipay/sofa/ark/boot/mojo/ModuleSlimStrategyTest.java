@@ -29,6 +29,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,13 +48,16 @@ import static com.alipay.sofa.ark.boot.mojo.ReflectionUtils.setField;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -74,6 +79,8 @@ public class ModuleSlimStrategyTest {
 
         ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null,
             new ModuleSlimConfig(), mockBaseDir(), null));
+
+        doNothing().when(strategy).checkExcludeByParentIdentity(anySet(), anySet());
         doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
         doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
 
@@ -98,14 +105,17 @@ public class ModuleSlimStrategyTest {
         ModuleSlimStrategy strategy = spy(new ModuleSlimStrategy(proj, null, moduleSlimConfig,
             mockBaseDir(), null));
 
-        doReturn("a1").when(strategy).getArtifactIdentity(a1);
-        doReturn("a2").when(strategy).getArtifactIdentity(a2);
-        doReturn("a3").when(strategy).getArtifactIdentity(a3);
-        doReturn("a4").when(strategy).getArtifactIdentity(a4);
-        doReturn("a5").when(strategy).getArtifactIdentity(a5);
-        doReturn("a6").when(strategy).getArtifactIdentity(a6);
+        doNothing().when(strategy).checkExcludeByParentIdentity(anySet(), anySet());
+        try (MockedStatic<MavenUtils> mockedStatic = Mockito.mockStatic(MavenUtils.class)) {
+            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a1)).thenReturn("a1");
+            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a2)).thenReturn("a2");
+            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a3)).thenReturn("a3");
+            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a4)).thenReturn("a4");
+            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a5)).thenReturn("a5");
+            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a6)).thenReturn("a6");
 
-        assertEquals(6, strategy.getSlimmedArtifacts().size());
+            assertEquals(6, strategy.getSlimmedArtifacts().size());
+        }
     }
 
     @Test
@@ -130,10 +140,122 @@ public class ModuleSlimStrategyTest {
         when(differenceArtifact.getBaseVersion()).thenReturn("2.0-SNAPSHOT");
         when(sameArtifact.getType()).thenReturn("jar");
 
+        // case1: excludeSameBaseDependency=false
+        config.setExcludeSameBaseDependency(false);
         Set<Artifact> res = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(
             sameArtifact, differenceArtifact));
-        assertTrue(res.contains(sameArtifact));
-        assertFalse(res.contains(differenceArtifact));
+        assertTrue(res.isEmpty());
+
+        // case2: excludeSameBaseDependency=true
+        config.setExcludeSameBaseDependency(true);
+        Set<Artifact> res1 = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(
+            sameArtifact, differenceArtifact));
+        assertTrue(res1.contains(sameArtifact));
+        assertFalse(res1.contains(differenceArtifact));
+    }
+
+    @Test
+    public void testCheckExcludeByParentIdentity() throws URISyntaxException,
+                                                  MojoExecutionException {
+        ModuleSlimConfig config = (new ModuleSlimConfig())
+            .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
+
+        Log log = Mockito.mock(Log.class);
+        doNothing().when(log).info(anyString());
+        doNothing().when(log).error(anyString());
+
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), null,
+            config, mockBaseDir(), log);
+
+        // 基座和模块都有该依赖，且版本一致
+        Artifact sameArtifact = mock(Artifact.class);
+        when(sameArtifact.getGroupId()).thenReturn("com.mock");
+        when(sameArtifact.getArtifactId()).thenReturn("same-dependency-artifact");
+        when(sameArtifact.getVersion()).thenReturn("1.0");
+        when(sameArtifact.getBaseVersion()).thenReturn("1.0-SNAPSHOT");
+        when(sameArtifact.getType()).thenReturn("jar");
+
+        // 模块有，但基座没有的依赖
+        Artifact differentArtifact = mock(Artifact.class);
+        when(differentArtifact.getGroupId()).thenReturn("com.mock");
+        when(differentArtifact.getArtifactId()).thenReturn("different-artifact");
+        when(differentArtifact.getVersion()).thenReturn("1.0");
+        when(differentArtifact.getBaseVersion()).thenReturn("1.0-SNAPSHOT");
+        when(differentArtifact.getType()).thenReturn("jar");
+
+        // 模块和基座都有该依赖，但版本不一致
+        Artifact differentVersionArtifact = mock(Artifact.class);
+        when(differentVersionArtifact.getGroupId()).thenReturn("com.mock");
+        when(differentVersionArtifact.getArtifactId()).thenReturn("difference-dependency-artifact");
+        when(differentVersionArtifact.getVersion()).thenReturn("2.0");
+        when(differentVersionArtifact.getBaseVersion()).thenReturn("2.0-SNAPSHOT");
+        when(differentVersionArtifact.getType()).thenReturn("jar");
+
+        Dependency differenceVersionDependency = new Dependency();
+        differenceVersionDependency.setArtifactId("difference-dependency-artifact");
+        differenceVersionDependency.setGroupId("com.mock");
+        differenceVersionDependency.setVersion("1.0-SNAPSHOT");
+
+        // case1: 排除相同的依赖
+        Set<Artifact> toFilterByExclude = Sets.newHashSet(sameArtifact);
+        strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        verify(log)
+            .info(
+                eq("check excludeWithBaseDependencyParentIdentity success with base: com.mock:base-dependencies-starter:1.0"));
+
+        // case2: 排除了基座没有的依赖
+        toFilterByExclude = Sets.newHashSet(differentArtifact);
+        try {
+            strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        } catch (MojoExecutionException e) {
+            // 验证构建失败
+            verify(log)
+                .error(
+                    eq(String
+                        .format(
+                            "error to exclude package jar: %s because no such jar in base, please keep the jar or add it to base",
+                            MavenUtils.getArtifactIdentity(differentArtifact))));
+
+            assertEquals(String.format(
+                "check excludeWithBaseDependencyParentIdentity failed with base: %s",
+                config.getBaseDependencyParentIdentity()), e.getMessage());
+        }
+
+        // case3: 排除了不同版本的依赖
+        toFilterByExclude = Sets.newHashSet(differentVersionArtifact);
+        strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        verify(log)
+            .error(
+                eq(String
+                    .format(
+                        "error to exclude package jar: %s because it has different version with: %s in base, please keep the jar or set same version with base",
+                        MavenUtils.getArtifactIdentity(differentVersionArtifact),
+                        MavenUtils.getDependencyIdentity(differenceVersionDependency))));
+
+        // case4: 配置开关：如果排除的依赖有问题，那么构建报错
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(true);
+        try {
+            strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        } catch (MojoExecutionException e) {
+            // 验证构建失败
+            assertEquals(String.format(
+                "check excludeWithBaseDependencyParentIdentity failed with base: %s",
+                config.getBaseDependencyParentIdentity()), e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetBaseDependencyParentOriginalModel() throws URISyntaxException {
+        // find base-dependency-parent by gav identity
+        ModuleSlimConfig config = (new ModuleSlimConfig())
+            .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
+        ModuleSlimStrategy strategy = new ModuleSlimStrategy(getMockBootstrapProject(), null,
+            config, mockBaseDir(), null);
+        assertNotNull(strategy.getBaseDependencyParentOriginalModel());
+
+        // find base-dependency-parent by ga identity
+        config.setBaseDependencyParentIdentity("com.mock:base-dependencies-starter");
+        assertNotNull(strategy.getBaseDependencyParentOriginalModel());
     }
 
     @Test
