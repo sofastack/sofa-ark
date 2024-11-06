@@ -25,8 +25,6 @@ package com.alipay.sofa.ark.spi.model;
 public enum BizState {
     /**
      * init but not start install yet
-     * or
-     * uninstalled
      */
     UNRESOLVED("unresolved"),
     /**
@@ -45,9 +43,14 @@ public enum BizState {
     DEACTIVATED("deactivated"),
 
     /**
-     * install failed.
+     * install or uninstall failed.
      */
-    BROKEN("broken");
+    BROKEN("broken"),
+
+    /**
+     * uninstall succeed
+     */
+    STOPPED("stopped");
 
     private String state;
 
@@ -73,6 +76,8 @@ public enum BizState {
             return ACTIVATED;
         } else if (DEACTIVATED.name().equalsIgnoreCase(state)) {
             return DEACTIVATED;
+        } else if (STOPPED.name().equalsIgnoreCase(state)) {
+            return STOPPED;
         } else {
             return BROKEN;
         }
