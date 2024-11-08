@@ -24,7 +24,7 @@ package com.alipay.sofa.ark.spi.model;
  */
 public enum BizState {
     /**
-     * init but not start install yet
+     * not init or not start install yet
      */
     UNRESOLVED("unresolved"),
     /**
