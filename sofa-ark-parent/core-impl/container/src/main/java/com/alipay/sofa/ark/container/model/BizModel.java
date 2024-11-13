@@ -421,7 +421,7 @@ public class BizModel implements Biz {
                 BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer()
                     .getService(BizManagerService.class);
                 bizManagerService.unRegisterBiz(bizName, bizVersion);
-                setBizState(BizState.UNRESOLVED, StateChangeReason.STOPPED);
+                setBizState(BizState.STOPPED, StateChangeReason.STOPPED);
                 eventAdminService.sendEvent(new BeforeBizRecycleEvent(this));
                 urls = null;
                 denyImportPackages = null;

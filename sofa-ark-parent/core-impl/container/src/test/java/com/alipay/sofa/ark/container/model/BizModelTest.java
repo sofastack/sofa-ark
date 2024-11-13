@@ -145,7 +145,7 @@ public class BizModelTest {
                 bizModel.stop();
             } catch (RuntimeException e) {
             }
-            assertEquals(BizState.UNRESOLVED, bizModel.getBizState());
+            assertEquals(BizState.STOPPED, bizModel.getBizState());
         }
 
         bizModel.setBizState(BizState.ACTIVATED);
@@ -186,7 +186,7 @@ public class BizModelTest {
             mockedStatic.when(ArkServiceContainerHolder::getContainer).thenReturn(arkServiceContainer);
             bizModel.stop();
 
-            assertEquals(BizState.UNRESOLVED, bizModel.getBizState());
+            assertEquals(BizState.STOPPED, bizModel.getBizState());
         }
 
         bizModel.setBizState(BizState.ACTIVATED);
@@ -201,7 +201,7 @@ public class BizModelTest {
             mockedStatic.when(ArkServiceContainerHolder::getContainer).thenReturn(arkServiceContainer);
             bizModel.stop();
 
-            assertEquals(BizState.UNRESOLVED, bizModel.getBizState());
+            assertEquals(BizState.STOPPED, bizModel.getBizState());
         } finally {
             ArkConfigs.putStringValue(AUTO_UNINSTALL_WHEN_FAILED_ENABLE, "true");
         }
