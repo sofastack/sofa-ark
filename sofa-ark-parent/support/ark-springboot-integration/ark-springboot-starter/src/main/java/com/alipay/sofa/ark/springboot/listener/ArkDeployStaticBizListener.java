@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.springboot.listener;
 
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
+import org.springframework.boot.web.context.ConfigurableWebServerApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -33,7 +34,8 @@ public class ArkDeployStaticBizListener implements ApplicationListener<Applicati
             return;
         }
         if (ArkConfigs.isEmbedEnable() && ArkConfigs.isEmbedStaticBizEnable()) {
-            if (event instanceof ContextRefreshedEvent) {
+            if (event instanceof ContextRefreshedEvent
+                && event.getApplicationContext() instanceof ConfigurableWebServerApplicationContext) {
                 // After the master biz is started, statically deploy the other biz from classpath
                 EmbedSofaArkBootstrap.deployStaticBizAfterEmbedMasterBizStarted();
             }
