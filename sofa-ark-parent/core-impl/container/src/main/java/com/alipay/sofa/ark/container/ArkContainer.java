@@ -56,9 +56,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_CONF_FILE_FORMAT;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
 import static com.alipay.sofa.common.log.Constants.LOGGING_PATH_DEFAULT;
 import static com.alipay.sofa.common.log.Constants.LOG_ENCODING_PROP_KEY;
 import static com.alipay.sofa.common.log.Constants.LOG_PATH;
@@ -196,9 +197,19 @@ public class ArkContainer {
         }
 
         for (BizArchive bizArchive : bizArchives) {
+            // The static biz is already cached, skipping creation and registration
+            if (isStaticBizRegistered(bizArchive.getManifest().getMainAttributes())) {
+                continue;
+            }
             Biz biz = ArkClient.getBizFactoryService().createBiz(bizArchive);
             ArkClient.getBizManagerService().registerBiz(biz);
         }
+    }
+
+    private boolean isStaticBizRegistered(Attributes manifestMainAttributes) {
+        String bizName = manifestMainAttributes.getValue(ARK_BIZ_NAME);
+        String bizVersion = manifestMainAttributes.getValue(ARK_BIZ_VERSION);
+        return ArkClient.getBizManagerService().getBiz(bizName, bizVersion) != null;
     }
 
     /**

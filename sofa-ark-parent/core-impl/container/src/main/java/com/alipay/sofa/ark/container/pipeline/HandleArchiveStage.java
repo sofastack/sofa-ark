@@ -45,14 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_EXCLUDE;
-import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_ACTIVE_INCLUDE;
-import static com.alipay.sofa.ark.spi.constant.Constants.COMMA_SPLIT;
-import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
-import static com.alipay.sofa.ark.spi.constant.Constants.MANIFEST_VALUE_SPLIT;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_EXCLUDE;
-import static com.alipay.sofa.ark.spi.constant.Constants.PLUGIN_ACTIVE_INCLUDE;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * response to handle executable fat jar, parse plugin model and biz model from it
@@ -196,9 +189,19 @@ public class HandleArchiveStage implements PipelineStage {
         ExecutableArchive executableArchive = pipelineContext.getExecutableArchive();
         List<BizArchive> bizArchives = executableArchive.getBizArchives();
         for (BizArchive bizArchive : bizArchives) {
+            // The biz is already cached, skipping creation and registration
+            if (isStaticBizRegistered(bizArchive.getManifest().getMainAttributes())) {
+                continue;
+            }
             Biz biz = bizFactoryService.createBiz(bizArchive);
             bizManagerService.registerBiz(biz);
         }
+    }
+
+    private boolean isStaticBizRegistered(Attributes manifestMainAttributes) {
+        String bizName = manifestMainAttributes.getValue(ARK_BIZ_NAME);
+        String bizVersion = manifestMainAttributes.getValue(ARK_BIZ_VERSION);
+        return ArkClient.getBizManagerService().getBiz(bizName, bizVersion) != null;
     }
 
     public boolean isPluginExcluded(Plugin plugin) {
