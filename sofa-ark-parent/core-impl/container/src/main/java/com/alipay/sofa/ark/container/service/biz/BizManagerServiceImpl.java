@@ -234,7 +234,6 @@ public class BizManagerServiceImpl implements BizManagerService {
                     return bizCache.put(biz.getBizVersion(), biz) == null;
                 }
             }
-
         }
         return false;
     }
