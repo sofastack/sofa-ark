@@ -27,6 +27,8 @@ import org.springframework.core.annotation.Order;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
+import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
+
 /**
  * switch classloader to bizClassLoader in pre of web request handler
  * fix https://github.com/koupleless/koupleless/issues/212
@@ -41,7 +43,7 @@ import javax.servlet.Servlet;
 public class SwitchClassLoaderAutoConfiguration {
 
     @Bean(name = "switchClassLoaderFilter")
-    @Order(10)
+    @Order(HIGHEST_PRECEDENCE)
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = {
             "com.alipay.sofa.ark.springboot1.web.SwitchClassLoaderFilter",
             "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
@@ -59,7 +61,7 @@ public class SwitchClassLoaderAutoConfiguration {
     }
 
     @Bean(name = "switchClassLoaderFilter")
-    @Order(10)
+    @Order(HIGHEST_PRECEDENCE)
     @ConditionalOnClass(value = { Servlet.class, Tomcat.class, UpgradeProtocol.class }, name = {
             "com.alipay.sofa.ark.springboot2.web.SwitchClassLoaderFilter",
             "com.alipay.sofa.ark.web.embed.tomcat.ArkTomcatEmbeddedWebappClassLoader",
