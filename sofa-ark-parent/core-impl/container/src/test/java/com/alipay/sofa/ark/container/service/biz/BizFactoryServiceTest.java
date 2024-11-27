@@ -34,6 +34,7 @@ import java.net.URL;
 import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
 import static com.alipay.sofa.ark.container.service.ArkServiceContainerHolder.getContainer;
 import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.UNPACK_BIZ_WHEN_INSTALL;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertNotNull;
 
@@ -82,23 +83,33 @@ public class BizFactoryServiceTest extends BaseTest {
     }
 
     @Test
-    public void testCreateBizWithoutBizOperationUnpack() throws IOException {
-        ClassLoader cl = currentThread().getContextClassLoader();
-        URL sampleBiz = cl.getResource("sample-biz.jar");
-        System.setProperty(EMBED_ENABLE, "true");
-        System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "true");
-        Biz bizUnpack = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
-        assertNotNull(bizUnpack);
-    }
-
-    @Test
     public void testCreateBizWithoutBizOperation() throws IOException {
-        ClassLoader cl = currentThread().getContextClassLoader();
-        URL sampleBiz = cl.getResource("sample-biz.jar");
-        System.setProperty(EMBED_ENABLE, "true");
-        System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "false");
-        Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
-        assertNotNull(biz);
+        String originalEmbed = System.getProperty(EMBED_ENABLE);
+        String originalUnpack = System.getProperty(UNPACK_BIZ_WHEN_INSTALL);
+        try {
+            ClassLoader cl = currentThread().getContextClassLoader();
+            URL sampleBiz = cl.getResource("sample-biz.jar");
+            System.setProperty(EMBED_ENABLE, "true");
+            System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "true");
+            Biz bizUnpack = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
+            assertNotNull(bizUnpack);
+
+            System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "false");
+            Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
+            assertNotNull(biz);
+
+        } finally {
+            if (originalEmbed != null) {
+                System.setProperty(EMBED_ENABLE, originalEmbed);
+            } else {
+                System.clearProperty(EMBED_ENABLE);
+            }
+            if (originalUnpack != null) {
+                System.setProperty(UNPACK_BIZ_WHEN_INSTALL, originalUnpack);
+            } else {
+                System.clearProperty(UNPACK_BIZ_WHEN_INSTALL);
+            }
+        }
     }
 
     @Test
