@@ -33,8 +33,7 @@ import java.net.URL;
 
 import static com.alipay.sofa.ark.api.ArkConfigs.putStringValue;
 import static com.alipay.sofa.ark.container.service.ArkServiceContainerHolder.getContainer;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_PLUGIN_MARK_ENTRY;
-import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertNotNull;
 
@@ -80,6 +79,26 @@ public class BizFactoryServiceTest extends BaseTest {
         assertNotNull(masterBiz);
         assertNotNull(masterBiz.getBizClassLoader().getResource(
             "com/alipay/sofa/ark/container/service/biz/"));
+    }
+
+    @Test
+    public void testCreateBizWithoutBizOperationUnpack() throws IOException {
+        ClassLoader cl = currentThread().getContextClassLoader();
+        URL sampleBiz = cl.getResource("sample-biz.jar");
+        System.setProperty(EMBED_ENABLE, "true");
+        System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "true");
+        Biz bizUnpack = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
+        assertNotNull(bizUnpack);
+    }
+
+    @Test
+    public void testCreateBizWithoutBizOperation() throws IOException {
+        ClassLoader cl = currentThread().getContextClassLoader();
+        URL sampleBiz = cl.getResource("sample-biz.jar");
+        System.setProperty(EMBED_ENABLE, "true");
+        System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "false");
+        Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
+        assertNotNull(biz);
     }
 
     @Test
