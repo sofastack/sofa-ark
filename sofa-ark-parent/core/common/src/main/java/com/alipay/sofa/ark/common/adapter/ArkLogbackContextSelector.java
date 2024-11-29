@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.common.adapter;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.selector.ContextSelector;
+import ch.qos.logback.core.CoreConstants;
 import com.alipay.sofa.ark.common.util.StringUtils;
 
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class ArkLogbackContextSelector implements ContextSelector {
                 loggerContext = CLASS_LOADER_LOGGER_CONTEXT.get(cls);
                 if (null == loggerContext) {
                     loggerContext = new LoggerContext();
-                    loggerContext.setName(Integer.toHexString(System.identityHashCode(cls)));
+                    loggerContext.setName(CoreConstants.DEFAULT_CONTEXT_NAME);
                     CLASS_LOADER_LOGGER_CONTEXT.put(cls, loggerContext);
                 }
             }
