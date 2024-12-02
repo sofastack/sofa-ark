@@ -171,6 +171,7 @@ public class Constants {
     /**
      * Event
      */
+    public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_ALL_BIZ_START    = "AFTER-INVOKE-ALL-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START        = "AFTER-INVOKE-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED              = "BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED";
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP         = "AFTER-INVOKE-BIZ-STOP";
