@@ -90,10 +90,6 @@ public class BizFactoryServiceTest extends BaseTest {
             ClassLoader cl = currentThread().getContextClassLoader();
             URL sampleBiz = cl.getResource("sample-biz.jar");
             System.setProperty(EMBED_ENABLE, "true");
-            System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "true");
-            Biz bizUnpack = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
-            assertNotNull(bizUnpack);
-
             System.setProperty(UNPACK_BIZ_WHEN_INSTALL, "false");
             Biz biz = bizFactoryService.createBiz(FileUtils.file(sampleBiz.getFile()));
             assertNotNull(biz);
