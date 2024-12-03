@@ -20,6 +20,7 @@ import ch.qos.logback.classic.ClassicConstants;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.selector.ContextSelector;
 import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
+import ch.qos.logback.core.CoreConstants;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.ILoggerFactory;
@@ -55,7 +56,7 @@ public class ArkLogbackContextSelectorTest {
 
         URL url = ArkLogbackContextSelectorTest.class.getClassLoader().getResource("");
         URLClassLoader loader = new URLClassLoader(new URL[] { url }, null);
-        String contextName = Integer.toHexString(System.identityHashCode(loader));
+        String contextName = CoreConstants.DEFAULT_CONTEXT_NAME;
 
         Method getContext = ArkLogbackContextSelector.class.getDeclaredMethod("getContext",
             ClassLoader.class);
