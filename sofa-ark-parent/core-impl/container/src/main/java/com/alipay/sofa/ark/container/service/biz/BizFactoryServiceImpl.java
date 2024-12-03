@@ -52,19 +52,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_NAME;
-import static com.alipay.sofa.ark.spi.constant.Constants.ARK_BIZ_VERSION;
-import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_CLASSES;
-import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_PACKAGES;
-import static com.alipay.sofa.ark.spi.constant.Constants.DENY_IMPORT_RESOURCES;
-import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_EXPORT_PACKAGES;
-import static com.alipay.sofa.ark.spi.constant.Constants.INJECT_PLUGIN_DEPENDENCIES;
-import static com.alipay.sofa.ark.spi.constant.Constants.MAIN_CLASS_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
-import static com.alipay.sofa.ark.spi.constant.Constants.PRIORITY_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.START_CLASS_ATTRIBUTE;
-import static com.alipay.sofa.ark.spi.constant.Constants.WEB_CONTEXT_PATH;
-import static com.alipay.sofa.ark.spi.constant.Constants.DECLARED_LIBRARIES;
+import static com.alipay.sofa.ark.spi.constant.Constants.*;
 
 /**
  * {@link BizFactoryService}
@@ -116,7 +104,9 @@ public class BizFactoryServiceImpl implements BizFactoryService {
     @Override
     public Biz createBiz(File file) throws IOException {
         BizArchive bizArchive;
-        if (ArkConfigs.isEmbedEnable()) {
+        boolean unpackBizWhenInstall = Boolean.parseBoolean(ArkConfigs.getStringValue(
+            UNPACK_BIZ_WHEN_INSTALL, "true"));
+        if (ArkConfigs.isEmbedEnable() && unpackBizWhenInstall) {
             File unpackFile = FileUtils.file(file.getAbsolutePath() + "-unpack");
             if (!unpackFile.exists()) {
                 unpackFile = FileUtils.unzip(file, file.getAbsolutePath() + "-unpack");
