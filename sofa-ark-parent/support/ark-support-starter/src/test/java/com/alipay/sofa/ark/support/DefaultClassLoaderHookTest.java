@@ -140,8 +140,8 @@ public class DefaultClassLoaderHookTest {
         Assert.assertNotNull(bizModel.getBizClassLoader().getResource(
             "sample-ark-1.0.0-ark-biz.jar"));
 
-        // case 7: find resource from master in jar
-        Assert.assertNotNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Exported"));
+        // case 7: find resource from master in multiple jar
+        Assert.assertNull(bizModel.getBizClassLoader().getResource("Sample_Resource_Exported_A"));
 
         // case 8: find resources from master but not set provided in biz model
         Assert.assertFalse(bizModel.getBizClassLoader().getResources("org/slf4j/ILoggerFactory.class")
