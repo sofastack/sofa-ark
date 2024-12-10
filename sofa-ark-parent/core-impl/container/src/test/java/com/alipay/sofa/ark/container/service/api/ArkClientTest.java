@@ -329,23 +329,28 @@ public class ArkClientTest extends BaseTest {
         bizOperation.setBizName("biz-demo");
         bizOperation.setBizVersion("5.0.0");
 
-        Map<String, String> envs = Collections.singletonMap(Constants.BIZ_MAIN_CLASS, "org.example.Main2");
+        Map<String, String> envs = Collections.singletonMap(Constants.BIZ_MAIN_CLASS,
+            "org.example.Main2");
 
         ClientResponse response2 = installOperation(bizOperation, new String[] {}, envs);
         assertEquals(SUCCESS, response2.getCode());
-        assertEquals("org.example.Main2", (new ArrayList<>(response2.getBizInfos())).get(0).getMainClass());
+        assertEquals("org.example.Main2", (new ArrayList<>(response2.getBizInfos())).get(0)
+            .getMainClass());
 
         // but in fact, the biz module was packaged with mainClass as org.example.Main1
         URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
-        File file = ArkClient.createBizSaveFile(bizOperation.getBizName(), bizOperation.getBizVersion());
+        File file = ArkClient.createBizSaveFile(bizOperation.getBizName(),
+            bizOperation.getBizVersion());
         try (InputStream inputStream = url.openStream()) {
             FileUtils.copyInputStreamToFile(inputStream, file);
         }
         JarFile bizFile = new JarFile(file);
         JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
         BizArchive bizArchive = new JarBizArchive(jarFileArchive);
-        assertEquals("org.example.Main1", bizArchive.getManifest().getMainAttributes().getValue(Constants.MAIN_CLASS_ATTRIBUTE));
-        assertEquals("org.example.Main1", bizArchive.getManifest().getMainAttributes().getValue(Constants.START_CLASS_ATTRIBUTE));
+        assertEquals("org.example.Main1",
+            bizArchive.getManifest().getMainAttributes().getValue(Constants.MAIN_CLASS_ATTRIBUTE));
+        assertEquals("org.example.Main1",
+            bizArchive.getManifest().getMainAttributes().getValue(Constants.START_CLASS_ATTRIBUTE));
     }
 
     @Test

@@ -331,8 +331,9 @@ public class BizModel implements Biz {
             String mainClassFromEnv = envs.get(Constants.BIZ_MAIN_CLASS);
             if (mainClassFromEnv != null) {
                 mainClass = mainClassFromEnv;
-                ArkLoggerFactory.getDefaultLogger().info("Ark biz {} will start with main class {} from envs",
-                        getIdentity(), mainClassFromEnv);
+                ArkLoggerFactory.getDefaultLogger().info(
+                    "Ark biz {} will start with main class {} from envs", getIdentity(),
+                    mainClassFromEnv);
             }
         }
 
