@@ -14,7 +14,7 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>2.2.16-SNAPSHOT</sofa.ark.version>
+        <sofa.ark.version>2.2.16</sofa.ark.version>
         <sofa.ark.version.old>2.2.15</sofa.ark.version.old>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>

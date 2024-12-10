@@ -171,6 +171,7 @@ public class Constants {
     /**
      * Event
      */
+    public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_ALL_BIZ_START    = "AFTER-INVOKE-ALL-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_START        = "AFTER-INVOKE-BIZ-START";
     public final static String       BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED              = "BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED";
     public final static String       BIZ_EVENT_TOPIC_AFTER_INVOKE_BIZ_STOP         = "AFTER-INVOKE-BIZ-STOP";
@@ -203,11 +204,17 @@ public class Constants {
 
     public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
+    public final static String       BIZ_MAIN_CLASS                                = "sofa.ark.biz.main.class";
 
     /**
      * uninstall the biz if it starts up failed
      */
     public final static String       AUTO_UNINSTALL_WHEN_FAILED_ENABLE             = "sofa.ark.auto.uninstall.when.failed.enable";
+
+    /**
+     * unpack the biz when install
+     */
+    public final static String       UNPACK_BIZ_WHEN_INSTALL                       = "sofa.ark.unpack.biz.when.install";
 
     /**
      * support multiple version biz as activated

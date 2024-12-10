@@ -144,7 +144,7 @@ public class BizClassLoaderTest extends BaseTest {
             .setExportClasses("")
             .setExportPackages(ClassUtils.getPackageName(ITest.class.getName()))
             .setImportResources(StringUtils.EMPTY_STRING)
-            .setExportResources("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB")
+            .setExportResources("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB, Sample_Resource_Exported_A")
             .setPluginClassLoader(
                 new PluginClassLoader(pluginA.getPluginName(), pluginA.getClassPath()));
 
@@ -157,7 +157,7 @@ public class BizClassLoaderTest extends BaseTest {
             .setExportClasses("com.alipay.sofa.ark.sample.common.SampleClassExported,org.aopalliance.aop.Advice")
             .setExportPackages("")
             .setImportResources(StringUtils.EMPTY_STRING)
-            .setExportResources("Sample_Resource_Exported, META-INF/spring/service.xml")
+            .setExportResources("Sample_Resource_Exported, META-INF/spring/service.xml, Sample_Resource_Exported_A")
             .setPluginClassLoader(
                 new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
 

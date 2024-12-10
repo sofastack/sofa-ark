@@ -16,10 +16,17 @@
  */
 package com.alipay.sofa.ark.container.service.api;
 
+import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.api.ArkConfigs;
 import com.alipay.sofa.ark.api.ClientResponse;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
+import com.alipay.sofa.ark.loader.JarBizArchive;
+import com.alipay.sofa.ark.loader.archive.JarFileArchive;
+import com.alipay.sofa.ark.loader.jar.JarFile;
+import com.alipay.sofa.ark.spi.archive.BizArchive;
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
 import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.BizInfo;
@@ -33,9 +40,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.alipay.sofa.ark.api.ArkClient.checkBiz;
 import static com.alipay.sofa.ark.api.ArkClient.checkOperation;
@@ -93,6 +103,8 @@ public class ArkClientTest extends BaseTest {
     private URL bizUrl3;
     // bizName=biz-demo, bizVersion=4.0.0
     private URL bizUrl4;
+    // bizName=biz-demo, bizVersion=5.0.0
+    private URL bizUrl5;
 
     @Before
     public void before() {
@@ -105,6 +117,8 @@ public class ArkClientTest extends BaseTest {
         bizUrl3 = this.getClass().getClassLoader().getResource("sample-ark-3.0.0-ark-biz.jar");
         // bizName=biz-demo, bizVersion=4.0.0
         bizUrl4 = this.getClass().getClassLoader().getResource("sample-ark-4.0.0-ark-biz.jar");
+        // bizName=biz-demo, bizVersion=5.0.0
+        bizUrl5 = this.getClass().getClassLoader().getResource("sample-ark-5.0.0-ark-biz.jar");
     }
 
     @Test
@@ -303,6 +317,40 @@ public class ArkClientTest extends BaseTest {
 
         ClientResponse response = installOperation(bizOperation, new String[] {});
         assertEquals(SUCCESS, response.getCode());
+    }
+
+    @Test
+    public void testInstallOperationWithDynamicMainClass() throws Throwable {
+
+        // the biz module will start with dynamic mainClass specified in env parameters, which is org.example.Main2
+        BizOperation bizOperation = new BizOperation();
+        bizOperation.setOperationType(INSTALL);
+        bizOperation.getParameters().put(CONFIG_BIZ_URL, bizUrl5.toString());
+        bizOperation.setBizName("biz-demo");
+        bizOperation.setBizVersion("5.0.0");
+
+        Map<String, String> envs = Collections.singletonMap(Constants.BIZ_MAIN_CLASS,
+            "org.example.Main2");
+
+        ClientResponse response2 = installOperation(bizOperation, new String[] {}, envs);
+        assertEquals(SUCCESS, response2.getCode());
+        assertEquals("org.example.Main2", (new ArrayList<>(response2.getBizInfos())).get(0)
+            .getMainClass());
+
+        // but in fact, the biz module was packaged with mainClass as org.example.Main1
+        URL url = new URL(bizOperation.getParameters().get(Constants.CONFIG_BIZ_URL));
+        File file = ArkClient.createBizSaveFile(bizOperation.getBizName(),
+            bizOperation.getBizVersion());
+        try (InputStream inputStream = url.openStream()) {
+            FileUtils.copyInputStreamToFile(inputStream, file);
+        }
+        JarFile bizFile = new JarFile(file);
+        JarFileArchive jarFileArchive = new JarFileArchive(bizFile);
+        BizArchive bizArchive = new JarBizArchive(jarFileArchive);
+        assertEquals("org.example.Main1",
+            bizArchive.getManifest().getMainAttributes().getValue(Constants.MAIN_CLASS_ATTRIBUTE));
+        assertEquals("org.example.Main1",
+            bizArchive.getManifest().getMainAttributes().getValue(Constants.START_CLASS_ATTRIBUTE));
     }
 
     @Test
