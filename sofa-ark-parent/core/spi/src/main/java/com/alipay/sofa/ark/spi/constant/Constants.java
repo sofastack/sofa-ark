@@ -204,6 +204,7 @@ public class Constants {
 
     public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
+    public final static String       BIZ_MAIN_CLASS                                = "sofa.ark.biz.main.class";
 
     /**
      * uninstall the biz if it starts up failed
