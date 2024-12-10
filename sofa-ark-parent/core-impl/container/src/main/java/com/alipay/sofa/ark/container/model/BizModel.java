@@ -325,6 +325,18 @@ public class BizModel implements Biz {
 
     private void doStart(String[] args, Map<String, String> envs) throws Throwable {
         AssertUtils.isTrue(bizState == BizState.RESOLVED, "BizState must be RESOLVED");
+
+        // support specify mainClass by env
+        if (envs != null) {
+            String mainClassFromEnv = envs.get(Constants.BIZ_MAIN_CLASS);
+            if (mainClassFromEnv != null) {
+                mainClass = mainClassFromEnv;
+                ArkLoggerFactory.getDefaultLogger().info(
+                    "Ark biz {} will start with main class {} from envs", getIdentity(),
+                    mainClassFromEnv);
+            }
+        }
+
         if (mainClass == null) {
             throw new ArkRuntimeException(String.format("biz: %s has no main method", getBizName()));
         }
