@@ -157,4 +157,6 @@ public interface BizManagerService {
 
     ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> getBizRegistration();
 
+    boolean registerBizIfAbsent(Biz biz);
+
 }

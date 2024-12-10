@@ -221,4 +221,13 @@ public class BizManagerServiceImpl implements BizManagerService {
     public ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> getBizRegistration() {
         return bizRegistration;
     }
+
+    @Override
+    public boolean registerBizIfAbsent(Biz biz) {
+        AssertUtils.assertNotNull(biz, "Biz must not be null.");
+        AssertUtils.isTrue(biz.getBizState() == BizState.RESOLVED, "BizState must be RESOLVED.");
+        bizRegistration.putIfAbsent(biz.getBizName(), new ConcurrentHashMap<>(16));
+        ConcurrentHashMap<String, Biz> bizCache = bizRegistration.get(biz.getBizName());
+        return bizCache.putIfAbsent(biz.getBizVersion(), biz) == null;
+    }
 }
