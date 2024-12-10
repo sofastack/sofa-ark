@@ -44,6 +44,8 @@ import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -354,7 +356,7 @@ public class BizModel implements Biz {
                     getIdentity(), (System.currentTimeMillis() - start));
             }
         } catch (Throwable e) {
-            setBizState(BizState.BROKEN, StateChangeReason.INSTALL_FAILED, e.getMessage());
+            setBizState(BizState.BROKEN, StateChangeReason.INSTALL_FAILED, getStackTraceAsString(e));
             eventAdminService.sendEvent(new AfterBizStartupFailedEvent(this, e));
             throw e;
         } finally {
@@ -652,5 +654,12 @@ public class BizModel implements Biz {
             String.format("move biz temp work dir from %s to %s", sourcePath, targetPath));
 
         return targetPath;
+    }
+
+    private static String getStackTraceAsString(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString();
     }
 }
