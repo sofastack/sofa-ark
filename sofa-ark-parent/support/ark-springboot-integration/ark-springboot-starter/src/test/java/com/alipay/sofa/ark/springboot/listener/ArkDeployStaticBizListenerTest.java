@@ -36,10 +36,14 @@ public class ArkDeployStaticBizListenerTest {
     public void testDiffClassLoader() {
         ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(new ClassLoader() {});
-        listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
-        bootstrap.verify(Mockito.times(0), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
-        Thread.currentThread().setContextClassLoader(contextClassLoader);
+        try {
+            Thread.currentThread().setContextClassLoader(new ClassLoader() {
+            });
+            listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
+            bootstrap.verify(Mockito.times(0), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
     }
 
     /**
