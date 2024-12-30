@@ -197,7 +197,7 @@ public class HandleArchiveStage implements PipelineStage {
         List<BizArchive> bizArchives = executableArchive.getBizArchives();
         for (BizArchive bizArchive : bizArchives) {
             Biz biz = bizFactoryService.createBiz(bizArchive);
-            bizManagerService.registerBizIfAbsent(biz);
+            bizManagerService.registerBiz(biz);
         }
     }
 

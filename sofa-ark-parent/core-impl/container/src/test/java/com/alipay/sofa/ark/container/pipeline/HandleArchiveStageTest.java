@@ -16,14 +16,12 @@
  */
 package com.alipay.sofa.ark.container.pipeline;
 
-import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.container.model.BizModel;
 import com.alipay.sofa.ark.loader.DirectoryBizArchive;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.archive.ExecutableArchive;
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
-import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.pipeline.PipelineContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
@@ -33,17 +31,16 @@ import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import static com.alipay.sofa.ark.api.ArkConfigs.getStringValue;
 import static com.alipay.sofa.ark.api.ArkConfigs.setSystemProperty;
-import static com.alipay.sofa.ark.spi.constant.Constants.*;
+import static com.alipay.sofa.ark.spi.constant.Constants.CONFIG_SERVER_ADDRESS;
+import static com.alipay.sofa.ark.spi.constant.Constants.MASTER_BIZ;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
 
@@ -155,25 +152,13 @@ public class HandleArchiveStageTest {
 
     @Test
     public void testProcessStaticBizFromClasspath() throws Exception {
-        MockedStatic<ArkClient> arkClientMockedStatic = mockStatic(ArkClient.class);
-        arkClientMockedStatic.when(ArkClient::getBizManagerService).thenReturn(bizManagerService);
-        try {
-            BizArchive bizArchive = mock(BizArchive.class);
-            Manifest manifest = new Manifest();
-            Attributes mainAttributes = manifest.getMainAttributes();
-            mainAttributes.putValue(ARK_BIZ_NAME, "biz1");
-            mainAttributes.putValue(ARK_BIZ_VERSION, "0.0.1");
-            when(bizArchive.getManifest()).thenReturn(manifest);
-            ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> map = new ConcurrentHashMap<>();
-            when(bizManagerService.getBizRegistration()).thenReturn(map);
-            when(executableArchive.getBizArchives()).thenReturn(asList(bizArchive));
 
-            handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
-            verify(bizFactoryService, times(1)).createBiz((bizArchive));
-            verify(bizManagerService, times(1)).registerBizIfAbsent(null);
-        }finally {
-            arkClientMockedStatic.close();
-        }
+        BizArchive bizArchive = mock(BizArchive.class);
+        when(executableArchive.getBizArchives()).thenReturn(asList(bizArchive));
+
+        handleArchiveStage.processStaticBizFromClasspath(pipelineContext);
+        verify(bizFactoryService, times(1)).createBiz((bizArchive));
+        verify(bizManagerService, times(1)).registerBiz(null);
     }
 
     @Test

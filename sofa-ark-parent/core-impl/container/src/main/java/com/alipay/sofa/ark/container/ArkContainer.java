@@ -197,7 +197,7 @@ public class ArkContainer {
 
         for (BizArchive bizArchive : bizArchives) {
             Biz biz = ArkClient.getBizFactoryService().createBiz(bizArchive);
-            ArkClient.getBizManagerService().registerBizIfAbsent(biz);
+            ArkClient.getBizManagerService().registerBiz(biz);
         }
     }
 
