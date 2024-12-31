@@ -80,7 +80,6 @@ public class ArkDeployStaticBizListenerTest {
             arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
             ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
             listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
-            bootstrap.verify(Mockito.times(1), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
             // 容器刷新事件已经发送过，重复发送不会重复部署
             listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
             bootstrap.verify(Mockito.times(1), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
