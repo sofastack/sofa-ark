@@ -59,13 +59,18 @@ public class ArkDeployStaticBizListenerTest {
      */
     @Test
     public void testNonContextRefreshedEvent() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (MockedStatic<EmbedSofaArkBootstrap> bootstrap = mockStatic(EmbedSofaArkBootstrap.class);
              MockedStatic<ArkConfigs> arkConfigs = mockStatic(ArkConfigs.class)) {
+            ClassLoader classLoader = ArkDeployStaticBizListener.class.getClassLoader();
+            Thread.currentThread().setContextClassLoader(classLoader);
             arkConfigs.when(ArkConfigs::isEmbedEnable).thenReturn(true);
             arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
             ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
             listener.onApplicationEvent(new ContextStartedEvent(new AnnotationConfigApplicationContext()));
             bootstrap.verify(Mockito.times(0), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }
 
@@ -74,8 +79,11 @@ public class ArkDeployStaticBizListenerTest {
      */
     @Test
     public void testDeployed() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (MockedStatic<EmbedSofaArkBootstrap> bootstrap = mockStatic(EmbedSofaArkBootstrap.class);
              MockedStatic<ArkConfigs> arkConfigs = mockStatic(ArkConfigs.class)) {
+            ClassLoader classLoader = ArkDeployStaticBizListener.class.getClassLoader();
+            Thread.currentThread().setContextClassLoader(classLoader);
             arkConfigs.when(ArkConfigs::isEmbedEnable).thenReturn(true);
             arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
             ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
@@ -83,6 +91,8 @@ public class ArkDeployStaticBizListenerTest {
             // 容器刷新事件已经发送过，重复发送不会重复部署
             listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
             bootstrap.verify(Mockito.times(1), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }
 }
