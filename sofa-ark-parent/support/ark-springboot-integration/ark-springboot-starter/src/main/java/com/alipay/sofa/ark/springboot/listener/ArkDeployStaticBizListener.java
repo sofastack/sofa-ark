@@ -23,8 +23,12 @@ import org.springframework.context.event.ApplicationContextEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class ArkDeployStaticBizListener implements ApplicationListener<ApplicationContextEvent>,
                                        Ordered {
+
+    private final AtomicBoolean deployed = new AtomicBoolean(false);
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
@@ -33,7 +37,7 @@ public class ArkDeployStaticBizListener implements ApplicationListener<Applicati
             return;
         }
         if (ArkConfigs.isEmbedEnable() && ArkConfigs.isEmbedStaticBizEnable()) {
-            if (event instanceof ContextRefreshedEvent) {
+            if (event instanceof ContextRefreshedEvent && deployed.compareAndSet(false, true)) {
                 // After the master biz is started, statically deploy the other biz from classpath
                 EmbedSofaArkBootstrap.deployStaticBizAfterEmbedMasterBizStarted();
             }
