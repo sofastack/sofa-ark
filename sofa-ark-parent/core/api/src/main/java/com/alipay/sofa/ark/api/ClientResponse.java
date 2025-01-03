@@ -17,6 +17,7 @@
 package com.alipay.sofa.ark.api;
 
 import com.alipay.sofa.ark.spi.model.BizInfo;
+import com.alipay.sofa.ark.spi.model.Plugin;
 
 import java.util.Set;
 
@@ -31,6 +32,7 @@ public class ClientResponse {
     private String       message;
     private ResponseCode code;
     private Set<BizInfo> bizInfos;
+    private Set<Plugin>  pluginInfos;
 
     public String getMessage() {
         return message;
@@ -56,6 +58,15 @@ public class ClientResponse {
 
     public ClientResponse setBizInfos(Set<BizInfo> bizInfos) {
         this.bizInfos = bizInfos;
+        return this;
+    }
+
+    public Set<Plugin> getPluginInfos() {
+        return pluginInfos;
+    }
+
+    public ClientResponse setPluginInfos(Set<Plugin> pluginInfos) {
+        this.pluginInfos = pluginInfos;
         return this;
     }
 }

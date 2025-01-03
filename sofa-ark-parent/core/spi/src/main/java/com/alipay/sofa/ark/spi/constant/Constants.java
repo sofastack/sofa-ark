@@ -113,6 +113,7 @@ public class Constants {
     public final static String       INJECT_PLUGIN_DEPENDENCIES                    = "inject-plugin-dependencies";
     public final static String       INJECT_EXPORT_PACKAGES                        = "inject-export-packages";
     public final static String       DECLARED_LIBRARIES                            = "declared-libraries";
+    public final static String       DEPENDENT_PLUGINS                             = "dependent-plugins";
 
     public static final String       BRANCH                                        = "commit-branch";
     public static final String       COMMIT_ID                                     = "commit-id";
@@ -205,6 +206,8 @@ public class Constants {
     public final static String       EMBED_STATIC_BIZ_IN_RESOURCE_ENABLE           = "sofa.ark.embed.static.biz.in.resource.enable";
     public final static String       ACTIVATE_NEW_MODULE                           = "activate.new.module";
     public final static String       BIZ_MAIN_CLASS                                = "sofa.ark.biz.main.class";
+    public final static String       PLUGIN_CLASS_ISOLATION_ENABLE                 = "sofa.ark.plugin.class.isolation.enable";
+    public final static String       BIZ_SPECIFY_DEPENDENT_PLUGINS_ENABLE          = "sofa.ark.biz.specify.dependent.plugins.enable";
 
     /**
      * uninstall the biz if it starts up failed
@@ -257,7 +260,9 @@ public class Constants {
     public final static String       CONFIG_PROTOCOL_ZOOKEEPER_HEADER              = "zookeeper://";
     public final static String       ZOOKEEPER_CONTEXT_SPLIT                       = "/";
     public final static String       CONFIG_INSTALL_BIZ_DIR                        = "com.alipay.sofa.ark.biz.dir";
+    public final static String       CONFIG_INSTALL_PLUGIN_DIR                     = "com.alipay.sofa.ark.plugin.dir";
     public final static String       CONFIG_BIZ_URL                                = "bizUrl";
+    public final static String       BIZ_EXTENSION_URLS                            = "bizExtensionUrls";
 
     public final static String       CONFIG_CONNECT_TIMEOUT                        = "com.alipay.sofa.ark.config.connect.timeout";
     public final static int          DEFAULT_CONFIG_CONNECT_TIMEOUT                = 20000;

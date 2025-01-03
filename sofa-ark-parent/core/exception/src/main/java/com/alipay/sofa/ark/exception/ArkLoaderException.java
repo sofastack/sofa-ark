@@ -24,17 +24,24 @@ package com.alipay.sofa.ark.exception;
  */
 public class ArkLoaderException extends ClassNotFoundException {
 
+    private Throwable cause;
+
     public ArkLoaderException(String s) {
         super(s);
     }
 
     public ArkLoaderException(String s, Throwable ex) {
-        super(s, ex);
+        super(s);
+        this.cause = ex;
     }
 
     @Override
     public Throwable fillInStackTrace() {
         // dont fill stack trace, avoid cpu hotspot
         return this;
+    }
+
+    public Throwable getCause() {
+        return cause;
     }
 }
