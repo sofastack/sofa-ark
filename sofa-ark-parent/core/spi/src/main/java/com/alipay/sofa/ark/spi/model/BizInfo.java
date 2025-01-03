@@ -169,6 +169,22 @@ public interface BizInfo {
             return String.format("%s -> %s with reason: %s and message: %s", date, state, reason,
                 message);
         }
+
+        public Date getChangeTime() {
+            return changeTime;
+        }
+
+        public BizState getState() {
+            return state;
+        }
+
+        public StateChangeReason getReason() {
+            return reason;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 
     enum StateChangeReason {
@@ -185,7 +201,12 @@ public interface BizInfo {
         /**
          * 模块启动失败
          */
-        FAILED("Failed"),
+        INSTALL_FAILED("Install Failed"),
+
+        /**
+         * 模块卸载失败
+         */
+        UN_INSTALL_FAILED("Uninstall Failed"),
 
         /**
          * 模块被切换为 ACTIVATED 或 DEACTIVATED 状态

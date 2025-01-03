@@ -106,10 +106,17 @@ public class DelegateToMasterBizClassLoaderHook implements ClassLoaderHook<Biz> 
             if (resourceUrl != null && biz.isDeclared(resourceUrl, name)) {
                 return resourceUrl;
             }
-            return null;
+
+            Enumeration<URL> matchResourceUrls = postFindResources(name, classLoaderService, biz);
+
+            // get the first resource url when match multiple resources
+            if (matchResourceUrls != null && matchResourceUrls.hasMoreElements()) {
+                return matchResourceUrls.nextElement();
+            }
         } catch (Exception e) {
             return null;
         }
+        return null;
     }
 
     @Override

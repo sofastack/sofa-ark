@@ -152,6 +152,8 @@ public class ArkContainer {
                 }
             }));
             prepareArkConfig();
+            // don't remove this log print, add to init log space first before initialize ArkLogger
+            ArkLoggerFactory.getDefaultLogger().info("Ark container starting...");
             reInitializeArkLogger();
             arkServiceContainer.start();
             Pipeline pipeline = arkServiceContainer.getService(Pipeline.class);
@@ -248,8 +250,8 @@ public class ArkContainer {
      * @throws ArkRuntimeException
      */
     public void reInitializeArkLogger() throws ArkRuntimeException {
-        for (Map.Entry<SpaceId, SpaceInfo> entry : MultiAppLoggerSpaceManager.getSpacesMap()
-            .entrySet()) {
+        for (Map.Entry<SpaceId, SpaceInfo> entry : ((Map<SpaceId, SpaceInfo>) MultiAppLoggerSpaceManager
+            .getSpacesMap()).entrySet()) {
             SpaceId spaceId = entry.getKey();
             SpaceInfo spaceInfo = entry.getValue();
             if (!ArkLoggerFactory.SOFA_ARK_LOGGER_SPACE.equals(spaceId.getSpaceName())) {

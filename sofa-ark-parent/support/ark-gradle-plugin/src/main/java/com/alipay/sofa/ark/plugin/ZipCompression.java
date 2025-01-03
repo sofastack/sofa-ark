@@ -14,22 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.event.biz;
+package com.alipay.sofa.ark.plugin;
 
-import com.alipay.sofa.ark.spi.constant.Constants;
-import com.alipay.sofa.ark.spi.event.AbstractArkEvent;
-import com.alipay.sofa.ark.spi.model.Biz;
+import java.util.zip.ZipEntry;
 
-/**
- * @author lianglipeng.llp@alibaba-inc.com
- * @since 2.2.9
- */
-public class AfterBizFailedEvent extends AbstractArkEvent<Biz> {
-    Throwable throwable;
+public enum ZipCompression {
 
-    public AfterBizFailedEvent(Biz source, Throwable e) {
-        super(source);
-        this.throwable = e;
-        this.topic = Constants.BIZ_EVENT_TOPIC_AFTER_BIZ_FAILED;
-    }
+	/**
+	 * The entry should be {@link ZipEntry#STORED} in the archive.
+	 */
+	STORED,
+
+	/**
+	 * The entry should be {@link ZipEntry#DEFLATED} in the archive.
+	 */
+	DEFLATED
+
 }
