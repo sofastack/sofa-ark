@@ -22,16 +22,14 @@ import com.alipay.sofa.ark.api.ClientResponse;
 import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.service.biz.BizManagerServiceImpl;
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.loader.JarBizArchive;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.jar.JarFile;
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.ArkEvent;
-import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizConfig;
-import com.alipay.sofa.ark.spi.model.BizInfo;
-import com.alipay.sofa.ark.spi.model.BizOperation;
+import com.alipay.sofa.ark.spi.model.*;
 import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
@@ -48,23 +46,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.alipay.sofa.ark.api.ArkClient.checkBiz;
-import static com.alipay.sofa.ark.api.ArkClient.checkOperation;
-import static com.alipay.sofa.ark.api.ArkClient.createBizSaveFile;
-import static com.alipay.sofa.ark.api.ArkClient.getArguments;
-import static com.alipay.sofa.ark.api.ArkClient.getBizFactoryService;
-import static com.alipay.sofa.ark.api.ArkClient.getBizManagerService;
-import static com.alipay.sofa.ark.api.ArkClient.getPluginManagerService;
-import static com.alipay.sofa.ark.api.ArkClient.installBiz;
-import static com.alipay.sofa.ark.api.ArkClient.installOperation;
-import static com.alipay.sofa.ark.api.ArkClient.invocationReplay;
-import static com.alipay.sofa.ark.api.ArkClient.setBizFactoryService;
-import static com.alipay.sofa.ark.api.ArkClient.setBizManagerService;
-import static com.alipay.sofa.ark.api.ArkClient.switchOperation;
-import static com.alipay.sofa.ark.api.ArkClient.uninstallBiz;
-import static com.alipay.sofa.ark.api.ArkClient.uninstallOperation;
-import static com.alipay.sofa.ark.api.ResponseCode.REPEAT_BIZ;
-import static com.alipay.sofa.ark.api.ResponseCode.SUCCESS;
+import static com.alipay.sofa.ark.api.ArkClient.*;
+import static com.alipay.sofa.ark.api.ResponseCode.*;
 import static com.alipay.sofa.ark.common.util.FileUtils.copyInputStreamToFile;
 import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_NEW_MODULE;
 import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
@@ -106,6 +89,8 @@ public class ArkClientTest extends BaseTest {
     private URL bizUrl4;
     // bizName=biz-demo, bizVersion=5.0.0
     private URL bizUrl5;
+    // samplePlugin
+    private URL samplePlugin;
 
     @Before
     public void before() {
@@ -120,6 +105,8 @@ public class ArkClientTest extends BaseTest {
         bizUrl4 = this.getClass().getClassLoader().getResource("sample-ark-4.0.0-ark-biz.jar");
         // bizName=biz-demo, bizVersion=5.0.0
         bizUrl5 = this.getClass().getClassLoader().getResource("sample-ark-5.0.0-ark-biz.jar");
+        // samplePlugin
+        samplePlugin = this.getClass().getClassLoader().getResource("sample-plugin.jar");
     }
 
     @Test
@@ -460,5 +447,20 @@ public class ArkClientTest extends BaseTest {
                 return "1";
             }
         }));
+    }
+
+    @Test
+    public void testInstallPlugin() throws Throwable {
+        PluginOperation pluginOperation = new PluginOperation();
+        pluginOperation.setPluginName("plugin-demo");
+        ClientResponse clientResponse = installPlugin(pluginOperation);
+        assertEquals(FAILED, clientResponse.getCode());
+
+        pluginOperation.setLocalFile(new File(samplePlugin.toURI()));
+        try {
+            installPlugin(pluginOperation);
+        } catch (Exception exception) {
+            assertTrue(exception instanceof ArkRuntimeException);
+        }
     }
 }

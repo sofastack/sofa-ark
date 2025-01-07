@@ -460,6 +460,13 @@ public class ArkClient {
             }
         }
 
+        ClientResponse response = new ClientResponse();
+        if (localFile == null) {
+            response.setCode(ResponseCode.FAILED).setMessage(String.format("Install Plugin: %s-%s fail, local file is null.",
+                    pluginOperation.getPluginName(), pluginOperation.getPluginVersion()));
+            return response;
+        }
+
         PluginConfig pluginConfig = new PluginConfig();
         if (!StringUtils.isEmpty(pluginOperation.getPluginName())) {
             pluginConfig.setSpecifiedName(pluginOperation.getPluginName());
@@ -489,7 +496,6 @@ public class ArkClient {
         // register
         pluginManagerService.registerPlugin(plugin);
         // start
-        ClientResponse response = new ClientResponse();
         try {
             plugin.start();
             long end = System.currentTimeMillis();
