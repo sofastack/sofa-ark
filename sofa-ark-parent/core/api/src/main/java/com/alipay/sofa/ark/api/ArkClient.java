@@ -462,7 +462,8 @@ public class ArkClient {
 
         ClientResponse response = new ClientResponse();
         if (localFile == null) {
-            response.setCode(ResponseCode.FAILED).setMessage(String.format("Install Plugin: %s-%s fail, local file is null.",
+            response.setCode(ResponseCode.FAILED).setMessage(
+                String.format("Install Plugin: %s-%s fail, local file is null.",
                     pluginOperation.getPluginName(), pluginOperation.getPluginVersion()));
             return response;
         }
