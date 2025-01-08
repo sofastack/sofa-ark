@@ -462,5 +462,10 @@ public class ArkClientTest extends BaseTest {
         } catch (Exception exception) {
             assertTrue(exception instanceof ArkRuntimeException);
         }
+
+        clientResponse = checkPlugin();
+        assertEquals(1, clientResponse.getPluginInfos().size());
+        clientResponse = checkPlugin("plugin-demo");
+        assertEquals(1, clientResponse.getPluginInfos().size());
     }
 }
