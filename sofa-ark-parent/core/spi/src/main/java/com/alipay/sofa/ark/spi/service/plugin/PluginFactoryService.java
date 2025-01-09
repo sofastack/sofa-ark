@@ -18,6 +18,7 @@ package com.alipay.sofa.ark.spi.service.plugin;
 
 import com.alipay.sofa.ark.spi.archive.PluginArchive;
 import com.alipay.sofa.ark.spi.model.Plugin;
+import com.alipay.sofa.ark.spi.model.PluginConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +60,10 @@ public interface PluginFactoryService {
      * @throws IOException throw io exception when {@link PluginArchive} is invalid.
      */
     Plugin createPlugin(File file) throws IOException;
+
+    Plugin createPlugin(File file, URL[] extensions) throws IOException;
+
+    Plugin createPlugin(File file, PluginConfig pluginConfig) throws IOException;
 
     /**
      * Mock Plugin Model according to master biz

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.spi.service.classloader;
 
+import com.alipay.sofa.ark.spi.model.Biz;
 import com.alipay.sofa.ark.spi.model.Plugin;
 import com.alipay.sofa.ark.spi.service.ArkService;
 
@@ -91,6 +92,8 @@ public interface ClassLoaderService extends ArkService {
      */
     ClassLoader findExportClassLoader(String className);
 
+    ClassLoader findExportClassLoaderByBiz(Biz biz, String className);
+
     Plugin findExportPlugin(String className);
 
     /**
@@ -107,6 +110,8 @@ public interface ClassLoaderService extends ArkService {
      * @return classloader list
      */
     List<ClassLoader> findExportResourceClassLoadersInOrder(String resourceName);
+
+    List<ClassLoader> findExportResourceClassLoadersInOrderByBiz(Biz biz, String resourceName);
 
     /**
      * Get JDK Related class classloader
