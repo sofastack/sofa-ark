@@ -67,6 +67,7 @@ public class TestClassLoader extends BizClassLoader {
         Biz testBiz = createTestBiz(bizIdentity);
         bizManagerService.registerBiz(testBiz);
         ((BizModel) testBiz).setBizState(BizState.ACTIVATED);
+        super.setBizModel((BizModel) testBiz);
     }
 
     @Override

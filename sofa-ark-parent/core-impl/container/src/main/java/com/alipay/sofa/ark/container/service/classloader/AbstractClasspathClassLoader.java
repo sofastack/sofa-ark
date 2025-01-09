@@ -457,7 +457,13 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
 
     private Class<?> doResolveExportClass(String name) {
         if (shouldFindExportedClass(name)) {
-            ClassLoader importClassLoader = classloaderService.findExportClassLoader(name);
+            ClassLoader importClassLoader = null;
+            if (this instanceof BizClassLoader) {
+                importClassLoader = classloaderService.findExportClassLoaderByBiz(
+                    ((BizClassLoader) this).getBizModel(), name);
+            } else if (this instanceof PluginClassLoader) {
+                importClassLoader = classloaderService.findExportClassLoader(name);
+            }
             if (importClassLoader != null) {
                 try {
                     Class<?> clazz = importClassLoader.loadClass(name);
@@ -555,12 +561,18 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
      */
     protected URL getExportResource(String resourceName) {
         if (shouldFindExportedResource(resourceName)) {
-            URL url;
-            List<ClassLoader> exportResourceClassLoadersInOrder = classloaderService
-                .findExportResourceClassLoadersInOrder(resourceName);
+            List<ClassLoader> exportResourceClassLoadersInOrder = null;
+            if (this instanceof BizClassLoader) {
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrderByBiz(
+                        ((BizClassLoader) this).getBizModel(), resourceName);
+            } else if (this instanceof PluginClassLoader) {
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrder(resourceName);
+            }
             if (exportResourceClassLoadersInOrder != null) {
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {
-                    url = exportResourceClassLoader.getResource(resourceName);
+                    URL url = exportResourceClassLoader.getResource(resourceName);
                     if (url != null && this instanceof BizClassLoader) {
                         if (((BizClassLoader) (this)).getBizModel().isDeclared(url, resourceName)) {
                             return url;
@@ -629,8 +641,15 @@ public abstract class AbstractClasspathClassLoader extends URLClassLoader {
     @SuppressWarnings("unchecked")
     protected Enumeration<URL> getExportResources(String resourceName) throws IOException {
         if (shouldFindExportedResource(resourceName)) {
-            List<ClassLoader> exportResourceClassLoadersInOrder = classloaderService
-                .findExportResourceClassLoadersInOrder(resourceName);
+            List<ClassLoader> exportResourceClassLoadersInOrder = null;
+            if (this instanceof BizClassLoader) {
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrderByBiz(
+                        ((BizClassLoader) this).getBizModel(), resourceName);
+            } else if (this instanceof PluginClassLoader) {
+                exportResourceClassLoadersInOrder = classloaderService
+                    .findExportResourceClassLoadersInOrder(resourceName);
+            }
             if (exportResourceClassLoadersInOrder != null) {
                 List<Enumeration<URL>> enumerationList = new ArrayList<>();
                 for (ClassLoader exportResourceClassLoader : exportResourceClassLoadersInOrder) {

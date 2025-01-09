@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.api.ArkClient;
 import com.alipay.sofa.ark.bootstrap.AgentClassLoader;
 import com.alipay.sofa.ark.common.util.ClassLoaderUtils;
 import com.alipay.sofa.ark.common.util.ClassUtils;
+import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.container.BaseTest;
 import com.alipay.sofa.ark.container.model.BizModel;
@@ -27,7 +28,8 @@ import com.alipay.sofa.ark.container.model.PluginModel;
 import com.alipay.sofa.ark.container.service.ArkServiceContainerHolder;
 import com.alipay.sofa.ark.container.testdata.ITest;
 import com.alipay.sofa.ark.exception.ArkLoaderException;
-import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.*;
+import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.classloader.ClassLoaderService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginDeployService;
@@ -41,9 +43,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Optional;
+import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Thread.currentThread;
 
 /**
  * @author ruoshan
@@ -99,6 +102,8 @@ public class BizClassLoaderTest extends BaseTest {
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
+        bizModel.getExportNodeAndClassLoaderMap().put(
+            ClassUtils.getPackageName(ITest.class.getName()), pluginA);
 
         bizManagerService.registerBiz(bizModel);
 
@@ -166,6 +171,12 @@ public class BizClassLoaderTest extends BaseTest {
         pluginDeployService.deploy();
         classloaderService.prepareExportClassAndResourceCache();
 
+        bizModel.getExportNodeAndClassLoaderMap().put(ClassUtils.getPackageName(ITest.class.getName()), pluginA);
+        bizModel.getExportClassAndClassLoaderMap().put("org.aopalliance.aop.Advice", pluginB);
+        bizModel.getExportClassAndClassLoaderMap().put("com.alipay.sofa.ark.sample.common.SampleClassExported", pluginB);
+        bizModel.getExportResourceAndClassLoaderMap().put("META-INF/spring/service.xml", newArrayList(pluginB));
+        bizModel.getExportResourceAndClassLoaderMap().put("Sample_Resource_Exported", newArrayList(pluginB));
+        bizModel.getExportResourceAndClassLoaderMap().put("META-INF/services/sofa-ark/com.alipay.sofa.ark.container.service.extension.spi.ServiceB", newArrayList(pluginA));
         bizManagerService.registerBiz(bizModel);
 
         // case 1: find class from multiple libs in plugin classloader
@@ -257,6 +268,9 @@ public class BizClassLoaderTest extends BaseTest {
             .setPluginClassLoader(
                 new PluginClassLoader(pluginB.getPluginName(), pluginB.getClassPath()));
 
+        bizModel.getExportClassAndClassLoaderMap().put(
+            "com.alipay.sofa.ark.sample.springbootdemo.SpringbootDemoApplication", pluginB);
+
         pluginManagerService.registerPlugin(pluginA);
         pluginManagerService.registerPlugin(pluginB);
         pluginDeployService.deploy();
@@ -337,6 +351,14 @@ public class BizClassLoaderTest extends BaseTest {
         classloaderService.prepareExportClassAndResourceCache();
 
         BizModel bizModel = createTestBizModel("bizA", "1.0.0", BizState.RESOLVED, new URL[] {});
+        Set<Plugin> plugins = new HashSet<>();
+        plugins.add(pluginA);
+        bizModel.setDependentPlugins(plugins);
+        bizModel.getExportResourceAndClassLoaderMap().put("pluginA_export_resource1.xml",
+            newArrayList(pluginA));
+        bizModel.getExportResourceAndClassLoaderMap().put("pluginA_export_resource2.xml",
+            newArrayList(pluginA));
+
         bizModel.setDenyImportResources(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportPackages(StringUtils.EMPTY_STRING);
         bizModel.setDenyImportClasses(StringUtils.EMPTY_STRING);
@@ -351,7 +373,7 @@ public class BizClassLoaderTest extends BaseTest {
         invalidClassLoaderCache(bizModel.getBizClassLoader());
         Assert.assertNull(bizModel.getBizClassLoader().getResource("pluginA_export_resource2.xml"));
 
-        Assert.assertTrue(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
+        Assert.assertFalse(bizModel.getBizClassLoader().loadClass(ITest.class.getName())
             .getClassLoader() instanceof PluginClassLoader);
 
         bizModel.setDenyImportPackages("com.alipay.sofa.ark.container.testdata");
@@ -400,10 +422,7 @@ public class BizClassLoaderTest extends BaseTest {
         Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource1));
         Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource2));
         Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource3));
-        // testResource4 not in deny-import
-        Assert.assertNotNull(bizModel.getBizClassLoader().getResource(testResource4));
-        Assert.assertEquals(pluginA.getPluginClassLoader().getResource(testResource4), bizModel
-            .getBizClassLoader().getResource(testResource4));
+        Assert.assertNull(bizModel.getBizClassLoader().getResource(testResource4));
     }
 
     @Test
@@ -417,6 +436,9 @@ public class BizClassLoaderTest extends BaseTest {
         ClassLoader classLoader = this.getClass().getClassLoader();
         BizClassLoader bizClassLoader = new BizClassLoader("mock:1.0",
             ClassLoaderUtils.getURLs(classLoader));
+        BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
+            BizManagerService.class);
+        bizClassLoader.setBizModel((BizModel) bizManagerService.getBiz("mock", "1.0"));
         URL url = bizClassLoader.getResource("");
         Assert.assertNotNull(url);
         Assert.assertEquals(url, this.getClass().getResource("/"));

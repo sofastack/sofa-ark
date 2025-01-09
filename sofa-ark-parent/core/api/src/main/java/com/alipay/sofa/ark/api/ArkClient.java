@@ -25,27 +25,23 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.spi.constant.Constants;
 import com.alipay.sofa.ark.spi.event.biz.AfterBizSwitchEvent;
 import com.alipay.sofa.ark.spi.event.biz.BeforeBizSwitchEvent;
-import com.alipay.sofa.ark.spi.model.Biz;
-import com.alipay.sofa.ark.spi.model.BizInfo;
-import com.alipay.sofa.ark.spi.model.BizOperation;
-import com.alipay.sofa.ark.spi.model.BizState;
+import com.alipay.sofa.ark.spi.model.*;
 import com.alipay.sofa.ark.spi.replay.Replay;
 import com.alipay.sofa.ark.spi.replay.ReplayContext;
 import com.alipay.sofa.ark.spi.service.biz.BizFactoryService;
 import com.alipay.sofa.ark.spi.service.biz.BizManagerService;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.injection.InjectionService;
+import com.alipay.sofa.ark.spi.service.plugin.PluginFactoryService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.AUTO_UNINSTALL_WHEN_FAILED_ENABLE;
 
@@ -60,6 +56,7 @@ public class ArkClient {
     private static BizManagerService    bizManagerService;
     private static BizFactoryService    bizFactoryService;
     private static PluginManagerService pluginManagerService;
+    private static PluginFactoryService pluginFactoryService;
     private static Biz                  masterBiz;
     private static InjectionService     injectionService;
     private static String[]             arguments;
@@ -122,6 +119,14 @@ public class ArkClient {
         return pluginManagerService;
     }
 
+    public static PluginFactoryService getPluginFactoryService() {
+        return pluginFactoryService;
+    }
+
+    public static void setPluginFactoryService(PluginFactoryService pluginFactoryService) {
+        ArkClient.pluginFactoryService = pluginFactoryService;
+    }
+
     public static Biz getMasterBiz() {
         return masterBiz;
     }
@@ -164,26 +169,33 @@ public class ArkClient {
         return installBiz(bizFile, arguments, envs);
     }
 
+    public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
+        return installBiz(bizFile, args, null);
+    }
+
     public static ClientResponse installBiz(File bizFile, String[] args, Map<String, String> envs)
                                                                                                   throws Throwable {
-        return doInstallBiz(bizFile, args, envs);
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setArgs(args);
+        bizConfig.setEnvs(envs);
+        return doInstallBiz(bizFile, bizConfig);
     }
 
-    public static ClientResponse installBiz(File bizFile, String[] args) throws Throwable {
-        return doInstallBiz(bizFile, args, null);
+    public static ClientResponse installBiz(File bizFile, BizConfig bizConfig) throws Throwable {
+        return doInstallBiz(bizFile, bizConfig);
     }
 
-    private static ClientResponse doInstallBiz(File bizFile, String[] args, Map<String, String> envs)
-                                                                                                     throws Throwable {
+    private static ClientResponse doInstallBiz(File bizFile, BizConfig bizConfig) throws Throwable {
         AssertUtils.assertNotNull(bizFactoryService, "bizFactoryService must not be null!");
         AssertUtils.assertNotNull(bizManagerService, "bizManagerService must not be null!");
         AssertUtils.assertNotNull(bizFile, "bizFile must not be null!");
+        AssertUtils.assertNotNull(bizConfig, "bizConfig must not be null!");
 
         long start = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
         String startDate = sdf.format(new Date(start));
 
-        Biz biz = bizFactoryService.createBiz(bizFile);
+        Biz biz = bizFactoryService.createBiz(bizFile, bizConfig);
         ClientResponse response = new ClientResponse();
         if (bizManagerService.getBizByIdentity(biz.getIdentity()) != null
             || !bizManagerService.registerBiz(biz)) {
@@ -192,7 +204,7 @@ public class ArkClient {
         }
 
         try {
-            biz.start(args, envs);
+            biz.start(bizConfig.getArgs(), bizConfig.getEnvs());
             long end = System.currentTimeMillis();
             response
                 .setCode(ResponseCode.SUCCESS)
@@ -385,7 +397,28 @@ public class ArkClient {
                 FileUtils.copyInputStreamToFile(inputStream, bizFile);
             }
         }
-        return installBiz(bizFile, args, envs);
+
+        // prepare extension urls if necessary
+        URL[] extensionUrls = null;
+        if (bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS) != null) {
+            Set<String> extensionLibs = StringUtils.strToSet(
+                bizOperation.getParameters().get(Constants.BIZ_EXTENSION_URLS),
+                Constants.COMMA_SPLIT);
+            List<URL> urlsList = new ArrayList<>();
+            if (!extensionLibs.isEmpty()) {
+                for (String extension : extensionLibs) {
+                    URL url = new URL(extension);
+                    urlsList.add(url);
+                }
+            }
+            extensionUrls = urlsList.toArray(new URL[0]);
+        }
+
+        BizConfig bizConfig = new BizConfig();
+        bizConfig.setExtensionUrls(extensionUrls);
+        bizConfig.setArgs(args);
+        bizConfig.setEnvs(envs);
+        return installBiz(bizFile, bizConfig);
     }
 
     public static ClientResponse uninstallOperation(BizOperation bizOperation) throws Throwable {
@@ -407,6 +440,110 @@ public class ArkClient {
             BizOperation.OperationType.CHECK.equals(bizOperation.getOperationType()),
             "Operation type must be check");
         return checkBiz(bizOperation.getBizName(), bizOperation.getBizVersion());
+    }
+
+    public static ClientResponse installPlugin(PluginOperation pluginOperation) throws Exception {
+        AssertUtils.assertNotNull(pluginOperation, "pluginOperation must not be null");
+
+        // prepare plugin file
+        File localFile = pluginOperation.getLocalFile();
+        if (localFile == null && !StringUtils.isEmpty(pluginOperation.getUrl())) {
+            URL url = new URL(pluginOperation.getUrl());
+            String pluginDir = ArkConfigs.getStringValue(Constants.CONFIG_INSTALL_PLUGIN_DIR);
+            File pluginDirectory = StringUtils.isEmpty(pluginDir) ? FileUtils
+                .createTempDir("sofa-ark") : FileUtils.mkdir(pluginDir);
+            localFile = new File(pluginDirectory, pluginOperation.getPluginName() + "-"
+                                                  + pluginOperation.getPluginVersion() + "-"
+                                                  + System.currentTimeMillis());
+            try (InputStream inputStream = url.openStream()) {
+                FileUtils.copyInputStreamToFile(inputStream, localFile);
+            }
+        }
+
+        ClientResponse response = new ClientResponse();
+        if (localFile == null) {
+            response.setCode(ResponseCode.FAILED).setMessage(
+                String.format("Install Plugin: %s-%s fail, local file is null.",
+                    pluginOperation.getPluginName(), pluginOperation.getPluginVersion()));
+            return response;
+        }
+
+        PluginConfig pluginConfig = new PluginConfig();
+        if (!StringUtils.isEmpty(pluginOperation.getPluginName())) {
+            pluginConfig.setSpecifiedName(pluginOperation.getPluginName());
+        }
+        if (!StringUtils.isEmpty(pluginOperation.getPluginVersion())) {
+            pluginConfig.setSpecifiedVersion(pluginOperation.getPluginVersion());
+        }
+
+        // prepare extension urls if necessary
+        List<String> extensionLibs = pluginOperation.getExtensionLibs();
+        List<URL> urlsList = new ArrayList<>();
+        if (extensionLibs != null && !extensionLibs.isEmpty()) {
+            for (String extension : extensionLibs) {
+                URL url = new URL(extension);
+                urlsList.add(url);
+            }
+        }
+        URL[] extensionUrls = urlsList.toArray(new URL[0]);
+        pluginConfig.setExtensionUrls(extensionUrls);
+
+        long start = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
+        String startDate = sdf.format(new Date(start));
+
+        // create
+        Plugin plugin = pluginFactoryService.createPlugin(localFile, pluginConfig);
+        // register
+        pluginManagerService.registerPlugin(plugin);
+        // start
+        try {
+            plugin.start();
+            long end = System.currentTimeMillis();
+            response.setCode(ResponseCode.SUCCESS).setMessage(
+                String.format("Install Plugin: %s success, cost: %s ms, started at: %s",
+                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+            getLogger().info(response.getMessage());
+        } catch (Throwable throwable) {
+            long end = System.currentTimeMillis();
+            response.setCode(ResponseCode.FAILED).setMessage(
+                String.format("Install Plugin: %s fail,cost: %s ms, started at: %s",
+                    plugin.getPluginName() + ":" + plugin.getVersion(), end - start, startDate));
+            getLogger().error(response.getMessage(), throwable);
+            throw throwable;
+        }
+        return response;
+    }
+
+    public static ClientResponse checkPlugin() {
+        return checkPlugin(null);
+    }
+
+    public static ClientResponse checkPlugin(String pluginName) {
+        AssertUtils.assertNotNull(pluginFactoryService, "pluginFactoryService must not be null!");
+        AssertUtils.assertNotNull(pluginManagerService, "pluginManagerService must not be null!");
+
+        ClientResponse response = new ClientResponse();
+        Set<Plugin> plugins = new HashSet<>();
+        if (pluginName != null) {
+            Plugin plugin = pluginManagerService.getPluginByName(pluginName);
+            if (plugin != null) {
+                plugins.add(plugin);
+            }
+        } else {
+            plugins.addAll(pluginManagerService.getPluginsInOrder());
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Plugin count=%d", plugins.size())).append("\n");
+        for (Plugin plugin : plugins) {
+            sb.append(
+                String.format("pluginName=%s, pluginVersion=%s", plugin.getPluginName(),
+                    plugin.getVersion())).append("\n");
+        }
+        response.setCode(ResponseCode.SUCCESS).setPluginInfos(plugins).setMessage(sb.toString());
+        getLogger().info(String.format("Check Plugin: %s", response.getMessage()));
+        return response;
     }
 
     /**
