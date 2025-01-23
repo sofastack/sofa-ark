@@ -18,10 +18,12 @@ package com.alipay.sofa.ark.spi.service.biz;
 
 import com.alipay.sofa.ark.spi.archive.BizArchive;
 import com.alipay.sofa.ark.spi.model.Biz;
+import com.alipay.sofa.ark.spi.model.BizConfig;
 import com.alipay.sofa.ark.spi.model.BizOperation;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Create Biz according to {@link File} and {@link BizArchive}
@@ -30,6 +32,14 @@ import java.io.IOException;
  * @since 0.4.0
  */
 public interface BizFactoryService {
+
+    /**
+     * @param bizArchive
+     * @return
+     * @throws IOException
+     */
+    Biz createBiz(BizArchive bizArchive) throws IOException;
+
     /**
      * Create Biz Model according to {@link BizArchive}
      *
@@ -37,7 +47,7 @@ public interface BizFactoryService {
      * @return Biz
      * @throws IOException throw io exception when {@link BizArchive} is invalid.
      */
-    Biz createBiz(BizArchive bizArchive) throws IOException;
+    Biz createBiz(BizArchive bizArchive, URL[] extensionUrls) throws IOException;
 
     /**
      * Create Biz Model according to {@link File}
@@ -49,11 +59,35 @@ public interface BizFactoryService {
     Biz createBiz(File file) throws IOException;
 
     /**
+     * @param file
+     * @param extensionUrls
+     * @return
+     * @throws IOException
+     */
+    Biz createBiz(File file, URL[] extensionUrls) throws IOException;
+
+    /**
      * @param bizOperation
      * @param file
      * @return
      */
     Biz createBiz(BizOperation bizOperation, File file) throws IOException;
+
+    /**
+     * @param file
+     * @param bizConfig
+     * @return
+     * @throws IOException
+     */
+    Biz createBiz(File file, BizConfig bizConfig) throws IOException;
+
+    /**
+     * @param bizArchive
+     * @param bizConfig
+     * @return
+     * @throws IOException
+     */
+    Biz createBiz(BizArchive bizArchive, BizConfig bizConfig) throws IOException;
 
     /**
      * Create Biz Model according to master biz
