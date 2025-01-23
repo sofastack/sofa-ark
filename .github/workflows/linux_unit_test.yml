@@ -4,6 +4,9 @@
 name: Test for linux
 
 on:
+  push:
+    branches:
+      - '3.1.*'
   pull_request:
     branches:
       - '3.1.*'

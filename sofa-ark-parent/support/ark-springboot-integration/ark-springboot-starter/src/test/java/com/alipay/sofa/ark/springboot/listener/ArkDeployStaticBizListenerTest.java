@@ -48,7 +48,7 @@ public class ArkDeployStaticBizListenerTest {
             Thread.currentThread().setContextClassLoader(new ClassLoader() {
             });
             listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
-            bootstrap.verify(Mockito.times(0), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+            bootstrap.verify(EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted, Mockito.times(0));
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
@@ -68,7 +68,7 @@ public class ArkDeployStaticBizListenerTest {
             arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
             ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
             listener.onApplicationEvent(new ContextStartedEvent(new AnnotationConfigApplicationContext()));
-            bootstrap.verify(Mockito.times(0), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+            bootstrap.verify(EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted, Mockito.times(0));
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
@@ -90,7 +90,7 @@ public class ArkDeployStaticBizListenerTest {
             listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
             // 容器刷新事件已经发送过，重复发送不会重复部署
             listener.onApplicationEvent(new ContextRefreshedEvent(new AnnotationConfigApplicationContext()));
-            bootstrap.verify(Mockito.times(1), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+            bootstrap.verify(EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted, Mockito.times(1));
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
