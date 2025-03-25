@@ -354,8 +354,11 @@ public class ModuleSlimStrategy {
 
         Set<Artifact> result = new HashSet<>();
         for (DependencyNode child : node.getChildren()) {
-            result.add(artifacts.get(getArtifactIdentity(child.getArtifact())));
-            result.addAll(getAllDependencies(child, artifacts));
+            String artifactId = getArtifactIdentity(child.getArtifact());
+            if (artifacts.containsKey(artifactId)) {
+                result.add(artifacts.get(artifactId));
+                result.addAll(getAllDependencies(child, artifacts));
+            }
         }
         return result;
     }
