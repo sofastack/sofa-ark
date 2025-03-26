@@ -139,10 +139,6 @@ public class ModuleSlimStrategy {
                             getArtifactIdentity(artifact)));
         });
 
-        if(!excludedButNoDependencyInBase.isEmpty()){
-            throw new MojoExecutionException(String.format("check excludeWithBaseDependencyParentIdentity failed with base: %s",config.getBaseDependencyParentIdentity()));
-        }
-
         // The base contains this dependency, but the version and module are inconsistent; Please use the same dependency version as the base in the module.
         List<Dependency> baseDependencies = getAllBaseDependencies();
         Map<String,Dependency> baseDependencyIdentityWithoutVersion = baseDependencies.stream().collect(Collectors.toMap(MavenUtils::getDependencyIdentityWithoutVersion, it -> it));
@@ -358,8 +354,11 @@ public class ModuleSlimStrategy {
 
         Set<Artifact> result = new HashSet<>();
         for (DependencyNode child : node.getChildren()) {
-            result.add(artifacts.get(getArtifactIdentity(child.getArtifact())));
-            result.addAll(getAllDependencies(child, artifacts));
+            String artifactId = getArtifactIdentity(child.getArtifact());
+            if (artifacts.containsKey(artifactId)) {
+                result.add(artifacts.get(artifactId));
+                result.addAll(getAllDependencies(child, artifacts));
+            }
         }
         return result;
     }
