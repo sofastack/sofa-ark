@@ -73,11 +73,6 @@ public class ModuleSlimConfig {
     private boolean               excludeWithIndirectDependencies                   = true;
 
     /**
-     * 在排除依赖时，是否根据基座依赖标识（baseDependencyParentIdentity）排除与基座相同的依赖（GAV 均相同）
-     */
-    private boolean               excludeSameBaseDependency                         = true;
-
-    /**
      * 在排除依赖时，如果排除的依赖与基座不一致，是否构建失败
      */
     private boolean               buildFailWhenExcludeBaseDependencyWithDiffVersion = false;
@@ -166,14 +161,6 @@ public class ModuleSlimConfig {
 
     public void setExcludeWithIndirectDependencies(boolean excludeWithIndirectDependencies) {
         this.excludeWithIndirectDependencies = excludeWithIndirectDependencies;
-    }
-
-    public boolean isExcludeSameBaseDependency() {
-        return excludeSameBaseDependency;
-    }
-
-    public void setExcludeSameBaseDependency(boolean excludeSameBaseDependency) {
-        this.excludeSameBaseDependency = excludeSameBaseDependency;
     }
 
     public boolean isBuildFailWhenExcludeBaseDependencyWithDiffVersion() {

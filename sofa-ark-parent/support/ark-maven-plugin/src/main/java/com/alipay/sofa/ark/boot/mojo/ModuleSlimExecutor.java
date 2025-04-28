@@ -30,10 +30,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 
 import java.io.BufferedReader;
@@ -46,14 +50,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getArtifactIdentity;
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getArtifactIdentityWithoutVersion;
-import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getDependencyIdentity;
-import static com.alipay.sofa.ark.boot.mojo.MavenUtils.getGAVIdentity;
 import static com.alipay.sofa.ark.boot.mojo.MavenUtils.inUnLogScopes;
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getBooleanWithDefault;
 import static com.alipay.sofa.ark.boot.mojo.utils.ParseUtils.getStringSet;
@@ -64,15 +66,18 @@ import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_EXCLUDES_GROU
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_ARTIFACTIDS;
 import static com.alipay.sofa.ark.spi.constant.Constants.EXTENSION_INCLUDES_GROUPIDS;
-import static com.alipay.sofa.ark.spi.constant.Constants.STRING_COLON;
 
 /**
  * @author lianglipeng.llp@alibaba-inc.com
  * @version $Id: ModuleSlimStrategy.java, v 0.1 2024年07月12日 16:21 立蓬 Exp $
  */
 
-public class ModuleSlimStrategy {
+public class ModuleSlimExecutor {
     private MavenProject        project;
+
+    private RepositorySystem    repositorySystem;
+
+    private ProjectBuilder      projectBuilder;
 
     private DependencyNode      projDependencyGraph;
     private ModuleSlimConfig    config;
@@ -83,15 +88,16 @@ public class ModuleSlimStrategy {
 
     private static final String EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES           = "excludeWithIndirectDependencies";
 
-    private static final String EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY                 = "excludeSameBaseDependency";
-
     private static final String EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY = "buildFailWhenExcludeDiffBaseDependency";
 
     private static final String DEFAULT_EXCLUDE_RULES                                  = "rules.txt";
 
-    ModuleSlimStrategy(MavenProject project, DependencyNode projDependencyGraph,
+    ModuleSlimExecutor(MavenProject project, RepositorySystem repositorySystem,
+                       ProjectBuilder projectBuilder, DependencyNode projDependencyGraph,
                        ModuleSlimConfig config, File baseDir, Log log) {
         this.project = project;
+        this.repositorySystem = repositorySystem;
+        this.projectBuilder = projectBuilder;
         this.projDependencyGraph = projDependencyGraph;
         this.config = config;
         this.baseDir = baseDir;
@@ -102,26 +108,87 @@ public class ModuleSlimStrategy {
         initSlimStrategyConfig();
 
         Set<Artifact> toFilterByBase = getArtifactsToFilterByParentIdentity(project.getArtifacts());
+        Set<Artifact> toFilterByBasePlugin = getArtifactsToFilterByBasePlugin(project
+            .getArtifacts());
         Set<Artifact> toFilterByExclude = getArtifactsToFilterByExcludeConfig(project
             .getArtifacts());
         Set<Artifact> toAddByInclude = getArtifactsToAddByIncludeConfig(project.getArtifacts());
 
-        checkExcludeByParentIdentity(toFilterByExclude, toAddByInclude);
+        Set<Artifact> toFilter = new HashSet<>();
+        toFilter.addAll(toFilterByBase);
+        toFilter.addAll(toFilterByBasePlugin);
+        toFilter.addAll(toFilterByExclude);
+        toFilter.removeAll(toAddByInclude);
+
+        checkExcludeByParentIdentity(toFilter);
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
-        filteredArtifacts.removeAll(toFilterByBase);
-        filteredArtifacts.removeAll(toFilterByExclude);
-        filteredArtifacts.addAll(toAddByInclude);
+        filteredArtifacts.removeAll(toFilter);
         return filteredArtifacts;
     }
 
-    protected void checkExcludeByParentIdentity(Set<Artifact> toFilterByExclude, Set<Artifact> toAddByInclude) throws MojoExecutionException {
+    private Model resolvePomAsOriginalModel(String groupId, String artifactId, String version) {
+        try {
+            Artifact artifact = repositorySystem
+                .createProjectArtifact(groupId, artifactId, version);
+            return projectBuilder.build(artifact, project.getProjectBuildingRequest()).getProject()
+                .getOriginalModel();
+        } catch (ProjectBuildingException e) {
+            log.warn("resolve pom as project error: with " + groupId + ":" + artifactId + ":"
+                     + version);
+            return null;
+        }
+    }
+
+    private Set<Artifact> getArtifactsToFilterByBasePlugin(Set<Artifact> artifacts) {
+        if (!excludeWithBaseDependencyParentIdentity()) {
+            return Collections.emptySet();
+        }
+
+        return getSameArtifactsInBasePlugin(artifacts);
+    }
+
+    private Set<Artifact> getSameArtifactsInBasePlugin(Set<Artifact> artifacts) {
+        List<Model> basePluginModels = getBasePluginModel();
+        List<Dependency> dependenciesInBasePlugin = basePluginModels.stream().flatMap(it->Optional.ofNullable(it.getDependencyManagement()).orElseGet(
+                DependencyManagement::new).getDependencies().stream()).collect(Collectors.toList());
+
+        // 如果 artifacts 中含有 base Plugin 里配置的 dependencyManagement 的 dependencies，那么需要过滤
+        Set<String> dependencyIdentities = dependenciesInBasePlugin.stream().map(MavenUtils::getDependencyIdentityWithoutVersion).collect(Collectors.toSet());
+        return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentityWithoutVersion(it))).collect(Collectors.toSet());
+    }
+
+    private List<Model> getBasePluginModel(){
+        // 先通过 project.getOriginalModel().getDependencyManagement().getDependencies() 获取所有 type 为 pom 的 dependencies
+        List<Dependency> pomDependenciesInDependencyManagement = Optional.ofNullable(project)
+                .map(MavenProject::getOriginalModel)
+                .map(Model::getDependencyManagement)
+                .map(DependencyManagement::getDependencies)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(it -> StringUtils.equals("pom",it.getType()) && StringUtils.equals("import",it.getScope()))
+                .collect(Collectors.toList());
+
+        // 然后解析这些 dependencies 为 artifacts，并转为 mavenProject, 获取其 model
+        List<Model> basePluginModels = new ArrayList<>();
+        for (Dependency dependency : pomDependenciesInDependencyManagement) {
+            // 解析 dependency 为 model
+            Model model = resolvePomAsOriginalModel(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+
+            // 如果 model 的 parent 和我们的 baseVersion 一致，那么这个 model 就是 basePlugin
+            if (null != model && null != model.getParent() &&
+                    (StringUtils.equals(config.getBaseDependencyParentIdentity(),MavenUtils.getGAIdentity(model.getParent())) || StringUtils.equals(config.getBaseDependencyParentIdentity(),MavenUtils.getGAVIdentity(model.getParent())))
+            ){
+                basePluginModels.add(model);
+            }
+        }
+        return basePluginModels;
+    }
+
+    protected void checkExcludeByParentIdentity(Set<Artifact> toFilter) throws MojoExecutionException {
         if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
             return;
         }
-
-        Set<Artifact> toFilter = new HashSet<>(toFilterByExclude);
-        toFilter.removeAll(toAddByInclude);
 
         Set<Artifact> excludedButNoDependencyInBase = getExcludedButNoDependencyInBase(toFilter);
         Set<Artifact> excludedButDifferentVersionDependencyInBase = getExcludedButDifferentVersionDependencyInBase(toFilter);
@@ -136,7 +203,7 @@ public class ModuleSlimStrategy {
             getLog().error(
                     String.format(
                             "error to exclude package jar: %s because no such jar in base, please keep the jar or add it to base",
-                            getArtifactIdentity(artifact)));
+                            MavenUtils.getArtifactIdentity(artifact)));
         });
 
         // The base contains this dependency, but the version and module are inconsistent; Please use the same dependency version as the base in the module.
@@ -147,7 +214,7 @@ public class ModuleSlimStrategy {
             getLog().error(
                     String.format(
                             "error to exclude package jar: %s because it has different version with: %s in base, please keep the jar or set same version with base",
-                            getArtifactIdentity(artifact), getDependencyIdentity(baseDependency)));
+                            MavenUtils.getArtifactIdentity(artifact), MavenUtils.getDependencyIdentity(baseDependency)));
         });
 
         if(config.isBuildFailWhenExcludeBaseDependencyWithDiffVersion()){
@@ -157,24 +224,24 @@ public class ModuleSlimStrategy {
 
     protected Set<Artifact> getArtifactsToFilterByParentIdentity(Set<Artifact> artifacts)
                                                                                          throws MojoExecutionException {
-        if (StringUtils.isEmpty(config.getBaseDependencyParentIdentity())) {
-            return Collections.emptySet();
-        }
-
-        if (!config.isExcludeSameBaseDependency()) {
+        if (!excludeWithBaseDependencyParentIdentity()) {
             return Collections.emptySet();
         }
 
         // 过滤出模块和基座版本一致的依赖，即需要瘦身的依赖
-        return getSameVersionArtifactsWithBase(artifacts);
+        return getSameArtifactsWithBase(artifacts);
     }
 
-    private Set<Artifact> getSameVersionArtifactsWithBase(Set<Artifact> artifacts) throws MojoExecutionException {
+    private boolean excludeWithBaseDependencyParentIdentity() {
+        return StringUtils.isNotEmpty(config.getBaseDependencyParentIdentity());
+    }
+
+    private Set<Artifact> getSameArtifactsWithBase(Set<Artifact> artifacts) throws MojoExecutionException {
         List<Dependency> baseDependencies = getAllBaseDependencies();
 
-        Set<String> dependencyIdentities = baseDependencies.stream().map(MavenUtils::getDependencyIdentity).collect(Collectors.toSet());
+        Set<String> dependencyIdentities = baseDependencies.stream().map(MavenUtils::getDependencyIdentityWithoutVersion).collect(Collectors.toSet());
 
-        return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentity(it))).collect(Collectors.toSet());
+        return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentityWithoutVersion(it))).collect(Collectors.toSet());
     }
 
     private Set<Artifact> getExcludedButNoDependencyInBase(Set<Artifact> toFilter) throws MojoExecutionException {
@@ -216,46 +283,15 @@ public class ModuleSlimStrategy {
     protected Model getBaseDependencyParentOriginalModel() {
         MavenProject proj = project;
         while (null != proj) {
-            if (getGAIdentity(proj.getArtifact()).equals(config.getBaseDependencyParentIdentity())
-                || getGAVIdentity(proj.getArtifact()).equals(
+            if (MavenUtils.getGAIdentity(proj.getArtifact()).equals(
+                config.getBaseDependencyParentIdentity())
+                || MavenUtils.getGAVIdentity(proj.getArtifact()).equals(
                     config.getBaseDependencyParentIdentity())) {
                 return proj.getOriginalModel();
             }
             proj = proj.getParent();
         }
         return null;
-    }
-
-    private String getGAVIdentity(Artifact artifact) {
-        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-               + artifact.getBaseVersion();
-    }
-
-    private String getGAIdentity(Artifact artifact) {
-        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId();
-    }
-
-    protected String getArtifactIdentity(Artifact artifact) {
-        if (artifact.hasClassifier()) {
-            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-                   + artifact.getBaseVersion() + STRING_COLON + artifact.getClassifier()
-                   + STRING_COLON + artifact.getType();
-        } else {
-            return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId() + STRING_COLON
-                   + artifact.getBaseVersion() + STRING_COLON + artifact.getType();
-        }
-
-    }
-
-    private String getDependencyIdentity(Dependency dependency) {
-        if (StringUtils.isNotEmpty(dependency.getClassifier())) {
-            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
-                   + STRING_COLON + dependency.getVersion() + STRING_COLON
-                   + dependency.getClassifier() + STRING_COLON + dependency.getType();
-        } else {
-            return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
-                   + STRING_COLON + dependency.getVersion() + STRING_COLON + dependency.getType();
-        }
     }
 
     protected void initSlimStrategyConfig() throws IOException {
@@ -266,11 +302,6 @@ public class ModuleSlimStrategy {
             EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
         config.setExcludeWithIndirectDependencies(getBooleanWithDefault(arkYaml,
             EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
-
-        config.setExcludeSameBaseDependency(getBooleanWithDefault(prop,
-            EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY, true));
-        config.setExcludeSameBaseDependency(getBooleanWithDefault(arkYaml,
-            EXTENSION_EXCLUDE_SAME_BASE_DEPENDENCY, true));
 
         config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(prop,
             EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
@@ -329,7 +360,7 @@ public class ModuleSlimStrategy {
 
         Set<Artifact> result = new LinkedHashSet<>();
 
-        String artifactIdentity = getArtifactIdentity(node.getArtifact());
+        String artifactIdentity = MavenUtils.getArtifactIdentity(node.getArtifact());
         if (literalArtifactsToExclude.contains(artifactIdentity)) {
             // 排除当前依赖
             result.add(artifacts.get(artifactIdentity));
@@ -354,7 +385,7 @@ public class ModuleSlimStrategy {
 
         Set<Artifact> result = new HashSet<>();
         for (DependencyNode child : node.getChildren()) {
-            String artifactId = getArtifactIdentity(child.getArtifact());
+            String artifactId = MavenUtils.getArtifactIdentity(child.getArtifact());
             if (artifacts.containsKey(artifactId)) {
                 result.add(artifacts.get(artifactId));
                 result.addAll(getAllDependencies(child, artifacts));

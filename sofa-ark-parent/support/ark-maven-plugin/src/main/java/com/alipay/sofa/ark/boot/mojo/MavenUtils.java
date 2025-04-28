@@ -20,6 +20,7 @@ import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Parent;
 import org.apache.maven.project.MavenProject;
 
 import java.util.Arrays;
@@ -164,6 +165,19 @@ public class MavenUtils {
             return dependency.getGroupId() + STRING_COLON + dependency.getArtifactId()
                    + STRING_COLON + dependency.getType();
         }
+    }
+
+    public static String getGAIdentity(Artifact artifact) {
+        return artifact.getGroupId() + STRING_COLON + artifact.getArtifactId();
+    }
+
+    public static String getGAIdentity(Parent parent) {
+        return parent.getGroupId() + STRING_COLON + parent.getArtifactId();
+    }
+
+    public static String getGAVIdentity(Parent parent) {
+        return parent.getGroupId() + STRING_COLON + parent.getArtifactId() + STRING_COLON
+               + parent.getVersion();
     }
 
 }
