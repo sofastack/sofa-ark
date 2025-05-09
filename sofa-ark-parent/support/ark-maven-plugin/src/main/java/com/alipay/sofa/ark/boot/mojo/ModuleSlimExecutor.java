@@ -298,11 +298,11 @@ public class ModuleSlimExecutor {
         Map<String, Object> arkYaml = ArkConfigHolder.getArkYaml(baseDir.getAbsolutePath());
         Properties prop = ArkConfigHolder.getArkProperties(baseDir.getAbsolutePath());
 
-        config.setExcludeWithIndirectDependencies(getBooleanWithDefault(prop,arkYaml,
+        config.setExcludeWithIndirectDependencies(getBooleanWithDefault(prop, arkYaml,
             EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES, true));
 
-        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(prop,arkYaml,
-            EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
+        config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(getBooleanWithDefault(prop,
+            arkYaml, EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY, false));
 
         initExcludeAndIncludeConfig();
     }
