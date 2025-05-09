@@ -74,6 +74,26 @@ public class ArkDeployStaticBizListenerTest {
         }
     }
 
+      /**
+     * applicationEvent 不是 spring 根上下文的场景
+     */
+    @Test
+    public void testNonSpringRootEvent() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        try (MockedStatic<EmbedSofaArkBootstrap> bootstrap = mockStatic(EmbedSofaArkBootstrap.class);
+            MockedStatic<ArkConfigs> arkConfigs = mockStatic(ArkConfigs.class)) {
+            ClassLoader classLoader = ArkDeployStaticBizListener.class.getClassLoader();
+            Thread.currentThread().setContextClassLoader(classLoader);
+            arkConfigs.when(ArkConfigs::isEmbedEnable).thenReturn(true);
+            arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
+            ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
+            listener.onApplicationEvent(new ContextStartedEvent(new AnnotationConfigServletWebServerApplicationContext()));
+            bootstrap.verify(Mockito.times(0), EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted);
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
+    }
+
     /**
      * 事件重复发送的场景
      */
