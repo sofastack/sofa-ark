@@ -76,7 +76,7 @@ public class ArkDeployStaticBizListenerTest {
     }
 
       /**
-     * applicationEvent 不是 spring 根上下文的场景
+     *  applicationEvent 不是 spring 根上下文的场景
      */
     @Test
     public void testNonSpringRootEvent() {
