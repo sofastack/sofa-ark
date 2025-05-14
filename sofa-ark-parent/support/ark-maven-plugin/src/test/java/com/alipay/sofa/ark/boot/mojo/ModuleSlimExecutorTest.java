@@ -24,12 +24,12 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.junit.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -73,49 +72,24 @@ public class ModuleSlimExecutorTest {
         Artifact a1 = mock(Artifact.class);
         Artifact a2 = mock(Artifact.class);
         Artifact a3 = mock(Artifact.class);
-
-        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3);
-        when(proj.getArtifacts()).thenReturn(artifacts);
-
-        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, null,
-            new ModuleSlimConfig(), mockBaseDir(), null));
-
-        doNothing().when(strategy).checkExcludeByParentIdentity(anySet(), anySet());
-        doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
-        doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
-
-        assertEquals(1, strategy.getSlimmedArtifacts().size());
-    }
-
-    @Test
-    public void testSlimmedAllArtifacts() throws MojoExecutionException, IOException,
-                                         URISyntaxException {
-        MavenProject proj = mock(MavenProject.class);
-        Artifact a1 = mock(Artifact.class);
-        Artifact a2 = mock(Artifact.class);
-        Artifact a3 = mock(Artifact.class);
         Artifact a4 = mock(Artifact.class);
         Artifact a5 = mock(Artifact.class);
-        Artifact a6 = mock(Artifact.class);
-        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5, a6);
+
+        Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5);
         when(proj.getArtifacts()).thenReturn(artifacts);
-        ModuleSlimConfig moduleSlimConfig = new ModuleSlimConfig();
-        moduleSlimConfig.setExcludes(Sets.newLinkedHashSet(Arrays.asList(".*")));
-        moduleSlimConfig.setIncludes(Sets.newLinkedHashSet(Arrays.asList("*")));
-        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, null, moduleSlimConfig,
+
+        ModuleSlimConfig config = new ModuleSlimConfig();
+
+        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, null, null, null, config,
             mockBaseDir(), null));
 
-        doNothing().when(strategy).checkExcludeByParentIdentity(anySet(), anySet());
-        try (MockedStatic<MavenUtils> mockedStatic = Mockito.mockStatic(MavenUtils.class)) {
-            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a1)).thenReturn("a1");
-            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a2)).thenReturn("a2");
-            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a3)).thenReturn("a3");
-            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a4)).thenReturn("a4");
-            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a5)).thenReturn("a5");
-            mockedStatic.when(()->MavenUtils.getArtifactIdentity(a6)).thenReturn("a6");
+        doNothing().when(strategy).checkExcludeByParentIdentity(anySet());
+        doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
+        doReturn(Sets.newHashSet(a2)).when(strategy).getArtifactsToFilterByExcludeConfig(anySet());
+        doReturn(Sets.newHashSet(a3, a4)).when(strategy).getArtifactsToFilterByBasePlugin(anySet());
+        doReturn(Sets.newHashSet(a4)).when(strategy).getArtifactsToAddByIncludeConfig(anySet());
 
-            assertEquals(6, strategy.getSlimmedArtifacts().size());
-        }
+        assertEquals(2, strategy.getSlimmedArtifacts().size());
     }
 
     @Test
@@ -123,8 +97,8 @@ public class ModuleSlimExecutorTest {
                                                           MojoExecutionException {
         ModuleSlimConfig config = (new ModuleSlimConfig())
             .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null,
-            config, mockBaseDir(), null);
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null, null,
+            null, config, mockBaseDir(), null);
 
         Artifact sameArtifact = mock(Artifact.class);
         when(sameArtifact.getGroupId()).thenReturn("com.mock");
@@ -140,18 +114,79 @@ public class ModuleSlimExecutorTest {
         when(differenceArtifact.getBaseVersion()).thenReturn("2.0-SNAPSHOT");
         when(sameArtifact.getType()).thenReturn("jar");
 
-        // case1: excludeSameBaseDependency=false
-        config.setExcludeSameBaseDependency(false);
+        // case1: with BaseDependencyParentIdentity
         Set<Artifact> res = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(
             sameArtifact, differenceArtifact));
+        assertTrue(res.contains(sameArtifact));
+        assertFalse(res.contains(differenceArtifact));
+
+        // case2: without BaseDependencyParentIdentity
+        config.setBaseDependencyParentIdentity("");
+        res = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(sameArtifact,
+            differenceArtifact));
+        assertTrue(res.isEmpty());
+    }
+
+    @Test
+    public void testGetArtifactsToFilterByBasePlugin() throws URISyntaxException {
+        ModuleSlimConfig config = new ModuleSlimConfig();
+        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(getMockBootstrapProject(), null,
+            null, null, config, mockBaseDir(), null));
+
+        Artifact sameArtifact = mock(Artifact.class);
+        when(sameArtifact.getGroupId()).thenReturn("com.mock");
+        when(sameArtifact.getArtifactId()).thenReturn("same-dependency-artifact");
+        when(sameArtifact.getVersion()).thenReturn("1.0");
+        when(sameArtifact.getBaseVersion()).thenReturn("1.0-SNAPSHOT");
+        when(sameArtifact.getType()).thenReturn("jar");
+
+        Artifact differenceArtifact = mock(Artifact.class);
+        when(differenceArtifact.getGroupId()).thenReturn("com.mock");
+        when(differenceArtifact.getArtifactId()).thenReturn("difference-dependency-artifact");
+        when(differenceArtifact.getVersion()).thenReturn("2.0");
+        when(differenceArtifact.getBaseVersion()).thenReturn("2.0-SNAPSHOT");
+        when(sameArtifact.getType()).thenReturn("jar");
+
+        doReturn(mockBasePluginBomModel(Lists.newArrayList(sameArtifact))).when(strategy)
+            .resolvePomAsOriginalModel(anyString(), anyString(), anyString());
+
+        // case1: without BaseDependencyParentIdentity
+        config.setBaseDependencyParentIdentity("");
+        Set<Artifact> res = strategy.getArtifactsToFilterByBasePlugin(Sets.newHashSet(sameArtifact,
+            differenceArtifact));
         assertTrue(res.isEmpty());
 
-        // case2: excludeSameBaseDependency=true
-        config.setExcludeSameBaseDependency(true);
-        Set<Artifact> res1 = strategy.getArtifactsToFilterByParentIdentity(Sets.newHashSet(
-            sameArtifact, differenceArtifact));
-        assertTrue(res1.contains(sameArtifact));
-        assertFalse(res1.contains(differenceArtifact));
+        // case2: with BaseDependencyParentIdentity
+        config.setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
+        res = strategy.getArtifactsToFilterByBasePlugin(Sets.newHashSet(sameArtifact,
+            differenceArtifact));
+        assertTrue(res.contains(sameArtifact));
+        assertFalse(res.contains(differenceArtifact));
+    }
+
+    private Model mockBasePluginBomModel(List<Artifact> artifacts){
+        Model model = new Model();
+        model.setGroupId("com.mock");
+        model.setArtifactId("base-plugin-bom");
+        model.setVersion("1.0");
+        model.setPackaging("pom");
+
+        Parent parent = new Parent();
+        parent.setGroupId("com.mock");
+        parent.setArtifactId("base-dependencies-starter");
+        parent.setVersion("1.0");
+        model.setParent(parent);
+
+        DependencyManagement dependencyManagement = new DependencyManagement();
+        dependencyManagement.setDependencies(artifacts.stream().map(artifact -> {
+            Dependency d = new Dependency();
+            d.setGroupId(artifact.getGroupId());
+            d.setArtifactId(artifact.getArtifactId());
+            d.setVersion(artifact.getBaseVersion());
+            return d;
+        }).collect(Collectors.toList()));
+        model.setDependencyManagement(dependencyManagement);
+        return model;
     }
 
     @Test
@@ -164,8 +199,8 @@ public class ModuleSlimExecutorTest {
         doNothing().when(log).info(anyString());
         doNothing().when(log).error(anyString());
 
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null,
-            config, mockBaseDir(), log);
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null, null,
+            null, config, mockBaseDir(), log);
 
         // 基座和模块都有该依赖，且版本一致
         Artifact sameArtifact = mock(Artifact.class);
@@ -198,7 +233,7 @@ public class ModuleSlimExecutorTest {
 
         // case1: 排除相同的依赖
         Set<Artifact> toFilterByExclude = Sets.newHashSet(sameArtifact);
-        strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        strategy.checkExcludeByParentIdentity(toFilterByExclude);
         verify(log)
             .info(
                 eq("check excludeWithBaseDependencyParentIdentity success with base: com.mock:base-dependencies-starter:1.0"));
@@ -206,7 +241,7 @@ public class ModuleSlimExecutorTest {
         // case2: 排除了基座没有的依赖
         toFilterByExclude = Sets.newHashSet(differentArtifact);
         try {
-            strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+            strategy.checkExcludeByParentIdentity(toFilterByExclude);
         } catch (MojoExecutionException e) {
             // 验证构建失败
             verify(log)
@@ -223,7 +258,7 @@ public class ModuleSlimExecutorTest {
 
         // case3: 排除了不同版本的依赖
         toFilterByExclude = Sets.newHashSet(differentVersionArtifact);
-        strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+        strategy.checkExcludeByParentIdentity(toFilterByExclude);
         verify(log)
             .error(
                 eq(String
@@ -235,7 +270,7 @@ public class ModuleSlimExecutorTest {
         // case4: 配置开关：如果排除的依赖有问题，那么构建报错
         config.setBuildFailWhenExcludeBaseDependencyWithDiffVersion(true);
         try {
-            strategy.checkExcludeByParentIdentity(toFilterByExclude, Collections.emptySet());
+            strategy.checkExcludeByParentIdentity(toFilterByExclude);
         } catch (MojoExecutionException e) {
             // 验证构建失败
             assertEquals(String.format(
@@ -249,8 +284,8 @@ public class ModuleSlimExecutorTest {
         // find base-dependency-parent by gav identity
         ModuleSlimConfig config = (new ModuleSlimConfig())
             .setBaseDependencyParentIdentity("com.mock:base-dependencies-starter:1.0");
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null,
-            config, mockBaseDir(), null);
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null, null,
+            null, config, mockBaseDir(), null);
         assertNotNull(strategy.getBaseDependencyParentOriginalModel());
 
         // find base-dependency-parent by ga identity
@@ -262,8 +297,8 @@ public class ModuleSlimExecutorTest {
     public void testExtensionExcludeAndIncludeArtifactsByDefault() throws URISyntaxException,
                                                                   IOException {
         ModuleSlimConfig config = new ModuleSlimConfig();
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null,
-            config, mockBaseDir(), mockLog());
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(getMockBootstrapProject(), null, null,
+            null, config, mockBaseDir(), mockLog());
 
         strategy.configExcludeArtifactsByDefault();
 
@@ -281,8 +316,8 @@ public class ModuleSlimExecutorTest {
     @Test
     public void testExtensionExcludeAndIncludeArtifacts() throws URISyntaxException {
         ModuleSlimConfig config = new ModuleSlimConfig();
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, config, mockBaseDir(),
-            mockLog());
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, null, config,
+            mockBaseDir(), mockLog());
         URL resource = this.getClass().getClassLoader().getResource("excludes.txt");
         strategy.extensionExcludeAndIncludeArtifacts(resource.getPath());
 
@@ -307,8 +342,8 @@ public class ModuleSlimExecutorTest {
         artifacts.add(defaultArtifact1);
         artifacts.add(defaultArtifact2);
 
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, mockBaseDir(),
-            mockLog());
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, null, null,
+            mockBaseDir(), mockLog());
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
@@ -327,8 +362,8 @@ public class ModuleSlimExecutorTest {
         // NOTE: Access httpbin to run unit test, need vpn maybe.
         String packExcludesUrl = "http://httpbin.org/get";
 
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, new ModuleSlimConfig(),
-            mockBaseDir(), mockLog());
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, null,
+            new ModuleSlimConfig(), mockBaseDir(), mockLog());
         strategy.extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
     }
 
@@ -361,8 +396,8 @@ public class ModuleSlimExecutorTest {
         artifact.setFile(new File("./"));
         artifacts.add(artifact);
 
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, mockBaseDir(),
-            mockLog());
+        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, null, null,
+            mockBaseDir(), mockLog());
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, true);
         strategy.logExcludeMessage(jarGroupIds, jarArtifactIds, jarList, artifacts, false);
     }
@@ -385,8 +420,8 @@ public class ModuleSlimExecutorTest {
             .singletonList("a3")));
         moduleSlimConfig.setExcludeWithIndirectDependencies(false);
 
-        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, null, moduleSlimConfig,
-            mockBaseDir(), null));
+        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, null, null, null,
+            moduleSlimConfig, mockBaseDir(), null));
         Set<Artifact> res = strategy.getArtifactsToFilterByExcludeConfig(artifacts);
         assertEquals(3, res.size());
     }
@@ -447,7 +482,7 @@ public class ModuleSlimExecutorTest {
         when(d4Node.getChildren()).thenReturn(Lists.newArrayList());
 
 
-        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, root, moduleSlimConfig,
+        ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj,null,null, root, moduleSlimConfig,
                 null, null));
         Set<Artifact> res = strategy.getArtifactsToFilterByExcludeConfig(artifacts);
         assertEquals(7, res.size());
@@ -495,6 +530,21 @@ public class ModuleSlimExecutorTest {
         project.setArtifact(artifact);
 
         project.setParent(getRootProject());
+
+        Model model = new Model();
+        model.setGroupId("com.mock");
+        model.setArtifactId("base-bootstrap");
+        model.setVersion("0.0.1-SNAPSHOT");
+        DependencyManagement dependencyManagement = new DependencyManagement();
+        Dependency d = new Dependency();
+        d.setType("pom");
+        d.setScope("import");
+        d.setGroupId("com.mock");
+        d.setArtifactId("base-plugin-bom");
+        d.setVersion("1.0");
+        dependencyManagement.setDependencies(Lists.newArrayList(d));
+        model.setDependencyManagement(dependencyManagement);
+        project.setOriginalModel(model);
 
         setField("basedir", project, CommonUtils.getResourceFile("baseDir"));
         return project;

@@ -127,7 +127,7 @@ public class ModuleSlimExecutor {
         return filteredArtifacts;
     }
 
-    private Model resolvePomAsOriginalModel(String groupId, String artifactId, String version) {
+    protected Model resolvePomAsOriginalModel(String groupId, String artifactId, String version) {
         try {
             Artifact artifact = repositorySystem
                 .createProjectArtifact(groupId, artifactId, version);
@@ -140,7 +140,7 @@ public class ModuleSlimExecutor {
         }
     }
 
-    private Set<Artifact> getArtifactsToFilterByBasePlugin(Set<Artifact> artifacts) {
+    protected Set<Artifact> getArtifactsToFilterByBasePlugin(Set<Artifact> artifacts) {
         if (!excludeWithBaseDependencyParentIdentity()) {
             return Collections.emptySet();
         }
@@ -158,7 +158,7 @@ public class ModuleSlimExecutor {
         return artifacts.stream().filter(it -> dependencyIdentities.contains(getArtifactIdentityWithoutVersion(it))).collect(Collectors.toSet());
     }
 
-    private List<Model> getBasePluginModel(){
+    protected List<Model> getBasePluginModel(){
         // 先通过 project.getOriginalModel().getDependencyManagement().getDependencies() 获取所有 type 为 pom 的 dependencies
         List<Dependency> pomDependenciesInDependencyManagement = Optional.ofNullable(project)
                 .map(MavenProject::getOriginalModel)
