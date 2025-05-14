@@ -37,7 +37,8 @@ public class ArkDeployStaticBizListener implements ApplicationListener<Applicati
             return;
         }
         if (ArkConfigs.isEmbedEnable() && ArkConfigs.isEmbedStaticBizEnable()) {
-            if (event instanceof ContextRefreshedEvent && deployed.compareAndSet(false, true)) {
+            if (event instanceof ContextRefreshedEvent && deployed.compareAndSet(false, true)
+                && event.getApplicationContext().getParent() == null) {
                 // After the master biz is started, statically deploy the other biz from classpath
                 EmbedSofaArkBootstrap.deployStaticBizAfterEmbedMasterBizStarted();
             }
