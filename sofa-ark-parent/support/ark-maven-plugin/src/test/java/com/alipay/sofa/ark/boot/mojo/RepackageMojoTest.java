@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
-import com.alipay.sofa.ark.boot.mojo.ModuleSlimStrategy.ExcludeConfig;
-import com.alipay.sofa.ark.boot.mojo.ModuleSlimStrategy.ExcludeConfigResponse;
+import com.alipay.sofa.ark.boot.mojo.ModuleSlimExecutor.ExcludeConfig;
+import com.alipay.sofa.ark.boot.mojo.ModuleSlimExecutor.ExcludeConfigResponse;
 import com.alipay.sofa.ark.tools.ArtifactItem;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;

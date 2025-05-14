@@ -72,6 +72,18 @@ public class ParseUtils {
         return Boolean.parseBoolean(value.toString());
     }
 
+    public static boolean getBooleanWithDefault(Properties prop, Map<String, Object> yaml,
+                                                String confKey, boolean defaultValue) {
+        Object valueFromProp = prop.getProperty(confKey);
+        Object valueFromYaml = getValue(yaml, confKey);
+
+        if (null == valueFromProp && null == valueFromYaml) {
+            return defaultValue;
+        }
+        return null != valueFromProp ? Boolean.parseBoolean(valueFromProp.toString()) : Boolean
+            .parseBoolean(valueFromYaml.toString());
+    }
+
     private static Object getValue(Map<String, Object> yaml, String confKey) {
         if (MapUtils.isEmpty(yaml) || StringUtils.isEmpty(confKey)) {
             return null;
