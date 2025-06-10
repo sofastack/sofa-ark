@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ArkDeployStaticBizListener implements ApplicationListener<ApplicationContextEvent>,
                                        Ordered {
 
-    private final AtomicBoolean deployed = new AtomicBoolean(false);
+    private static final AtomicBoolean deployed = new AtomicBoolean(false);
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
