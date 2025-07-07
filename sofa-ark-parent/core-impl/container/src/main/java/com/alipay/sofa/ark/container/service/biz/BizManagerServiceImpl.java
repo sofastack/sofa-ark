@@ -30,6 +30,7 @@ import com.google.inject.Singleton;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *  Service Implementation to manager ark biz
@@ -41,6 +42,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BizManagerServiceImpl implements BizManagerService {
 
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> bizRegistration = new ConcurrentHashMap<>();
+    
+    private final ConcurrentHashMap<String, ReentrantLock> bizLocks = new ConcurrentHashMap<>();
+
+    @Override
+    public ReentrantLock getBizLock(String bizName) {
+        AssertUtils.isFalse(StringUtils.isEmpty(bizName), "Biz name must not be empty.");
+        bizLocks.putIfAbsent(bizName, new ReentrantLock());
+        return bizLocks.get(bizName);
+    }
 
     @Override
     public boolean registerBiz(Biz biz) {
