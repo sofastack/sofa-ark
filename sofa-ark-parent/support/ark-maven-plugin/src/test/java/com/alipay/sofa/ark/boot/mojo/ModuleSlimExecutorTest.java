@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.maven.artifact.Artifact;
@@ -69,11 +70,17 @@ public class ModuleSlimExecutorTest {
     public void testGetSlimmedArtifacts() throws MojoExecutionException, IOException,
                                          URISyntaxException {
         MavenProject proj = mock(MavenProject.class);
-        Artifact a1 = mock(Artifact.class);
-        Artifact a2 = mock(Artifact.class);
-        Artifact a3 = mock(Artifact.class);
-        Artifact a4 = mock(Artifact.class);
-        Artifact a5 = mock(Artifact.class);
+        Artifact a1 =  new DefaultArtifact("com.alipay.sofa", "a1",
+                "version", "compile", "jar", null, new DefaultArtifactHandler());
+        Artifact a2 = new DefaultArtifact("com.alipay.sofa", "a2",
+                "version", "compile", "jar", null, new DefaultArtifactHandler());
+        Artifact a3 = new DefaultArtifact("com.alipay.sofa", "a3",
+                "version", "compile", "jar", null, new DefaultArtifactHandler());
+        Artifact a4 = new DefaultArtifact("com.alipay.sofa", "a4",
+                "version", "provided", "jar", null, new DefaultArtifactHandler());
+        Artifact a5 = new DefaultArtifact("com.alipay.sofa", "a5",
+                "version", "compile", "jar", null, new DefaultArtifactHandler());
+
 
         Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5);
         when(proj.getArtifacts()).thenReturn(artifacts);
@@ -90,6 +97,7 @@ public class ModuleSlimExecutorTest {
         doReturn(Sets.newHashSet(a4)).when(strategy).getArtifactsToAddByIncludeConfig(anySet());
 
         assertEquals(2, strategy.getSlimmedArtifacts().size());
+        assertEquals(Artifact.SCOPE_COMPILE, a4.getScope());
     }
 
     @Test
@@ -306,11 +314,17 @@ public class ModuleSlimExecutorTest {
         assertTrue(config.getExcludes().contains("commons-beanutils:commons-beanutils"));
         assertTrue(config.getExcludeGroupIds().contains("org.springframework"));
         assertTrue(config.getExcludeArtifactIds().contains("sofa-ark-spi"));
+        assertTrue(config.getIncludes().contains("com.alipay.sofa:sofa-ark-all"));
+        assertTrue(config.getIncludeGroupIds().contains("com.alipay.sofa"));
+        assertTrue(config.getIncludeArtifactIds().contains("sofa-ark-all"));
 
         // 验证 ark.yml
         assertTrue(config.getExcludes().contains("commons-beanutils:commons-beanutils-yml"));
         assertTrue(config.getExcludeGroupIds().contains("org.springframework-yml"));
         assertTrue(config.getExcludeArtifactIds().contains("sofa-ark-spi-yml"));
+        assertTrue(config.getIncludes().contains("com.alipay.sofa:sofa-ark-all-yml"));
+        assertTrue(config.getIncludeGroupIds().contains("com.alipay.sofa"));
+        assertTrue(config.getIncludeArtifactIds().contains("sofa-ark-all-yml"));
     }
 
     @Test
@@ -349,8 +363,8 @@ public class ModuleSlimExecutorTest {
     }
 
     @Test
-    public void testExtensionExcludeAndIncludeArtifactsFromUrl() throws URISyntaxException {
-
+    public void testExtensionExcludeAndIncludeArtifactsFromUrl() throws URISyntaxException, Exception {
+        // 准备测试数据
         DefaultArtifact defaultArtifact = new DefaultArtifact("groupId", "artifactId", "version",
             "provided", "jar", null, new DefaultArtifactHandler());
         DefaultArtifact defaultArtifact1 = new DefaultArtifact("groupId", "artifactId", "version",
@@ -359,12 +373,66 @@ public class ModuleSlimExecutorTest {
         artifacts.add(defaultArtifact);
         artifacts.add(defaultArtifact1);
 
-        // NOTE: Access httpbin to run unit test, need vpn maybe.
-        String packExcludesUrl = "http://httpbin.org/get";
+        String packExcludesUrl = "http://mock-server.com/excludes";
 
-        ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, null,
-            new ModuleSlimConfig(), mockBaseDir(), mockLog());
-        strategy.extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
+        // Mock HTTP响应
+        org.apache.http.client.methods.CloseableHttpResponse mockResponse = mock(org.apache.http.client.methods.CloseableHttpResponse.class);
+        org.apache.http.StatusLine mockStatusLine = mock(org.apache.http.StatusLine.class);
+        org.apache.http.HttpEntity mockEntity = mock(org.apache.http.HttpEntity.class);
+        
+        // 设置状态码为200
+        when(mockStatusLine.getStatusCode()).thenReturn(200);
+        when(mockResponse.getStatusLine()).thenReturn(mockStatusLine);
+        when(mockResponse.getEntity()).thenReturn(mockEntity);
+        
+        // 模拟返回的JSON数据
+        ModuleSlimExecutor.ExcludeConfig excludeConfig = new ModuleSlimExecutor.ExcludeConfig();
+        excludeConfig.setJarBlackGroupIds(Lists.newArrayList("com.test.black"));
+        excludeConfig.setJarBlackArtifactIds(Lists.newArrayList("test-artifact-black"));
+        excludeConfig.setJarBlackList(Lists.newArrayList("com.test.black:test-artifact-black:1.0"));
+
+        excludeConfig.setJarWhiteGroupIds(Lists.newArrayList("com.test.white"));
+        excludeConfig.setJarWhiteArtifactIds(Lists.newArrayList("test-artifact-white"));
+        excludeConfig.setJarWhiteList(Lists.newArrayList("com.test.white:test-artifact-white:1.0"));
+
+        excludeConfig.setJarWarnList(Lists.newArrayList("com.test.warn:test-artifact-warn:1.0"));
+        excludeConfig.setJarWarnArtifactIds(Lists.newArrayList("test-artifact-warn"));
+        excludeConfig.setJarWarnGroupIds(Lists.newArrayList("com.test.warn"));
+
+        ModuleSlimExecutor.ExcludeConfigResponse excludeConfigResponse = new ModuleSlimExecutor.ExcludeConfigResponse();
+        excludeConfigResponse.setSuccess(true);
+        excludeConfigResponse.setResult(excludeConfig);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String mockJsonResponse = objectMapper.writeValueAsString(excludeConfigResponse);
+        when(mockEntity.getContent()).thenReturn(new java.io.ByteArrayInputStream(mockJsonResponse.getBytes()));
+
+        // Mock HTTP客户端
+        org.apache.http.impl.client.CloseableHttpClient mockClient = mock(org.apache.http.impl.client.CloseableHttpClient.class);
+        when(mockClient.execute(org.mockito.ArgumentMatchers.any(org.apache.http.client.methods.HttpGet.class)))
+            .thenReturn(mockResponse);
+
+        // 使用Mockito的静态方法mock功能
+        try (org.mockito.MockedStatic<org.apache.http.impl.client.HttpClients> httpClientsMock = 
+                org.mockito.Mockito.mockStatic(org.apache.http.impl.client.HttpClients.class)) {
+            
+            httpClientsMock.when(org.apache.http.impl.client.HttpClients::createDefault)
+                .thenReturn(mockClient);
+
+            ModuleSlimConfig config = new ModuleSlimConfig();
+            ModuleSlimExecutor strategy = new ModuleSlimExecutor(null, null, null, null,
+                config, mockBaseDir(), mockLog());
+            
+            // 执行测试方法
+            strategy.extensionExcludeArtifactsFromUrl(packExcludesUrl, artifacts);
+            
+            // 验证配置是否正确设置
+            assertTrue(config.getExcludeGroupIds().contains("com.test.black"));
+            assertTrue(config.getExcludeArtifactIds().contains("test-artifact-black"));
+            assertTrue(config.getExcludes().contains("com.test.black:test-artifact-black:1.0"));
+            assertTrue(config.getIncludeGroupIds().contains("com.test.white"));
+            assertTrue(config.getIncludeArtifactIds().contains("test-artifact-white"));
+            assertTrue(config.getIncludes().contains("com.test.white:test-artifact-white:1.0"));
+        }
     }
 
     @Test
