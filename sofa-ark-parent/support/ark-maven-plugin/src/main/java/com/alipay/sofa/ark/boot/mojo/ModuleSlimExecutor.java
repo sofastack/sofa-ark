@@ -124,7 +124,8 @@ public class ModuleSlimExecutor {
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
         filteredArtifacts.removeAll(toFilter);
-        filteredArtifacts.stream().filter(toAddByInclude::contains)
+        // set all include artifacts' scope to compile
+        toAddByInclude.stream()
                 .filter(artifact -> Artifact.SCOPE_PROVIDED.equals(artifact.getScope()))
                 .forEach(artifact -> artifact.setScope(Artifact.SCOPE_COMPILE));
 
