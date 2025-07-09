@@ -815,7 +815,7 @@ public class ModuleSlimExecutor {
 
         private List<String> jarBlackList;
 
-        private List<String> JarWhiteGroupIds;
+        private List<String> jarWhiteGroupIds;
 
         private List<String> jarWhiteArtifactIds;
 
@@ -860,11 +860,11 @@ public class ModuleSlimExecutor {
         }
 
         public List<String> getJarWhiteGroupIds() {
-            return JarWhiteGroupIds;
+            return jarWhiteGroupIds;
         }
 
         public void setJarWhiteGroupIds(List<String> jarWhiteGroupIds) {
-            JarWhiteGroupIds = jarWhiteGroupIds;
+            this.jarWhiteGroupIds = jarWhiteGroupIds;
         }
 
         public List<String> getJarWhiteArtifactIds() {
