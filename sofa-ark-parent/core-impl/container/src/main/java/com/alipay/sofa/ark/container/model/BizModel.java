@@ -380,7 +380,7 @@ public class BizModel implements Biz {
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
         ReentrantLock bizLock = bizManagerService.getBizLock(bizName);
-        
+
         // lock the bizName to ensure biz with same name install in sequence
         bizLock.lock();
         try {
@@ -403,12 +403,14 @@ public class BizModel implements Biz {
             if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
                 Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
                 ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
-                    StateChangeReason.SWITCHED, String.format("switch to new biz %s", getIdentity()));
+                    StateChangeReason.SWITCHED,
+                    String.format("switch to new biz %s", getIdentity()));
                 setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
                     String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
             } else {
                 // case3: always deactivate the new version and keep old module activated according to ACTIVATE_NEW_MODULE config
-                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED, "start but is deactivated");
+                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED,
+                    "start but is deactivated");
             }
         } finally {
             // ensure the lock will be released, avoid deadlock

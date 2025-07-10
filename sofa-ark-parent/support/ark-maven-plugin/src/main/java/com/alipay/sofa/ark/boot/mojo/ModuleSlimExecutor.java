@@ -123,11 +123,17 @@ public class ModuleSlimExecutor {
         checkExcludeByParentIdentity(toFilter);
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
+        filteredArtifacts.stream().filter(toFilter::contains).forEach(
+                artifact -> log.info("module_slim:excluded:" + getArtifactIdentityWithoutVersion(artifact))
+        );
         filteredArtifacts.removeAll(toFilter);
         // set all include artifacts' scope to compile
         toAddByInclude.stream()
                 .filter(artifact -> Artifact.SCOPE_PROVIDED.equals(artifact.getScope()))
-                .forEach(artifact -> artifact.setScope(Artifact.SCOPE_COMPILE));
+                .forEach(artifact -> {
+                    log.info("module_slim:compiled:" + getArtifactIdentityWithoutVersion(artifact));
+                    artifact.setScope(Artifact.SCOPE_COMPILE);
+                });
 
         return filteredArtifacts;
     }

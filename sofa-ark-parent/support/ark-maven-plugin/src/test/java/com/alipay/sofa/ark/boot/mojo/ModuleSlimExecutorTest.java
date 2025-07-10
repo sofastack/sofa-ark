@@ -70,17 +70,16 @@ public class ModuleSlimExecutorTest {
     public void testGetSlimmedArtifacts() throws MojoExecutionException, IOException,
                                          URISyntaxException {
         MavenProject proj = mock(MavenProject.class);
-        Artifact a1 =  new DefaultArtifact("com.alipay.sofa", "a1",
-                "version", "compile", "jar", null, new DefaultArtifactHandler());
-        Artifact a2 = new DefaultArtifact("com.alipay.sofa", "a2",
-                "version", "compile", "jar", null, new DefaultArtifactHandler());
-        Artifact a3 = new DefaultArtifact("com.alipay.sofa", "a3",
-                "version", "compile", "jar", null, new DefaultArtifactHandler());
-        Artifact a4 = new DefaultArtifact("com.alipay.sofa", "a4",
-                "version", "provided", "jar", null, new DefaultArtifactHandler());
-        Artifact a5 = new DefaultArtifact("com.alipay.sofa", "a5",
-                "version", "compile", "jar", null, new DefaultArtifactHandler());
-
+        Artifact a1 = new DefaultArtifact("com.alipay.sofa", "a1", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
+        Artifact a2 = new DefaultArtifact("com.alipay.sofa", "a2", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
+        Artifact a3 = new DefaultArtifact("com.alipay.sofa", "a3", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
+        Artifact a4 = new DefaultArtifact("com.alipay.sofa", "a4", "version", "provided", "jar",
+            null, new DefaultArtifactHandler());
+        Artifact a5 = new DefaultArtifact("com.alipay.sofa", "a5", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
 
         Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3, a4, a5);
         when(proj.getArtifacts()).thenReturn(artifacts);

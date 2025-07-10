@@ -42,8 +42,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class BizManagerServiceImpl implements BizManagerService {
 
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> bizRegistration = new ConcurrentHashMap<>();
-    
-    private final ConcurrentHashMap<String, ReentrantLock> bizLocks = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String, ReentrantLock>                  bizLocks        = new ConcurrentHashMap<>();
 
     @Override
     public ReentrantLock getBizLock(String bizName) {

@@ -555,15 +555,11 @@ public class RepackageMojo extends TreeMojo {
                 "not support packExcludesConfig of .yml or .properties in sofa-ark-maven-plugin, please using default conf/ark/bootstrap.yml or conf/ark/bootstrap.properties");
         }
         ModuleSlimConfig moduleSlimConfig = (new ModuleSlimConfig())
-                .setPackExcludesConfig(packExcludesConfig)
-                .setPackExcludesUrl(packExcludesUrl)
-                .setExcludes(excludes)
-                .setExcludeGroupIds(excludeGroupIds)
-                .setExcludeArtifactIds(excludeArtifactIds)
-                .setIncludes(includes)
-                .setIncludeGroupIds(includeGroupIds)
-                .setIncludeArtifactIds(includeArtifactIds)
-                .setBaseDependencyParentIdentity(baseDependencyParentIdentity);
+            .setPackExcludesConfig(packExcludesConfig).setPackExcludesUrl(packExcludesUrl)
+            .setExcludes(excludes).setExcludeGroupIds(excludeGroupIds)
+            .setExcludeArtifactIds(excludeArtifactIds).setIncludes(includes)
+            .setIncludeGroupIds(includeGroupIds).setIncludeArtifactIds(includeArtifactIds)
+            .setBaseDependencyParentIdentity(baseDependencyParentIdentity);
         ModuleSlimExecutor slimStrategyExecutor = new ModuleSlimExecutor(this.mavenProject,
             this.repositorySystem, projectBuilder, parseDependencyGraph(), moduleSlimConfig,
             this.baseDir, this.getLog());
