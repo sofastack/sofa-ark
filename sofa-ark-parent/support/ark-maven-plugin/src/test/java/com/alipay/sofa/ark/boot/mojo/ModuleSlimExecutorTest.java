@@ -87,7 +87,7 @@ public class ModuleSlimExecutorTest {
         ModuleSlimConfig config = new ModuleSlimConfig();
 
         ModuleSlimExecutor strategy = spy(new ModuleSlimExecutor(proj, null, null, null, config,
-            mockBaseDir(), null));
+            mockBaseDir(), mockLog()));
 
         doNothing().when(strategy).checkExcludeByParentIdentity(anySet());
         doReturn(Sets.newHashSet(a1)).when(strategy).getArtifactsToFilterByParentIdentity(anySet());
