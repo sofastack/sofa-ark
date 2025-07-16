@@ -326,6 +326,8 @@ public class RepackageMojo extends TreeMojo {
     @Parameter(defaultValue = "")
     private String                 baseDependencyParentIdentity;
 
+    private File                   sofaArkLogDirectory;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if ("war".equals(this.mavenProject.getPackaging())) {
@@ -346,6 +348,10 @@ public class RepackageMojo extends TreeMojo {
         }
 
         projectBuildingRequest = this.mavenProject.getProjectBuildingRequest();
+        sofaArkLogDirectory = new File(this.outputDirectory, "sofa-ark");
+        if (!sofaArkLogDirectory.exists()) {
+            sofaArkLogDirectory.mkdirs();
+        }
 
         /* version of ark container packaged into fat jar follows the plugin version */
         PluginDescriptor pluginDescriptor = (PluginDescriptor) getPluginContext().get(
@@ -562,7 +568,7 @@ public class RepackageMojo extends TreeMojo {
             .setBaseDependencyParentIdentity(baseDependencyParentIdentity);
         ModuleSlimExecutor slimStrategyExecutor = new ModuleSlimExecutor(this.mavenProject,
             this.repositorySystem, projectBuilder, parseDependencyGraph(), moduleSlimConfig,
-            this.baseDir, this.getLog());
+            this.baseDir, this.sofaArkLogDirectory, this.getLog());
         return slimStrategyExecutor.getSlimmedArtifacts();
     }
 
