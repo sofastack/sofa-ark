@@ -8,6 +8,12 @@ excludeGroupIds:
   - org.springframework-yml
 excludeArtifactIds:
   - sofa-ark-spi-yml
+includes:
+  - com.alipay.sofa:sofa-ark-all-yml
+includeGroupIds:
+  - com.alipay.sofa
+includeArtifactIds:
+  - sofa-ark-all-yml
 
 # declaredArtifactIds 中配置 ${artifactId}, 不同依赖以 - 隔开
 

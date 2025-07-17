@@ -86,6 +86,8 @@ public class ModuleSlimExecutor {
 
     private File                baseDir;
 
+    private File                sofaArkLogDirectory;
+
     private static final String EXTENSION_EXCLUDE_WITH_INDIRECT_DEPENDENCIES           = "excludeWithIndirectDependencies";
 
     private static final String EXTENSION_BUILD_FAIL_WHEN_EXCLUDE_DIFF_BASE_DEPENDENCY = "buildFailWhenExcludeDiffBaseDependency";
@@ -94,13 +96,14 @@ public class ModuleSlimExecutor {
 
     ModuleSlimExecutor(MavenProject project, RepositorySystem repositorySystem,
                        ProjectBuilder projectBuilder, DependencyNode projDependencyGraph,
-                       ModuleSlimConfig config, File baseDir, Log log) {
+                       ModuleSlimConfig config, File baseDir, File sofaArkLogDirectory, Log log) {
         this.project = project;
         this.repositorySystem = repositorySystem;
         this.projectBuilder = projectBuilder;
         this.projDependencyGraph = projDependencyGraph;
         this.config = config;
         this.baseDir = baseDir;
+        this.sofaArkLogDirectory = sofaArkLogDirectory;
         this.log = log;
     }
 
@@ -123,7 +126,25 @@ public class ModuleSlimExecutor {
         checkExcludeByParentIdentity(toFilter);
 
         Set<Artifact> filteredArtifacts = new HashSet<>(project.getArtifacts());
+        
+        Set<String> excludedArtifacts = new LinkedHashSet<>();
+        filteredArtifacts.stream().filter(toFilter::contains).forEach(
+                artifact -> {
+                    excludedArtifacts.add(getArtifactIdentityWithoutVersion(artifact));
+                }
+        );
         filteredArtifacts.removeAll(toFilter);
+        
+        Set<String> compiledArtifacts = new LinkedHashSet<>();
+        toAddByInclude.stream()
+                .filter(artifact -> Artifact.SCOPE_PROVIDED.equals(artifact.getScope()))
+                .forEach(artifact -> {
+                    compiledArtifacts.add(getArtifactIdentityWithoutVersion(artifact));
+                    artifact.setScope(Artifact.SCOPE_COMPILE);
+                });
+
+        saveModuleSlimResult(excludedArtifacts, compiledArtifacts);
+
         return filteredArtifacts;
     }
 
@@ -777,6 +798,27 @@ public class ModuleSlimExecutor {
         return log;
     }
 
+    private void saveModuleSlimResult(Set<String> excludedArtifacts, Set<String> compiledArtifacts) {
+        if (sofaArkLogDirectory == null) {
+            log.warn("outputDirectory is null, skip saving module slim result");
+            return;
+        }
+
+        try {
+
+            ModuleSlimResult result = new ModuleSlimResult();
+            result.setExcluded(new ArrayList<>(excludedArtifacts));
+            result.setCompiled(new ArrayList<>(compiledArtifacts));
+
+            File resultFile = new File(sofaArkLogDirectory, "module-slim-results.json");
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(resultFile, result);
+
+        } catch (Exception e) {
+            log.error("Failed to save module slim result: " + e.getMessage(), e);
+        }
+    }
+
     public static class ExcludeConfigResponse {
 
         private boolean       success;
@@ -810,7 +852,7 @@ public class ModuleSlimExecutor {
 
         private List<String> jarBlackList;
 
-        private List<String> JarWhiteGroupIds;
+        private List<String> jarWhiteGroupIds;
 
         private List<String> jarWhiteArtifactIds;
 
@@ -855,11 +897,11 @@ public class ModuleSlimExecutor {
         }
 
         public List<String> getJarWhiteGroupIds() {
-            return JarWhiteGroupIds;
+            return jarWhiteGroupIds;
         }
 
         public void setJarWhiteGroupIds(List<String> jarWhiteGroupIds) {
-            JarWhiteGroupIds = jarWhiteGroupIds;
+            this.jarWhiteGroupIds = jarWhiteGroupIds;
         }
 
         public List<String> getJarWhiteArtifactIds() {
@@ -900,6 +942,27 @@ public class ModuleSlimExecutor {
 
         public void setJarWarnList(List<String> jarWarnList) {
             this.jarWarnList = jarWarnList;
+        }
+    }
+
+    public static class ModuleSlimResult {
+        private List<String> excluded;
+        private List<String> compiled;
+
+        public List<String> getExcluded() {
+            return excluded;
+        }
+
+        public void setExcluded(List<String> excluded) {
+            this.excluded = excluded;
+        }
+
+        public List<String> getCompiled() {
+            return compiled;
+        }
+
+        public void setCompiled(List<String> compiled) {
+            this.compiled = compiled;
         }
     }
 

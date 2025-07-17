@@ -50,7 +50,6 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -59,6 +58,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.alipay.sofa.ark.spi.constant.Constants.BIZ_TEMP_WORK_DIR_RECYCLE_FILE_SUFFIX;
 import static com.alipay.sofa.ark.spi.constant.Constants.ACTIVATE_MULTI_BIZ_VERSION_ENABLE;
@@ -379,31 +379,42 @@ public class BizModel implements Biz {
 
         BizManagerService bizManagerService = ArkServiceContainerHolder.getContainer().getService(
             BizManagerService.class);
+        ReentrantLock bizLock = bizManagerService.getBizLock(bizName);
 
-        // case0: active the first module as activated
-        if (bizManagerService.getActiveBiz(bizName) == null) {
-            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
-            return;
-        }
+        // lock the bizName to ensure biz with same name install in sequence
+        bizLock.lock();
+        try {
 
-        // case1: support multiple version biz as activated: always activate the new version and keep the old module activated
-        boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
-            ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
-        if (activateMultiBizVersion) {
-            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
-            return;
-        }
+            // case0: active the first module as activated
+            if (bizManagerService.getActiveBiz(bizName) == null) {
+                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
+                return;
+            }
 
-        // case2: always activate the new version and deactivate the old module according to ACTIVATE_NEW_MODULE config
-        if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
-            Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
-            ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
-                StateChangeReason.SWITCHED, String.format("switch to new biz %s", getIdentity()));
-            setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
-                String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
-        } else {
-            // case3: always deactivate the new version and keep old module activated according to ACTIVATE_NEW_MODULE config
-            setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED, "start but is deactivated");
+            // case1: support multiple version biz as activated: always activate the new version and keep the old module activated
+            boolean activateMultiBizVersion = Boolean.parseBoolean(ArkConfigs.getStringValue(
+                ACTIVATE_MULTI_BIZ_VERSION_ENABLE, "false"));
+            if (activateMultiBizVersion) {
+                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED);
+                return;
+            }
+
+            // case2: always activate the new version and deactivate the old module according to ACTIVATE_NEW_MODULE config
+            if (Boolean.getBoolean(Constants.ACTIVATE_NEW_MODULE)) {
+                Biz currentActiveBiz = bizManagerService.getActiveBiz(bizName);
+                ((BizModel) currentActiveBiz).setBizState(BizState.DEACTIVATED,
+                    StateChangeReason.SWITCHED,
+                    String.format("switch to new biz %s", getIdentity()));
+                setBizState(BizState.ACTIVATED, StateChangeReason.STARTED,
+                    String.format("switch from old biz: %s", currentActiveBiz.getIdentity()));
+            } else {
+                // case3: always deactivate the new version and keep old module activated according to ACTIVATE_NEW_MODULE config
+                setBizState(BizState.DEACTIVATED, StateChangeReason.STARTED,
+                    "start but is deactivated");
+            }
+        } finally {
+            // ensure the lock will be released, avoid deadlock
+            bizLock.unlock();
         }
     }
 
