@@ -47,7 +47,7 @@ public class ClasspathLauncher extends ArkLauncher {
 
     public static class ClassPathArchive implements ExecutableArchive {
 
-        public static final String     FILE_IN_JAR = "!/";
+        public static final String     FILE_IN_JAR = "/!";
 
         private final String           className;
 
