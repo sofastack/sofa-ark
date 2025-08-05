@@ -11,6 +11,7 @@
 
     <artifactId>sofa-ark-bom</artifactId>
     <packaging>pom</packaging>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <properties>
         <log4j.version>1.7.32</log4j.version>

@@ -11,6 +11,7 @@
     <packaging>maven-plugin</packaging>
 
     <artifactId>sofa-ark-maven-plugin</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
 
