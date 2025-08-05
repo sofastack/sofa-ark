@@ -21,7 +21,7 @@
         <guice.version>6.0.0</guice.version>
         <asm.version>9.4</asm.version>
         <commons.io.version>2.7</commons.io.version>
-        <commons.lang3.version>3.3.1</commons.lang3.version>
+        <commons.lang3.version>3.18.0</commons.lang3.version>
 
         <maven.invoker.version>3.1.0</maven.invoker.version>
         <maven.core.version>3.8.1</maven.core.version>
