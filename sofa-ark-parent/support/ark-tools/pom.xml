@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>sofa-ark-tools</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
 

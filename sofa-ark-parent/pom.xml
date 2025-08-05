@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sofa-ark-parent</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <modules>
