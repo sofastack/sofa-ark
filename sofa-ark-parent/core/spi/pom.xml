@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>sofa-ark-spi</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
         <!--SOFAArk modules-->

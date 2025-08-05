@@ -39,6 +39,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.plugins.dependency.tree.TreeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
@@ -95,6 +96,9 @@ public class RepackageMojo extends TreeMojo {
 
     @Component
     private RepositorySystem       repositorySystem;
+
+    @Component
+    private ProjectBuilder         projectBuilder;
 
     /**
      * Directory containing the generated archive
@@ -317,10 +321,12 @@ public class RepackageMojo extends TreeMojo {
     private File                   gitDirectory;
 
     /**
-     * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识
+     * 基座依赖标识，以 ${groupId}:${artifactId}:${version} 标识，或以 ${groupId}:${artifactId} 标识
      */
     @Parameter(defaultValue = "")
     private String                 baseDependencyParentIdentity;
+
+    private File                   sofaArkLogDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -342,6 +348,10 @@ public class RepackageMojo extends TreeMojo {
         }
 
         projectBuildingRequest = this.mavenProject.getProjectBuildingRequest();
+        sofaArkLogDirectory = new File(this.outputDirectory, "sofa-ark");
+        if (!sofaArkLogDirectory.exists()) {
+            sofaArkLogDirectory.mkdirs();
+        }
 
         /* version of ark container packaged into fat jar follows the plugin version */
         PluginDescriptor pluginDescriptor = (PluginDescriptor) getPluginContext().get(
@@ -724,4 +734,5 @@ public class RepackageMojo extends TreeMojo {
         }
 
     }
+
 }

@@ -140,24 +140,27 @@ public class ModuleSlimConfig {
         return includes;
     }
 
-    public void setIncludes(LinkedHashSet<String> includes) {
+    public ModuleSlimConfig setIncludes(LinkedHashSet<String> includes) {
         this.includes = includes;
+        return this;
     }
 
     public LinkedHashSet<String> getIncludeGroupIds() {
         return includeGroupIds;
     }
 
-    public void setIncludeGroupIds(LinkedHashSet<String> includeGroupIds) {
+    public ModuleSlimConfig setIncludeGroupIds(LinkedHashSet<String> includeGroupIds) {
         this.includeGroupIds = includeGroupIds;
+        return this;
     }
 
     public LinkedHashSet<String> getIncludeArtifactIds() {
         return includeArtifactIds;
     }
 
-    public void setIncludeArtifactIds(LinkedHashSet<String> includeArtifactIds) {
+    public ModuleSlimConfig setIncludeArtifactIds(LinkedHashSet<String> includeArtifactIds) {
         this.includeArtifactIds = includeArtifactIds;
+        return this;
     }
 
     public boolean isExcludeWithIndirectDependencies() {

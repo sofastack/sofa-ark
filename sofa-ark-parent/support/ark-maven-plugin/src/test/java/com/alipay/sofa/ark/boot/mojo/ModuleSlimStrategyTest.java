@@ -70,9 +70,12 @@ public class ModuleSlimStrategyTest {
     public void testGetSlimmedArtifacts() throws MojoExecutionException, IOException,
                                          URISyntaxException {
         MavenProject proj = mock(MavenProject.class);
-        Artifact a1 = mock(Artifact.class);
-        Artifact a2 = mock(Artifact.class);
-        Artifact a3 = mock(Artifact.class);
+        Artifact a1 = new DefaultArtifact("com.alipay.test", "a1", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
+        Artifact a2 = new DefaultArtifact("com.alipay.test", "a2", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
+        Artifact a3 = new DefaultArtifact("com.alipay.test", "a3", "version", "compile", "jar",
+            null, new DefaultArtifactHandler());
 
         Set<Artifact> artifacts = Sets.newHashSet(a1, a2, a3);
         when(proj.getArtifacts()).thenReturn(artifacts);
