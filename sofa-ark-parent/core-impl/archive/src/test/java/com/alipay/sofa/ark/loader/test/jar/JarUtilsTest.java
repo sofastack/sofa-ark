@@ -200,7 +200,6 @@ public class JarUtilsTest {
         URL resourceUrl = JarUtilsTest.class.getResource("/biz-1.0.0-ark-biz.jar-unpack");
         String filePath = resourceUrl.getFile() + "/";
         String artifactId1 = parseArtifactId(filePath);
-        System.out.println(artifactId1);
         assertEquals("sofa-ark-archive", artifactId1);
     }
 }
