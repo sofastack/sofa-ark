@@ -60,6 +60,8 @@ public class JarUtils {
 
     public static final String                         JAR_SUFFIX                       = ".jar";
 
+    public static final String                         JAR_UNPACK                       = ".jar-unpack/";
+
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
     static File searchPomProperties(File dirOrFile) {
@@ -152,11 +154,14 @@ public class JarUtils {
         // 9. if is ark plugin, then return null to set declared default
 
         // clean the jar location prefix and suffix
-        if (jarLocation.contains(JAR_SUFFIX)) {
-            jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
-        }
-        if (jarLocation.startsWith("file:")) {
-            jarLocation = jarLocation.substring("file:".length());
+        if (!jarLocation.endsWith(JAR_UNPACK)) {
+            // clean the jar location prefix and suffix
+            if (jarLocation.contains(JAR_SUFFIX)) {
+                jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
+            }
+            if (jarLocation.startsWith("file:")) {
+                jarLocation = jarLocation.substring("file:".length());
+            }
         }
 
         // modify the path to suit WindowsOS

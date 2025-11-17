@@ -194,4 +194,12 @@ public class JarUtilsTest {
                                              + "!/BOOT-INF/lib/example-client-2.0.0.jar!/BOOT-INF/lib/example-client-3.0.0.jar!/");
         assertEquals("example-client", artifactId1);
     }
+
+    @Test
+    public void testParseArtifactIdFromPackJar() {
+        URL resourceUrl = JarUtilsTest.class.getResource("/biz-1.0.0-ark-biz.jar-unpack");
+        String filePath = resourceUrl.getFile() + "/";
+        String artifactId1 = parseArtifactId(filePath);
+        assertEquals("sofa-ark-archive", artifactId1);
+    }
 }
