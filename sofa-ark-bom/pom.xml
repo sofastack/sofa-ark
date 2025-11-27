@@ -37,7 +37,7 @@
         <plexus.build.api.version>0.0.7</plexus.build.api.version>
         <plexus.component.annotations.version>2.1.1</plexus.component.annotations.version>
 
-        <eclipse.jgit.version>5.13.3.202401111512-r</eclipse.jgit.version>
+        <eclipse.jgit.version>5.13.4.202507202350-r</eclipse.jgit.version>
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
