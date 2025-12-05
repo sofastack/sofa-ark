@@ -484,7 +484,7 @@ public class RepackageMojo extends TreeMojo {
                 if (key instanceof String && StringUtils.equals("outputFile", (String) key)) {
                     return;
                 }
-                goals.add(String.format("-D%s=%s", key, value));
+                goals.add(String.format("-D%s=%s", key, "\"" + value + "\""));
             });
         }
 
