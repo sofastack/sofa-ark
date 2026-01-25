@@ -150,9 +150,10 @@ public class JarUtils {
         // 7. /xxx/xxx/target/test-classes/yyy/yyy/
         // 8. /xxx/xxx/xxx-starter-1.0.0-SNAPSHOT.jar!/BOOT-INF/lib/xxx2-starter-1.1.4-SNAPSHOT-ark-biz.jar!/lib/xxx3-230605-sofa.jar!/
         // 9. if is ark plugin, then return null to set declared default
+        //10. use unpack model, file   /xxx/xxx/xxx-0.0.1-ark-biz.jar-unpack/
 
         // clean the jar location prefix and suffix
-        if (jarLocation.contains(JAR_SUFFIX)) {
+        if (jarLocation.endsWith(JAR_SUFFIX)) {
             jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
         }
         if (jarLocation.startsWith("file:")) {
