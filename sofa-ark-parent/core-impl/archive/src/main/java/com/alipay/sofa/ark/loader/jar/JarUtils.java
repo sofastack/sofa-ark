@@ -20,22 +20,12 @@ import com.alipay.sofa.ark.common.util.FileUtils;
 import com.alipay.sofa.ark.common.util.StringUtils;
 import com.alipay.sofa.ark.loader.archive.JarFileArchive;
 import com.alipay.sofa.ark.loader.util.ModifyPathUtils;
-import com.alipay.sofa.ark.spi.archive.Archive;
-import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 
@@ -60,7 +50,7 @@ public class JarUtils {
 
     public static final String                         JAR_SUFFIX                       = ".jar";
 
-    public static final String                         JAR_UNPACK                       = ".jar-unpack/";
+    public static final String                         JAR_UNPACK                       = ".jar-unpack";
 
     private static final Map<String, Optional<String>> artifactIdCacheMap               = new ConcurrentHashMap<>();
 
@@ -154,14 +144,26 @@ public class JarUtils {
         // 9. if is ark plugin, then return null to set declared default
         //10. use unpack model, file   /xxx/xxx/xxx-0.0.1-ark-biz.jar-unpack/
 
-        // clean the jar location prefix and suffix
-        if (!jarLocation.contains(JAR_UNPACK)) {
-            if (jarLocation.contains(JAR_SUFFIX)) {
-                jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
+        // modify the path to suit WindowsOS
+        jarLocation = ModifyPathUtils.modifyPath(jarLocation);
+        
+        // Check if it's an unpacked directory
+        if (jarLocation.endsWith(JAR_UNPACK)) {
+            // Try to extract artifactId from the unpacked directory
+            String artifactId = parseArtifactIdFromUnpackedDir(jarLocation);
+            if (artifactId != null) {
+                return artifactId;
             }
-            if (jarLocation.startsWith("file:")) {
-                jarLocation = jarLocation.substring("file:".length());
-            }
+            // If failed, fallback to extracting from directory name
+            return doGetArtifactIdFromFileName(jarLocation);
+        }
+        
+        // For non-unpacked paths, clean the jar location prefix and suffix
+        if (jarLocation.contains(JAR_SUFFIX)) {
+            jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
+        }
+        if (jarLocation.startsWith("file:")) {
+            jarLocation = jarLocation.substring("file:".length());
         }
 
         // modify the path to suit WindowsOS
@@ -248,5 +250,36 @@ public class JarUtils {
             }
         }
         return rJarFile;
+    }
+
+    private static String parseArtifactIdFromUnpackedDir(String unpackDirPath) {
+        try {
+            File unpackDir = new File(unpackDirPath);
+            if (!unpackDir.exists() || !unpackDir.isDirectory()) {
+                return null;
+            }
+
+            // Look for pom.properties in maven-archiver directory
+            File pomPropsFile = searchPomProperties(unpackDir);
+            if (pomPropsFile.exists()) {
+                try (InputStream inputStream = Files.newInputStream(pomPropsFile.toPath())) {
+                    Properties properties = new Properties();
+                    properties.load(inputStream);
+                    String artifactId = properties.getProperty(JAR_ARTIFACT_ID);
+                    if (artifactId != null && !artifactId.isEmpty()) {
+                        return artifactId;
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(String.format(
+                        "Failed to parse artifact id from path %s.", unpackDirPath), e);
+                }
+            }
+
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Failed to parse artifact id from path %s.",
+                unpackDirPath), e);
+
+        }
     }
 }
