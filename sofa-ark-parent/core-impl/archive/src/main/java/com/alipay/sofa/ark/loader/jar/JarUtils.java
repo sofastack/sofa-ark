@@ -261,7 +261,7 @@ public class JarUtils {
 
             // Look for pom.properties in maven-archiver directory
             File pomPropsFile = searchPomProperties(unpackDir);
-            if (pomPropsFile.exists()) {
+            if (pomPropsFile != null && pomPropsFile.exists()) {
                 try (InputStream inputStream = Files.newInputStream(pomPropsFile.toPath())) {
                     Properties properties = new Properties();
                     properties.load(inputStream);
