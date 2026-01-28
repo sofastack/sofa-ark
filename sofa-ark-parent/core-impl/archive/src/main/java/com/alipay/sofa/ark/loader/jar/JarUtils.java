@@ -253,33 +253,27 @@ public class JarUtils {
     }
 
     private static String parseArtifactIdFromUnpackedDir(String unpackDirPath) {
-        try {
-            File unpackDir = new File(unpackDirPath);
-            if (!unpackDir.exists() || !unpackDir.isDirectory()) {
-                return null;
-            }
-
-            // Look for pom.properties in maven-archiver directory
-            File pomPropsFile = searchPomProperties(unpackDir);
-            if (pomPropsFile != null && pomPropsFile.exists()) {
-                try (InputStream inputStream = Files.newInputStream(pomPropsFile.toPath())) {
-                    Properties properties = new Properties();
-                    properties.load(inputStream);
-                    String artifactId = properties.getProperty(JAR_ARTIFACT_ID);
-                    if (artifactId != null && !artifactId.isEmpty()) {
-                        return artifactId;
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(String.format(
-                        "Failed to parse artifact id from path %s.", unpackDirPath), e);
-                }
-            }
-
+        File unpackDir = new File(unpackDirPath);
+        if (!unpackDir.exists() || !unpackDir.isDirectory()) {
             return null;
-        } catch (Exception e) {
-            throw new RuntimeException(String.format("Failed to parse artifact id from path %s.",
-                unpackDirPath), e);
-
         }
+
+        // Look for pom.properties in maven-archiver directory
+        File pomPropsFile = searchPomProperties(unpackDir);
+        if (pomPropsFile != null && pomPropsFile.exists()) {
+            try (InputStream inputStream = Files.newInputStream(pomPropsFile.toPath())) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                String artifactId = properties.getProperty(JAR_ARTIFACT_ID);
+                if (artifactId != null && !artifactId.isEmpty()) {
+                    return artifactId;
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(String.format(
+                    "Failed to parse artifact id from path %s.", unpackDirPath), e);
+            }
+        }
+
+        return null;
     }
 }
