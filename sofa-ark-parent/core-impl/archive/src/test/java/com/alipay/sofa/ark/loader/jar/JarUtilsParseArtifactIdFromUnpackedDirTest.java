@@ -55,7 +55,8 @@ public class JarUtilsParseArtifactIdFromUnpackedDirTest {
     @Test
     public void testParseArtifactIdFromUnpackedDir_NonStandardLocation() throws IOException {
         // Create a temporary directory to simulate unpacked jar
-        File tempDir = com.alipay.sofa.ark.common.util.FileUtils.createTempDir("test-unpack-nonstandard");
+        File tempDir = com.alipay.sofa.ark.common.util.FileUtils
+            .createTempDir("test-unpack-nonstandard");
         try {
             // Create pom.properties in a nested directory (non-standard location)
             File nestedDir = new File(tempDir, "some/nested/path");
@@ -113,7 +114,8 @@ public class JarUtilsParseArtifactIdFromUnpackedDirTest {
     @Test
     public void testParseArtifactIdFromUnpackedDir_MissingArtifactIdProperty() throws IOException {
         // Create a temporary directory with pom.properties that doesn't have artifactId
-        File tempDir = com.alipay.sofa.ark.common.util.FileUtils.createTempDir("test-unpack-missing-key");
+        File tempDir = com.alipay.sofa.ark.common.util.FileUtils
+            .createTempDir("test-unpack-missing-key");
         try {
             // Create the standard maven-archiver/pom.properties location without artifactId
             File mavenArchiverDir = new File(tempDir, "META-INF/maven-archiver");
