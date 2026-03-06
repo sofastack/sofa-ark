@@ -21,3 +21,5 @@ build/
 gradle/
 gradlew
 gradlew.bat
+
+.claude/
