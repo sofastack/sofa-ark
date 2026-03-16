@@ -250,7 +250,7 @@ public class ArkTomcatWebServer implements WebServer {
         if (tomcat != arkEmbedTomcat) {
             tomcat.destroy();
         }
-        awaitThread.interrupt();
+        awaitThread.stop();
     }
 
     void addPreviouslyRemovedConnectors() {
