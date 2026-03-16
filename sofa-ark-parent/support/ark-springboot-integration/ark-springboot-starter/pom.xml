@@ -191,6 +191,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.management=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+                        --add-opens java.base/sun.security.action=ALL-UNNAMED
+                    </argLine>
                     <threadCount>1</threadCount>
                     <properties>
                         <junit>false</junit>

@@ -73,8 +73,8 @@ public class NamedThreadFactory implements ThreadFactory {
      * @param daemon thread daemon option
      */
     public NamedThreadFactory(String secondPrefix, boolean daemon) {
-        SecurityManager sm = System.getSecurityManager();
-        group = (sm != null) ? sm.getThreadGroup() : Thread.currentThread().getThreadGroup();
+        // SecurityManager was removed in JDK 24+, use current thread's group directly
+        group = Thread.currentThread().getThreadGroup();
         namePrefix = FIRST_PREFIX + secondPrefix + "-" + POOL_COUNT.getAndIncrement() + "-T";
         isDaemon = daemon;
     }

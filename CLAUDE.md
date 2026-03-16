@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+
+本地各个版本的 jdk、mvn 等软件的安装地址请参考 [personal_software_dir.md](.claude/personal_software_dir.md)
+
+
 ## 0. 交互协议
 - **交互语言**：工具与模型交互强制使用 **English**；用户输出强制使用 **中文**
 - **多轮对话**：如果工具返回的有可持续对话字段（如 `SESSION_ID`），记录该字段，并在后续调用中**强制思考**是否继续对话。Codex/Gemini 有时会因工具调用中断会话，若未得到需要的回复，应继续对话
@@ -130,7 +134,10 @@ sofa-ark/
 │   ├── support/               # Build tools and integrations
 │   │   ├── ark-maven-plugin/  # Maven plugin for building Ark packages
 │   │   ├── ark-plugin-maven-plugin/  # Maven plugin for building Ark Plugins
+│   │   ├── ark-gradle-plugin/ # Gradle plugin for building Ark packages
+│   │   ├── ark-plugin-gradle-plugin/  # Gradle plugin for building Ark Plugins
 │   │   ├── ark-springboot-integration/  # Spring Boot integration
+│   │   ├── ark-support-starter/  # Starter dependencies
 │   │   └── ark-tools/         # Repackaging utilities
 │   └── assembly/              # sofa-ark-all aggregated JAR
 └── sofa-ark-plugin/           # Built-in plugins (config, web, netty)
@@ -218,7 +225,7 @@ Builds Ark Plugin packages:
 
 ## 11. Versioning
 
-- Current version: 2.3.2
+- Current version: 3.1.10
 - Three-digit versioning: `major.minor.patch`
   - First digit: Breaking compatibility changes
   - Second digit: New features/enhancements
