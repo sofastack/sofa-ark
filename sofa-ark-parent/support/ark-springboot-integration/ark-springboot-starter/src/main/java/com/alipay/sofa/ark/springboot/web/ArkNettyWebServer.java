@@ -110,7 +110,7 @@ public class ArkNettyWebServer implements WebServer {
                 } else {
                     disposableServer.disposeNow();
                 }
-                awaitThread.stop();
+                awaitThread.interrupt();
             } catch (IllegalStateException ignore) {
 
             }
