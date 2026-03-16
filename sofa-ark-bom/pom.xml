@@ -19,7 +19,7 @@
         <logback.version>1.4.14</logback.version>
 
         <guice.version>6.0.0</guice.version>
-        <asm.version>9.7</asm.version>
+        <asm.version>9.8</asm.version>
         <commons.io.version>2.7</commons.io.version>
         <commons.lang3.version>3.3.1</commons.lang3.version>
 
@@ -41,7 +41,8 @@
 
         <junit.version>4.13.1</junit.version>
         <testng.version>6.14.3</testng.version>
-        <mockito.version>5.11.0</mockito.version>
+        <mockito.version>5.15.2</mockito.version>
+        <byte.buddy.version>1.18.7</byte.buddy.version>
         <system.rules.version>1.16.0</system.rules.version>
 
         <maven.assembly.plugin>2.4</maven.assembly.plugin>
@@ -344,6 +345,17 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Byte Buddy - override Mockito's transitive dependency for JDK 25+ support -->
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte.buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte.buddy.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
                 <artifactId>system-rules</artifactId>
@@ -383,6 +395,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire.version}</version>
+                    <configuration>
+                        <argLine>
+                            --add-opens java.base/java.lang=ALL-UNNAMED
+                            --add-opens java.base/java.lang.management=ALL-UNNAMED
+                            --add-opens java.base/java.util=ALL-UNNAMED
+                        </argLine>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

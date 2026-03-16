@@ -119,6 +119,7 @@ public class ClassLoaderUtilTest {
 
     @Test
     public void testGetAgentClassPath() {
+        // Testing on JDK 17+ with --add-opens and mockito-inline
         List<String> mockArguments = new ArrayList<>();
         String workingPath = this.getClass().getClassLoader()
                 .getResource("").getPath();
@@ -138,6 +139,7 @@ public class ClassLoaderUtilTest {
 
     @Test
     public void testParseSkyWalkingAgentPath() {
+        // Testing on JDK 17+ with --add-opens and mockito-inline
         List<String> mockArguments = new ArrayList<>();
         String workingPath = this.getClass().getClassLoader()
                 .getResource("sample-skywalking-agent.jar").getPath();
