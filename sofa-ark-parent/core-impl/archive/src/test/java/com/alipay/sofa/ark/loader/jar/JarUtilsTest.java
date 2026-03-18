@@ -74,7 +74,7 @@ public class JarUtilsTest {
             File unpackDir = new File(tempRoot, "demo-service-1.0.0.jar-unpack");
             assertTrue(unpackDir.mkdirs());
 
-            String artifactId = JarUtils.parseArtifactId(unpackDir.getAbsolutePath());
+            String artifactId = JarUtils.parseArtifactId(normalizePath(unpackDir));
             assertEquals("demo-service", artifactId);
         } finally {
             org.apache.commons.io.FileUtils.deleteQuietly(tempRoot);
@@ -99,11 +99,15 @@ public class JarUtilsTest {
                 props.store(writer, "Test pom.properties file without artifactId");
             }
 
-            String artifactId = JarUtils.parseArtifactId(unpackDir.getAbsolutePath());
+            String artifactId = JarUtils.parseArtifactId(normalizePath(unpackDir));
             assertEquals("demo-service", artifactId);
         } finally {
             org.apache.commons.io.FileUtils.deleteQuietly(tempRoot);
         }
+    }
+
+    private String normalizePath(File file) {
+        return file.getAbsolutePath().replace(File.separatorChar, '/');
     }
 
 }
