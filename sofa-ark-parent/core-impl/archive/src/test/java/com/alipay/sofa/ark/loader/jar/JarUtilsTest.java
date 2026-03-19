@@ -19,7 +19,10 @@ package com.alipay.sofa.ark.loader.jar;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 
 import static com.alipay.sofa.ark.loader.jar.JarUtils.getArtifactIdFromLocalClassPath;
 import static com.alipay.sofa.ark.loader.jar.JarUtils.searchPomProperties;
@@ -61,6 +64,50 @@ public class JarUtilsTest {
         URL url = this.getClass().getClassLoader().getResource("xxxxx.jar-unpack");
         String artifactId = JarUtils.parseArtifactId(url.getPath());
         assertEquals("xxxx-test", artifactId);
+    }
+
+    @Test
+    public void testParseArtifactIdFromUnpackDirNameFallback() {
+        File tempRoot = com.alipay.sofa.ark.common.util.FileUtils
+            .createTempDir("test-unpack-fallback");
+        try {
+            File unpackDir = new File(tempRoot, "demo-service-1.0.0.jar-unpack");
+            assertTrue(unpackDir.mkdirs());
+
+            String artifactId = JarUtils.parseArtifactId(normalizePath(unpackDir));
+            assertEquals("demo-service", artifactId);
+        } finally {
+            org.apache.commons.io.FileUtils.deleteQuietly(tempRoot);
+        }
+    }
+
+    @Test
+    public void testParseArtifactIdFromUnpackDirNameFallbackWhenArtifactIdMissing()
+                                                                                   throws IOException {
+        File tempRoot = com.alipay.sofa.ark.common.util.FileUtils
+            .createTempDir("test-unpack-fallback-missing-artifact-id");
+        try {
+            File unpackDir = new File(tempRoot, "demo-service-1.0.0.jar-unpack");
+            File mavenArchiverDir = new File(unpackDir, "META-INF/maven-archiver");
+            assertTrue(mavenArchiverDir.mkdirs());
+
+            File pomPropertiesFile = new File(mavenArchiverDir, "pom.properties");
+            try (FileWriter writer = new FileWriter(pomPropertiesFile)) {
+                Properties props = new Properties();
+                props.setProperty("groupId", "com.test");
+                props.setProperty("version", "1.0.0");
+                props.store(writer, "Test pom.properties file without artifactId");
+            }
+
+            String artifactId = JarUtils.parseArtifactId(normalizePath(unpackDir));
+            assertEquals("demo-service", artifactId);
+        } finally {
+            org.apache.commons.io.FileUtils.deleteQuietly(tempRoot);
+        }
+    }
+
+    private String normalizePath(File file) {
+        return file.getAbsolutePath().replace(File.separatorChar, '/');
     }
 
 }
