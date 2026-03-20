@@ -21,6 +21,7 @@ import com.alipay.sofa.ark.support.startup.EmbedSofaArkBootstrap;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
@@ -68,6 +69,26 @@ public class ArkDeployStaticBizListenerTest {
             arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
             ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
             listener.onApplicationEvent(new ContextStartedEvent(new AnnotationConfigApplicationContext()));
+            bootstrap.verify(EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted, Mockito.times(0));
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
+    }
+
+    /**
+    *  applicationEvent不是 spring 根上下文的场景
+    */
+    @Test
+    public void testNonSpringRootEvent() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        try (MockedStatic<EmbedSofaArkBootstrap> bootstrap = mockStatic(EmbedSofaArkBootstrap.class);
+            MockedStatic<ArkConfigs> arkConfigs = mockStatic(ArkConfigs.class)) {
+            ClassLoader classLoader = ArkDeployStaticBizListener.class.getClassLoader();
+            Thread.currentThread().setContextClassLoader(classLoader);
+            arkConfigs.when(ArkConfigs::isEmbedEnable).thenReturn(true);
+            arkConfigs.when(ArkConfigs::isEmbedStaticBizEnable).thenReturn(true);
+            ArkDeployStaticBizListener listener = new ArkDeployStaticBizListener();
+            listener.onApplicationEvent(new ContextStartedEvent(new AnnotationConfigServletWebServerApplicationContext()));
             bootstrap.verify(EmbedSofaArkBootstrap::deployStaticBizAfterEmbedMasterBizStarted, Mockito.times(0));
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);

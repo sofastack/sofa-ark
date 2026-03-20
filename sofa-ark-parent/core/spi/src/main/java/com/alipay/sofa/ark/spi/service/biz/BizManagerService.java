@@ -22,6 +22,7 @@ import com.alipay.sofa.ark.spi.model.BizState;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Service to manage biz
@@ -157,4 +158,10 @@ public interface BizManagerService {
 
     ConcurrentHashMap<String, ConcurrentHashMap<String, Biz>> getBizRegistration();
 
+    /**
+     * get the lock for the biz with the given name
+     * @param bizName
+     * @return
+     */
+    ReentrantLock getBizLock(String bizName);
 }

@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sofa-ark-compatible-springboot2</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
         <dependency>

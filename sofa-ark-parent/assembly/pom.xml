@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>sofa-ark-all</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <properties>
         <sofa.ark.name>sofa-ark-all</sofa.ark.name>

@@ -12,6 +12,7 @@
 
     <artifactId>sofa-ark-plugin</artifactId>
     <packaging>pom</packaging>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <modules>
         <module>config-ark-plugin</module>

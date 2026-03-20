@@ -8,5 +8,6 @@
     </parent>
 
     <artifactId>sofa-ark-exception</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
 </project>
