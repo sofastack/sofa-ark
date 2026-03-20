@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 
-本地各个版本的 jdk、mvn 等软件的安装地址请参考 [personal_software_dir.md](.claude/personal_software_dir.md)
+本地的 1）操作系统版本；2）各个版本的 jdk 和 mvn 等软件的安装地址，请参考 [personal_software_dir.md](.claude/personal_software_dir.md)
 
 
 ## 0. 交互协议

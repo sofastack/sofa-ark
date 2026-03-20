@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - '3.1.*'
+  workflow_dispatch:
 
 jobs:
   unit_test_for_jdk17:

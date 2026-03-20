@@ -32,6 +32,8 @@ public class ArkTomcatWebServerTest {
     @Before
     public void setUp() throws Exception {
         arkTomcatServletWebServerFactory = new ArkTomcatServletWebServerFactory();
+        // Use random port to avoid port conflicts between tests
+        arkTomcatServletWebServerFactory.setPort(0);
         Field field = ArkTomcatServletWebServerFactory.class
             .getDeclaredField("embeddedServerService");
         field.setAccessible(true);
@@ -41,6 +43,13 @@ public class ArkTomcatWebServerTest {
 
     @After
     public void tearDown() {
+        if (arkTomcatWebServer != null) {
+            try {
+                arkTomcatWebServer.stop();
+            } catch (Exception e) {
+                // Ignore exceptions during cleanup
+            }
+        }
     }
 
     @Test
