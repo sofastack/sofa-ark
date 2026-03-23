@@ -59,6 +59,16 @@ public class SpringbootRunnerTest {
     @After
     public void after() {
         setProperty(EMBED_ENABLE, "");
+        // Unregister event handlers registered by system classloader to avoid
+        // ClassLoader isolation issues affecting subsequent tests like ArkBootRunnerTest.
+        // When this test runs with system classloader, TestBizEventHandler is registered
+        // with system classloader as key. But subsequent tests using TestClassLoader
+        // send events with event classes loaded by TestClassLoader, causing
+        // ArkEvent.class.isAssignableFrom(event.getClass()) to return false due to
+        // different classloaders loading the same ArkEvent interface.
+        if (eventAdminService != null) {
+            eventAdminService.unRegister(getSystemClassLoader());
+        }
     }
 
     @Test
