@@ -56,6 +56,8 @@ public class ArkTomcatServletWebServerFactoryTest {
         injectionService = ArkClient.getInjectionService();
         ArkClient.setInjectionService(null);
         currentThreadContextClassLoader = currentThread().getContextClassLoader();
+        // Use random port to avoid port conflicts between tests
+        arkTomcatServletWebServerFactory.setPort(0);
     }
 
     @After
