@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.test;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 import org.junit.After;
 import org.junit.Before;
@@ -72,6 +73,9 @@ public class SpringbootRunnerTest {
             eventAdminService.sendEvent(() -> "test-event-B");
             assertEquals(20, getTestValue());
         } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            BaseSpringApplication.stop();
         }
     }
 }
