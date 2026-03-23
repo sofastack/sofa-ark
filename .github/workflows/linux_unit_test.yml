@@ -6,10 +6,10 @@ name: Test for linux
 on:
   push:
     branches:
-      - '3.1.*'
+      - 'master'
   pull_request:
     branches:
-      - '3.1.*'
+      - 'master'
   workflow_dispatch:
     inputs:
       branch:

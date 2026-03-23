@@ -23,3 +23,5 @@ gradlew
 gradlew.bat
 
 .claude/
+
+./change.md
