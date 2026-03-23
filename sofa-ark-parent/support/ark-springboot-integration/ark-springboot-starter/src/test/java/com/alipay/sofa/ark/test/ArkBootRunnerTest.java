@@ -63,14 +63,29 @@ public class ArkBootRunnerTest {
 
     @Test
     public void test() throws NoTestsRemainException {
-        // Reset TestValueHolder to ensure clean state before test
-        // This is necessary because tests may run in different orders on different platforms
-        // and previous tests (like SpringbootRunnerTest) may have left residual state
+        /*
+         * Fix for ClassLoader isolation issue causing test failures in CI.
+         *
+         * PROBLEM: GitHub Actions Linux JDK17 test fails with:
+         *   java.lang.AssertionError: expected:<10> but was:<0>
+         *
+         * ROOT CAUSE:
+         * 1. Test execution order differs between local and CI:
+         *    - Local: ArkBootRunnerTest -> SpringbootRunnerTest -> MultiArkBootRunnerTest
+         *    - CI: MultiArkBootRunnerTest -> SpringbootRunnerTest -> ArkBootRunnerTest
+         *
+         * 2. EventAdminServiceImpl stores handlers by ClassLoader:
+         *    SUBSCRIBER_MAP.get(eventHandler.getClass().getClassLoader())
+         *
+         * 3. Static variables (TestValueHolder.testValue) are per-ClassLoader, not global.
+         *    If handler and test code are in different ClassLoaders, value changes are isolated.
+         *
+         * FIX:
+         * - Reset TestValueHolder to ensure clean state
+         * - Explicitly register TestBizEventHandler for current ClassLoader context
+         * - SpringbootRunnerTest unregisters system ClassLoader handlers in @After
+         */
         TestValueHolder.setTestValue(0);
-
-        // Ensure TestBizEventHandler is registered for the current ClassLoader
-        // When tests reuse an existing container, the handler might not be registered
-        // for the correct ClassLoader context
         eventAdminService.register(new TestBizEventHandler());
 
         assertNotNull(sampleService);
