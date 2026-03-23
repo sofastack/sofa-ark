@@ -38,7 +38,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.lang.reflect.Field;
 import java.util.Comparator;
 
-import static com.alipay.sofa.ark.test.springboot.TestValueHolder.getTestValue;
+import com.alipay.sofa.ark.test.springboot.TestValueHolder;
+import com.alipay.sofa.ark.test.springboot.impl.TestBizEventHandler;
+
 import static org.junit.Assert.*;
 import static org.springframework.util.ReflectionUtils.*;
 
@@ -61,6 +63,15 @@ public class ArkBootRunnerTest {
 
     @Test
     public void test() throws NoTestsRemainException {
+        // Reset TestValueHolder to ensure clean state before test
+        // This is necessary because tests may run in different orders on different platforms
+        // and previous tests (like SpringbootRunnerTest) may have left residual state
+        TestValueHolder.setTestValue(0);
+
+        // Ensure TestBizEventHandler is registered for the current ClassLoader
+        // When tests reuse an existing container, the handler might not be registered
+        // for the correct ClassLoader context
+        eventAdminService.register(new TestBizEventHandler());
 
         assertNotNull(sampleService);
         assertNotNull(pluginManagerService);
@@ -79,21 +90,21 @@ public class ArkBootRunnerTest {
         assertTrue(loader.getClass().getCanonicalName()
             .equals(TestClassLoader.class.getCanonicalName()));
 
-        assertEquals(0, getTestValue());
+        assertEquals(0, TestValueHolder.getTestValue());
         eventAdminService.sendEvent(new ArkEvent() {
             @Override
             public String getTopic() {
                 return "test-event-A";
             }
         });
-        assertEquals(10, getTestValue());
+        assertEquals(10, TestValueHolder.getTestValue());
         eventAdminService.sendEvent(new ArkEvent() {
             @Override
             public String getTopic() {
                 return "test-event-B";
             }
         });
-        assertEquals(20, getTestValue());
+        assertEquals(20, TestValueHolder.getTestValue());
 
         runner.filter(new Filter() {
             @Override
