@@ -348,7 +348,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                     <id>maven-snapshot</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </repository>
             </repositories>
             <pluginRepositories>
@@ -357,7 +357,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                     <id>maven-snapshot</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </pluginRepository>
             </pluginRepositories>
         </profile>
