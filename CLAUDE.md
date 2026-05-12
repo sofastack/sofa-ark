@@ -218,7 +218,7 @@ Builds Ark Plugin packages:
 
 ## 11. Versioning
 
-- Current version: 2.3.2
+- Current version: 2.3.3
 - Three-digit versioning: `major.minor.patch`
   - First digit: Breaking compatibility changes
   - Second digit: New features/enhancements

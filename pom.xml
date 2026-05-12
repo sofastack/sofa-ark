@@ -14,7 +14,7 @@
     </modules>
 
     <properties>
-        <sofa.ark.version>2.3.2</sofa.ark.version>
+        <sofa.ark.version>2.3.3</sofa.ark.version>
         <sofa.ark.version.old>2.3.0</sofa.ark.version.old>
         <project.encoding>UTF-8</project.encoding>
         <java.version>1.8</java.version>
@@ -348,7 +348,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                     <id>maven-snapshot</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </repository>
             </repositories>
             <pluginRepositories>
@@ -357,7 +357,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                     <id>maven-snapshot</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </pluginRepository>
             </pluginRepositories>
         </profile>
