@@ -147,19 +147,8 @@ public class JarUtils {
         // 9. if is ark plugin, then return null to set declared default
         //10. use unpack model, file   /xxx/xxx/xxx-0.0.1-ark-biz.jar-unpack/
 
-        // Check if it's an unpacked directory
-        if (jarLocation.contains(JAR_UNPACK)) {
-            // Try to extract artifactId from the unpacked directory
-            String artifactId = parseArtifactIdFromUnpackedDir(jarLocation);
-            if (artifactId != null) {
-                return artifactId;
-            }
-            // If failed, fallback to extracting from directory name
-            return doGetArtifactIdFromFileName(jarLocation);
-        }
-
         // For non-unpacked paths, clean the jar location prefix and suffix
-        if (jarLocation.contains(JAR_SUFFIX)) {
+        if (jarLocation.contains(JAR_SUFFIX) && !jarLocation.contains(JAR_UNPACK)) {
             jarLocation = jarLocation.substring(0, jarLocation.lastIndexOf(JAR_SUFFIX) + JAR_SUFFIX.length());
         }
         if (jarLocation.startsWith("file:")) {
@@ -172,22 +161,29 @@ public class JarUtils {
         artifactIdCacheMap.computeIfAbsent(jarLocation, a -> {
             try {
                 String artifactId;
-                String[] as = a.split(JAR_SEPARATOR, -1);
-                if (as.length == 1) {
-                    // no '!/'
-                    if (a.endsWith(".jar")) {
+                if (a.contains(JAR_UNPACK)) {
+                    artifactId = parseArtifactIdFromUnpackedDir(a);
+                    if (StringUtils.isEmpty(artifactId)) {
+                        artifactId = doGetArtifactIdFromFileName(a);
+                    }
+                } else {
+                    String[] as = a.split(JAR_SEPARATOR, -1);
+                    if (as.length == 1) {
+                        // no '!/'
+                        if (a.endsWith(".jar")) {
+                            artifactId = parseArtifactIdFromJar(a);
+                            if (StringUtils.isEmpty(artifactId)) {
+                                artifactId = doGetArtifactIdFromFileName(a);
+                            }
+                        } else {
+                            artifactId = getArtifactIdFromLocalClassPath(a);
+                        }
+                    } else {
+                        // contains one '!/' or more
                         artifactId = parseArtifactIdFromJar(a);
                         if (StringUtils.isEmpty(artifactId)) {
                             artifactId = doGetArtifactIdFromFileName(a);
                         }
-                    } else {
-                        artifactId = getArtifactIdFromLocalClassPath(a);
-                    }
-                } else {
-                    // contains one '!/' or more
-                    artifactId = parseArtifactIdFromJar(a);
-                    if (StringUtils.isEmpty(artifactId)) {
-                        artifactId = doGetArtifactIdFromFileName(a);
                     }
                 }
                 return Optional.ofNullable(artifactId);

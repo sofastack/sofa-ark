@@ -22,6 +22,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -149,10 +151,48 @@ public class JarUtilsParseArtifactIdFromUnpackedDirTest {
     }
 
     @Test
+    public void testParseArtifactId_UnpackPathCachesResult() throws Exception {
+        File tempDir = FileUtils.createTempDir("test-unpack-cache");
+        File unpackDir = new File(tempDir, "cached-app-1.0.0.jar-unpack");
+        String unpackPath = unpackDir.getAbsolutePath();
+        try {
+            File mavenArchiverDir = new File(unpackDir, "META-INF/maven-archiver");
+            mavenArchiverDir.mkdirs();
+
+            File pomPropertiesFile = new File(mavenArchiverDir, "pom.properties");
+            try (FileWriter writer = new FileWriter(pomPropertiesFile)) {
+                Properties props = new Properties();
+                props.setProperty("artifactId", "pom-artifact");
+                props.store(writer, "Test pom.properties file");
+            }
+
+            Map<?, ?> artifactIdCacheMap = getArtifactIdCacheMap();
+            artifactIdCacheMap.remove(unpackPath);
+
+            String artifactId = JarUtils.parseArtifactId(unpackPath);
+
+            assertEquals("pom-artifact", artifactId);
+            assertTrue(artifactIdCacheMap.containsKey(unpackPath));
+
+            org.apache.commons.io.FileUtils.deleteQuietly(unpackDir);
+            assertEquals("pom-artifact", JarUtils.parseArtifactId(unpackPath));
+        } finally {
+            org.apache.commons.io.FileUtils.deleteQuietly(tempDir);
+            getArtifactIdCacheMap().remove(unpackPath);
+        }
+    }
+
+    @Test
     public void testParseArtifactId_UnpackPathNoVersion() {
         // When directory name has no version pattern, should return null from fallback
         String unpackPath = "/tmp/non-existent-dir/some-lib.jar-unpack/";
         String artifactId = JarUtils.parseArtifactId(unpackPath);
         assertNull(artifactId);
+    }
+
+    private Map<?, ?> getArtifactIdCacheMap() throws Exception {
+        Field field = JarUtils.class.getDeclaredField("artifactIdCacheMap");
+        field.setAccessible(true);
+        return (Map<?, ?>) field.get(null);
     }
 }
