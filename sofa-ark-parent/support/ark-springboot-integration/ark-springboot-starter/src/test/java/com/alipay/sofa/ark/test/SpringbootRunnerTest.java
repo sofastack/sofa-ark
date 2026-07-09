@@ -19,6 +19,7 @@ package com.alipay.sofa.ark.test;
 import com.alipay.sofa.ark.spi.service.ArkInject;
 import com.alipay.sofa.ark.spi.service.event.EventAdminService;
 import com.alipay.sofa.ark.spi.service.plugin.PluginManagerService;
+import com.alipay.sofa.ark.test.springboot.BaseSpringApplication;
 import com.alipay.sofa.ark.test.springboot.facade.SampleService;
 import org.junit.After;
 import org.junit.Before;
@@ -58,6 +59,16 @@ public class SpringbootRunnerTest {
     @After
     public void after() {
         setProperty(EMBED_ENABLE, "");
+        // Unregister event handlers registered by system classloader to avoid
+        // ClassLoader isolation issues affecting subsequent tests like ArkBootRunnerTest.
+        // When this test runs with system classloader, TestBizEventHandler is registered
+        // with system classloader as key. But subsequent tests using TestClassLoader
+        // send events with event classes loaded by TestClassLoader, causing
+        // ArkEvent.class.isAssignableFrom(event.getClass()) to return false due to
+        // different classloaders loading the same ArkEvent interface.
+        if (eventAdminService != null) {
+            eventAdminService.unRegister(getSystemClassLoader());
+        }
     }
 
     @Test
@@ -72,6 +83,9 @@ public class SpringbootRunnerTest {
             eventAdminService.sendEvent(() -> "test-event-B");
             assertEquals(20, getTestValue());
         } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            BaseSpringApplication.stop();
         }
     }
 }

@@ -38,7 +38,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.lang.reflect.Field;
 import java.util.Comparator;
 
-import static com.alipay.sofa.ark.test.springboot.TestValueHolder.getTestValue;
+import com.alipay.sofa.ark.test.springboot.TestValueHolder;
+import com.alipay.sofa.ark.test.springboot.impl.TestBizEventHandler;
+
 import static org.junit.Assert.*;
 import static org.springframework.util.ReflectionUtils.*;
 
@@ -61,6 +63,30 @@ public class ArkBootRunnerTest {
 
     @Test
     public void test() throws NoTestsRemainException {
+        /*
+         * Fix for ClassLoader isolation issue causing test failures in CI.
+         *
+         * PROBLEM: GitHub Actions Linux JDK17 test fails with:
+         *   java.lang.AssertionError: expected:<10> but was:<0>
+         *
+         * ROOT CAUSE:
+         * 1. Test execution order differs between local and CI:
+         *    - Local: ArkBootRunnerTest -> SpringbootRunnerTest -> MultiArkBootRunnerTest
+         *    - CI: MultiArkBootRunnerTest -> SpringbootRunnerTest -> ArkBootRunnerTest
+         *
+         * 2. EventAdminServiceImpl stores handlers by ClassLoader:
+         *    SUBSCRIBER_MAP.get(eventHandler.getClass().getClassLoader())
+         *
+         * 3. Static variables (TestValueHolder.testValue) are per-ClassLoader, not global.
+         *    If handler and test code are in different ClassLoaders, value changes are isolated.
+         *
+         * FIX:
+         * - Reset TestValueHolder to ensure clean state
+         * - Explicitly register TestBizEventHandler for current ClassLoader context
+         * - SpringbootRunnerTest unregisters system ClassLoader handlers in @After
+         */
+        TestValueHolder.setTestValue(0);
+        eventAdminService.register(new TestBizEventHandler());
 
         assertNotNull(sampleService);
         assertNotNull(pluginManagerService);
@@ -79,21 +105,21 @@ public class ArkBootRunnerTest {
         assertTrue(loader.getClass().getCanonicalName()
             .equals(TestClassLoader.class.getCanonicalName()));
 
-        assertEquals(0, getTestValue());
+        assertEquals(0, TestValueHolder.getTestValue());
         eventAdminService.sendEvent(new ArkEvent() {
             @Override
             public String getTopic() {
                 return "test-event-A";
             }
         });
-        assertEquals(10, getTestValue());
+        assertEquals(10, TestValueHolder.getTestValue());
         eventAdminService.sendEvent(new ArkEvent() {
             @Override
             public String getTopic() {
                 return "test-event-B";
             }
         });
-        assertEquals(20, getTestValue());
+        assertEquals(20, TestValueHolder.getTestValue());
 
         runner.filter(new Filter() {
             @Override
